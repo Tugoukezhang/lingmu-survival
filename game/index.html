@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>灵木求生 - 东方玄幻末世求生</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+        }
+        #game-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        /* Loading screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-title {
+            font-size: 48px;
+            color: #4A7C59;
+            text-shadow: 0 0 20px rgba(74, 124, 89, 0.5);
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        .loading-subtitle {
+            font-size: 18px;
+            color: #9B7ED9;
+            margin-bottom: 40px;
+        }
+        .loading-bar-container {
+            width: 300px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #4A7C59, #9B7ED9);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .loading-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #888;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(74, 124, 89, 0.5); }
+            to { text-shadow: 0 0 40px rgba(74, 124, 89, 0.8), 0 0 60px rgba(155, 126, 217, 0.4); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-title">🌳 灵木求生</div>
+        <div class="loading-subtitle">东方玄幻 · 末世求生</div>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">正在初始化...</div>
+    </div>
+    
+    <!-- Game Container -->
+    <div id="game-container"></div>
+
+    <script type="module" src="./src/main.js"></script>
+    <script>
+        // Loading progress update
+        window.updateLoadingProgress = function(progress, text) {
+            const bar = document.getElementById('loading-bar');
+            const textEl = document.getElementById('loading-text');
+            if (bar) bar.style.width = progress + '%';
+            if (textEl) textEl.textContent = text || '加载中...';
+            if (progress >= 100) {
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                }, 500);
+            }
+        };
+    </script>
+</body>
+</html>
