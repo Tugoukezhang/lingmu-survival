@@ -703,9 +703,9 @@
 
             const navItems = [
                 { icon: '🏠', name: '仙府', active: true },
-                { icon: '⚔️', name: '征战', active: false },
                 { icon: '🐾', name: '灵兽', active: false },
                 { icon: '📖', name: '功法', active: false },
+                { icon: '🏪', name: '商店', active: false },
                 { icon: '👤', name: '我的', active: false },
             ];
 
@@ -720,15 +720,12 @@
                 const hitArea = this.add.rectangle(nx, navY, navW, 56, 0x000000, 0)
                     .setInteractive({ useHandCursor: true }).setDepth(102);
                 hitArea.on('pointerdown', () => {
-                    if(n.name === '征战') {
-                        GameData.lobby.playCount++;
-                        GameData.lobby.lastPlayDate = new Date().toISOString().split('T')[0];
-                        savePlayerProfile();
-                        this.scene.start('Game');
-                    } else if(n.name === '灵兽') {
-                        this.showNavPopup('🐾 灵兽图鉴', '灵兽系统需在征战中获得！\n契约灵兽可获得被动加成和主动技能。\n\n🌟 白虎·金系伤害+20%\n🌟 青龙·灵气回复+30%\n🌟 朱雀·火系伤害+20%\n🌟 玄武·阵法耐久+25%\n🌟 麒麟·全阵法伤害+10%');
+                    if(n.name === '灵兽') {
+                        this.showBeastCollection();
                     } else if(n.name === '功法') {
-                        this.showNavPopup('📖 修仙功法', '功法系统需在征战中参悟！\n永久加成，传承万世。\n\n⚔️ 万剑诀·伤害+25%\n🛡️ 金刚护体·灵气+40%\n🧪 炼丹术·回复+50%\n☯️ 五行归元·克制+50%\n🐾 驭兽心经·灵兽+40%\n⚡ 天劫心法·渡劫+30%');
+                        this.showArtsCollection();
+                    } else if(n.name === '商店') {
+                        this.showShop();
                     } else if(n.name === '我的') {
                         this.showProfilePopup();
                     }
@@ -740,28 +737,65 @@
         }
 
         // ===== 导航弹窗（灵兽/功法介绍） =====
-        showNavPopup(title, body) {
+        // ===== 灵兽收藏 =====
+        showBeastCollection() {
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
             const card = document.createElement('div');
-            card.style.cssText = 'background:rgba(15,10,30,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:20px 24px;text-align:center;max-width:340px;width:90%;animation:destinyIn 0.4s ease;';
+            card.style.cssText = 'background:rgba(15,10,30,0.97);border:2px solid #DAA520;border-radius:16px;padding:20px 16px;text-align:center;max-width:360px;width:90%;animation:destinyIn 0.4s ease;max-height:80vh;overflow-y:auto;';
+            const owned = GameData.lobby.beasts || [];
+            let beastsHTML = SPIRIT_BEASTS.map(b => {
+                const has = owned.includes(b.id);
+                return `<div style="background:rgba(${has ? '74,124,89' : '26,26,58'},0.3);border:1px solid ${has ? '#5CBF7C' : '#333'};border-radius:10px;padding:10px;margin-bottom:6px;text-align:left;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:24px;">${has ? b.icon : '❓'}</span>
+                        <div style="flex:1;">
+                            <div style="font-size:13px;color:${has ? '#E8D5A3' : '#555'};font-weight:bold;">${has ? b.name : '???'}</div>
+                            <div style="font-size:10px;color:${has ? '#9B7ED9' : '#333'};">${has ? b.passiveDesc : '未契约'}</div>
+                        </div>
+                        ${has ? '<span style="color:#5CBF7C;font-size:11px;">✅ 已契约</span>' : '<span style="color:#555;font-size:10px;">🔒</span>'}
+                    </div>
+                    ${has ? `<div style="font-size:10px;color:#DAA520;margin-top:4px;padding-left:32px;">主动: ${b.skillName} — ${b.skillDesc}</div>` : ''}
+                </div>`;
+            }).join('');
+
             card.innerHTML = `
-                <div style="font-size:20px;color:#9B7ED9;font-weight:bold;margin-bottom:12px;">${title}</div>
-                <div style="font-size:12px;color:#ccc;white-space:pre-line;line-height:1.8;">${body}</div>
-                <div style="margin-top:16px;">
-                    <button style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:8px;color:#5CBF7C;padding:8px 32px;font-size:13px;cursor:pointer;font-weight:bold;" onclick="this.closest('div[style]').parentElement.remove()">⚔️ 去征战</button>
-                </div>
+                <div style="font-size:20px;color:#DAA520;font-weight:bold;margin-bottom:4px;">🐾 灵兽图鉴</div>
+                <div style="font-size:11px;color:#888;margin-bottom:10px;">已契约 ${owned.length}/${SPIRIT_BEASTS.length} · 征战中解锁</div>
+                ${beastsHTML}
             `;
             overlay.appendChild(card);
             this.setupOverlay(overlay, card);
-            // "去征战"按钮
-            card.querySelector('button').addEventListener('click', () => {
-                overlay.remove();
-                GameData.lobby.playCount++;
-                GameData.lobby.lastPlayDate = new Date().toISOString().split('T')[0];
-                savePlayerProfile();
-                this.scene.start('Game');
-            });
+        }
+
+        // ===== 功法收藏 =====
+        showArtsCollection() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,10,30,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:20px 16px;text-align:center;max-width:360px;width:90%;animation:destinyIn 0.4s ease;max-height:80vh;overflow-y:auto;';
+            const owned = GameData.lobby.arts || [];
+            let artsHTML = CULTIVATION_ARTS.map(a => {
+                const has = owned.includes(a.id);
+                return `<div style="background:rgba(${has ? '74,124,89' : '26,26,58'},0.3);border:1px solid ${has ? '#5CBF7C' : '#333'};border-radius:10px;padding:10px;margin-bottom:6px;text-align:left;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:22px;">${has ? a.icon : '❓'}</span>
+                        <div style="flex:1;">
+                            <div style="font-size:13px;color:${has ? '#E8D5A3' : '#555'};font-weight:bold;">${has ? a.name : '???'}</div>
+                            <div style="font-size:10px;color:${has ? a.color : '#333'};">${has ? a.desc : '未参悟'}</div>
+                        </div>
+                        ${has ? '<span style="color:#5CBF7C;font-size:11px;">✅ 已参悟</span>' : '<span style="color:#555;font-size:10px;">🔒</span>'}
+                    </div>
+                </div>`;
+            }).join('');
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#9B7ED9;font-weight:bold;margin-bottom:4px;">📖 修仙功法</div>
+                <div style="font-size:11px;color:#888;margin-bottom:10px;">已参悟 ${owned.length}/${CULTIVATION_ARTS.length} · 永久传承</div>
+                ${artsHTML}
+            `;
+            overlay.appendChild(card);
+            this.setupOverlay(overlay, card);
         }
 
         // ===== 个人资料弹窗 =====
@@ -793,8 +827,11 @@
             // 禁用Phaser canvas的pointer事件，防止穿透
             const canvas = document.querySelector('canvas');
             if(canvas) canvas.style.pointerEvents = 'none';
-            // 统一关闭方法：移除overlay并恢复canvas交互
-            overlay._close = () => { overlay.remove(); if(canvas) canvas.style.pointerEvents = 'auto'; };
+            // 统一关闭方法：移除overlay，延迟恢复canvas交互（防止click穿透到Phaser按钮）
+            overlay._close = () => {
+                overlay.remove();
+                setTimeout(() => { if(canvas) canvas.style.pointerEvents = 'auto'; }, 300);
+            };
             // 阻止card内部点击穿透
             card.addEventListener('click', (e) => e.stopPropagation());
             // 点击背景关闭
@@ -1554,6 +1591,14 @@
                 GameData.lobby.bestWave = Math.max(GameData.lobby.bestWave, GameData.battle.currentWave);
                 GameData.lobby.totalKills += GameData.battle.monstersKilled;
                 GameData.lobby.spiritStones += GameData.player.spiritStones;
+                // 同步功法/灵兽/渡劫到lobby永久数据
+                GameData.arts.learned.forEach(id => { if(!GameData.lobby.arts.includes(id)) GameData.lobby.arts.push(id); });
+                if(GameData.spiritBeast.contracted && !GameData.lobby.beasts.includes(GameData.spiritBeast.contracted.id)) {
+                    GameData.lobby.beasts.push(GameData.spiritBeast.contracted.id);
+                }
+                GameData.tribulation.completed.forEach(t => { if(!GameData.lobby.tribulations.find(x => x.level === t.level)) GameData.lobby.tribulations.push(t); });
+                GameData.lobby.realm = GameData.player.realm;
+                GameData.lobby.level = Math.max(GameData.lobby.level, GameData.tree.level);
                 savePlayerProfile();
                 this.scene.start('MainMenu');
             });
@@ -4103,6 +4148,12 @@
             GameData.lobby.totalKills += GameData.battle.monstersKilled;
             GameData.lobby.spiritStones += GameData.player.spiritStones;
             GameData.lobby.realm = GameData.player.realm;
+            GameData.lobby.level = Math.max(GameData.lobby.level, GameData.tree.level);
+            GameData.arts.learned.forEach(id => { if(!GameData.lobby.arts.includes(id)) GameData.lobby.arts.push(id); });
+            if(GameData.spiritBeast.contracted && !GameData.lobby.beasts.includes(GameData.spiritBeast.contracted.id)) {
+                GameData.lobby.beasts.push(GameData.spiritBeast.contracted.id);
+            }
+            GameData.tribulation.completed.forEach(t => { if(!GameData.lobby.tribulations.find(x => x.level === t.level)) GameData.lobby.tribulations.push(t); });
             savePlayerProfile();
 
             const w = this.cameras.main.width, h = this.cameras.main.height;
@@ -4197,6 +4248,12 @@
             GameData.lobby.spiritStones += GameData.player.spiritStones;
             GameData.lobby.spiritGems += 10; // 通关奖励10灵晶
             GameData.lobby.realm = GameData.player.realm;
+            GameData.lobby.level = Math.max(GameData.lobby.level, GameData.tree.level);
+            GameData.arts.learned.forEach(id => { if(!GameData.lobby.arts.includes(id)) GameData.lobby.arts.push(id); });
+            if(GameData.spiritBeast.contracted && !GameData.lobby.beasts.includes(GameData.spiritBeast.contracted.id)) {
+                GameData.lobby.beasts.push(GameData.spiritBeast.contracted.id);
+            }
+            GameData.tribulation.completed.forEach(t => { if(!GameData.lobby.tribulations.find(x => x.level === t.level)) GameData.lobby.tribulations.push(t); });
             savePlayerProfile();
 
             const w = this.cameras.main.width, h = this.cameras.main.height;
