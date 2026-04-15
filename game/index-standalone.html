@@ -80,6 +80,82 @@
             font-family: 'Microsoft YaHei', sans-serif; margin: 6px; transition: all 0.2s;
         }
         .cancel-btn:hover { border-color: #666; color: #ccc; }
+
+        /* ===== 符箓面板 ===== */
+        #talisman-bar {
+            position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 500;
+        }
+        .talisman-slot {
+            display: flex; flex-direction: column; align-items: center; cursor: pointer;
+            background: rgba(10,10,26,0.9); border: 2px solid rgba(155,126,217,0.4);
+            border-radius: 12px; padding: 6px 12px; transition: all 0.2s; min-width: 72px;
+            position: relative;
+        }
+        .talisman-slot:hover { border-color: #FFD700; transform: translateY(-4px); box-shadow: 0 4px 16px rgba(255,215,0,0.2); }
+        .talisman-slot:active { transform: translateY(-1px) scale(0.97); }
+        .talisman-slot.on-cooldown { opacity: 0.4; pointer-events: none; }
+        .talisman-icon { font-size: 24px; }
+        .talisman-name { font-size: 11px; color: #ccc; margin-top: 2px; }
+        .talisman-count { font-size: 10px; color: #FFD700; }
+        .talisman-cooldown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #FF6347; font-weight: bold;
+        }
+        .talisman-shop-btn {
+            background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3);
+            color: #FFD700; padding: 4px 10px; border-radius: 6px; font-size: 11px;
+            cursor: pointer; margin-top: 3px; transition: all 0.2s;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        .talisman-shop-btn:hover { background: rgba(255,215,0,0.2); }
+
+        /* ===== 昼夜指示器（增强版）===== */
+        #time-indicator {
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 500;
+            background: rgba(10,10,26,0.95); border: 2px solid rgba(155,126,217,0.5);
+            border-radius: 20px; padding: 8px 20px; color: #fff; text-align: center;
+            font-size: 13px; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+            transition: border-color 0.5s, box-shadow 0.5s;
+            cursor: pointer;
+            min-height: 36px;
+        }
+        #time-indicator:hover #time-effects { display: block; }
+        #time-indicator.period-dawn { border-color: #FF9F43; box-shadow: 0 0 20px rgba(255,159,67,0.3); }
+        #time-indicator.period-day { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        #time-indicator.period-dusk { border-color: #FF6347; box-shadow: 0 0 20px rgba(255,99,71,0.3); }
+        #time-indicator.period-night { border-color: #6C5CE7; box-shadow: 0 0 20px rgba(108,92,231,0.4); }
+        #time-icon { font-size: 20px; }
+        #time-name { color: #FFD700; font-weight: bold; font-size: 13px; }
+        #time-hour { color: #888; font-size: 11px; }
+        #time-effects {
+            display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            background: rgba(10,10,26,0.95); border: 1px solid rgba(155,126,217,0.4);
+            border-radius: 10px; padding: 8px 14px; margin-top: 6px;
+            font-size: 11px; white-space: nowrap; text-align: left; line-height: 1.8;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+        .effect-positive { color: #5CBF7C; }
+        .effect-negative { color: #FF6347; }
+        .effect-neutral { color: #9B7ED9; }
+
+        /* ===== 消息提示优化 ===== */
+        @keyframes msgFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            70% { opacity: 0.8; }
+            100% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+        }
+
+
+        /* ===== 脉动动画 ===== */
+        @keyframes pulse { 0%,100% { opacity: 0.8; } 50% { opacity: 1; } }
+        @keyframes glowPulse {
+            0%,100% { box-shadow: 0 0 20px rgba(155,126,217,0.3); }
+            50% { box-shadow: 0 0 30px rgba(155,126,217,0.5); }
+        }
     </style>
 </head>
 <body>
@@ -90,21 +166,155 @@
         <div class="dialog-box" id="dialog-content"></div>
     </div>
 
+    <!-- 符箓面板 -->
+    <div id="talisman-bar"></div>
+
+    <!-- 功能系统按钮栏 -->
+    <div id="system-bar" style="position:fixed;bottom:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:500;">
+        <button id="btn-arts" class="sys-btn" title="修仙功法" style="display:none">📖</button>
+        <button id="btn-beast" class="sys-btn" title="灵兽契约" style="display:none">🐯</button>
+        <button id="btn-tribulation" class="sys-btn" title="渡劫" style="display:none">⚡</button>
+        <button id="btn-explore" class="sys-btn" title="问道探索" style="display:none">🗺️</button>
+    </div>
+    <style>
+        .sys-btn {
+            width:44px;height:44px;border-radius:12px;border:2px solid #9B7ED9;
+            background:rgba(20,15,30,0.9);font-size:22px;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            transition:all 0.2s;position:relative;
+        }
+        .sys-btn:hover { background:rgba(155,126,217,0.3); transform:scale(1.1); }
+        .sys-btn .badge {
+            position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;
+            border-radius:8px;background:#FF4444;color:#fff;font-size:10px;
+            display:flex;align-items:center;justify-content:center;font-weight:bold;
+        }
+        .sys-btn.on-cooldown { opacity:0.5; cursor:not-allowed; border-color:#555; }
+    </style>
+
+    <!-- 昼夜指示器（悬停查看效果） -->
+    <div id="time-indicator" class="period-day">
+        <span id="time-icon">☀️</span>
+        <span id="time-name">昼时·天明</span>
+        <span id="time-hour">辰时</span>
+        <span id="time-progress" style="font-size:10px;color:#666;">▼夜</span>
+        <div id="time-effects">
+            <div class="effect-neutral">☀️ 白天 — 万象平稳</div>
+            <div class="effect-neutral">灵气回复 ×1.0</div>
+            <div class="effect-neutral">阵法效率 ×1.0</div>
+            <div class="effect-neutral">妖兽强度 ×1.0</div>
+            <div style="color:#555;margin-top:4px;border-top:1px solid #333;padding-top:4px">⏱ 每6秒推进1时辰</div>
+        </div>
+    </div>
+
     <script>
     /* ========================================
        灵木求生 - 游戏数据与配置
        ======================================== */
     const GameData = {
-        player: { realm: '炼气期', spiritStones: 100 },
+        player: { realm: '炼气期', spiritStones: 200 },
         tree: {
             level: 1, spirit: 100, spiritCapacity: 100,
-            exp: 0, expToLevel: 50  // 灵木经验与升级阈值
+            exp: 0  // 灵木经验
         },
         battle: {
             currentWave: 0, maxWaves: 50, monstersKilled: 0,
-            spawnedThisWave: 0, totalThisWave: 0, killedThisWave: 0  // 波次追踪
+            spawnedThisWave: 0, totalThisWave: 0, killedThisWave: 0,  // 波次追踪
+            waveCycle: 0,       // 5波一循环的周期数
+            perfectDefenses: 0, // 完美防守次数（0受伤通过波次）
+            hasPlacedFirstFormation: false,  // 是否已放置过第一个阵法（防止摧毁后重复免费）
+            totalSpiritsEarned: 0,   // 累计灵石收入
+            totalDamageDealt: 0,     // 累计造成伤害
+            weakenActive: false      // 天命事件：妖气衰退标记（本波怪物HP减半）
+        },
+        // 昼夜循环系统
+        time: {
+            hour: 6,           // 当前时辰（0-23，游戏内小时）
+            tickAccum: 0,      // 累积时间（秒），每6秒推进1游戏小时
+            isNight: false,    // 是否夜间
+            phase: 'day'      // 当前阶段：dawn/day/dusk/night
+        },
+        // 符箓系统
+        talismans: {
+            owned: [],         // 拥有的符箓列表 [{type, count, cooldown, maxCooldown}]
+            activeEffects: []  // 当前激活的符箓效果 [{type, remaining, power}]
+        },
+        // 天命事件系统
+        destiny: {
+            eventsTriggered: 0,   // 已触发事件数
+            lastEventWave: 0      // 上次触发事件的波次
+        },
+        // 灵兽契约系统
+        spiritBeast: {
+            contracted: null,      // 当前契约灵兽 {id, name, icon, element, level, exp, skillCooldown}
+            unlocked: false        // 是否已解锁灵兽系统
+        },
+        // 渡劫系统
+        tribulation: {
+            completed: [],         // 已通过的劫 {level, name}
+            inProgress: false,     // 是否正在渡劫
+            currentTrib: null,     // 当前劫配置
+            timer: 0,              // 渡劫计时器
+            declinedUntil: 0       // 暂避渡劫的冷却tick数（防止无限弹窗）
+        },
+        // 问道探索系统
+        explore: {
+            timesExplored: 0,      // 累计探索次数
+            cooldown: 0            // 探索冷却（秒）
+        },
+        // 修仙功法系统
+        arts: {
+            learned: []            // 已学习的功法ID列表
         }
     };
+
+    // ===== 昼夜时段配置 =====
+    const TIME_PERIODS = {
+        dawn:  { hours: [5, 6],     name: '卯时·破晓',  icon: '🌅', spiritRegenMult: 1.5, formationMult: 1.0, monsterMult: 0.8,  skyTop: '#1a1a3a', skyBot: '#3a2a4a' },
+        day:   { hours: [7,8,9,10,11,12,13,14,15,16], name: '昼时·天明', icon: '☀️', spiritRegenMult: 1.0, formationMult: 1.0, monsterMult: 1.0,  skyTop: '#1a2a4a', skyBot: '#2a3a5a' },
+        dusk:  { hours: [17, 18],   name: '酉时·日暮',  icon: '🌇', spiritRegenMult: 1.0, formationMult: 0.9, monsterMult: 1.2,  skyTop: '#2a1a3a', skyBot: '#3a1a2a' },
+        night: { hours: [19,20,21,22,23,0,1,2,3,4], name: '子时·幽夜', icon: '🌙', spiritRegenMult: 0.6, formationMult: 0.7, monsterMult: 1.5,  skyTop: '#05050f', skyBot: '#0a0a1a' }
+    };
+
+    // 获取当前时段
+    function getCurrentPeriod(hour) {
+        for (const [key, period] of Object.entries(TIME_PERIODS)) {
+            if (period.hours.includes(hour)) return { key, ...period };
+        }
+        return { key: 'night', ...TIME_PERIODS.night };
+    }
+
+    // ===== 符箓配置 =====
+    const TALISMAN_TYPES = {
+        attack:  { name: '天雷符', icon: '⚡', desc: '对所有妖兽造成大量伤害', cost: 20,  cooldown: 3, power: 200, color: '#FFD700' },
+        slow:    { name: '定身符', icon: '❄️', desc: '冻结所有妖兽3秒',      cost: 15,  cooldown: 4, power: 3,    color: '#4169E1' },
+        shield:  { name: '金钟符', icon: '🛡️', desc: '灵木3秒内免疫伤害',    cost: 18,  cooldown: 4, power: 3,    color: '#5CBF7C' }
+    };
+
+    // ===== 天命事件配置 =====
+    const DESTINY_EVENTS = [
+        { id: 'spirit_blessing',  name: '灵气恩赐',   icon: '✨', desc: '天道降下灵气，灵木恢复30%灵气',           type: 'positive', weight: 20 },
+        { id: 'stone_rain',       name: '灵石雨',     icon: '💎', desc: '天降灵石雨，获得50灵石',                   type: 'positive', weight: 15 },
+        { id: 'formation_enhance',name: '阵法加持',   icon: '⭕', desc: '天命加持阵法，所有阵法恢复满耐久',         type: 'positive', weight: 12 },
+        { id: 'exp_surge',        name: '悟道顿悟',   icon: '📖', desc: '灵光一闪，获得大量经验',                   type: 'positive', weight: 15 },
+        { id: 'talisman_gift',    name: '仙符降世',   icon: '📜', desc: '仙人遗符，随机获得1张符箓',                type: 'positive', weight: 10 },
+        { id: 'monster_weaken',   name: '妖气衰退',   icon: '💫', desc: '妖兽力竭，本波怪物HP减半',                 type: 'positive', weight: 8 },
+        { id: 'spirit_drain',     name: '灵气枯竭',   icon: '🌑', desc: '灵气逆流，损失20%灵气',                    type: 'negative', weight: 12 },
+        { id: 'monster_surge',    name: '妖气弥漫',   icon: '👹', desc: '妖气冲天，额外刷新3只妖兽',                type: 'negative', weight: 10 },
+        { id: 'formation_decay',  name: '阵法腐蚀',   icon: '⚠️', desc: '邪气侵蚀，所有阵法损失30%耐久',             type: 'negative', weight: 8 },
+        { id: 'cooldown_reset',   name: '天道试炼',   icon: '🌀', desc: '符箓冷却重置，考验你的应变',                type: 'neutral',  weight: 10 },
+    ];
+
+    // 按权重随机选择天命事件
+    function rollDestinyEvent() {
+        const totalWeight = DESTINY_EVENTS.reduce((s, e) => s + e.weight, 0);
+        let roll = Math.random() * totalWeight;
+        for(const evt of DESTINY_EVENTS) {
+            roll -= evt.weight;
+            if(roll <= 0) return evt;
+        }
+        return DESTINY_EVENTS[0];
+    }
 
     const ELEMENTS = {
         METAL: { icon: '⚔', name: '金', color: '#C0C0C0', beats: 'WOOD' },
@@ -115,26 +325,73 @@
     };
 
     const MONSTER_TYPES = [
-        { name: '游魂',   element: 'WATER', hp: 50,  damage: 5,  reward: 10, spiritDrop: [5, 10],  expDrop: [8, 15],  icon: '👻' },
-        { name: '野狼妖', element: 'WOOD',  hp: 100, damage: 10, reward: 20, spiritDrop: [10, 18], expDrop: [15, 25], icon: '🐺' },
-        { name: '狐妖',   element: 'METAL', hp: 150, damage: 15, reward: 30, spiritDrop: [15, 25], expDrop: [20, 35], icon: '🦊' },
-        { name: '蛇妖',   element: 'EARTH', hp: 200, damage: 20, reward: 40, spiritDrop: [20, 35], expDrop: [30, 50], icon: '🐍' },
-        { name: '蛟龙',   element: 'WATER', hp: 500, damage: 40, reward: 100, spiritDrop: [40, 60], expDrop: [60, 100], icon: '🐉' }
+        { name: '游魂',   element: 'WATER', hp: 50,  damage: 5,  reward: 10, spiritDrop: [5, 10],  expDrop: [8, 15],  icon: '👻', speed: 6000, special: null },
+        { name: '野狼妖', element: 'WOOD',  hp: 100, damage: 10, reward: 20, spiritDrop: [10, 18], expDrop: [15, 25], icon: '🐺', speed: 5000, special: null },
+        { name: '狐妖',   element: 'METAL', hp: 150, damage: 15, reward: 30, spiritDrop: [15, 25], expDrop: [20, 35], icon: '🦊', speed: 4500, special: 'charm' },
+        { name: '蛇妖',   element: 'EARTH', hp: 200, damage: 20, reward: 40, spiritDrop: [20, 35], expDrop: [30, 50], icon: '🐍', speed: 5000, special: 'poison' },
+        { name: '石魔',   element: 'EARTH', hp: 350, damage: 12, reward: 45, spiritDrop: [18, 30], expDrop: [35, 55], icon: '🗿', speed: 7000, special: 'armor' },
+        { name: '蛟龙',   element: 'WATER', hp: 500, damage: 40, reward: 100, spiritDrop: [40, 60], expDrop: [60, 100], icon: '🐉', speed: 4000, special: 'boss' }
     ];
+
+    // 妖兽特殊技能说明
+    const MONSTER_SPECIALS = {
+        charm:  { name: '魅惑', desc: '使阵法攻击间隔+50%', color: 0xFF69B4 },
+        poison: { name: '毒雾', desc: '对灵木持续造成额外伤害', color: 0x32CD32 },
+        armor:  { name: '石甲', desc: '受到伤害减少30%', color: 0x8B7355 },
+        boss:   { name: '妖王', desc: '全属性强化', color: 0xFFD700 }
+    };
 
     // 灵木升级配置：每级所需经验、灵气上限、自动恢复速率
     const TREE_LEVELS = [
         null, // index 0 占位
-        { expNeeded: 50,  capacity: 100, regen: 0, name: '灵木幼苗' },   // Lv.1
-        { expNeeded: 120, capacity: 150, regen: 1, name: '灵木初成' },   // Lv.2
-        { expNeeded: 220, capacity: 200, regen: 2, name: '灵木蕴灵' },   // Lv.3
-        { expNeeded: 380, capacity: 280, regen: 3, name: '灵木化形' },   // Lv.4
-        { expNeeded: 600, capacity: 380, regen: 4, name: '灵木通灵' },   // Lv.5
-        { expNeeded: 900, capacity: 500, regen: 5, name: '灵木渡劫' },   // Lv.6
-        { expNeeded: 1400, capacity: 650, regen: 7, name: '灵木仙化' },  // Lv.7
-        { expNeeded: 2000, capacity: 850, regen: 9, name: '仙木神化' },  // Lv.8
-        { expNeeded: 3000, capacity: 1100, regen: 12, name: '天木大成' }, // Lv.9
-        { expNeeded: 5000, capacity: 1500, regen: 15, name: '万木之祖' }, // Lv.10
+        { expNeeded: 50,  capacity: 100, regen: 1, name: '灵木幼苗', slots: 2 },   // Lv.1 — 2个阵法位（基础回复1/秒）
+        { expNeeded: 120, capacity: 150, regen: 1, name: '灵木初成', slots: 2 },   // Lv.2
+        { expNeeded: 220, capacity: 200, regen: 2, name: '灵木蕴灵', slots: 3 },   // Lv.3 — 解锁第3阵法位
+        { expNeeded: 380, capacity: 280, regen: 3, name: '灵木化形', slots: 3 },   // Lv.4
+        { expNeeded: 600, capacity: 380, regen: 4, name: '灵木通灵', slots: 4 },   // Lv.5 — 解锁第4阵法位
+        { expNeeded: 900, capacity: 500, regen: 5, name: '灵木渡劫', slots: 4 },   // Lv.6
+        { expNeeded: 1400, capacity: 650, regen: 7, name: '灵木仙化', slots: 5 },  // Lv.7 — 解锁第5阵法位
+        { expNeeded: 2000, capacity: 850, regen: 9, name: '仙木神化', slots: 5 },  // Lv.8
+        { expNeeded: 3000, capacity: 1100, regen: 12, name: '天木大成', slots: 6 }, // Lv.9 — 解锁第6阵法位
+        { expNeeded: 5000, capacity: 1500, regen: 15, name: '万木之祖', slots: 6 }, // Lv.10
+    ];
+
+    // ===== 灵兽契约系统 =====
+    const SPIRIT_BEASTS = [
+        { id: 'white_tiger', name: '白虎', icon: '🐯', element: 'METAL', cost: 200, passiveDesc: '金系阵法伤害+20%', passiveType: 'damage_boost', passiveElement: 'METAL', passiveMult: 0.2, skillName: '虎啸·杀', skillDesc: '对单体妖兽造成3倍伤害', skillCooldown: 45 },
+        { id: 'azure_dragon', name: '青龙', icon: '🐲', element: 'WOOD', cost: 200, passiveDesc: '灵木灵气回复+30%', passiveType: 'spirit_regen', passiveMult: 0.3, skillName: '龙息·生', skillDesc: '灵木立即回复30%灵气', skillCooldown: 50 },
+        { id: 'vermilion_bird', name: '朱雀', icon: '🦅', element: 'FIRE', cost: 200, passiveDesc: '火系阵法伤害+20%', passiveType: 'damage_boost', passiveElement: 'FIRE', passiveMult: 0.2, skillName: '凤炎·焚', skillDesc: '灼烧全场妖兽5秒', skillCooldown: 55 },
+        { id: 'black_tortoise', name: '玄武', icon: '🐢', element: 'WATER', cost: 200, passiveDesc: '阵法耐久度+25%', passiveType: 'durability_boost', passiveMult: 0.25, skillName: '龟盾·守', skillDesc: '所有阵法5秒内免疫伤害', skillCooldown: 60 },
+        { id: 'qilin', name: '麒麟', icon: '🦁', element: 'EARTH', cost: 500, passiveDesc: '全阵法伤害+10%', passiveType: 'damage_boost', passiveElement: 'ALL', passiveMult: 0.1, skillName: '圣威·镇', skillDesc: '眩晕全场妖兽3秒', skillCooldown: 70 },
+    ];
+
+    // ===== 渡劫系统 =====
+    const TRIBULATION_CONFIG = [
+        { level: 3, name: '风劫', icon: '🌪️', desc: '妖风肆虐，灵木受损', duration: 15, dmgPerTick: 3, reward: { spiritStones: 100, exp: 200 }, failPenalty: { spiritLoss: 0.3 } },
+        { level: 6, name: '火劫', icon: '🔥', desc: '天火焚身，阵法受创', duration: 20, dmgPerTick: 5, reward: { spiritStones: 250, exp: 500 }, failPenalty: { spiritLoss: 0.4 } },
+        { level: 9, name: '雷劫', icon: '⚡', desc: '九天雷罚，生死一线', duration: 25, dmgPerTick: 8, reward: { spiritStones: 500, exp: 1000 }, failPenalty: { spiritLoss: 0.5 } },
+    ];
+
+    // ===== 问道探索系统 =====
+    const EXPLORE_EVENTS = [
+        { id: 'ancient_cave', name: '上古洞府', icon: '🏚️', desc: '发现一处上古修士洞府', weight: 20, rewards: [{ type: 'spiritStones', min: 50, max: 150 }], cost: 30 },
+        { id: 'spirit_vein', name: '灵脉矿藏', icon: '💎', desc: '发现地下灵脉', weight: 15, rewards: [{ type: 'spiritStones', min: 100, max: 300 }], cost: 50 },
+        { id: 'herb_garden', name: '仙药园', icon: '🌿', desc: '发现一株千年灵药', weight: 15, rewards: [{ type: 'exp', min: 50, max: 150 }], cost: 30 },
+        { id: 'trapped_beast', name: '困兽之斗', icon: '⚔️', desc: '遇到一只受伤灵兽', weight: 15, rewards: [{ type: 'exp', min: 80, max: 200 }], cost: 40 },
+        { id: 'formation_scroll', name: '阵法残卷', icon: '📜', desc: '发现阵法秘卷残页', weight: 10, rewards: [{ type: 'formationExp', min: 1, max: 3 }], cost: 60 },
+        { id: 'bandit_ambush', name: '妖修伏击', icon: '💀', desc: '遭遇妖修埋伏!', weight: 15, rewards: [{ type: 'spiritStones', min: -50, max: 20 }], cost: 30 },
+        { id: 'dao_insight', name: '悟道机缘', icon: '✨', desc: '忽有所悟!', weight: 5, rewards: [{ type: 'exp', min: 200, max: 500 }], cost: 80 },
+        { id: 'empty_ruins', name: '空空如也', icon: '🌫️', desc: '只是荒芜废墟...', weight: 5, rewards: [], cost: 20 },
+    ];
+
+    // ===== 修仙功法系统 =====
+    const CULTIVATION_ARTS = [
+        { id: 'sword_intent', name: '万剑诀', icon: '⚔️', desc: '剑意通神，阵法伤害+25%', cost: 150, levelReq: 1, effect: { type: 'formationDamage', value: 0.25 }, color: '#C0C0C0' },
+        { id: 'spirit_shield', name: '金刚护体', icon: '🛡️', desc: '灵木灵气上限+40%', cost: 200, levelReq: 2, effect: { type: 'spiritCapacity', value: 0.4 }, color: '#4169E1' },
+        { id: 'alchemy', name: '炼丹术', icon: '🧪', desc: '灵气回复速率+50%', cost: 250, levelReq: 3, effect: { type: 'spiritRegen', value: 0.5 }, color: '#5CBF7C' },
+        { id: 'five_elements', name: '五行归元', icon: '☯️', desc: '五行克制伤害加成+50%', cost: 350, levelReq: 4, effect: { type: 'elementalBonus', value: 0.5 }, color: '#9B7ED9' },
+        { id: 'beast_taming', name: '驭兽心经', icon: '🐾', desc: '灵兽技能伤害+40%', cost: 400, levelReq: 5, effect: { type: 'beastSkill', value: 0.4 }, color: '#DAA520' },
+        { id: 'heavenly_trib', name: '天劫心法', icon: '⚡', desc: '渡劫成功率+30%，失败惩罚减半', cost: 500, levelReq: 6, effect: { type: 'tribulation', value: 0.3 }, color: '#FF6347' },
     ];
 
     /* ========================================
@@ -145,13 +402,16 @@
 
     function showFormationDialog(slotIndex, gameScene) {
         const stones = GameData.player.spiritStones;
+        const isFirstFormation = gameScene.formations.length === 0;
+        const cost = isFirstFormation ? 0 : 50;
+        const costLabel = isFirstFormation ? '✦ 天恩赐阵（免费）' : `💎 ${cost} 灵石`;
         dialogContent.innerHTML = `
             <div class="dialog-title">✦ 选择阵法 ✦</div>
-            <div class="dialog-stones">💎 ${stones} 灵石</div>
+            <div class="dialog-stones">${costLabel}</div>
             <div class="elements-row">
                 ${Object.keys(ELEMENTS).map(key => {
                     const e = ELEMENTS[key];
-                    const canAfford = stones >= 50;
+                    const canAfford = stones >= cost;
                     return `<div class="element-btn" data-element="${key}" style="opacity:${canAfford ? 1 : 0.4}">
                         <div class="element-circle" style="background:${e.color}22; border-color:${e.color}">${e.icon}</div>
                         <div class="element-name">${e.name}</div>
@@ -162,7 +422,7 @@
             <div class="dialog-info">
                 <div class="dialog-info-title">☯ 五行相克</div>
                 <div class="dialog-info-text">金 克 木 克 土 克 水 克 火 克 金</div>
-                <div class="dialog-info-tip">克制伤害 ×2 !</div>
+                <div class="dialog-info-tip">克制伤害 ×1.5 !  被克制伤害 ×0.5</div>
             </div>
             <button class="dialog-close" id="dialog-close-btn">关闭</button>
         `;
@@ -182,19 +442,24 @@
 
     function showUpgradeDialog(slotIndex, gameScene) {
         const slot = gameScene.slots[slotIndex];
-        const cost = 100 * slot.formation.level;
+        if(slot.formation.level >= 5) { gameScene.showMsg('阵法已满级!'); return; }
+        // 统一升级费用公式：level * 30 + 20（与upgradeFormation一致）
+        const cost = slot.formation.level * 30 + 20;
         const currentLevel = slot.formation.level;
         const nextLevel = currentLevel + 1;
         const canAfford = GameData.player.spiritStones >= cost;
         const e = ELEMENTS[slot.formation.type];
 
         // 当前属性 vs 升级后属性
-        const curDmg = 20 * currentLevel;
-        const nextDmg = 20 * nextLevel;
+        const curDmg = 15 + 10 * currentLevel + 5 * currentLevel * currentLevel;
+        const nextDmg = 15 + 10 * nextLevel + 5 * nextLevel * nextLevel;
         const curRange = 400 + 80 * currentLevel;
         const nextRange = 400 + 80 * nextLevel;
         const curTargets = 1 + Math.floor(currentLevel / 2);
         const nextTargets = 1 + Math.floor(nextLevel / 2);
+        // 统一耐久度公式：100 + (level-1) * 20（与upgradeFormation一致）
+        const curDur = 100 + (currentLevel - 1) * 20;
+        const nextDur = 100 + (nextLevel - 1) * 20;
 
         dialogContent.innerHTML = `
             <div class="dialog-title" style="color:#FFD700">⚡ 法阵升级</div>
@@ -204,6 +469,7 @@
                 <div>⚔ 伤害: <span style="color:#9B7ED9">${curDmg}</span> → <span style="color:#5CBF7C;font-weight:bold">${nextDmg}</span></div>
                 <div>◎ 范围: <span style="color:#9B7ED9">${curRange}</span> → <span style="color:#5CBF7C;font-weight:bold">${nextRange}</span></div>
                 <div>◎ 目标: <span style="color:#9B7ED9">${curTargets}</span> → <span style="color:#5CBF7C;font-weight:bold">${nextTargets}</span></div>
+                <div>🛡 耐久: <span style="color:#9B7ED9">${curDur}</span> → <span style="color:#5CBF7C;font-weight:bold">${nextDur}</span>（回满）</div>
             </div>
             <div style="font-size:15px; color:#FFD700; margin:8px 0">升级费用: 💎 ${cost} 灵石</div>
             ${!canAfford ? '<div style="font-size:15px; color:#FF4444; margin:6px 0">⚠ 灵石不足!</div>' : ''}
@@ -215,20 +481,10 @@
         dialogOverlay.classList.add('active');
 
         document.getElementById('upgrade-confirm').addEventListener('click', () => {
-            if(GameData.player.spiritStones < cost) {
-                gameScene.showMsg('灵石不足!');
-                return;
-            }
-            GameData.player.spiritStones -= cost;
-            slot.formation.level++;
-            gameScene.updateUI();
-
-            const ef = gameScene.add.circle(slot.x, slot.y, 50, 0xFFD700, 0.8);
-            gameScene.tweens.add({ targets: ef, scale: 2, alpha: 0, duration: 600, onComplete: () => ef.destroy() });
-            gameScene.showMsg(`升级至 Lv.${slot.formation.level}`);
-
             dialogOverlay.classList.remove('active');
             gameScene.dialogShown = false;
+            // 统一调用upgradeFormation，避免费用/属性计算不一致
+            gameScene.upgradeFormation(slot);
         });
 
         document.getElementById('upgrade-cancel').addEventListener('click', () => {
@@ -244,6 +500,14 @@
         constructor() { super({ key: 'MainMenu' }); }
         create() {
             const w = this.cameras.main.width, h = this.cameras.main.height;
+
+            // 隐藏游戏UI元素
+            const talismanBar = document.getElementById('talisman-bar');
+            const timeIndicator = document.getElementById('time-indicator');
+            const systemBar = document.getElementById('system-bar');
+            if(talismanBar) talismanBar.style.display = 'none';
+            if(timeIndicator) timeIndicator.style.display = 'none';
+            if(systemBar) systemBar.style.display = 'none';
 
             // 深色星空背景
             this.add.rectangle(w/2, h/2, w, h, 0x0a0a1a);
@@ -337,10 +601,34 @@
             this.spawnTimers = [];   // 本波所有spawn延迟定时器
             this.currentWaveId = 0;  // 波次唯一ID，防止跨波干扰
             this.isGameOver = false; // 游戏是否结束
+            this.isPaused = false;   // 游戏是否暂停（天命弹窗等）
+            this.waveDamageTaken = 0; // 本波受到的伤害（用于完美防守判定）
+            this.bgObjects = [];     // 背景对象引用（用于昼夜变色）
+            this.spiritParticles = []; // 灵气粒子引用
+            this.treeGlow = null;    // 灵木光晕引用
         }
 
         create() {
+            try {
+            // 清理残留的DOM弹窗overlay（之前场景可能遗留）
+            const preserveIds = ['game-container', 'dialog-overlay', 'talisman-bar', 'system-bar', 'time-indicator'];
+            document.querySelectorAll('body > div').forEach(el => {
+                const s = el.style;
+                // 只移除模态弹窗overlay（有半透明背景+高zIndex的），保留常驻UI元素
+                if(s.position === 'fixed' && s.zIndex && parseInt(s.zIndex) >= 100 && !preserveIds.includes(el.id)) {
+                    el.remove();
+                }
+            });
+
             const w = this.cameras.main.width, h = this.cameras.main.height;
+
+            // 显示游戏UI元素
+            const talismanBar = document.getElementById('talisman-bar');
+            const timeIndicator = document.getElementById('time-indicator');
+            const systemBar = document.getElementById('system-bar');
+            if(talismanBar) talismanBar.style.display = 'flex';
+            if(timeIndicator) timeIndicator.style.display = 'flex';
+            if(systemBar) systemBar.style.display = 'flex';
 
             // ===== 背景渲染 =====
             this.renderBackground(w, h);
@@ -358,26 +646,35 @@
 
             // ===== 计时器 =====
             this.time.addEvent({ delay: 1000, callback: this.tick, callbackScope: this, loop: true });
+
+            // ===== 符箓系统初始化 =====
+            this.initTalismans();
+
+            // ===== 昼夜系统初始化 =====
+            this.updateTimeUI();
+            this.updateSkyColors();
+
+            // ===== 功能系统按钮初始化 =====
+            this.initSystemButtons();
+            } catch(err) {
+                console.error('❌ create() error:', err);
+                const errDiv = document.createElement('div');
+                errDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:80%;background:rgba(255,0,0,0.95);color:#fff;padding:16px;z-index:9999;font-size:13px;border-radius:10px;word-break:break-all;';
+                errDiv.textContent = '❌ 初始化错误: ' + err.message + '\n' + (err.stack || '');
+                document.body.appendChild(errDiv);
+            }
         }
 
         renderBackground(w, h) {
-            // 天空渐变
-            for(let y = 0; y < h; y += 2) {
+            this.bgObjects = [];
+            // 天空渐变 - 存储引用以便昼夜变色
+            for(let y = 0; y < h; y += 4) {
                 const ratio = y / h;
-                let r, g, b;
-                if(ratio < 0.35) {
-                    r = 10 + ratio * 30; g = 10 + ratio * 25; b = 26 + ratio * 40;
-                } else if(ratio < 0.65) {
-                    const t = (ratio - 0.35) / 0.3;
-                    r = 20 + t * 10; g = 18 + t * 8; b = 40 - t * 10;
-                } else {
-                    const t = (ratio - 0.65) / 0.35;
-                    r = 30 - t * 15; g = 26 - t * 12; b = 30 - t * 12;
-                }
-                this.add.rectangle(w/2, y, w, 4, Phaser.Display.Color.GetColor(
-                    Math.floor(r), Math.floor(g), Math.floor(b)
-                ));
+                const rect = this.add.rectangle(w/2, y, w, 6, 0x0a0a1a);
+                rect.setData('baseRatio', ratio);
+                this.bgObjects.push(rect);
             }
+            this.updateSkyColors();
 
             // 远景山峦
             this.drawMountain(w, h, h * 0.52, 0x12122a, 0.8);
@@ -392,6 +689,7 @@
             }
 
             // 装饰灵气粒子
+            this.spiritParticles = [];
             for(let i = 0; i < 12; i++) {
                 const px = Phaser.Math.Between(w * 0.1, w * 0.9);
                 const py = Phaser.Math.Between(h * 0.15, h * 0.55);
@@ -402,6 +700,75 @@
                     targets: p, y: py - Phaser.Math.Between(30, 80), alpha: 0,
                     duration: Phaser.Math.Between(3000, 6000), repeat: -1,
                     delay: Phaser.Math.Between(0, 4000)
+                });
+                this.spiritParticles.push(p);
+            }
+
+            // 月亮/太阳（根据昼夜切换显示）— 右侧倒计时与波次面板之间
+            const celX = w * 0.85, celY = 105;
+            this.celestialBody = this.add.circle(celX, celY, 30, 0xFFD700, 0.9).setDepth(8);
+            this.celestialIcon = this.add.text(celX, celY, '☀️', { fontSize: '34px' }).setOrigin(0.5).setDepth(8);
+            this.celestialGlow = this.add.circle(celX, celY, 50, 0xFFD700, 0.15).setDepth(7);
+            this.tweens.add({ targets: this.celestialGlow, scale: 1.4, alpha: 0.06, duration: 2000, yoyo: true, repeat: -1 });
+
+            // 天体创建后同步状态（此时stars尚未创建，但forEach有空值保护）
+            this.updateSkyColors();
+
+            // 夜间星星（默认隐藏）
+            this.stars = [];
+            for(let i = 0; i < 20; i++) {
+                const sx = Phaser.Math.Between(w * 0.05, w * 0.95);
+                const sy = Phaser.Math.Between(h * 0.02, h * 0.3);
+                const star = this.add.circle(sx, sy, Phaser.Math.Between(1, 3), 0xFFFFFF, 0);
+                star.setStrokeStyle(0);
+                this.stars.push(star);
+                // 星星闪烁
+                this.tweens.add({
+                    targets: star, alpha: { from: 0, to: Phaser.Math.FloatBetween(0.2, 0.7) },
+                    duration: Phaser.Math.Between(1500, 3000), yoyo: true, repeat: -1, delay: Phaser.Math.Between(0, 2000)
+                });
+            }
+        }
+
+        // 昼夜天空颜色更新
+        updateSkyColors() {
+            const period = getCurrentPeriod(GameData.time.hour);
+            const skyTop = Phaser.Display.Color.HexStringToColor(period.skyTop);
+            const skyBot = Phaser.Display.Color.HexStringToColor(period.skyBot);
+
+            this.bgObjects.forEach(rect => {
+                if(!rect || !rect.active) return;
+                const ratio = rect.getData('baseRatio');
+                const r = Math.floor(skyTop.red + (skyBot.red - skyTop.red) * ratio);
+                const g = Math.floor(skyTop.green + (skyBot.green - skyTop.green) * ratio);
+                const b = Math.floor(skyTop.blue + (skyBot.blue - skyTop.blue) * ratio);
+                rect.setFillStyle(Phaser.Display.Color.GetColor(r, g, b));
+            });
+
+            // 更新天体显示
+            if(this.celestialBody && this.celestialBody.active) {
+                const isNight = period.key === 'night';
+                const isDusk = period.key === 'dusk';
+                this.celestialBody.setFillStyle(isNight ? 0xE8E8FF : 0xFFD700, isNight ? 0.7 : 0.9);
+                this.celestialIcon.setText(isNight ? '🌙' : (period.key === 'dawn' || isDusk ? '🌅' : '☀️'));
+                if(this.celestialGlow && this.celestialGlow.active) {
+                    this.celestialGlow.setFillStyle(isNight ? 0x8888CC : 0xFFD700, isNight ? 0.06 : 0.1);
+                }
+                // 星星在夜间和黄昏显示
+                if(this.stars) this.stars.forEach(s => {
+                    if(s && s.active) {
+                        const showStars = isNight || isDusk;
+                        if(!showStars) {
+                            s.setAlpha(0);
+                            this.tweens.killTweensOf(s);
+                        } else if(showStars && s.alpha === 0) {
+                            // 从白天切换回夜间/黄昏时，重新启动星星闪烁tween
+                            this.tweens.add({
+                                targets: s, alpha: { from: 0, to: Phaser.Math.FloatBetween(0.2, 0.7) },
+                                duration: Phaser.Math.Between(1500, 3000), yoyo: true, repeat: -1, delay: Phaser.Math.Between(0, 2000)
+                            });
+                        }
+                    }
                 });
             }
         }
@@ -426,117 +793,370 @@
         }
 
         renderSpiritTree(w, h) {
-            // 灵木光晕
-            const glow = this.add.circle(this.treeX, this.treeY, 80, 0x4A7C59, 0.08);
-            this.tweens.add({ targets: glow, scaleX: 1.2, scaleY: 1.2, alpha: 0.04, duration: 2000, yoyo: true, repeat: -1 });
+            // 灵木视觉对象容器（用于升级时清理）
+            this.treeVisuals = [];
 
-            // 灵木主体
-            this.tree = this.add.circle(this.treeX, this.treeY, 45, 0x4A7C59, 1);
-            this.tree.setStrokeStyle(3, 0x6BAF7D);
+            // 灵木外层仙气光晕（大范围）
+            this.treeGlow = this.add.circle(this.treeX, this.treeY, 80, 0x4A7C59, 0.08);
+            this.tweens.add({ targets: this.treeGlow, scaleX: 1.2, scaleY: 1.2, alpha: 0.04, duration: 2000, yoyo: true, repeat: -1 });
 
-            // 树干纹理
-            this.add.circle(this.treeX - 10, this.treeY - 8, 15, 0x3D6B4C, 0.6);
-            this.add.circle(this.treeX + 12, this.treeY + 5, 12, 0x3D6B4C, 0.5);
-            this.add.circle(this.treeX - 5, this.treeY + 15, 10, 0x3D6B4C, 0.4);
+            // 灵木第二层光晕（紫色灵气）
+            const auraGlow = this.add.circle(this.treeX, this.treeY, 65, 0x9B7ED9, 0.05);
+            this.tweens.add({ targets: auraGlow, scaleX: 1.15, scaleY: 1.15, alpha: 0.02, duration: 2500, yoyo: true, repeat: -1, delay: 500 });
+            this.treeVisuals.push(auraGlow);
+
+            // 灵木灵气环（旋转符文圈）
+            const spiritRing = this.add.circle(this.treeX, this.treeY, 60, 0x4A7C59, 0);
+            spiritRing.setStrokeStyle(1, 0x9B7ED9, 0.3);
+            this.tweens.add({ targets: spiritRing, angle: -360, duration: 12000, repeat: -1 });
+            this.tweens.add({ targets: spiritRing, scaleX: 1.1, scaleY: 1.1, alpha: 0.15, duration: 3000, yoyo: true, repeat: -1 });
+            this.treeVisuals.push(spiritRing);
+
+            // 根据灵木等级渲染不同形态
+            this.renderTreeByLevel();
 
             // 灵木标识（保存引用以便升级时更新）
             this.treeLabel = this.add.text(this.treeX, this.treeY + 65, `Lv.${GameData.tree.level} ${TREE_LEVELS[GameData.tree.level].name}`, {
                 fontSize: '15px', color: '#6BAF7D', fontStyle: 'bold',
                 stroke: '#0a0a1a', strokeThickness: 3
             }).setOrigin(0.5);
+        }
 
-            // 浮动符文效果
-            const runeTexts = ['✦', '◇', '✧'];
-            runeTexts.forEach((r, i) => {
-                const rx = this.treeX + Phaser.Math.Between(-50, 50);
-                const ry = this.treeY + Phaser.Math.Between(-50, 50);
-                const rune = this.add.text(rx, ry, r, { fontSize: '14px', color: '#9B7ED9', alpha: 0.4 }).setOrigin(0.5);
+        // 根据灵木等级渲染视觉形态
+        renderTreeByLevel() {
+            const lv = GameData.tree.level;
+            const tx = this.treeX, ty = this.treeY;
+
+            // 灵木形态配置：大小/颜色/光效/装饰随等级递进
+            const FORMS = {
+                1: { radius: 25, color: 0x3D6B4C, stroke: 0x5CA06C, strokeW: 2, glowR: 50, glowA: 0.05, coreR: 4, coreA: 0.3, particles: 4, name: '灵种' },
+                2: { radius: 30, color: 0x4A7C59, stroke: 0x6BAF7D, strokeW: 2, glowR: 55, glowA: 0.06, coreR: 5, coreA: 0.35, particles: 5, name: '幼苗' },
+                3: { radius: 35, color: 0x4A7C59, stroke: 0x6BAF7D, strokeW: 3, glowR: 60, glowA: 0.07, coreR: 6, coreA: 0.4, particles: 6, name: '小灵木' },
+                4: { radius: 40, color: 0x4A7C59, stroke: 0x7DC08E, strokeW: 3, glowR: 70, glowA: 0.08, coreR: 7, coreA: 0.45, particles: 6, name: '中灵木' },
+                5: { radius: 45, color: 0x5CA06C, stroke: 0x8DD09E, strokeW: 3, glowR: 80, glowA: 0.1, coreR: 8, coreA: 0.5, particles: 8, name: '大灵木' },
+                6: { radius: 50, color: 0x4A9C5C, stroke: 0xA0E0B0, strokeW: 4, glowR: 90, glowA: 0.12, coreR: 10, coreA: 0.6, particles: 10, name: '仙木' },
+                7: { radius: 55, color: 0x5CBF7C, stroke: 0xC0F0D0, strokeW: 4, glowR: 100, glowA: 0.15, coreR: 12, coreA: 0.7, particles: 12, name: '天灵木' },
+            };
+            const form = FORMS[Math.min(lv, 7)] || FORMS[7];
+
+            // 清理旧视觉（保留treeGlow/tree/treeLabel）
+            if(this.treeDetailObjects) {
+                this.treeDetailObjects.forEach(obj => {
+                    if(obj && obj.active) {
+                        this.tweens.killTweensOf(obj);
+                        obj.destroy();
+                    }
+                });
+            }
+            this.treeDetailObjects = [];
+
+            // 更新光晕
+            if(this.treeGlow && this.treeGlow.active) {
+                this.treeGlow.setRadius(form.glowR);
+            }
+
+            // 灵木主体
+            if(this.tree && this.tree.active) {
+                this.tree.setRadius(form.radius);
+                this.tree.setFillStyle(form.color, 1);
+                this.tree.setStrokeStyle(form.strokeW, form.stroke);
+            } else {
+                // 首次创建灵木主体
+                this.tree = this.add.circle(tx, ty, form.radius, form.color, 1);
+                this.tree.setStrokeStyle(form.strokeW, form.stroke);
+                this.tree.setDepth(10);
+            }
+
+            // 树干纹理（数量随等级增加）
+            const textureCount = 2 + Math.floor(lv / 2);
+            for(let i = 0; i < textureCount; i++) {
+                const ox = Phaser.Math.Between(-form.radius * 0.6, form.radius * 0.6);
+                const oy = Phaser.Math.Between(-form.radius * 0.6, form.radius * 0.6);
+                const tr = Phaser.Math.Between(4, form.radius * 0.4);
+                const tex = this.add.circle(tx + ox, ty + oy, tr, 0x3D6B4C, 0.3 + (i % 3) * 0.1);
+                this.treeDetailObjects.push(tex);
+            }
+
+            // 枝叶延伸（数量随等级增加）
+            const branchCount = Math.min(2 + lv, 8);
+            for(let i = 0; i < branchCount; i++) {
+                const angle = (i / branchCount) * Math.PI * 2 - Math.PI / 3;
+                const dist = form.radius * 0.7;
+                const sx = tx + Math.cos(angle) * dist;
+                const sy = ty + Math.sin(angle) * dist;
+                const extLen = form.radius * 0.8 + lv * 3;
+                const ex = sx + Math.cos(angle) * extLen;
+                const ey = sy + Math.sin(angle) * extLen;
+                const branchColor = [0x6BAF7D, 0x5CA06C, 0x7DC08E][i % 3];
+                const branch = this.add.rectangle(sx, sy, 2, Phaser.Math.Distance.Between(sx, sy, ex, ey), branchColor, 0.4);
+                branch.setRotation(Phaser.Math.Angle.Between(sx, sy, ex, ey) - Math.PI / 2);
+                this.treeDetailObjects.push(branch);
+            }
+
+            // 灵核（中心发光点）
+            const core = this.add.circle(tx, ty, form.coreR, 0xFFD700, form.coreA);
+            this.tweens.add({ targets: core, alpha: form.coreA * 0.4, scaleX: 1.3, scaleY: 1.3, duration: 1500, yoyo: true, repeat: -1 });
+            this.treeDetailObjects.push(core);
+
+            // 仙气环绕粒子
+            this.spiritParticles = [];
+            for(let i = 0; i < form.particles; i++) {
+                const angle = (i / form.particles) * Math.PI * 2;
+                const r = form.radius + 15 + (i % 2) * 8;
+                const px = tx + Math.cos(angle) * r;
+                const py = ty + Math.sin(angle) * r;
+                const pColor = i % 2 === 0 ? 0xFFD700 : 0x9B7ED9;
+                const sp = this.add.circle(px, py, 2, pColor, 0.6);
+                this.spiritParticles.push(sp);
+                this.treeDetailObjects.push(sp);
+                this.tweens.add({
+                    targets: sp,
+                    x: { from: px, to: tx + Math.cos(angle + Math.PI * 2) * r },
+                    y: { from: py, to: ty + Math.sin(angle + Math.PI * 2) * r },
+                    duration: 4000 + i * 500, repeat: -1, ease: 'Linear'
+                });
+                this.tweens.add({ targets: sp, alpha: 0.1, duration: 1200, yoyo: true, repeat: -1, delay: i * 200 });
+            }
+
+            // 飘落叶片效果
+            const leafColors = [0x6BAF7D, 0x5CA06C, 0x8DD09E, 0x4A9C5C];
+            const leafCount = 3 + Math.floor(lv / 2);
+            for(let i = 0; i < leafCount; i++) {
+                const lx = tx + Phaser.Math.Between(-70, 70);
+                const ly = ty + Phaser.Math.Between(-70, 10);
+                const leaf = this.add.circle(lx, ly, Phaser.Math.Between(2, 4), leafColors[i % leafColors.length], 0.5);
+                this.treeDetailObjects.push(leaf);
+                this.tweens.add({
+                    targets: leaf, y: ly + 100, x: lx + Phaser.Math.Between(-30, 30),
+                    alpha: 0, duration: Phaser.Math.Between(3000, 6000),
+                    repeat: -1, delay: i * 1000,
+                    onRepeat: (tween, target) => {
+                        target.x = tx + Phaser.Math.Between(-70, 70);
+                        target.y = ty + Phaser.Math.Between(-70, 10);
+                        target.alpha = 0.5;
+                    }
+                });
+            }
+
+            // Lv.4+ 紫色符文圈（筑基期开始）
+            if(lv >= 4) {
+                const runeRing = this.add.circle(tx, ty, form.radius + 25, 0x9B7ED9, 0);
+                runeRing.setStrokeStyle(1, 0x9B7ED9, 0.4);
+                this.tweens.add({ targets: runeRing, angle: 360, duration: 15000, repeat: -1 });
+                this.tweens.add({ targets: runeRing, scaleX: 1.15, scaleY: 1.15, alpha: 0.2, duration: 2500, yoyo: true, repeat: -1 });
+                this.treeDetailObjects.push(runeRing);
+            }
+
+            // Lv.6+ 仙气光环（金丹期开始）
+            if(lv >= 6) {
+                const goldenRing = this.add.circle(tx, ty, form.radius + 40, 0xFFD700, 0);
+                goldenRing.setStrokeStyle(2, 0xFFD700, 0.3);
+                this.tweens.add({ targets: goldenRing, angle: -360, duration: 20000, repeat: -1 });
+                this.tweens.add({ targets: goldenRing, scaleX: 1.2, scaleY: 1.2, alpha: 0.15, duration: 3000, yoyo: true, repeat: -1 });
+                this.treeDetailObjects.push(goldenRing);
+            }
+
+            // Lv.7 天灵木特效：双层金色旋转符文+大量粒子
+            if(lv >= 7) {
+                const outerRing = this.add.circle(tx, ty, form.radius + 55, 0xFFD700, 0);
+                outerRing.setStrokeStyle(1, 0xFFD700, 0.2);
+                this.tweens.add({ targets: outerRing, angle: 360, duration: 25000, repeat: -1 });
+                this.tweens.add({ targets: outerRing, scaleX: 1.1, scaleY: 1.1, alpha: 0.1, duration: 2000, yoyo: true, repeat: -1 });
+                this.treeDetailObjects.push(outerRing);
+
+                // 额外散发金色粒子
+                for(let i = 0; i < 4; i++) {
+                    const gp = this.add.circle(tx, ty, 3, 0xFFD700, 0.6);
+                    this.treeDetailObjects.push(gp);
+                    this.tweens.add({
+                        targets: gp,
+                        x: tx + Phaser.Math.Between(-80, 80),
+                        y: ty + Phaser.Math.Between(-80, 80),
+                        alpha: 0, duration: 2000 + i * 300,
+                        repeat: -1, delay: i * 500,
+                        onRepeat: (tween, target) => {
+                            target.x = tx; target.y = ty; target.alpha = 0.6;
+                        }
+                    });
+                }
+            }
+
+            // 浮动符文效果（数量随等级增加）
+            const runeTexts = ['✦', '◇', '✧', '☯', '✴', '❋', '☸', '✺'];
+            const runeCount = 3 + Math.floor(lv / 2);
+            for(let i = 0; i < runeCount; i++) {
+                const rx = tx + Phaser.Math.Between(-55, 55);
+                const ry = ty + Phaser.Math.Between(-55, 55);
+                const rune = this.add.text(rx, ry, runeTexts[i % runeTexts.length], { fontSize: '14px', color: '#9B7ED9' }).setOrigin(0.5);
+                this.treeDetailObjects.push(rune);
                 this.tweens.add({
                     targets: rune, y: ry - 30, alpha: 0, duration: Phaser.Math.Between(2000, 4000),
-                    repeat: -1, delay: i * 1200
+                    repeat: -1, delay: i * 800
                 });
-            });
+            }
         }
 
         createSlots(w, h) {
-            const count = 6, cx = this.treeX, cy = this.treeY, r = 140;
+            const count = 6, cx = this.treeX, cy = this.treeY, r = 120;
+            const unlockedSlots = this.getUnlockedSlotCount();
             for(let i = 0; i < count; i++) {
-                const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+                // 起始角度从右上方开始，避免左上角与面板重叠
+                const angle = (i / count) * Math.PI * 2 - Math.PI / 6;
                 const x = cx + Math.cos(angle) * r;
                 const y = cy + Math.sin(angle) * r;
+                const isLocked = i >= unlockedSlots;
 
-                // 槽位底座光效
-                const glow = this.add.circle(x, y, 42, 0x9B7ED9, 0.06);
-                this.tweens.add({ targets: glow, alpha: 0.12, duration: 1500, yoyo: true, repeat: -1, delay: i * 250 });
+                // 槽位底座光效（更大范围、更柔和）
+                const glow = this.add.circle(x, y, 48, 0x9B7ED9, isLocked ? 0 : 0.04);
+                if(!isLocked) {
+                    this.tweens.add({ targets: glow, alpha: 0.10, scaleX: 1.1, scaleY: 1.1, duration: 1800, yoyo: true, repeat: -1, delay: i * 250 });
+                }
+
+                // 槽位外圈装饰
+                const outerDeco = this.add.circle(x, y, 38, 0x9B7ED9, 0);
+                outerDeco.setStrokeStyle(1, isLocked ? 0x444466 : 0x9B7ED9, isLocked ? 0.15 : 0.25);
 
                 // 槽位背景
-                const bg = this.add.circle(x, y, 34, 0x222240, 0.85).setStrokeStyle(2, 0x9B7ED9);
-                const plus = this.add.text(x, y, '+', { fontSize: '24px', color: '#9B7ED9' }).setOrigin(0.5);
+                const bg = this.add.circle(x, y, 34, isLocked ? 0x111122 : 0x222240, isLocked ? 0.5 : 0.85)
+                    .setStrokeStyle(2, isLocked ? 0x444466 : 0x9B7ED9);
 
-                // 交互区域
-                const hit = this.add.circle(x, y, 40, 0x000000, 0.001).setInteractive({ useHandCursor: true });
-                hit.on('pointerover', () => { if(!this.slots[i].occupied) bg.setFillStyle(0x4A7C59, 0.4); });
-                hit.on('pointerout', () => { if(!this.slots[i].occupied) bg.setFillStyle(0x222240, 0.85); });
-                hit.on('pointerdown', () => this.onSlotClick(i));
+                // 槽位内容：锁定显示🔒+解锁等级，未锁定显示+
+                let plus;
+                if(isLocked) {
+                    const lvNeeded = this.getLevelNeededForSlot(i);
+                    plus = this.add.text(x, y - 4, '🔒', { fontSize: '16px' }).setOrigin(0.5);
+                    const lockLabel = this.add.text(x, y + 16, `Lv.${lvNeeded}`, {
+                        fontSize: '9px', color: '#666', stroke: '#000', strokeThickness: 1
+                    }).setOrigin(0.5);
+                    // 锁定槽位也添加交互区域，点击显示解锁提示
+                    const hit = this.add.circle(x, y, 40, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+                    hit.on('pointerover', () => { bg.setStrokeStyle(2, 0xFF6347, 0.6); });
+                    hit.on('pointerout', () => { bg.setStrokeStyle(2, 0x555555, 0.5); });
+                    hit.on('pointerdown', () => this.onSlotClick(i));
+                    this.slots.push({ x, y, occupied: false, locked: true, formation: null, bg, plus, hit, glow, outerDeco, lockLabel });
+                } else {
+                    plus = this.add.text(x, y, '+', { fontSize: '24px', color: '#9B7ED9' }).setOrigin(0.5);
+                    // 交互区域
+                    const hit = this.add.circle(x, y, 40, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+                    hit.on('pointerover', () => { if(!this.slots[i].occupied) { bg.setFillStyle(0x4A7C59, 0.4); outerDeco.setStrokeStyle(2, 0xFFD700, 0.5); } });
+                    hit.on('pointerout', () => { if(!this.slots[i].occupied) { bg.setFillStyle(0x222240, 0.85); outerDeco.setStrokeStyle(1, 0x9B7ED9, 0.25); } });
+                    hit.on('pointerdown', () => this.onSlotClick(i));
+                    this.slots.push({ x, y, occupied: false, locked: false, formation: null, bg, plus, hit, glow, outerDeco, lockLabel: null });
+                }
+            }
+        }
 
-                this.slots.push({ x, y, occupied: false, formation: null, bg, plus, hit, glow });
+        // 获取当前灵木等级可解锁的阵法槽数量
+        getUnlockedSlotCount() {
+            const level = GameData.tree.level;
+            if(level >= TREE_LEVELS.length) return 6;
+            return TREE_LEVELS[level] ? TREE_LEVELS[level].slots : 2;
+        }
+
+        // 获取某个槽位解锁所需灵木等级
+        getLevelNeededForSlot(slotIndex) {
+            // slot 0,1 -> Lv.1, slot 2 -> Lv.3, slot 3 -> Lv.5, slot 4 -> Lv.7, slot 5 -> Lv.9
+            const slotUnlockMap = [1, 1, 3, 5, 7, 9];
+            return slotUnlockMap[slotIndex] || 1;
+        }
+
+        // 灵木升级后检查并解锁新阵法位
+        checkSlotUnlock() {
+            const unlockedSlots = this.getUnlockedSlotCount();
+            for(let i = 0; i < this.slots.length; i++) {
+                const slot = this.slots[i];
+                if(slot.locked && i < unlockedSlots) {
+                    // 解锁这个槽位！
+                    slot.locked = false;
+
+                    // 视觉更新：移除锁定标记，添加+号和交互
+                    if(slot.lockLabel && slot.lockLabel.active) slot.lockLabel.destroy();
+                    if(slot.plus && slot.plus.active) slot.plus.destroy();
+                    if(slot.glow && slot.glow.active) {
+                        slot.glow.setFillStyle(0x9B7ED9, 0.04);
+                        this.tweens.add({ targets: slot.glow, alpha: 0.10, scaleX: 1.1, scaleY: 1.1, duration: 1800, yoyo: true, repeat: -1, delay: i * 250 });
+                    }
+                    if(slot.outerDeco && slot.outerDeco.active) {
+                        slot.outerDeco.setStrokeStyle(1, 0x9B7ED9, 0.25);
+                    }
+                    if(slot.bg && slot.bg.active) {
+                        slot.bg.setFillStyle(0x222240, 0.85).setStrokeStyle(2, 0x9B7ED9);
+                    }
+
+                    slot.plus = this.add.text(slot.x, slot.y, '+', { fontSize: '24px', color: '#9B7ED9' }).setOrigin(0.5);
+                    const hit = this.add.circle(slot.x, slot.y, 40, 0x000000, 0.001).setInteractive({ useHandCursor: true });
+                    hit.on('pointerover', () => { if(!this.slots[i].occupied) { slot.bg.setFillStyle(0x4A7C59, 0.4); slot.outerDeco.setStrokeStyle(2, 0xFFD700, 0.5); } });
+                    hit.on('pointerout', () => { if(!this.slots[i].occupied) { slot.bg.setFillStyle(0x222240, 0.85); slot.outerDeco.setStrokeStyle(1, 0x9B7ED9, 0.25); } });
+                    hit.on('pointerdown', () => this.onSlotClick(i));
+                    slot.hit = hit;
+
+                    // 解锁爆发特效
+                    const unlockFx = this.add.circle(slot.x, slot.y, 40, 0xFFD700, 0.6);
+                    this.tweens.add({ targets: unlockFx, scale: 2.5, alpha: 0, duration: 600, onComplete: () => unlockFx.destroy() });
+                    for(let j = 0; j < 8; j++) {
+                        const a = (j / 8) * Math.PI * 2;
+                        const p = this.add.circle(slot.x, slot.y, 3, 0xFFD700, 0.8);
+                        this.tweens.add({ targets: p, x: slot.x + Math.cos(a) * 60, y: slot.y + Math.sin(a) * 60, alpha: 0, duration: 500, onComplete: () => p.destroy() });
+                    }
+
+                    this.showMsg(`✦ 灵木升阶! 新阵法位已解锁!`);
+
+                    // 入场动画
+                    [slot.plus].forEach(obj => {
+                        obj.setScale(0);
+                        this.tweens.add({ targets: obj, scale: 1, duration: 350, ease: 'Back.easeOut' });
+                    });
+                }
             }
         }
 
         createUI(w, h) {
             // ===== 左上角 - 返回按钮 =====
-            const backBg = this.add.rectangle(50, 30, 70, 32, 0x1a1a2e, 0.9)
-                .setStrokeStyle(1, 0x9B7ED9).setInteractive({ useHandCursor: true });
-            const backText = this.add.text(50, 30, '◀ 返回', {
-                fontSize: '14px', color: '#9B7ED9'
-            }).setOrigin(0.5);
+            const backBg = this.add.rectangle(38, 22, 60, 26, 0x1a1a2e, 0.9)
+                .setStrokeStyle(1, 0x9B7ED9).setInteractive({ useHandCursor: true }).setDepth(60);
+            const backText = this.add.text(38, 22, '◀ 返回', {
+                fontSize: '12px', color: '#9B7ED9'
+            }).setOrigin(0.5).setDepth(60);
             backBg.on('pointerover', () => { backBg.setFillStyle(0x2a2a4e); backText.setColor('#BF9FFF'); });
             backBg.on('pointerout', () => { backBg.setFillStyle(0x1a1a2e); backText.setColor('#9B7ED9'); });
             backBg.on('pointerdown', () => this.scene.start('MainMenu'));
 
             // ===== 状态面板（左上，返回按钮下方）=====
-            const panelX = 130, panelY = 104;
-            // 面板背景（加大高度容纳灵木经验行）
-            this.add.rectangle(panelX, panelY + 12, 240, 148, 0x0a0a1a, 0.92)
+            const panelX = 92, panelY = 82;
+            // 面板背景（紧凑型）
+            this.add.rectangle(panelX, panelY, 170, 90, 0x0a0a1a, 0.92)
                 .setStrokeStyle(1, 0x9B7ED9, 0.6);
 
-            // 境界
-            this.add.text(panelX - 105, panelY - 44, '✦ ' + GameData.player.realm, {
-                fontSize: '17px', color: '#9B7ED9', fontStyle: 'bold',
+            // 境界（面板顶部一行）— 保存引用以便升级时更新
+            this.realmText = this.add.text(panelX - 78, panelY - 36, '✦ ' + GameData.player.realm, {
+                fontSize: '12px', color: '#9B7ED9', fontStyle: 'bold',
                 stroke: '#0a0a1a', strokeThickness: 2
             });
 
-            // 灵石 - 带钻石图标
-            this.add.text(panelX - 105, panelY - 14, '💎', { fontSize: '15px' });
-            this.add.text(panelX - 83, panelY - 14, '灵石', { fontSize: '13px', color: '#888' });
-            this.stoneText = this.add.text(panelX - 42, panelY - 15, `${GameData.player.spiritStones}`, {
-                fontSize: '17px', color: '#FFD700', fontStyle: 'bold'
+            // 灵石 + 灵气 一行两列
+            this.add.text(panelX - 78, panelY - 16, '💎', { fontSize: '11px' });
+            this.stoneText = this.add.text(panelX - 60, panelY - 17, `${GameData.player.spiritStones}`, {
+                fontSize: '13px', color: '#FFD700', fontStyle: 'bold'
+            });
+            this.add.text(panelX - 4, panelY - 16, '🌿', { fontSize: '11px' });
+            this.spiritText = this.add.text(panelX + 14, panelY - 17, `${GameData.tree.spirit}/${GameData.tree.spiritCapacity}`, {
+                fontSize: '11px', color: '#5CBF7C', fontStyle: 'bold'
             });
 
-            // 灵气 - 带叶子图标
-            this.add.text(panelX - 105, panelY + 14, '🌿', { fontSize: '15px' });
-            this.add.text(panelX - 83, panelY + 14, '灵气', { fontSize: '13px', color: '#888' });
-            this.spiritText = this.add.text(panelX - 42, panelY + 13, `${GameData.tree.spirit}/${GameData.tree.spiritCapacity}`, {
-                fontSize: '15px', color: '#5CBF7C', fontStyle: 'bold'
-            });
-
-            // 分隔线
-            this.add.rectangle(panelX, panelY + 36, 200, 1, 0x9B7ED9, 0.3);
-
-            // 灵木经验条区域（增大间距，独立展示）
+            // 灵木经验条区域
             const nextLevelData = GameData.tree.level + 1 < TREE_LEVELS.length ? TREE_LEVELS[GameData.tree.level + 1] : null;
             const expPercent = nextLevelData ? Math.min(1, GameData.tree.exp / nextLevelData.expNeeded) : 1;
-            const expBarX = panelX - 105, expBarY = panelY + 46;
+            const expBarX = panelX - 78, expBarY = panelY + 2;
 
             // 灵木标题行
-            this.add.text(expBarX, expBarY, '🌳', { fontSize: '13px' });
-            this.treeLevelText = this.add.text(expBarX + 20, expBarY, `Lv.${GameData.tree.level} 灵木`, { fontSize: '12px', color: '#6BAF7D', fontStyle: 'bold' });
+            this.add.text(expBarX, expBarY, '🌳', { fontSize: '10px' });
+            this.treeLevelText = this.add.text(expBarX + 14, expBarY, `Lv.${GameData.tree.level} 灵木`, { fontSize: '9px', color: '#6BAF7D', fontStyle: 'bold' });
 
-            // 灵木详情按钮（放在标题行右侧）
-            const treeInfoBg = this.add.rectangle(expBarX + 155, expBarY + 5, 30, 18, 0x1a3d2a, 0.9)
+            // 灵木详情按钮
+            const treeInfoBg = this.add.rectangle(expBarX + 100, expBarY + 4, 22, 12, 0x1a3d2a, 0.9)
                 .setStrokeStyle(1, 0x4A7C59).setInteractive({ useHandCursor: true });
-            const treeInfoText = this.add.text(expBarX + 155, expBarY + 5, '▼', {
-                fontSize: '11px', color: '#5CBF7C'
+            const treeInfoText = this.add.text(expBarX + 100, expBarY + 4, '▼', {
+                fontSize: '8px', color: '#5CBF7C'
             }).setOrigin(0.5);
             treeInfoBg.on('pointerover', () => { treeInfoBg.setFillStyle(0x2a5d3a); });
             treeInfoBg.on('pointerout', () => { treeInfoBg.setFillStyle(0x1a3d2a); });
@@ -545,36 +1165,45 @@
                 this.showTreeUpgradeDialog();
             });
 
-            // 经验条（标题下方，独立一行）
-            const expBarRowY = expBarY + 20;
-            this.add.text(expBarX, expBarRowY, '✦', { fontSize: '10px', color: '#9B7ED9' });
-            // 经验条背景
-            this.add.rectangle(expBarX + 70, expBarRowY + 4, 120, 10, 0x222240, 1).setOrigin(0.5);
-            // 经验条填充
-            this.expBarFill = this.add.rectangle(expBarX + 10, expBarRowY + 4, Math.max(1, 120 * expPercent), 10, 0x4A7C59, 1).setOrigin(0, 0.5);
-            // 经验数值文字
-            this.expText = this.add.text(expBarX + 140, expBarRowY - 2, '', {
-                fontSize: '10px', color: '#9B7ED9'
+            // 经验条
+            const expBarRowY = expBarY + 12;
+            this.add.text(expBarX, expBarRowY, '✦', { fontSize: '7px', color: '#9B7ED9' });
+            this.add.rectangle(expBarX + 42, expBarRowY + 2, 74, 6, 0x222240, 1).setOrigin(0.5);
+            this.expBarFill = this.add.rectangle(expBarX + 8, expBarRowY + 2, Math.max(1, 68 * expPercent), 6, 0x4A7C59, 1).setOrigin(0, 0.5);
+            this.expText = this.add.text(expBarX + 88, expBarRowY - 3, '', {
+                fontSize: '7px', color: '#9B7ED9'
             });
             this.updateExpText();
 
-            // ===== 右上角 - 开始按钮 =====
-            const startBg = this.add.rectangle(w - 60, 30, 90, 36, 0x8B1A1A, 0.9)
-                .setStrokeStyle(2, 0xFF6347).setInteractive({ useHandCursor: true });
-            const startText = this.add.text(w - 60, 30, '⚡ 出战', {
-                fontSize: '18px', color: '#FFF', fontStyle: 'bold'
-            }).setOrigin(0.5);
-            startBg.on('pointerover', () => { startBg.setFillStyle(0xAA2222); });
-            startBg.on('pointerout', () => { startBg.setFillStyle(0x8B1A1A); });
-            startBg.on('pointerdown', () => this.startWave());
+            // 阵法位信息行
+            const slotRowY = expBarRowY + 14;
+            const unlockedCount = this.getUnlockedSlotCount();
+            const placedCount = this.formations.length;
+            this.slotInfoText = this.add.text(expBarX, slotRowY, `⭕ 阵法位 ${placedCount}/${unlockedCount}`, {
+                fontSize: '9px', color: '#9B7ED9'
+            });
+
+            // ===== 右上角 - 准备倒计时 =====
+            this.startCountdownBg = this.add.rectangle(w - 75, 34, 130, 44, 0x12122a, 0.95)
+                .setStrokeStyle(2, 0xFF6347).setDepth(50);
+            this.startCountdownText = this.add.text(w - 75, 34, `⚔ 30秒后出战`, {
+                fontSize: '14px', color: '#FFD700', fontStyle: 'bold',
+                stroke: '#000', strokeThickness: 2
+            }).setOrigin(0.5).setDepth(50);
+            // 倒计时脉动效果
+            this.tweens.add({
+                targets: [this.startCountdownBg, this.startCountdownText], scaleX: 1.05, scaleY: 1.05,
+                duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+            });
 
             // ===== 右侧 - 波次信息面板 =====
-            const waveX = w - 100, waveY = 100;
-            this.add.rectangle(waveX, waveY, 160, 80, 0x0a0a1a, 0.85)
+            const waveX = w - 100, waveY = 200;
+            this.add.rectangle(waveX, waveY, 170, 90, 0x0a0a1a, 0.9)
                 .setStrokeStyle(1, 0xFF6347, 0.6);
 
-            this.add.text(waveX, waveY - 25, '⚡ 妖兽入侵', {
-                fontSize: '13px', color: '#FF6347'
+            this.add.text(waveX, waveY - 32, '⚡ 妖兽入侵', {
+                fontSize: '14px', color: '#FF6347', fontStyle: 'bold',
+                stroke: '#000', strokeThickness: 2
             }).setOrigin(0.5);
 
             this.waveText = this.add.text(waveX, waveY - 3, `波次 0/50`, {
@@ -585,15 +1214,92 @@
                 fontSize: '15px', color: '#FF6347'
             }).setOrigin(0.5);
 
-            // ===== 底部提示 =====
-            this.tipText = this.add.text(w/2, h - 28, '点击 + 槽位放置阵法抵御妖兽', {
-                fontSize: '13px', color: '#555'
+            // ===== 底部提示（轮播） =====
+            this.tips = [
+                '💡 点击 + 槽位放置阵法，倒计时结束自动出战',
+                '💡 灵木升级可解锁更多阵法位',
+                '💡 五行相克：火克金>木>土>水>火，克制×1.5伤害',
+                '💡 昼夜影响战局：夜间妖兽×1.5/阵法×0.7，破晓灵气×1.5',
+                '💡 悬停顶部昼夜指示器可查看当前效果',
+                '💡 妖王每5波出现，击杀获3倍灵石+随机符箓',
+            ];
+            this.tipIndex = 0;
+            this.tipText = this.add.text(w/2, h - 28, this.tips[0], {
+                fontSize: '12px', color: '#555'
             }).setOrigin(0.5);
+            // 每6秒轮播提示
+            this.time.addEvent({
+                delay: 6000, loop: true, callback: () => {
+                    this.tipIndex = (this.tipIndex + 1) % this.tips.length;
+                    if(this.tipText && this.tipText.active) {
+                        this.tweens.add({ targets: this.tipText, alpha: 0, duration: 300, onComplete: () => {
+                            this.tipText.setText(this.tips[this.tipIndex]);
+                            this.tweens.add({ targets: this.tipText, alpha: 1, duration: 300 });
+                        }});
+                    }
+                }
+            });
+
+        } // end createUI
+
+        initSystemButtons() {
+            const btnBeast = document.getElementById('btn-beast');
+            const btnTrib = document.getElementById('btn-tribulation');
+            const btnExplore = document.getElementById('btn-explore');
+            const btnArts = document.getElementById('btn-arts');
+
+            // 清除旧的事件监听器（避免重复绑定）— 使用clone替换
+            [btnArts, btnBeast, btnTrib, btnExplore].forEach(btn => {
+                if(btn) {
+                    const clone = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(clone, btn);
+                }
+            });
+
+            // 重新获取clone后的引用
+            const btnArts2 = document.getElementById('btn-arts');
+            const btnBeast2 = document.getElementById('btn-beast');
+            const btnTrib2 = document.getElementById('btn-tribulation');
+            const btnExplore2 = document.getElementById('btn-explore');
+
+            if(btnArts2) {
+                btnArts2.style.display = 'flex';
+                btnArts2.addEventListener('click', () => this.showArtsPanel());
+            }
+            if(btnBeast2) {
+                btnBeast2.style.display = 'flex';
+                btnBeast2.addEventListener('click', () => this.showBeastPanel());
+            }
+            if(btnTrib2) {
+                btnTrib2.style.display = 'flex';
+                btnTrib2.addEventListener('click', () => {
+                    if(GameData.tribulation.inProgress) { this.showMsg('渡劫进行中...'); return; }
+                    const nextTrib = TRIBULATION_CONFIG.find(t => !GameData.tribulation.completed.find(c => c.level === t.level));
+                    if(!nextTrib) { this.showMsg('已无劫可渡!'); return; }
+                    if(GameData.tree.level < nextTrib.level) { this.showMsg(`需灵木Lv.${nextTrib.level}方可渡${nextTrib.name}`); return; }
+                    this.checkTribulation();
+                });
+            }
+            if(btnExplore2) {
+                btnExplore2.style.display = 'flex';
+                btnExplore2.addEventListener('click', () => this.showExplorePanel());
+            }
+
+            // 灵兽图标（如果已契约）
+            if(GameData.spiritBeast.contracted) {
+                this.createBeastSprite();
+            }
         }
 
         onSlotClick(index) {
             if(this.dialogShown) return;
             const slot = this.slots[index];
+            if(slot.locked) {
+                const lvNeeded = this.getLevelNeededForSlot(index);
+                const currentLv = GameData.tree.level;
+                this.showLockTip(lvNeeded, currentLv);
+                return;
+            }
             this.dialogShown = true;
             if(slot.occupied) {
                 showUpgradeDialog(index, this);
@@ -602,12 +1308,38 @@
             }
         }
 
+        showLockTip(lvNeeded, currentLv) {
+            this.dialogShown = true; // 防止叠加多个弹窗
+            // 醒目的阵法位解锁提示弹窗
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:500;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            card.style.cssText = `background:rgba(30,20,40,0.95);border:2px solid #9B7ED9;border-radius:14px;padding:20px 28px;text-align:center;max-width:280px;animation:destinyIn 0.3s ease;box-shadow:0 0 20px #9B7ED940;`;
+            const diff = lvNeeded - currentLv;
+            card.innerHTML = `
+                <div style="font-size:28px;margin-bottom:6px">🔒</div>
+                <div style="font-size:16px;color:#9B7ED9;font-weight:bold;margin-bottom:6px">阵法位未解锁</div>
+                <div style="font-size:13px;color:#ccc;margin-bottom:4px">灵木达到 <span style="color:#FFD700;font-weight:bold">Lv.${lvNeeded}</span> 后解锁此阵法位</div>
+                <div style="font-size:12px;color:#888;margin-bottom:14px">当前灵木等级：Lv.${currentLv}${diff > 0 ? `（还需${diff}级）` : ''}</div>
+                <button style="background:#9B7ED9;color:#fff;border:none;padding:6px 20px;border-radius:6px;font-size:13px;cursor:pointer">知道了</button>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+            card.querySelector('button').addEventListener('click', () => { overlay.remove(); this.dialogShown = false; });
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) { overlay.remove(); this.dialogShown = false; } });
+        }
+
         placeFormation(slotIndex, elementKey) {
-            if(GameData.player.spiritStones < 50) {
+            // 第一个法阵免费（天恩赐阵），之后50灵石
+            // 使用battle追踪标记，防止阵法被摧毁后重复白嫖
+            const isFirstFormation = !GameData.battle.hasPlacedFirstFormation;
+            const cost = isFirstFormation ? 0 : 50;
+            if(GameData.player.spiritStones < cost) {
                 this.showMsg('灵石不足!');
                 return;
             }
-            GameData.player.spiritStones -= 50;
+            GameData.player.spiritStones -= cost;
+            if(isFirstFormation) GameData.battle.hasPlacedFirstFormation = true;
             this.updateUI();
 
             // 关闭对话框
@@ -618,25 +1350,69 @@
             const e = ELEMENTS[elementKey];
             const colorNum = parseInt(e.color.replace('#', ''), 16);
 
-            // 阵法视觉
+            // 阵法视觉 - 外层旋转光环
+            const orbitRing = this.add.circle(slot.x, slot.y, 36, colorNum, 0.08);
+            orbitRing.setStrokeStyle(1, colorNum, 0.4);
+            this.tweens.add({ targets: orbitRing, angle: 360, duration: 8000, repeat: -1 });
+            // 光环脉冲
+            this.tweens.add({ targets: orbitRing, scaleX: 1.15, scaleY: 1.15, alpha: 0.12, duration: 1500, yoyo: true, repeat: -1 });
+
+            // 阵法主体
             const formation = this.add.circle(slot.x, slot.y, 28, colorNum, 0.9).setStrokeStyle(2, 0xFFFFFF);
+
+            // 五行符文标记（阵法中心的元素符号）
+            const runeSymbols = { FIRE: '☲', WATER: '☵', WOOD: '☳', METAL: '☱', EARTH: '☷' };
+            const runeText = this.add.text(slot.x, slot.y + 22, runeSymbols[elementKey] || '', {
+                fontSize: '10px', color: '#FFFFFF', stroke: '#000', strokeThickness: 1
+            }).setOrigin(0.5).setAlpha(0.6);
+
+            // 元素粒子效果（3个围绕阵法旋转的小粒子）
+            const particles = [];
+            for(let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2;
+                const px = slot.x + Math.cos(angle) * 22;
+                const py = slot.y + Math.sin(angle) * 22;
+                const particle = this.add.circle(px, py, 3, colorNum, 0.7);
+                particles.push(particle);
+                // 粒子围绕阵法旋转
+                this.tweens.add({
+                    targets: particle,
+                    x: { from: px, to: slot.x + Math.cos(angle + Math.PI * 2) * 22 },
+                    y: { from: py, to: slot.y + Math.sin(angle + Math.PI * 2) * 22 },
+                    duration: 2000 + i * 400,
+                    repeat: -1,
+                    ease: 'Linear'
+                });
+                this.tweens.add({
+                    targets: particle, alpha: 0.2, duration: 800, yoyo: true, repeat: -1, delay: i * 300
+                });
+            }
+
             const icon = this.add.text(slot.x, slot.y, e.icon, { fontSize: '18px' }).setOrigin(0.5);
             const levelBadge = this.add.text(slot.x + 20, slot.y - 20, 'Lv.1', {
                 fontSize: '10px', color: '#FFD700', stroke: '#000', strokeThickness: 2
             }).setOrigin(0.5);
 
             slot.occupied = true;
-            slot.formation = { type: elementKey, sprite: formation, icon: icon, levelBadge: levelBadge, level: 1 };
+            slot.formation = { type: elementKey, sprite: formation, icon: icon, levelBadge: levelBadge, level: 1, orbitRing: orbitRing, particles: particles, runeText: runeText, durability: this.getFormationBaseDurability(), maxDurability: this.getFormationBaseDurability() };
             slot.plus.setVisible(false);
             slot.bg.setFillStyle(colorNum, 0.9);
             slot.bg.setStrokeStyle(2, 0xFFFFFF);
             this.formations.push(slot);
 
             // 出场动画
-            [formation, icon, levelBadge].forEach(obj => {
+            [formation, icon, levelBadge, orbitRing, runeText, ...particles].forEach(obj => {
                 obj.setScale(0);
                 this.tweens.add({ targets: obj, scale: 1, duration: 350, ease: 'Back.easeOut' });
             });
+
+            // 耐久度条
+            const durBarWidth = 36;
+            const durBarBg = this.add.rectangle(slot.x, slot.y + 30, durBarWidth, 4, 0x333333, 0.8).setDepth(15);
+            const durBarFill = this.add.rectangle(slot.x - durBarWidth/2 + 1, slot.y + 30, Math.max(1, durBarWidth - 2), 3, 0x5CBF7C, 1).setOrigin(0, 0.5).setDepth(15);
+            slot.formation.durBarBg = durBarBg;
+            slot.formation.durBarFill = durBarFill;
+            slot.formation.durBarWidth = durBarWidth;
 
             // 放置光效
             const ef = this.add.circle(slot.x, slot.y, 20, colorNum, 0.6);
@@ -645,61 +1421,143 @@
             this.showMsg(`${e.name}阵法布置完成!`);
         }
 
+        getFormationBaseDurability() {
+            let base = 100;
+            if(GameData.spiritBeast.contracted) {
+                const bDef = SPIRIT_BEASTS.find(b => b.id === GameData.spiritBeast.contracted.id);
+                if(bDef && bDef.passiveType === 'durability_boost') {
+                    base = Math.floor(base * (1 + bDef.passiveMult));
+                }
+            }
+            return base;
+        }
+
         autoPlaceFormation(slotIndex, elementKey) {
-            GameData.player.spiritStones -= 50;
+            const isFirstFormation = !GameData.battle.hasPlacedFirstFormation;
+            const cost = isFirstFormation ? 0 : 50;
+            if(GameData.player.spiritStones < cost) {
+                this.showMsg('灵石不足!');
+                return;
+            }
+            GameData.player.spiritStones -= cost;
+            if(isFirstFormation) GameData.battle.hasPlacedFirstFormation = true;
             this.updateUI();
 
             const slot = this.slots[slotIndex];
             const e = ELEMENTS[elementKey];
             const colorNum = parseInt(e.color.replace('#', ''), 16);
+
+            // 旋转光环
+            const orbitRing = this.add.circle(slot.x, slot.y, 36, colorNum, 0.08);
+            orbitRing.setStrokeStyle(1, colorNum, 0.4);
+            this.tweens.add({ targets: orbitRing, angle: 360, duration: 8000, repeat: -1 });
+            this.tweens.add({ targets: orbitRing, scaleX: 1.15, scaleY: 1.15, alpha: 0.12, duration: 1500, yoyo: true, repeat: -1 });
+
+            // 阵法主体
             const formation = this.add.circle(slot.x, slot.y, 28, colorNum, 0.9).setStrokeStyle(2, 0xFFFFFF);
+
+            // 五行符文标记
+            const runeSymbols = { FIRE: '☲', WATER: '☵', WOOD: '☳', METAL: '☱', EARTH: '☷' };
+            const runeText = this.add.text(slot.x, slot.y + 22, runeSymbols[elementKey] || '', {
+                fontSize: '10px', color: '#FFFFFF', stroke: '#000', strokeThickness: 1
+            }).setOrigin(0.5).setAlpha(0.6);
+
+            // 元素粒子
+            const particles = [];
+            for(let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2;
+                const px = slot.x + Math.cos(angle) * 22;
+                const py = slot.y + Math.sin(angle) * 22;
+                const particle = this.add.circle(px, py, 3, colorNum, 0.7);
+                particles.push(particle);
+                this.tweens.add({
+                    targets: particle,
+                    x: { from: px, to: slot.x + Math.cos(angle + Math.PI * 2) * 22 },
+                    y: { from: py, to: slot.y + Math.sin(angle + Math.PI * 2) * 22 },
+                    duration: 2000 + i * 400, repeat: -1, ease: 'Linear'
+                });
+                this.tweens.add({ targets: particle, alpha: 0.2, duration: 800, yoyo: true, repeat: -1, delay: i * 300 });
+            }
+
             const icon = this.add.text(slot.x, slot.y, e.icon, { fontSize: '18px' }).setOrigin(0.5);
             const levelBadge = this.add.text(slot.x + 20, slot.y - 20, 'Lv.1', {
                 fontSize: '10px', color: '#FFD700', stroke: '#000', strokeThickness: 2
             }).setOrigin(0.5);
 
             slot.occupied = true;
-            slot.formation = { type: elementKey, sprite: formation, icon: icon, levelBadge: levelBadge, level: 1 };
+            slot.formation = { type: elementKey, sprite: formation, icon: icon, levelBadge: levelBadge, level: 1, orbitRing: orbitRing, particles: particles, runeText: runeText, durability: this.getFormationBaseDurability(), maxDurability: this.getFormationBaseDurability() };
             slot.plus.setVisible(false);
             slot.bg.setFillStyle(colorNum, 0.9);
+            slot.bg.setStrokeStyle(2, 0xFFFFFF);
             this.formations.push(slot);
 
-            [formation, icon, levelBadge].forEach(obj => {
+            [formation, icon, levelBadge, orbitRing, runeText, ...particles].forEach(obj => {
                 obj.setScale(0);
                 this.tweens.add({ targets: obj, scale: 1, duration: 350, ease: 'Back.easeOut' });
             });
+
+            // 耐久度条
+            const durBarWidth = 36;
+            const durBarBg = this.add.rectangle(slot.x, slot.y + 30, durBarWidth, 4, 0x333333, 0.8).setDepth(15);
+            const durBarFill = this.add.rectangle(slot.x - durBarWidth/2 + 1, slot.y + 30, Math.max(1, durBarWidth - 2), 3, 0x5CBF7C, 1).setOrigin(0, 0.5).setDepth(15);
+            slot.formation.durBarBg = durBarBg;
+            slot.formation.durBarFill = durBarFill;
+            slot.formation.durBarWidth = durBarWidth;
         }
 
         startWave() {
             if(this.isGameOver) return;
             if(this.isWaveActive) { this.showMsg('波次进行中!'); return; }
 
-            if(this.formations.length === 0) {
-                if(GameData.player.spiritStones < 50) {
-                    this.showMsg('灵石不足，请先放置阵法!');
-                    return;
-                }
+            // 死亡螺旋保护：所有阵法被毁且灵石不足时，免费赐予一座阵法
+            const hasAnyFormation = this.formations.length > 0;
+            if(!hasAnyFormation) {
                 const elements = ['METAL', 'WOOD', 'WATER', 'FIRE', 'EARTH'];
                 const randomElement = elements[Math.floor(Math.random() * elements.length)];
                 const firstEmptySlot = this.slots.find(s => !s.occupied);
                 if(firstEmptySlot) {
                     const slotIndex = this.slots.indexOf(firstEmptySlot);
                     this.autoPlaceFormation(slotIndex, randomElement);
-                    this.showMsg(`自动放置${ELEMENTS[randomElement].name}阵法!`);
+                    this.showMsg(`✦ 天恩赐阵! 免费放置${ELEMENTS[randomElement].name}阵法!`);
+                    this.updateUI();
                 }
             }
 
             this.isWaveActive = true;
+            GameData.battle.weakenActive = false; // 新波次清除妖气衰退标记
+            this.waveDamageTaken = 0; // 重置波次伤害追踪
             this.currentWaveNum = GameData.battle.currentWave + 1;
             GameData.battle.currentWave = this.currentWaveNum;
             this.updateTimerDisplay();
-            this.showMsg(`第${this.currentWaveNum}波妖兽来袭!`);
+
+            // 5波循环：每5波一个周期，第5波为妖王波
+            GameData.battle.waveCycle = Math.ceil(this.currentWaveNum / 5);
+            const isInCycle = this.currentWaveNum % 5 === 0; // 是否为妖王波
+
+            if(isInCycle) {
+                this.showMsg(`⚡ 第${GameData.battle.waveCycle}轮·妖王来袭!`);
+            } else {
+                this.showMsg(`第${this.currentWaveNum}波妖兽来袭!`);
+            }
 
             // 波次追踪：记录本波唯一ID、应生成总数、已生成/已击杀
             this.currentWaveId++;
             const waveId = this.currentWaveId;
             const w = this.cameras.main.width, h = this.cameras.main.height;
-            const count = 5 + Math.floor(this.currentWaveNum / 3);
+            let count = 5 + Math.floor(this.currentWaveNum / 3);
+
+            // 妖王波：怪物数量翻倍
+            if(isInCycle) {
+                count = Math.floor(count * 1.5);
+            }
+
+            // 夜间额外加成
+            const period = getCurrentPeriod(GameData.time.hour);
+            if(period.key === 'night') {
+                count += 2;
+                this.showMsg('🌙 夜间妖兽加成!');
+            }
+
             GameData.battle.totalThisWave = count;
             GameData.battle.spawnedThisWave = 0;
             GameData.battle.killedThisWave = 0;
@@ -710,9 +1568,8 @@
 
             for(let i = 0; i < count; i++) {
                 const timer = this.time.delayedCall(i * 1200, () => {
-                    // 只有当前波次ID匹配且波次仍然活跃时才生成
                     if(this.currentWaveId === waveId && this.isWaveActive) {
-                        this.spawnMonster(w, h);
+                        this.spawnMonster(w, h, isInCycle && i === count - 1); // 最后一只为妖王
                         GameData.battle.spawnedThisWave++;
                     }
                 });
@@ -722,7 +1579,7 @@
             this.monsterAttackTimer = this.time.addEvent({
                 delay: 1000, callback: this.formationsAttack, callbackScope: this, loop: true
             });
-            // 安全上限：60秒后强制结束波次（防止怪物卡住）
+            // 安全上限：60秒后强制结束波次
             this.waveEndTimer = this.time.delayedCall(60000, () => {
                 if(this.isWaveActive) this.endWave();
             });
@@ -732,70 +1589,259 @@
             if(this.isWaveActive) {
                 this.timerText.setText('⚔ 战斗中');
                 this.timerText.setColor('#5CBF7C');
+                if(this.startCountdownText && this.startCountdownText.active) {
+                    this.startCountdownText.setText('⚔ 战斗中');
+                    this.startCountdownText.setColor('#5CBF7C');
+                    this.startCountdownBg.setStrokeStyle(2, 0x5CBF7C);
+                }
             } else {
                 this.timerText.setText(`⏱ ${this.waveTimer}秒`);
                 this.timerText.setColor('#FF6347');
+                if(this.startCountdownText && this.startCountdownText.active) {
+                    this.startCountdownText.setText(`⚔ ${this.waveTimer}秒后出战`);
+                    this.startCountdownText.setColor('#FFD700');
+                    this.startCountdownBg.setStrokeStyle(2, 0xFF6347);
+                    // 倒计时5秒内变红并加速脉动
+                    if(this.waveTimer <= 5) {
+                        this.startCountdownText.setColor('#FF4444');
+                        this.startCountdownBg.setStrokeStyle(2, 0xFF4444);
+                    }
+                }
             }
         }
 
-        spawnMonster(w, h) {
+        spawnMonster(w, h, isBoss = false) {
             const side = Math.random() < 0.5 ? 0 : 1;
             const x = side === 0 ? -30 : w + 30;
             const y = Phaser.Math.Between(h * 0.2, h * 0.45);
 
-            const typeIdx = Math.min(Math.floor(GameData.battle.currentWave / 5), MONSTER_TYPES.length - 1);
-            const mt = MONSTER_TYPES[typeIdx];
+            let typeIdx = Math.min(Math.floor(GameData.battle.currentWave / 5), MONSTER_TYPES.length - 1);
+            let mt = MONSTER_TYPES[typeIdx];
+
+            // 妖王波：必定为蛟龙
+            if(isBoss) {
+                mt = MONSTER_TYPES[MONSTER_TYPES.length - 1]; // 蛟龙
+            }
+
             const eColorNum = parseInt(ELEMENTS[mt.element].color.replace('#', ''), 16);
 
-            // 波次越高怪物越强：HP和伤害按波次微增
-            const waveScale = 1 + (GameData.battle.currentWave - 1) * 0.08;
-            const scaledHp = Math.floor(mt.hp * waveScale);
-            const scaledDamage = Math.floor(mt.damage * waveScale);
+            // 波次缩放
+            let waveScale = 1 + (Math.max(1, GameData.battle.currentWave) - 1) * 0.08;
+            let scaledHp = Math.floor(mt.hp * waveScale);
+            let scaledDamage = Math.floor(mt.damage * waveScale);
+
+            // 昼夜系统：夜间怪物加成
+            const period = getCurrentPeriod(GameData.time.hour);
+            scaledHp = Math.floor(scaledHp * period.monsterMult);
+            scaledDamage = Math.floor(scaledDamage * period.monsterMult);
+
+            // 妖王额外属性
+            if(isBoss) {
+                scaledHp = Math.floor(scaledHp * 2.5);
+                scaledDamage = Math.floor(scaledDamage * 1.8);
+            }
+
+            // 天命事件：妖气衰退（本波怪物HP减半）
+            if(GameData.battle.weakenActive) {
+                scaledHp = Math.floor(scaledHp * 0.5);
+            }
+
+            // 怪物大小
+            const monsterRadius = isBoss ? 32 : 22;
+            const iconSize = isBoss ? '32px' : '22px';
+
+            // 妖兽主体 - 外层元素光环（旋转）
+            const outerGlow = this.add.circle(x, y, monsterRadius + 8, eColorNum, 0.15);
+            this.tweens.add({ targets: outerGlow, scaleX: 1.3, scaleY: 1.3, alpha: 0.05, duration: 1000, yoyo: true, repeat: -1 });
 
             // 妖兽主体
-            const monster = this.add.circle(x, y, 22, eColorNum, 1).setStrokeStyle(2, 0x8B0000);
-            const monsterIcon = this.add.text(x, y, mt.icon, { fontSize: '22px' }).setOrigin(0.5);
+            const monster = this.add.circle(x, y, monsterRadius, eColorNum, 1)
+                .setStrokeStyle(isBoss ? 4 : 2, isBoss ? 0xFFD700 : eColorNum);
+
+            // 内层纹理（让怪物不再纯色）
+            const innerRing = this.add.circle(x, y, monsterRadius * 0.5, 0x000000, 0.2);
+
+            // 怪物图标
+            const monsterIcon = this.add.text(x, y, mt.icon, { fontSize: iconSize }).setOrigin(0.5);
 
             // 血条
-            const hpBarWidth = 36, hpBarHeight = 5;
-            const hpBg = this.add.rectangle(x, y - 32, hpBarWidth + 2, hpBarHeight + 2, 0x000000, 0.7).setOrigin(0.5);
-            const hpBar = this.add.rectangle(x - hpBarWidth/2, y - 32, hpBarWidth, hpBarHeight, 0x44FF44, 1).setOrigin(0, 0.5);
+            const hpBarWidth = isBoss ? 50 : 36, hpBarHeight = isBoss ? 7 : 5;
+            const hpBg = this.add.rectangle(x, y - (isBoss ? 42 : 32), hpBarWidth + 2, hpBarHeight + 2, 0x000000, 0.7).setOrigin(0.5);
+            const hpBar = this.add.rectangle(x - hpBarWidth/2, y - (isBoss ? 42 : 32), hpBarWidth, hpBarHeight, 0x44FF44, 1).setOrigin(0, 0.5);
 
-            // 妖兽名字
-            const nameTag = this.add.text(x, y - 42, mt.name, {
-                fontSize: '11px', color: '#FFF', stroke: '#000', strokeThickness: 2
+            // 妖兽名字（妖王显示称号）
+            const displayName = isBoss ? '妖王·' + mt.name : mt.name;
+            const nameTag = this.add.text(x, y - (isBoss ? 54 : 42), displayName, {
+                fontSize: isBoss ? '13px' : '11px', color: isBoss ? '#FFD700' : '#FFF',
+                stroke: '#000', strokeThickness: 2,
+                fontStyle: isBoss ? 'bold' : 'normal'
             }).setOrigin(0.5);
 
             monster.setData('hp', scaledHp);
             monster.setData('maxHp', scaledHp);
             monster.setData('damage', scaledDamage);
-            monster.setData('reward', mt.reward);
+            monster.setData('reward', isBoss ? mt.reward * 3 : mt.reward);
             monster.setData('element', mt.element);
             monster.setData('spiritDrop', mt.spiritDrop);
-            monster.setData('expDrop', mt.expDrop);
+            monster.setData('expDrop', isBoss ? [mt.expDrop[0] * 3, mt.expDrop[1] * 3] : mt.expDrop);
             monster.setData('icon', monsterIcon);
             monster.setData('hpBar', hpBar);
             monster.setData('hpBg', hpBg);
             monster.setData('nameTag', nameTag);
+            monster.setData('isBoss', isBoss);
+            monster.setData('hpBarWidth', hpBarWidth);
+            monster.setData('outerGlow', outerGlow);
+            monster.setData('innerRing', innerRing);
+            monster.setData('side', side);
+            monster.setData('startX', x);
+            monster.setData('progress', 0);
+            monster.setData('special', mt.special);
+            monster.setData('speed', mt.speed); // 保存妖兽速度数据
+
+            // 妖王光环效果
+            if(isBoss) {
+                const bossGlow = this.add.circle(x, y, 40, 0xFFD700, 0.15);
+                this.tweens.add({ targets: bossGlow, scale: 1.3, alpha: 0.05, duration: 800, yoyo: true, repeat: -1 });
+                monster.setData('bossGlow', bossGlow);
+            }
+
+            // 符箓效果：定身符 - 新怪物也被冻结
+            const slowEffect = GameData.talismans.activeEffects.find(e => e.type === 'slow');
+            const moveDuration = slowEffect ? 6000 : 3000; // 冻结时移动极慢
 
             this.tweens.add({
-                targets: [monster, monsterIcon, hpBar, hpBg, nameTag],
+                targets: [monster, monsterIcon, hpBar, hpBg, nameTag, outerGlow, innerRing].concat(isBoss ? [monster.getData('bossGlow')] : []).filter(Boolean),
                 x: this.treeX + (side === 0 ? 60 : -60),
-                duration: 3000, ease: 'Sine.easeIn',
+                duration: moveDuration, ease: 'Sine.easeIn',
+                onUpdate: () => {
+                    // 移动拖尾粒子
+                    if(monster.active && Math.random() < 0.3) {
+                        const trail = this.add.circle(monster.x, monster.y, isBoss ? 5 : 3, eColorNum, 0.5);
+                        this.tweens.add({ targets: trail, alpha: 0, scale: 0.2, duration: 400, onComplete: () => trail.destroy() });
+                    }
+                    // 更新附属物位置（确保跟随）
+                    const icon = monster.getData('icon');
+                    const bar = monster.getData('hpBar');
+                    const bg = monster.getData('hpBg');
+                    const tag = monster.getData('nameTag');
+                    const oGlow = monster.getData('outerGlow');
+                    const iRing = monster.getData('innerRing');
+                    const bGlow = monster.getData('bossGlow');
+                    // 更新行进进度（0=出发，1=到达灵木）
+                    const startX = monster.getData('startX') || x;
+                    const endX = this.treeX + (side === 0 ? 60 : -60);
+                    const totalDist = Math.abs(endX - startX);
+                    const currentDist = Math.abs(monster.x - startX);
+                    monster.setData('progress', totalDist > 0 ? currentDist / totalDist : 0);
+                    // tween已经在移动这些对象，无需手动跟随
+                },
                 onComplete: () => this.monsterAttack(monster)
             });
+
+            // 入场特效：妖兽出生闪光
+            const spawnFx = this.add.circle(x, y, monsterRadius, 0xFFFFFF, 0.8);
+            this.tweens.add({ targets: spawnFx, scale: 2.5, alpha: 0, duration: 400, onComplete: () => spawnFx.destroy() });
+
+            // 妖王入场特殊特效：红色警告波纹
+            if(isBoss) {
+                const warnRing = this.add.circle(x, y, 10, 0xFF0000, 0.6);
+                this.tweens.add({ targets: warnRing, scale: 8, alpha: 0, duration: 1000, onComplete: () => warnRing.destroy() });
+                const warnRing2 = this.add.circle(x, y, 10, 0xFFD700, 0.4);
+                this.tweens.add({ targets: warnRing2, scale: 6, alpha: 0, duration: 800, delay: 200, onComplete: () => warnRing2.destroy() });
+            }
 
             this.monsters.push(monster);
         }
 
         monsterAttack(monster) {
-            if(!monster || !monster.active) return;
-            const dmg = monster.getData('damage');
-            GameData.tree.spirit -= dmg;
-            this.updateUI();
+            if(!monster || !monster.active || this.isGameOver) return;
 
-            this.tweens.add({ targets: this.tree, tint: 0xFF0000, duration: 150, yoyo: true });
-            this.showMsg(`-${dmg} 灵气`);
+            // 灵兽技能：眩晕中，延迟重试
+            if(monster.getData('stunned')) {
+                this.time.delayedCall(500, () => { if(monster && monster.active) this.monsterAttack(monster); });
+                return;
+            }
+
+            // 符箓效果：定身符 - 怪物被冻结，延迟重试
+            const slowEffect = GameData.talismans.activeEffects.find(e => e.type === 'slow');
+            if(slowEffect) {
+                this.time.delayedCall(1000, () => {
+                    if(monster && monster.active) this.monsterAttack(monster);
+                });
+                return;
+            }
+
+            // 符箓效果：金钟符 - 免疫伤害，延迟重试
+            const shieldEffect = GameData.talismans.activeEffects.find(e => e.type === 'shield');
+            if(shieldEffect) {
+                this.time.delayedCall(1000, () => {
+                    if(monster && monster.active) this.monsterAttack(monster);
+                });
+                return;
+            }
+
+            let dmg = monster.getData('damage');
+            // 怪物特殊技能：毒雾(poiseon)额外灵木伤害
+            const special = monster.getData('special');
+
+            // 妖兽优先攻击路径上的阵法
+            let attackedFormation = false;
+            const mSide = monster.getData('side');
+            const mProgress = monster.getData('progress') || 0;
+            // 只在接近阵法时攻击（progress > 0.5 表示过了半程）
+            if(mProgress > 0.4) {
+                for(const slot of this.formations) {
+                    if(!slot.formation || slot.formation.durability <= 0) continue;
+                    const dist = Phaser.Math.Distance.Between(monster.x, monster.y, slot.x, slot.y);
+                    if(dist < 80) { // 阵法攻击范围
+                        // 攻击阵法
+                        slot.formation.durability = Math.max(0, slot.formation.durability - dmg);
+                        attackedFormation = true;
+
+                        // 阵法受击震动
+                        if(slot.formation.sprite && slot.formation.sprite.active) {
+                            this.tweens.add({ targets: slot.formation.sprite, x: slot.x + 3, duration: 50, yoyo: true, repeat: 2,
+                                onComplete: () => { if(slot.formation.sprite.active) slot.formation.sprite.x = slot.x; }
+                            });
+                        }
+
+                        // 更新耐久度条
+                        this.updateDurabilityBar(slot);
+
+                        // 阵法被摧毁
+                        if(slot.formation.durability <= 0) {
+                            this.destroyFormation(slot);
+                        }
+                        break; // 每次只攻击一个阵法
+                    }
+                }
+            }
+
+            // 没有可攻击的阵法时，攻击灵木
+            if(!attackedFormation) {
+                GameData.tree.spirit -= dmg;
+                this.waveDamageTaken += dmg;
+
+                // 怪物特殊技能：毒雾(poison)额外造成50%灵气伤害
+                if(special === 'poison') {
+                    const poisonDmg = Math.floor(dmg * 0.5);
+                    GameData.tree.spirit -= poisonDmg;
+                    this.waveDamageTaken += poisonDmg;
+                    this.showMsg(`☠️ 毒雾! 额外-${poisonDmg}灵气`);
+                }
+
+                // 灵木受击闪红效果
+                if(this.tree && this.tree.active) {
+                    const origColor = this.tree.fillColor;
+                    this.tree.setFillStyle(0xFF0000, 1);
+                    this.time.delayedCall(150, () => {
+                        if(this.tree && this.tree.active) this.tree.setFillStyle(origColor, 1);
+                    });
+                }
+                this.showMsg(`-${dmg} 灵气`);
+            }
+
+            this.updateUI();
 
             if(GameData.tree.spirit <= 0) {
                 this.gameOver();
@@ -808,7 +1854,7 @@
         }
 
         formationsAttack() {
-            if(!this.isWaveActive || this.monsters.length === 0) return;
+            if(this.monsters.length === 0 || this.isPaused) return;
 
             this.formations.forEach(slot => {
                 if(!slot.formation) return;
@@ -816,8 +1862,8 @@
                 const level = slot.formation.level;
 
                 // ===== 升级属性 =====
-                // 伤害：20 * 等级（线性增长）
-                const damage = 20 * level;
+                // 伤害：15 + 10*等级 + 5*等级²（二次方增长，后期可跟上怪物HP缩放）
+                const damage = 15 + 10 * level + 5 * level * level;
                 // 攻击范围：400 + 80 * 等级（等级越高打得越远）
                 const range = 400 + 80 * level;
                 // 攻击目标数：1 + floor(等级/2)（1级1目标，2-3级2目标，4-5级3目标...）
@@ -841,9 +1887,54 @@
                     if(!target || !target.active) return;
                     const mElement = target.getData('element');
                     const isEffective = ELEMENTS[fElement].beats === mElement;
-                    const finalDamage = isEffective ? damage * 2 : damage;
+                    // 被克制：阵法元素被怪物元素克制
+                    const isResisted = ELEMENTS[mElement] && ELEMENTS[mElement].beats === fElement;
+                    let finalDamage = damage;
+                    if(isEffective) finalDamage = Math.floor(damage * 1.5);
+                    else if(isResisted) finalDamage = Math.floor(damage * 0.5);
+
+                    // 灵木等级加成：每级+8%伤害（后期核心输出来源）
+                    finalDamage = Math.floor(finalDamage * (1 + (GameData.tree.level - 1) * 0.08));
+
+                    // 昼夜系统：夜间阵法效率降低
+                    const period = getCurrentPeriod(GameData.time.hour);
+                    finalDamage = Math.floor(finalDamage * period.formationMult);
+
+                    // 怪物特殊技能：魅惑(charm)使阵法伤害降低50%
+                    if(target.getData('special') === 'charm') {
+                        finalDamage = Math.floor(finalDamage * 0.5);
+                    }
+
+                    // 灵兽被动：伤害加成
+                    if(GameData.spiritBeast.contracted) {
+                        const bDef = SPIRIT_BEASTS.find(b => b.id === GameData.spiritBeast.contracted.id);
+                        if(bDef && bDef.passiveType === 'damage_boost') {
+                            if(bDef.passiveElement === 'ALL' || bDef.passiveElement === fElement) {
+                                finalDamage = Math.floor(finalDamage * (1 + bDef.passiveMult));
+                            }
+                        }
+                    }
+
+                    // 功法加成：万剑诀（阵法伤害+25%）
+                    const artDmgBonus = this.getArtBonus('formationDamage');
+                    if(artDmgBonus > 0) finalDamage = Math.floor(finalDamage * (1 + artDmgBonus));
+
+                    // 功法加成：五行归元（克制伤害额外+50%）
+                    if(isEffective && this.getArtBonus('elementalBonus') > 0) {
+                        finalDamage = Math.floor(finalDamage * (1 + this.getArtBonus('elementalBonus')));
+                    }
 
                     const eColorNum = parseInt(ELEMENTS[fElement].color.replace('#', ''), 16);
+
+                    // 攻击光束（连线效果，从阵法到目标方向）
+                    const beamDist = Math.min(range, Phaser.Math.Distance.Between(slot.x, slot.y, target.x, target.y));
+                    if(beamDist > 5) {
+                        const beamAngle = Phaser.Math.Angle.Between(slot.x, slot.y, target.x, target.y);
+                        const beam = this.add.rectangle(slot.x, slot.y, beamDist, 3 + level, eColorNum, 0.4);
+                        beam.setRotation(beamAngle);
+                        beam.setOrigin(0, 0.5);
+                        this.tweens.add({ targets: beam, alpha: 0, duration: 200, onComplete: () => beam.destroy() });
+                    }
 
                     // 弹道发射效果 - 从阵法中心射出
                     const proj = this.add.circle(slot.x, slot.y, projSize, eColorNum, 1);
@@ -859,6 +1950,11 @@
 
                     // 命中爆炸效果
                     const hitEffect = () => {
+                        // 检查目标是否还存在
+                        if(!target || !target.active) {
+                            proj.destroy();
+                            return;
+                        }
                         // 命中爆炸圆
                         const boom = this.add.circle(target.x, target.y, projSize * 1.5, eColorNum, 0.7);
                         this.tweens.add({ targets: boom, scale: 2, alpha: 0, duration: 200, onComplete: () => boom.destroy() });
@@ -874,13 +1970,16 @@
                         targets: proj, x: target.x, y: target.y, duration: projSpeed,
                         onComplete: () => {
                             proj.destroy();
+                            if(!target || !target.active) return; // 目标已死亡，不处理
                             hitEffect();
                             this.damageMonster(target, finalDamage, isEffective);
                         }
                     });
 
                     // 阵法攻击时发光反馈
-                    slot.formation.sprite.setStrokeStyle(3 + level, 0xFFFFFF);
+                    if(slot.formation.sprite && slot.formation.sprite.active) {
+                        slot.formation.sprite.setStrokeStyle(3 + level, 0xFFFFFF);
+                    }
                     this.time.delayedCall(150, () => {
                         if(slot.formation && slot.formation.sprite && slot.formation.sprite.active) {
                             slot.formation.sprite.setStrokeStyle(2, 0xFFFFFF);
@@ -890,17 +1989,868 @@
             });
         }
 
+        // 更新阵法耐久度条
+        updateDurabilityBar(slot) {
+            if(!slot.formation) return;
+            const dur = slot.formation.durability;
+            const maxDur = slot.formation.maxDurability;
+            const pct = Math.max(0, dur / maxDur);
+            const barWidth = slot.formation.durBarWidth || 36;
+
+            if(slot.formation.durBarFill && slot.formation.durBarFill.active) {
+                slot.formation.durBarFill.setDisplaySize(Math.max(1, (barWidth - 2) * pct), 3);
+                // 颜色随耐久度变化：绿→黄→红
+                if(pct > 0.5) {
+                    slot.formation.durBarFill.setFillStyle(0x5CBF7C); // 绿
+                } else if(pct > 0.25) {
+                    slot.formation.durBarFill.setFillStyle(0xFFD700); // 黄
+                } else {
+                    slot.formation.durBarFill.setFillStyle(0xFF4444); // 红
+                }
+            }
+        }
+
+        // 阵法被摧毁
+        destroyFormation(slot) {
+            if(!slot.formation) return;
+
+            // 摧毁爆炸特效
+            const fx = this.add.circle(slot.x, slot.y, 40, 0xFF4444, 0.8);
+            this.tweens.add({ targets: fx, scale: 2, alpha: 0, duration: 500, onComplete: () => fx.destroy() });
+
+            // 碎片粒子
+            for(let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const p = this.add.circle(slot.x, slot.y, 3, 0xFF6347, 0.8);
+                this.tweens.add({
+                    targets: p,
+                    x: slot.x + Math.cos(angle) * 50,
+                    y: slot.y + Math.sin(angle) * 50,
+                    alpha: 0, duration: 400,
+                    onComplete: () => p.destroy()
+                });
+            }
+
+            this.showMsg('⚠️ 阵法被摧毁!');
+
+            // 清理阵法视觉
+            const f = slot.formation;
+            if(f.sprite && f.sprite.active) f.sprite.destroy();
+            if(f.icon && f.icon.active) f.icon.destroy();
+            if(f.levelBadge && f.levelBadge.active) f.levelBadge.destroy();
+            if(f.orbitRing && f.orbitRing.active) f.orbitRing.destroy();
+            if(f.runeText && f.runeText.active) f.runeText.destroy();
+            if(f.durBarBg && f.durBarBg.active) f.durBarBg.destroy();
+            if(f.durBarFill && f.durBarFill.active) f.durBarFill.destroy();
+            if(f.particles) f.particles.forEach(p => { if(p && p.active) p.destroy(); });
+
+            // 重置槽位
+            slot.occupied = false;
+            slot.formation = null;
+            slot.bg.setFillStyle(0x1a1a3a, 0.6);
+            slot.bg.setStrokeStyle(2, 0x6B6B9B);
+            slot.plus.setVisible(true);
+            slot.plus.setAlpha(1);
+
+            // 从formations数组移除
+            const idx = this.formations.indexOf(slot);
+            if(idx >= 0) this.formations.splice(idx, 1);
+        }
+
+        // ===== 阵法升级系统 =====
+        upgradeFormation(slot) {
+            if(!slot.formation) return;
+            const level = slot.formation.level;
+            if(level >= 5) { this.showMsg('阵法已满级!'); return; }
+            const cost = level * 30 + 20;
+            if(GameData.player.spiritStones < cost) { this.showMsg('灵石不足!'); return; }
+            GameData.player.spiritStones -= cost;
+            slot.formation.level++;
+            // 耐久度公式：基础值+等级递增，同时保留玄武灵兽加成
+            const baseDur = this.getFormationBaseDurability();
+            slot.formation.maxDurability = baseDur + (slot.formation.level - 1) * 20;
+            slot.formation.durability = slot.formation.maxDurability; // 升级回满耐久
+            slot.formation.levelBadge.setText('Lv.' + slot.formation.level);
+            this.updateDurabilityBar(slot);
+            this.updateUI();
+            // 升级特效
+            const fx = this.add.circle(slot.x, slot.y, 15, 0xFFD700, 0.7);
+            this.tweens.add({ targets: fx, scale: 3, alpha: 0, duration: 500, onComplete: () => fx.destroy() });
+            // 升级弹跳
+            if(slot.formation.sprite && slot.formation.sprite.active) {
+                this.tweens.add({ targets: slot.formation.sprite, scaleX: 1.3, scaleY: 1.3, duration: 150, yoyo: true });
+            }
+            this.showMsg(`${ELEMENTS[slot.formation.type].name}阵法升至 Lv.${slot.formation.level}!`);
+        }
+
+        onFormationClick(slot) {
+            if(!slot.formation) return;
+            const level = slot.formation.level;
+            if(level >= 5) { this.showMsg('阵法已满级!'); return; }
+            const cost = level * 30 + 20;
+            // 显示升级确认弹窗
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            const eName = ELEMENTS[slot.formation.type].name;
+            card.style.cssText = `background:rgba(20,20,30,0.95);border:2px solid #FFD700;border-radius:14px;padding:20px 28px;text-align:center;max-width:280px;animation:destinyIn 0.3s ease;box-shadow:0 0 20px #FFD70040;`;
+            card.innerHTML = `
+                <div style="font-size:24px;margin-bottom:4px">${ELEMENTS[slot.formation.type].icon}</div>
+                <div style="font-size:16px;color:#FFD700;font-weight:bold;margin-bottom:4px">${eName}阵法 Lv.${level} → Lv.${level+1}</div>
+                <div style="font-size:12px;color:#aaa;margin-bottom:4px">伤害 ${15+10*level+5*level*level} → ${15+10*(level+1)+5*(level+1)*(level+1)} | 攻击数 ${1+Math.floor(level/2)} → ${1+Math.floor((level+1)/2)}</div>
+                <div style="font-size:12px;color:#aaa;margin-bottom:4px">耐久 ${100+(level-1)*20} → ${100+level*20}（升级回满）</div>
+                <div style="font-size:14px;color:#5CBF7C;margin-bottom:12px">升级费用：💎${cost} 灵石</div>
+                <div style="display:flex;gap:8px;justify-content:center">
+                    <button id="upgrade-confirm" style="background:#FFD700;color:#000;border:none;padding:6px 20px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer">升级</button>
+                    <button id="upgrade-cancel" style="background:#555;color:#fff;border:none;padding:6px 20px;border-radius:6px;font-size:13px;cursor:pointer">取消</button>
+                </div>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+            card.querySelector('#upgrade-confirm').addEventListener('click', () => {
+                overlay.remove();
+                this.upgradeFormation(slot);
+            });
+            card.querySelector('#upgrade-cancel').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        // ===== 灵兽契约系统 =====
+        showBeastPanel() {
+            const currentBeast = GameData.spiritBeast.contracted;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            card.style.cssText = `background:rgba(15,10,25,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:24px;max-width:340px;width:90%;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;`;
+
+            let inner = `<div style="text-align:center;margin-bottom:16px"><span style="font-size:20px;color:#9B7ED9;font-weight:bold">🐯 灵兽契约</span></div>`;
+
+            if(currentBeast) {
+                const bDef = SPIRIT_BEASTS.find(b => b.id === currentBeast.id);
+                if(!bDef) { overlay.remove(); return; }
+                inner += `
+                    <div style="text-align:center;margin-bottom:12px;padding:12px;background:rgba(155,126,217,0.1);border-radius:10px;border:1px solid #9B7ED940">
+                        <div style="font-size:36px">${bDef.icon}</div>
+                        <div style="font-size:16px;color:#FFD700;font-weight:bold">${bDef.name} Lv.${currentBeast.level}</div>
+                        <div style="font-size:12px;color:#aaa">${bDef.passiveDesc}</div>
+                        <div style="font-size:12px;color:#9B7ED9;margin-top:4px">EXP: ${currentBeast.exp}/${currentBeast.level * 100}</div>
+                    </div>
+                    <button id="beast-skill" style="width:100%;background:${currentBeast.skillCooldown > 0 ? '#555' : '#9B7ED9'};color:#fff;border:none;padding:8px;border-radius:8px;font-size:14px;cursor:${currentBeast.skillCooldown > 0 ? 'not-allowed' : 'pointer'};margin-bottom:8px">
+                        ${currentBeast.skillCooldown > 0 ? `⏳ ${bDef.skillName}（${currentBeast.skillCooldown}秒）` : `✦ ${bDef.skillName}`}
+                    </button>
+                    <div style="font-size:11px;color:#888;text-align:center;margin-bottom:12px">${bDef.skillDesc}</div>
+                `;
+            } else {
+                inner += `<div style="text-align:center;margin-bottom:12px;color:#888;font-size:13px">尚未契约灵兽，选择一只缔结契约：</div>`;
+                SPIRIT_BEASTS.forEach(b => {
+                    const canAfford = GameData.player.spiritStones >= b.cost;
+                    inner += `
+                        <div class="beast-option" data-id="${b.id}" style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(155,126,217,0.08);border:1px solid #9B7ED930;border-radius:10px;cursor:${canAfford ? 'pointer' : 'not-allowed'};opacity:${canAfford ? 1 : 0.5}">
+                            <span style="font-size:28px">${b.icon}</span>
+                            <div style="flex:1">
+                                <div style="font-size:14px;color:#FFD700;font-weight:bold">${b.name} <span style="font-size:11px;color:#aaa">${ELEMENTS[b.element].name}属性</span></div>
+                                <div style="font-size:11px;color:#aaa">${b.passiveDesc}</div>
+                                <div style="font-size:11px;color:#9B7ED9">${b.skillName}：${b.skillDesc}</div>
+                            </div>
+                            <div style="font-size:12px;color:#5CBF7C">💎${b.cost}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            inner += `<button id="beast-close" style="width:100%;background:#333;color:#fff;border:none;padding:8px;border-radius:8px;font-size:13px;margin-top:8px;cursor:pointer">关闭</button>`;
+            card.innerHTML = inner;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            // 绑定事件
+            card.querySelector('#beast-close').addEventListener('click', () => overlay.remove());
+            if(currentBeast) {
+                const skillBtn = card.querySelector('#beast-skill');
+                if(skillBtn && currentBeast.skillCooldown <= 0) {
+                    skillBtn.addEventListener('click', () => { this.useBeastSkill(); overlay.remove(); });
+                }
+            } else {
+                card.querySelectorAll('.beast-option').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const id = el.dataset.id;
+                        this.contractBeast(id);
+                        overlay.remove();
+                    });
+                });
+            }
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        contractBeast(beastId) {
+            const bDef = SPIRIT_BEASTS.find(b => b.id === beastId);
+            if(!bDef) return;
+            if(GameData.player.spiritStones < bDef.cost) { this.showMsg('灵石不足!'); return; }
+            GameData.player.spiritStones -= bDef.cost;
+            GameData.spiritBeast.contracted = { id: beastId, name: bDef.name, icon: bDef.icon, element: bDef.element, level: 1, exp: 0, skillCooldown: 0 };
+            GameData.spiritBeast.unlocked = true;
+            this.updateUI();
+            // 契约特效
+            const fx = this.add.circle(this.treeX, this.treeY, 30, 0x9B7ED9, 0.8);
+            this.tweens.add({ targets: fx, scale: 5, alpha: 0, duration: 800, onComplete: () => fx.destroy() });
+            this.showMsg(`🐯 与${bDef.name}缔结契约!`);
+            // 灵兽小图标跟随灵木
+            this.createBeastSprite();
+        }
+
+        createBeastSprite() {
+            if(this.beastSprite) this.beastSprite.destroy();
+            const beast = GameData.spiritBeast.contracted;
+            if(!beast) return;
+            this.beastSprite = this.add.text(this.treeX + 35, this.treeY - 25, beast.icon, { fontSize: '20px' }).setDepth(20).setOrigin(0.5);
+            // 浮动动画
+            this.tweens.add({ targets: this.beastSprite, y: this.treeY - 35, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        }
+
+        useBeastSkill() {
+            const beast = GameData.spiritBeast.contracted;
+            if(!beast || beast.skillCooldown > 0) return;
+            const bDef = SPIRIT_BEASTS.find(b => b.id === beast.id);
+            if(!bDef) return;
+
+            switch(beast.id) {
+                case 'white_tiger': // 虎啸·杀 - 对最近Boss/最强怪造成3倍伤害
+                    const target = this.monsters.reduce((best, m) => {
+                        if(!m || !m.active) return best;
+                        if(!best) return m;
+                        return m.getData('hp') > best.getData('hp') ? m : best;
+                    }, null);
+                    if(target) {
+                        const baseDmg = 20 * 3 * (1 + (beast.level - 1) * 0.3);
+                        // 功法加成：驭兽心经
+                        const beastArtBonus = this.getArtBonus('beastSkill');
+                        const dmg = baseDmg * (1 + beastArtBonus);
+                        this.damageMonster(target, dmg);
+                        // 虎啸特效
+                        const fx = this.add.circle(target.x, target.y, 20, 0xC0C0C0, 0.8);
+                        this.tweens.add({ targets: fx, scale: 4, alpha: 0, duration: 400, onComplete: () => fx.destroy() });
+                    }
+                    this.showMsg('🐯 虎啸·杀!');
+                    break;
+                case 'azure_dragon': // 龙息·生 - 回复30%灵气
+                    const healAmt = Math.floor(GameData.tree.spiritCapacity * 0.3 * (1 + (beast.level - 1) * 0.1));
+                    GameData.tree.spirit = Math.min(GameData.tree.spiritCapacity, GameData.tree.spirit + healAmt);
+                    const healFx = this.add.circle(this.treeX, this.treeY, 20, 0x4A7C59, 0.6);
+                    this.tweens.add({ targets: healFx, scale: 4, alpha: 0, duration: 600, onComplete: () => healFx.destroy() });
+                    this.showMsg(`🐲 龙息·生! +${healAmt}灵气`);
+                    break;
+                case 'vermilion_bird': // 凤炎·焚 - 灼烧全场5秒
+                    GameData.talismans.activeEffects.push({ type: 'burn', remaining: 5, power: 15 + beast.level * 5 });
+                    this.showMsg('🦅 凤炎·焚! 全场灼烧5秒!');
+                    break;
+                case 'black_tortoise': // 龟盾·守 - 阵法5秒免疫
+                    GameData.talismans.activeEffects.push({ type: 'shield', remaining: 5, power: 1 });
+                    this.showMsg('🐢 龟盾·守! 阵法免疫5秒!');
+                    break;
+                case 'qilin': // 圣威·镇 - 眩晕全场3秒
+                    this.monsters.slice().forEach(m => {
+                        if(m && m.active) {
+                            this.tweens.killTweensOf(m);
+                            m.setData('stunned', true);
+                            const stunIcon = this.add.text(m.x, m.y - 25, '💫', { fontSize: '12px' }).setOrigin(0.5).setDepth(50);
+                            m.setData('stunIcon', stunIcon);
+                            this.time.delayedCall(3000, () => {
+                                if(m && m.active) {
+                                    m.setData('stunned', false);
+                                    if(stunIcon && stunIcon.active) stunIcon.destroy();
+                                    // 恢复移动
+                                    this.resumeMonster(m);
+                                }
+                            });
+                        }
+                    });
+                    this.showMsg('🦁 圣威·镇! 全场眩晕3秒!');
+                    break;
+            }
+
+            beast.skillCooldown = Math.max(1, bDef.skillCooldown - (beast.level - 1) * 5);
+            this.updateUI();
+        }
+
+        resumeMonster(m) {
+            if(!m || !m.active || this.isGameOver) return;
+            const side = m.getData('side');
+            const speed = m.getData('speed') || 5000;
+            const w = this.cameras.main.width, h = this.cameras.main.height;
+            let tx = this.treeX, ty = this.treeY;
+            const dist = Phaser.Math.Distance.Between(m.x, m.y, tx, ty);
+            if(dist < 10) { this.monsterAttack(m); return; }
+            this.tweens.add({
+                targets: m, x: tx, y: ty, duration: (dist / 400) * speed,
+                onUpdate: () => {
+                    if(m && m.active) {
+                        m.setData('progress', 1 - Phaser.Math.Distance.Between(m.x, m.y, this.treeX, this.treeY) / 400);
+                        const hpBar = m.getData('hpBar');
+                        if(hpBar) hpBar.setPosition(m.x, m.y - 18);
+                        const nameTag = m.getData('nameTag');
+                        if(nameTag) nameTag.setPosition(m.x, m.y - 28);
+                        const iceOverlay = m.getData('iceOverlay');
+                        if(iceOverlay) iceOverlay.setPosition(m.x, m.y);
+                        const stunIcon = m.getData('stunIcon');
+                        if(stunIcon) stunIcon.setPosition(m.x, m.y - 25);
+                    }
+                },
+                onComplete: () => this.monsterAttack(m)
+            });
+        }
+
+        addBeastExp(amount) {
+            const beast = GameData.spiritBeast.contracted;
+            if(!beast) return;
+            beast.exp += amount;
+            // 处理连续升级
+            while(beast.exp >= beast.level * 100) {
+                beast.exp -= beast.level * 100;
+                beast.level++;
+                this.showMsg(`🐯 ${beast.name}升至 Lv.${beast.level}!`);
+                if(this.beastSprite) {
+                    this.tweens.add({ targets: this.beastSprite, scaleX: 1.5, scaleY: 1.5, duration: 200, yoyo: true });
+                }
+            }
+        }
+
+        // ===== 渡劫系统 =====
+        checkTribulation() {
+            if(GameData.tribulation.inProgress) return;
+            if(this.isPaused) return; // 已有弹窗时不重复触发
+            // 暂避冷却中，不弹窗
+            if(GameData.tribulation.declinedUntil > 0) {
+                GameData.tribulation.declinedUntil--;
+                return;
+            }
+            const level = GameData.tree.level;
+            const nextTrib = TRIBULATION_CONFIG.find(t => t.level <= level && !GameData.tribulation.completed.find(c => c.level === t.level));
+            if(!nextTrib) return;
+            // 灵木达到渡劫等级，弹出渡劫提示
+            // 只在波次进行中暂停游戏；准备阶段不暂停（不影响倒计时）
+            if(this.isWaveActive) this.isPaused = true;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            card.style.cssText = `background:rgba(20,10,5,0.97);border:2px solid #FF6347;border-radius:16px;padding:24px 32px;text-align:center;max-width:320px;animation:destinyIn 0.5s ease;box-shadow:0 0 30px #FF634740;`;
+            card.innerHTML = `
+                <div style="font-size:40px;margin-bottom:8px">${nextTrib.icon}</div>
+                <div style="font-size:20px;color:#FF6347;font-weight:bold;margin-bottom:6px">${nextTrib.name}来临!</div>
+                <div style="font-size:13px;color:#ccc;margin-bottom:8px">${nextTrib.desc}</div>
+                <div style="font-size:12px;color:#aaa;margin-bottom:4px">持续 ${nextTrib.duration} 秒 | 每秒伤害 ${nextTrib.dmgPerTick}</div>
+                <div style="font-size:12px;color:#5CBF7C;margin-bottom:4px">成功奖励：💎${nextTrib.reward.spiritStones} + ${nextTrib.reward.exp}经验</div>
+                <div style="font-size:12px;color:#FF6347;margin-bottom:14px">失败惩罚：损失${Math.floor(nextTrib.failPenalty.spiritLoss*100)}%灵气</div>
+                <div style="display:flex;gap:10px;justify-content:center">
+                    <button id="trib-accept" style="background:#FF6347;color:#fff;border:none;padding:8px 24px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer">迎劫!</button>
+                    <button id="trib-decline" style="background:#555;color:#fff;border:none;padding:8px 24px;border-radius:8px;font-size:14px;cursor:pointer">暂避</button>
+                </div>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#trib-accept').addEventListener('click', () => {
+                overlay.remove();
+                this.startTribulation(nextTrib);
+            });
+            card.querySelector('#trib-decline').addEventListener('click', () => {
+                overlay.remove();
+                this.isPaused = false; // 无条件恢复，防止竞态条件导致永久冻结
+                // 设置暂避冷却60秒（60个tick），避免无限弹窗
+                GameData.tribulation.declinedUntil = 60;
+                this.showMsg('暂时回避了天劫...60秒后再次提醒');
+            });
+            // 点击背景关闭时也要恢复isPaused
+            overlay.addEventListener('click', (e) => {
+                if(e.target === overlay) {
+                    overlay.remove();
+                    this.isPaused = false; // 无条件恢复，防止竞态条件导致永久冻结
+                    GameData.tribulation.declinedUntil = 30; // 随意关闭也给较短冷却
+                    this.showMsg('暂时回避了天劫...');
+                }
+            });
+        }
+
+        startTribulation(trib) {
+            GameData.tribulation.inProgress = true;
+            GameData.tribulation.currentTrib = trib;
+            GameData.tribulation.timer = trib.duration;
+
+            const w = this.cameras.main.width, h = this.cameras.main.height;
+            // 渡劫全屏特效
+            this.tribOverlay = this.add.rectangle(w/2, h/2, w, h, 0xFF0000, 0.05).setDepth(100);
+            this.tribText = this.add.text(w/2, 60, `${trib.icon} ${trib.name} · ${trib.duration}秒`, {
+                fontSize: '16px', color: '#FF6347', stroke: '#000', strokeThickness: 3
+            }).setOrigin(0.5).setDepth(101);
+
+            // 渡劫闪烁效果
+            this.tribFlashLoop = this.time.addEvent({
+                delay: 1000, repeat: trib.duration - 1,
+                callback: () => {
+                    if(this.isGameOver || !GameData.tribulation.inProgress) { this.endTribulation(false); return; }
+                    // 每秒伤害（天劫心法：有30%概率减免当次伤害）
+                    let tickDmg = trib.dmgPerTick;
+                    const tribArtBonus = this.getArtBonus('tribulation');
+                    if(tribArtBonus > 0 && Math.random() < tribArtBonus) {
+                        tickDmg = 0; // 天劫心法：30%概率减免当次伤害
+                        this.showMsg('⚡ 天劫心法护体!');
+                    }
+                    GameData.tree.spirit -= tickDmg;
+                    GameData.tribulation.timer--;
+                    if(this.tribText && this.tribText.active) {
+                        this.tribText.setText(`${trib.icon} ${trib.name} · ${GameData.tribulation.timer}秒`);
+                    }
+                    // 闪红
+                    if(this.tribOverlay && this.tribOverlay.active) {
+                        this.tribOverlay.setAlpha(0.15);
+                        this.tweens.add({ targets: this.tribOverlay, alpha: 0.05, duration: 500 });
+                    }
+                    // 灵木受击闪红
+                    if(this.tree && this.tree.active) {
+                        const origTribColor = this.tree.fillColor;
+                        this.tree.setFillStyle(0xFF0000, 1);
+                        this.time.delayedCall(150, () => { if(this.tree && this.tree.active) this.tree.setFillStyle(origTribColor, 1); });
+                    }
+
+                    this.updateUI();
+                    if(GameData.tree.spirit <= 0) { this.endTribulation(false); return; }
+                    if(GameData.tribulation.timer <= 0) { this.endTribulation(true); }
+                }
+            });
+            this.isPaused = false;
+            this.showMsg(`${trib.icon} ${trib.name}降临!`);
+        }
+
+        endTribulation(success) {
+            GameData.tribulation.inProgress = false;
+            const trib = GameData.tribulation.currentTrib;
+            if(!trib) return; // 防止重复调用时trib为null
+
+            // 清理特效
+            if(this.tribOverlay && this.tribOverlay.active) this.tribOverlay.destroy();
+            if(this.tribText && this.tribText.active) this.tribText.destroy();
+            if(this.tribFlashLoop) this.tribFlashLoop.remove();
+
+            if(success) {
+                GameData.tribulation.completed.push({ level: trib.level, name: trib.name });
+                GameData.player.spiritStones += trib.reward.spiritStones;
+                GameData.tree.exp += trib.reward.exp;
+                this.checkTreeLevelUp();
+                // 成功特效
+                const w = this.cameras.main.width, h = this.cameras.main.height;
+                const fx = this.add.circle(this.treeX, this.treeY, 30, 0xFFD700, 0.9);
+                this.tweens.add({ targets: fx, scale: 6, alpha: 0, duration: 1000, onComplete: () => fx.destroy() });
+                this.showMsg(`✨ ${trib.name}渡劫成功! +💎${trib.reward.spiritStones} +${trib.reward.exp}经验`);
+                this.addBeastExp(30);
+            } else {
+                // 失败惩罚（天劫心法减半惩罚）
+                const tribArtBonus = this.getArtBonus('tribulation');
+                const lossMult = tribArtBonus > 0 ? 0.5 : 1;
+                const lossAmt = Math.floor(GameData.tree.spiritCapacity * trib.failPenalty.spiritLoss * lossMult);
+                GameData.tree.spirit = Math.max(1, GameData.tree.spirit - lossAmt);
+                this.showMsg(`💀 ${trib.name}渡劫失败! -${lossAmt}灵气`);
+            }
+
+            GameData.tribulation.currentTrib = null;
+            this.updateUI();
+        }
+
+        // ===== 问道探索系统 =====
+        showExplorePanel() {
+            if(GameData.explore.cooldown > 0) {
+                this.showMsg(`探索冷却中，${GameData.explore.cooldown}秒后可再次探索`);
+                return;
+            }
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            card.style.cssText = `background:rgba(15,20,25,0.97);border:2px solid #4A90D9;border-radius:16px;padding:24px;text-align:center;max-width:320px;animation:destinyIn 0.3s ease;box-shadow:0 0 20px #4A90D940;`;
+            card.innerHTML = `
+                <div style="font-size:20px;color:#4A90D9;font-weight:bold;margin-bottom:12px">🗺️ 问道探索</div>
+                <div style="font-size:13px;color:#aaa;margin-bottom:8px">消耗灵石，探索修仙界机缘</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:12px">
+                    ${EXPLORE_EVENTS.filter((_,i) => i < 5).map(e => `
+                        <div style="font-size:11px;color:#888;padding:4px 8px;background:rgba(74,144,217,0.1);border-radius:6px">${e.icon} ${e.name}</div>
+                    `).join('')}
+                    <div style="font-size:11px;color:#888;padding:4px 8px;background:rgba(74,144,217,0.1);border-radius:6px">...更多</div>
+                </div>
+                <div style="font-size:14px;color:#5CBF7C;margin-bottom:12px">探索费用：💎30 灵石</div>
+                <div style="display:flex;gap:8px;justify-content:center">
+                    <button id="explore-go" style="background:#4A90D9;color:#fff;border:none;padding:8px 24px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer">出发探索</button>
+                    <button id="explore-close" style="background:#555;color:#fff;border:none;padding:8px 24px;border-radius:8px;font-size:14px;cursor:pointer">返回</button>
+                </div>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#explore-go').addEventListener('click', () => {
+                overlay.remove();
+                this.doExplore();
+            });
+            card.querySelector('#explore-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        doExplore() {
+            if(GameData.player.spiritStones < 30) { this.showMsg('灵石不足!'); return; }
+            GameData.player.spiritStones -= 30;
+            GameData.explore.timesExplored++;
+            GameData.explore.cooldown = 20; // 20秒冷却
+
+            // 按权重随机选择事件
+            const totalWeight = EXPLORE_EVENTS.reduce((s, e) => s + e.weight, 0);
+            let roll = Math.random() * totalWeight;
+            let evt = EXPLORE_EVENTS[0];
+            for(const e of EXPLORE_EVENTS) {
+                roll -= e.weight;
+                if(roll <= 0) { evt = e; break; }
+            }
+
+            // 应用奖励
+            let rewardTexts = [];
+            evt.rewards.forEach(r => {
+                const val = Math.floor(Math.random() * (r.max - r.min + 1)) + r.min;
+                if(val <= 0 && r.type !== 'spiritStones') return;
+                switch(r.type) {
+                    case 'spiritStones':
+                        GameData.player.spiritStones += val;
+                        rewardTexts.push(val >= 0 ? `💎+${val}灵石` : `💎${val}灵石`);
+                        break;
+                    case 'exp':
+                        GameData.tree.exp += val;
+                        this.checkTreeLevelUp();
+                        rewardTexts.push(`⭐+${val}经验`);
+                        break;
+                    case 'formationExp':
+                        // 随机升级一个阵法
+                        if(this.formations.length > 0) {
+                            const slot = this.formations[Math.floor(Math.random() * this.formations.length)];
+                            if(slot.formation && slot.formation.level < 5) {
+                                slot.formation.level += val;
+                                if(slot.formation.level > 5) slot.formation.level = 5;
+                                slot.formation.levelBadge.setText('Lv.' + slot.formation.level);
+                                const expBaseDur = this.getFormationBaseDurability();
+                                slot.formation.maxDurability = expBaseDur + (slot.formation.level - 1) * 20;
+                                slot.formation.durability = slot.formation.maxDurability;
+                                this.updateDurabilityBar(slot);
+                                this.updateUI();
+                                rewardTexts.push(`📜${ELEMENTS[slot.formation.type].name}阵法+${val}级!`);
+                            }
+                        }
+                        break;
+                }
+            });
+
+            if(rewardTexts.length === 0) rewardTexts.push('（一无所获）');
+
+            // 显示探索结果
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;`;
+            const evtColor = evt.rewards.some(r => r.min < 0) ? '#FF6347' : '#5CBF7C';
+            const evtBg = evt.rewards.some(r => r.min < 0) ? 'rgba(60,20,20,0.95)' : 'rgba(20,40,30,0.95)';
+            const card = document.createElement('div');
+            card.style.cssText = `background:${evtBg};border:2px solid ${evtColor};border-radius:14px;padding:20px 28px;text-align:center;max-width:280px;animation:destinyIn 0.4s ease;box-shadow:0 0 20px ${evtColor}40;`;
+            card.innerHTML = `
+                <div style="font-size:32px;margin-bottom:6px">${evt.icon}</div>
+                <div style="font-size:16px;color:${evtColor};font-weight:bold;margin-bottom:6px">${evt.name}</div>
+                <div style="font-size:13px;color:#ccc;margin-bottom:10px">${evt.desc}</div>
+                <div style="font-size:14px;color:#FFD700;font-weight:bold;margin-bottom:12px">${rewardTexts.join(' ')}</div>
+                <button style="background:${evtColor};color:#000;border:none;padding:6px 20px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer">收下</button>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+            card.querySelector('button').addEventListener('click', () => overlay.remove());
+
+            this.updateUI();
+            this.addBeastExp(5);
+        }
+
+        // ===== 修仙功法系统 =====
+        showArtsPanel() {
+            if(this.isGameOver) return;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            card.style.cssText = `background:rgba(15,15,25,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:20px;max-width:340px;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;box-shadow:0 0 30px #9B7ED940;`;
+            let artsHTML = `<div style="font-size:18px;color:#9B7ED9;font-weight:bold;margin-bottom:4px;text-align:center">📖 修仙功法</div>
+                <div style="font-size:12px;color:#888;margin-bottom:12px;text-align:center">灵石参悟功法，获得永久加成</div>`;
+
+            CULTIVATION_ARTS.forEach(art => {
+                const learned = GameData.arts.learned.includes(art.id);
+                const canLearn = !learned && GameData.tree.level >= art.levelReq && GameData.player.spiritStones >= art.cost;
+                const locked = GameData.tree.level < art.levelReq;
+                const borderColor = learned ? '#5CBF7C' : (locked ? '#555' : art.color);
+
+                artsHTML += `<div style="background:rgba(30,25,45,0.9);border:2px solid ${borderColor};border-radius:10px;padding:10px 14px;margin-bottom:8px;${learned ? 'opacity:0.7;' : ''}">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:22px">${art.icon}</span>
+                        <div style="flex:1">
+                            <div style="font-size:14px;color:${learned ? '#5CBF7C' : '#ddd'};font-weight:bold">${art.name} ${learned ? '✅' : ''}</div>
+                            <div style="font-size:11px;color:#aaa">${art.desc}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                        <span style="font-size:11px;color:#888">${locked ? '🔒 需灵木Lv.' + art.levelReq : (learned ? '已参悟' : `💎 ${art.cost}灵石`)}</span>
+                        ${learned ? '' : `<button class="art-btn" data-art="${art.id}" style="background:${canLearn ? art.color : '#333'};color:${canLearn ? '#000' : '#666'};border:none;padding:4px 14px;border-radius:6px;font-size:12px;cursor:${canLearn ? 'pointer' : 'not-allowed'};font-weight:bold">${locked ? '未解锁' : (GameData.player.spiritStones < art.cost ? '灵石不足' : '参悟')}</button>`}
+                    </div>
+                </div>`;
+            });
+
+            artsHTML += `<div style="text-align:center;margin-top:10px"><button id="arts-close" style="background:#555;color:#ccc;border:none;padding:6px 20px;border-radius:6px;font-size:13px;cursor:pointer">关闭</button></div>`;
+            card.innerHTML = artsHTML;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            // 关闭按钮
+            card.querySelector('#arts-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+
+            // 参悟按钮事件
+            card.querySelectorAll('.art-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const artId = btn.dataset.art;
+                    this.learnArt(artId);
+                    overlay.remove();
+                    this.showArtsPanel(); // 刷新面板
+                });
+            });
+        }
+
+        learnArt(artId) {
+            const art = CULTIVATION_ARTS.find(a => a.id === artId);
+            if(!art) return;
+            if(GameData.arts.learned.includes(artId)) { this.showMsg('已参悟此功法!'); return; }
+            if(GameData.tree.level < art.levelReq) { this.showMsg(`需灵木Lv.${art.levelReq}!`); return; }
+            if(GameData.player.spiritStones < art.cost) { this.showMsg('灵石不足!'); return; }
+
+            GameData.player.spiritStones -= art.cost;
+            GameData.arts.learned.push(artId);
+            this.updateUI();
+
+            // 参悟特效
+            const fx = this.add.circle(this.treeX, this.treeY, 20, parseInt(art.color.replace('#', ''), 16), 0.7);
+            this.tweens.add({ targets: fx, scale: 4, alpha: 0, duration: 800, onComplete: () => fx.destroy() });
+
+            // 应用功法效果（立即生效）
+            this.applyArtEffect(art);
+            this.showMsg(`📖 参悟${art.name}! ${art.desc}`);
+        }
+
+        applyArtEffect(art) {
+            switch(art.effect.type) {
+                case 'spiritCapacity':
+                    GameData.tree.spiritCapacity = Math.floor(GameData.tree.spiritCapacity * (1 + art.effect.value));
+                    GameData.tree.spirit = Math.min(GameData.tree.spirit, GameData.tree.spiritCapacity);
+                    break;
+                // 其他效果在对应逻辑中实时检查 GameData.arts.learned
+            }
+        }
+
+        // 获取功法加成值
+        getArtBonus(type) {
+            let bonus = 0;
+            GameData.arts.learned.forEach(artId => {
+                const art = CULTIVATION_ARTS.find(a => a.id === artId);
+                if(art && art.effect.type === type) bonus += art.effect.value;
+            });
+            return bonus;
+        }
+        triggerDestinyEvent() {
+            if(this.isGameOver) return;
+
+            // 天命弹窗期间暂停游戏逻辑
+            this.isPaused = true;
+
+            // 暂停所有怪物移动tween
+            this.monsters.forEach(m => {
+                if(m && m.active) {
+                    this.tweens.getAllTweens().forEach(tw => {
+                        if(tw.targets && tw.targets.includes(m) && tw.isPlaying()) {
+                            tw.pause();
+                        }
+                    });
+                }
+            });
+
+            const evt = rollDestinyEvent();
+            GameData.destiny.eventsTriggered++;
+
+            // 显示天命事件弹窗
+            const evtColor = evt.type === 'positive' ? '#5CBF7C' : (evt.type === 'negative' ? '#FF4444' : '#FFD700');
+            const evtBgColor = evt.type === 'positive' ? 'rgba(20,60,30,0.95)' : (evt.type === 'negative' ? 'rgba(60,20,20,0.95)' : 'rgba(40,40,20,0.95)');
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;`;
+            const card = document.createElement('div');
+            card.style.cssText = `background:${evtBgColor};border:2px solid ${evtColor};border-radius:16px;padding:24px 32px;text-align:center;max-width:320px;animation:destinyIn 0.5s ease;box-shadow:0 0 30px ${evtColor}40;`;
+            card.innerHTML = `
+                <div style="font-size:36px;margin-bottom:8px">${evt.icon}</div>
+                <div style="font-size:20px;color:${evtColor};font-weight:bold;margin-bottom:8px">天命·${evt.name}</div>
+                <div style="font-size:14px;color:#ccc;margin-bottom:16px">${evt.desc}</div>
+                <button style="background:${evtColor};color:#000;border:none;padding:8px 24px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer">确认</button>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            // 动画样式
+            if(!document.getElementById('destiny-style')) {
+                const style = document.createElement('style');
+                style.id = 'destiny-style';
+                style.textContent = '@keyframes destinyIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}';
+                document.head.appendChild(style);
+            }
+
+            card.querySelector('button').addEventListener('click', () => {
+                overlay.remove();
+                this.isPaused = false;
+                // 恢复所有怪物移动tween（只恢复仍然存活的怪物的tween）
+                this.monsters.forEach(m => {
+                    if(m && m.active) {
+                        this.tweens.getAllTweens().forEach(tw => {
+                            if(tw.targets && tw.targets.includes(m) && tw.isPaused()) {
+                                tw.resume();
+                            }
+                        });
+                    }
+                });
+                this.applyDestinyEvent(evt);
+            });
+        }
+
+        applyDestinyEvent(evt) {
+            switch(evt.id) {
+                case 'spirit_blessing':
+                    const spiritGain = Math.floor(GameData.tree.spiritCapacity * 0.3);
+                    GameData.tree.spirit = Math.min(GameData.tree.spiritCapacity, GameData.tree.spirit + spiritGain);
+                    this.showMsg(`✨ 灵气恩赐! +${spiritGain}灵气`);
+                    // 灵气回复特效
+                    const spiritFx = this.add.circle(this.treeX, this.treeY, 20, 0x5CBF7C, 0.6);
+                    this.tweens.add({ targets: spiritFx, scale: 3, alpha: 0, duration: 800, onComplete: () => spiritFx.destroy() });
+                    break;
+
+                case 'stone_rain':
+                    GameData.player.spiritStones += 50;
+                    this.showMsg('💎 灵石雨! +50灵石');
+                    // 灵石雨特效
+                    for(let i = 0; i < 8; i++) {
+                        const sx = this.treeX + Phaser.Math.Between(-80, 80);
+                        const sy = this.treeY - 100;
+                        const stone = this.add.circle(sx, sy, 4, 0xFFD700, 0.9);
+                        this.tweens.add({ targets: stone, y: sy + 80, alpha: 0, duration: 600 + i * 100, onComplete: () => stone.destroy() });
+                    }
+                    break;
+
+                case 'formation_enhance':
+                    this.formations.forEach(slot => {
+                        if(slot.formation && slot.formation.durability > 0) {
+                            slot.formation.durability = slot.formation.maxDurability;
+                            this.updateDurabilityBar(slot);
+                            // 阵法恢复特效
+                            const fxF = this.add.circle(slot.x, slot.y, 15, 0xFFD700, 0.5);
+                            this.tweens.add({ targets: fxF, scale: 2, alpha: 0, duration: 500, onComplete: () => fxF.destroy() });
+                        }
+                    });
+                    this.showMsg('⭕ 阵法加持! 所有阵法恢复满耐久');
+                    break;
+
+                case 'exp_surge':
+                    const expGain = 30 + GameData.battle.currentWave * 2;
+                    GameData.tree.exp += expGain;
+                    this.checkTreeLevelUp();
+                    this.showMsg(`📖 悟道顿悟! +${expGain}经验`);
+                    break;
+
+                case 'talisman_gift':
+                    const types = Object.keys(TALISMAN_TYPES);
+                    const giftType = types[Math.floor(Math.random() * types.length)];
+                    const owned = GameData.talismans.owned.find(t => t.type === giftType);
+                    if(owned) { owned.count++; } else { GameData.talismans.owned.push({ type: giftType, count: 1, cooldown: 0, maxCooldown: TALISMAN_TYPES[giftType].cooldown }); }
+                    this.showMsg(`📜 仙符降世! 获得${TALISMAN_TYPES[giftType].name}`);
+                    this.updateTalismanUI();
+                    break;
+
+                case 'monster_weaken':
+                    // 设置本波怪物减半标记，影响当前及后续新生怪物
+                    GameData.battle.weakenActive = true;
+                    this.monsters.slice().forEach(m => {
+                        if(m && m.active) {
+                            const hp = m.getData('hp');
+                            const newHp = Math.floor(hp * 0.5);
+                            m.setData('hp', newHp);
+                            // 更新血条
+                            const maxHp = m.getData('maxHp');
+                            const hpBar = m.getData('hpBar');
+                            const hpBarWidth = m.getData('hpBarWidth');
+                            const isBoss = m.getData('isBoss');
+                            const hpBarHeight = isBoss ? 7 : 5;
+                            if(hpBar && hpBar.active) hpBar.setDisplaySize(Math.max(1, hpBarWidth * (newHp / maxHp)), hpBarHeight);
+                        }
+                    });
+                    this.showMsg('💫 妖气衰退! 本波妖兽HP减半');
+                    break;
+
+                case 'spirit_drain':
+                    const spiritLoss = Math.floor(GameData.tree.spirit * 0.2);
+                    GameData.tree.spirit = Math.max(1, GameData.tree.spirit - spiritLoss);
+                    this.showMsg(`🌑 灵气枯竭! -${spiritLoss}灵气`);
+                    // 暗色特效
+                    const drainFx = this.add.circle(this.treeX, this.treeY, 40, 0x333366, 0.5);
+                    this.tweens.add({ targets: drainFx, scale: 2, alpha: 0, duration: 600, onComplete: () => drainFx.destroy() });
+                    break;
+
+                case 'monster_surge':
+                    const sw = this.cameras.main.width, sh = this.cameras.main.height;
+                    for(let i = 0; i < 3; i++) {
+                        this.time.delayedCall(i * 500, () => {
+                            if(!this.isGameOver) this.spawnMonster(sw, sh, false);
+                        });
+                    }
+                    this.showMsg('👹 妖气弥漫! 额外3只妖兽来袭!');
+                    break;
+
+                case 'formation_decay':
+                    this.formations.slice().forEach(slot => {
+                        if(slot.formation && slot.formation.durability > 0) {
+                            slot.formation.durability = Math.max(0, slot.formation.durability - slot.formation.maxDurability * 0.3);
+                            this.updateDurabilityBar(slot);
+                            if(slot.formation.durability <= 0) this.destroyFormation(slot);
+                        }
+                    });
+                    this.showMsg('⚠️ 阵法腐蚀! 所有阵法损失30%耐久');
+                    break;
+
+                case 'cooldown_reset':
+                    GameData.talismans.owned.forEach(t => { t.cooldown = 0; });
+                    // 同时重置灵兽技能冷却
+                    if(GameData.spiritBeast.contracted) GameData.spiritBeast.contracted.skillCooldown = 0;
+                    this.updateTalismanUI();
+                    this.showMsg('🌀 天道试炼! 符箓与灵兽冷却已重置');
+                    break;
+            }
+            this.updateUI();
+        }
+
         damageMonster(monster, damage, isEffective) {
             if(!monster || !monster.active) return;
+
+            // 妖兽特殊技能：石甲(armor)减少30%伤害
+            if(monster.getData('special') === 'armor') {
+                damage = Math.floor(damage * 0.7);
+            }
+
+            // 追踪总伤害
+            GameData.battle.totalDamageDealt += damage;
 
             let hp = monster.getData('hp') - damage;
             monster.setData('hp', hp);
 
             const maxHp = monster.getData('maxHp');
             const hpBar = monster.getData('hpBar');
-            if(hpBar) {
+            const hpBarWidth = monster.getData('hpBarWidth');
+            if(hpBar && hpBar.active) {
                 const pct = Math.max(0, hp / maxHp);
-                hpBar.setDisplaySize(36 * pct, 5);
+                const isBossMonster = monster.getData('isBoss');
+                const hpBarHeight = isBossMonster ? 7 : 5;
+                hpBar.setDisplaySize(hpBarWidth * pct, hpBarHeight);
                 if(pct < 0.3) hpBar.setFillStyle(0xFF0000);
                 else if(pct < 0.6) hpBar.setFillStyle(0xFFAA00);
                 else hpBar.setFillStyle(0x44FF44);
@@ -909,17 +2859,59 @@
             const icon = monster.getData('icon');
             const hpBg = monster.getData('hpBg');
             const nameTag = monster.getData('nameTag');
-            this.tweens.add({ targets: [monster, icon, hpBar, hpBg, nameTag], alpha: 0.3, duration: 80, yoyo: true });
+            const outerGlow = monster.getData('outerGlow');
+            const innerRing = monster.getData('innerRing');
+
+            // 受伤闪白效果
+            monster.setFillStyle(0xFFFFFF, 1);
+            this.time.delayedCall(80, () => {
+                if(monster && monster.active) {
+                    const elColor = parseInt(ELEMENTS[monster.getData('element')].color.replace('#', ''), 16);
+                    monster.setFillStyle(elColor, 1);
+                }
+            });
+
+            // 受击震动
+            const origX = monster.x, origY = monster.y;
+            this.tweens.add({
+                targets: monster, x: origX + Phaser.Math.Between(-4, 4), y: origY + Phaser.Math.Between(-3, 3),
+                duration: 50, yoyo: true, repeat: 2,
+                onComplete: () => { if(monster && monster.active) monster.setPosition(origX, origY); }
+            });
+
+            // 伤害数字飘字（增强版）
+            const dmgText = this.add.text(monster.x + Phaser.Math.Between(-10, 10), monster.y - 20, `-${damage}`, {
+                fontSize: isEffective ? '18px' : '13px',
+                color: isEffective ? '#FFD700' : '#FF6347',
+                fontStyle: 'bold',
+                stroke: '#000', strokeThickness: isEffective ? 3 : 2
+            }).setOrigin(0.5).setDepth(800);
+            this.tweens.add({
+                targets: dmgText, y: monster.y - 65, alpha: 0, scaleX: isEffective ? 1.3 : 1, scaleY: isEffective ? 1.3 : 1,
+                duration: isEffective ? 1000 : 800,
+                onComplete: () => dmgText.destroy()
+            });
+
+            // 五行克制时额外闪光
+            if(isEffective) {
+                const burstFx = this.add.circle(monster.x, monster.y, 15, 0xFFD700, 0.7);
+                this.tweens.add({ targets: burstFx, scale: 3, alpha: 0, duration: 400, onComplete: () => burstFx.destroy() });
+            }
 
             if(isEffective) this.showMsg('✦ 克制!');
 
             if(hp <= 0) {
+                // 先停止移动tween，避免死亡后仍产生拖尾粒子
+                this.tweens.killTweensOf(monster);
+
                 const reward = monster.getData('reward');
                 const spiritDropRange = monster.getData('spiritDrop');
                 const expDropRange = monster.getData('expDrop');
+                const isBoss = monster.getData('isBoss');
 
                 // 灵石奖励
                 GameData.player.spiritStones += reward;
+                GameData.battle.totalSpiritsEarned += reward;
 
                 // 灵气掉落：在范围内随机
                 const spiritDrop = Phaser.Math.Between(spiritDropRange[0], spiritDropRange[1]);
@@ -933,17 +2925,53 @@
                 GameData.battle.killedThisWave++;
                 this.updateUI();
 
+                // 灵兽获取经验
+                this.addBeastExp(Math.ceil(reward / 3));
+
                 // 检查灵木是否可以升级
                 this.checkTreeLevelUp();
 
                 const hpBar2 = monster.getData('hpBar');
                 const hpBg2 = monster.getData('hpBg');
                 const nameTag2 = monster.getData('nameTag');
+                const bossGlow2 = monster.getData('bossGlow');
+                const iceOverlay2 = monster.getData('iceOverlay');
+                const outerGlow2 = monster.getData('outerGlow');
+                const innerRing2 = monster.getData('innerRing');
+
+                // 妖王击杀特效
+                if(isBoss) {
+                    const bossFx = this.add.circle(monster.x, monster.y, 20, 0xFFD700, 0.9);
+                    this.tweens.add({ targets: bossFx, scale: 5, alpha: 0, duration: 600, onComplete: () => bossFx.destroy() });
+                    // 妖王击杀额外奖励符箓
+                    const randomType = ['attack', 'slow', 'shield'][Math.floor(Math.random() * 3)];
+                    const t = GameData.talismans.owned.find(t => t.type === randomType);
+                    if(t) t.count++;
+                    this.showMsg(`👑 妖王陨落! 获得${TALISMAN_TYPES[randomType].icon}!`);
+                }
+
+                // 死亡粒子爆散
+                const deathElColor = parseInt(ELEMENTS[monster.getData('element')].color.replace('#', ''), 16);
+                for(let i = 0; i < (isBoss ? 12 : 6); i++) {
+                    const angle = (i / (isBoss ? 12 : 6)) * Math.PI * 2 + Math.random() * 0.5;
+                    const speed = isBoss ? 80 : 50;
+                    const dp = this.add.circle(monster.x, monster.y, isBoss ? 5 : 3, i % 2 === 0 ? deathElColor : 0xFFFFFF, 0.8);
+                    this.tweens.add({
+                        targets: dp,
+                        x: monster.x + Math.cos(angle) * speed,
+                        y: monster.y + Math.sin(angle) * speed,
+                        alpha: 0, scale: 0.2, duration: isBoss ? 600 : 400,
+                        onComplete: () => dp.destroy()
+                    });
+                }
+                // 死亡闪光
+                const deathFlash = this.add.circle(monster.x, monster.y, isBoss ? 30 : 15, 0xFFFFFF, 0.7);
+                this.tweens.add({ targets: deathFlash, scale: 2, alpha: 0, duration: 250, onComplete: () => deathFlash.destroy() });
 
                 this.tweens.add({
-                    targets: [monster, icon, hpBar2, hpBg2, nameTag2], alpha: 0, scale: 0, duration: 300,
+                    targets: [monster, icon, hpBar2, hpBg2, nameTag2, bossGlow2, iceOverlay2, outerGlow2, innerRing2].filter(Boolean), alpha: 0, scale: 0, duration: 300,
                     onComplete: () => {
-                        [monster, icon, hpBar2, hpBg2, nameTag2].forEach(o => { if(o) o.destroy(); });
+                        [monster, icon, hpBar2, hpBg2, nameTag2, bossGlow2, iceOverlay2, outerGlow2, innerRing2].filter(Boolean).forEach(o => { if(o) o.destroy(); });
                     }
                 });
 
@@ -952,10 +2980,9 @@
                 const idx = this.monsters.indexOf(monster);
                 if(idx > -1) this.monsters.splice(idx, 1);
 
-                // 判断波次结束：所有怪物都已生成 && 已全部击杀 && 场上无残留
+                // 判断波次结束：所有怪物都已生成 && 场上无残留怪物
                 const allSpawned = GameData.battle.spawnedThisWave >= GameData.battle.totalThisWave;
-                const allKilled = GameData.battle.killedThisWave >= GameData.battle.totalThisWave;
-                if(allSpawned && allKilled && this.monsters.length === 0) {
+                if(allSpawned && this.monsters.length === 0) {
                     this.time.delayedCall(500, () => this.endWave());
                 }
             }
@@ -979,36 +3006,378 @@
                 const hpBar = m.getData('hpBar');
                 const hpBg = m.getData('hpBg');
                 const nameTag = m.getData('nameTag');
-                [icon, hpBar, hpBg, nameTag].forEach(o => { if(o) { this.tweens.killTweensOf(o); o.destroy(); } });
+                const bossGlow = m.getData('bossGlow');
+                const iceOverlay = m.getData('iceOverlay');
+                const outerGlow = m.getData('outerGlow');
+                const innerRing = m.getData('innerRing');
+                [icon, hpBar, hpBg, nameTag, bossGlow, iceOverlay, outerGlow, innerRing].forEach(o => { if(o) { this.tweens.killTweensOf(o); o.destroy(); } });
                 m.destroy();
             });
             this.monsters = [];
 
+            // 完美防守判定：本波未受伤害
+            if(this.waveDamageTaken === 0) {
+                GameData.battle.perfectDefenses++;
+                const bonus = 50 * GameData.battle.waveCycle;
+                GameData.player.spiritStones += bonus;
+                this.showMsg(`✨ 完美防守! +${bonus}灵石`);
+                // 完美防守特效
+                const perfectFx = this.add.circle(this.treeX, this.treeY, 30, 0xFFD700, 0.8);
+                this.tweens.add({ targets: perfectFx, scale: 4, alpha: 0, duration: 800, onComplete: () => perfectFx.destroy() });
+            }
+
             this.isWaveActive = false;
-            this.waveTimer = 30;
+            this.waveTimer = 15;
             this.updateUI();
             this.updateTimerDisplay();
             this.showMsg('波次结束! 准备下一波');
+
+            // 天命事件：每3波触发一次
+            if(GameData.battle.currentWave > 0 && GameData.battle.currentWave % 3 === 0
+               && GameData.battle.currentWave !== GameData.destiny.lastEventWave) {
+                GameData.destiny.lastEventWave = GameData.battle.currentWave;
+                this.time.delayedCall(800, () => this.triggerDestinyEvent());
+            }
 
             if(GameData.battle.currentWave >= 50) this.victory();
         }
 
         tick() {
-            // 游戏已结束，停止所有计时逻辑
-            if(this.isGameOver) return;
+            try {
+            // 游戏已结束或暂停，停止所有计时逻辑
+            if(this.isGameOver || this.isPaused) return;
 
-            // 灵气自动恢复（每秒恢复，恢复速率随灵木等级增长）
+            // ===== 灵兽技能冷却 =====
+            if(GameData.spiritBeast.contracted && GameData.spiritBeast.contracted.skillCooldown > 0) {
+                GameData.spiritBeast.contracted.skillCooldown--;
+            }
+
+            // ===== 探索冷却 =====
+            if(GameData.explore.cooldown > 0) {
+                GameData.explore.cooldown--;
+            }
+
+            // ===== 渡劫检查 =====
+            this.checkTribulation();
+
+            // ===== 昼夜循环系统 =====
+            GameData.time.tickAccum++;
+            if(GameData.time.tickAccum >= 6) { // 每6秒推进1游戏小时
+                GameData.time.tickAccum = 0;
+                GameData.time.hour = (GameData.time.hour + 1) % 24;
+                const newPeriod = getCurrentPeriod(GameData.time.hour);
+
+                // 昼夜切换通知
+                const oldPhase = GameData.time.phase;
+                GameData.time.phase = newPeriod.key;
+                GameData.time.isNight = newPeriod.key === 'night';
+
+                if(oldPhase !== newPeriod.key) {
+                    this.updateSkyColors();
+                    this.updateTimeUI();
+                    const cw = this.cameras.main.width, ch = this.cameras.main.height;
+                    if(newPeriod.key === 'night') {
+                        this.showMsg('🌙 幽夜降临! 妖兽×1.5 阵法×0.7 慎守!');
+                        // 夜间警告闪烁
+                        const warn = this.add.rectangle(cw/2, ch/2, cw, ch, 0x1a0030, 0.3).setDepth(100);
+                        this.tweens.add({ targets: warn, alpha: 0, duration: 800, onComplete: () => warn.destroy() });
+                    } else if(newPeriod.key === 'dawn') {
+                        this.showMsg('🌅 破晓! 灵气回复×1.5 抓紧恢复!');
+                        // 破晓金光
+                        const dawnFx = this.add.rectangle(cw/2, ch/2, cw, ch, 0x3a2a00, 0.15).setDepth(100);
+                        this.tweens.add({ targets: dawnFx, alpha: 0, duration: 600, onComplete: () => dawnFx.destroy() });
+                    } else if(newPeriod.key === 'day') {
+                        this.showMsg('☀️ 天明! 阵法恢复正常效率!');
+                    } else if(newPeriod.key === 'dusk') {
+                        this.showMsg('🌇 日暮! 妖兽开始增强(×1.2)，注意防守!');
+                    }
+                } else {
+                    this.updateSkyColors();
+                    this.updateTimeUI();
+                }
+            }
+
+            // 灵气自动恢复（昼夜影响恢复速率）
             const treeLevel = GameData.tree.level;
-            const regen = treeLevel < TREE_LEVELS.length ? TREE_LEVELS[treeLevel].regen : 15;
+            let regen = treeLevel < TREE_LEVELS.length ? TREE_LEVELS[treeLevel].regen : 15;
+            const period = getCurrentPeriod(GameData.time.hour);
+            regen = Math.ceil(regen * period.spiritRegenMult); // 使用ceil避免floor吞掉破晓×1.5加成
+            // 卯时额外恢复（即使基础恢复为0也至少恢复1）
+            if(period.key === 'dawn' && regen === 0) regen = 1;
+
             if(regen > 0 && GameData.tree.spirit < GameData.tree.spiritCapacity) {
+                // 灵兽被动：灵气回复加成
+                if(GameData.spiritBeast.contracted) {
+                    const bDef = SPIRIT_BEASTS.find(b => b.id === GameData.spiritBeast.contracted.id);
+                    if(bDef && bDef.passiveType === 'spirit_regen') {
+                        regen = Math.floor(regen * (1 + bDef.passiveMult));
+                    }
+                }
+                // 功法加成：炼丹术（灵气回复+50%）
+                const regenArtBonus = this.getArtBonus('spiritRegen');
+                if(regenArtBonus > 0) regen = Math.floor(regen * (1 + regenArtBonus));
                 GameData.tree.spirit = Math.min(GameData.tree.spirit + regen, GameData.tree.spiritCapacity);
                 this.spiritText.setText(`${Math.max(0, GameData.tree.spirit)}/${GameData.tree.spiritCapacity}`);
             }
 
+            // ===== 灵兽被动：阵法耐久加成 =====
+            // (在创建阵法时应用maxDurability加成)
+
+            // ===== 灼烧效果（凤炎·焚）=====
+            GameData.talismans.activeEffects.filter(e => e.type === 'burn').forEach(burn => {
+                this.monsters.slice().forEach(m => {
+                    if(m && m.active) {
+                        this.damageMonster(m, burn.power);
+                    }
+                });
+            });
+
+            // ===== 符箓冷却更新 =====
+            GameData.talismans.owned.forEach(t => {
+                if(t.cooldown > 0) t.cooldown--;
+            });
+            // 符箓效果持续时间更新
+            GameData.talismans.activeEffects = GameData.talismans.activeEffects.filter(e => {
+                e.remaining--;
+                if(e.remaining <= 0) {
+                    // burn类型来自灵兽凤炎·焚，TALISMAN_TYPES中无此键
+                    if(e.type === 'burn') {
+                        this.showMsg('🔥 灼烧效果结束');
+                    } else if(TALISMAN_TYPES[e.type]) {
+                        this.showMsg(`${TALISMAN_TYPES[e.type].icon} ${TALISMAN_TYPES[e.type].name}效果结束`);
+                    }
+                    return false;
+                }
+                return true;
+            });
+            this.updateTalismanUI();
+
             if(this.isWaveActive) return;
             this.waveTimer = Math.max(0, this.waveTimer - 1);
-            this.timerText.setText(`⏱ ${this.waveTimer}秒`);
-            if(this.waveTimer <= 0) this.startWave();
+            this.updateTimerDisplay();
+            if(this.waveTimer <= 0) {
+                this.showMsg('⚔ 准备时间结束，妖兽来袭!');
+                this.startWave();
+            }
+            } catch(err) {
+                console.error('❌ tick() error:', err);
+                const errDiv = document.createElement('div');
+                errDiv.style.cssText = 'position:fixed;bottom:60px;left:10px;max-width:90%;background:rgba(255,0,0,0.9);color:#fff;padding:8px 12px;z-index:9999;font-size:11px;border-radius:6px;word-break:break-all;';
+                errDiv.textContent = 'tick Error: ' + err.message + ' (line:' + (err.lineNumber||'?') + ')';
+                document.body.appendChild(errDiv);
+                setTimeout(() => errDiv.remove(), 10000);
+            }
+        }
+
+        // 更新昼夜UI
+        updateTimeUI() {
+            const period = getCurrentPeriod(GameData.time.hour);
+            const timeEl = document.getElementById('time-indicator');
+            if(timeEl) {
+                const iconEl = document.getElementById('time-icon');
+                const nameEl = document.getElementById('time-name');
+                const hourEl = document.getElementById('time-hour');
+                if(iconEl) iconEl.textContent = period.icon;
+                if(nameEl) nameEl.textContent = period.name;
+                // 时辰名称映射
+                const hourNames = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+                const hourIdx = Math.floor(GameData.time.hour / 2);
+                const suffix = GameData.time.hour % 2 === 0 ? '时初' : '时正';
+                if(hourEl) hourEl.textContent = hourNames[hourIdx] + suffix + ' (' + GameData.time.hour + ':00)';
+
+                // 更新距离下一时段提示
+                const progressEl = document.getElementById('time-progress');
+                if(progressEl) {
+                    const hour = GameData.time.hour;
+                    const phaseOrder = [
+                        { key: 'dawn', start: 5, label: '🌅破晓' },
+                        { key: 'day', start: 7, label: '☀️天明' },
+                        { key: 'dusk', start: 17, label: '🌇日暮' },
+                        { key: 'night', start: 19, label: '🌙幽夜' }
+                    ];
+                    let nextPhase = phaseOrder.find(p => p.start > hour);
+                    if(!nextPhase) nextPhase = phaseOrder[0]; // wrap around
+                    const hoursUntil = nextPhase.start > hour ? nextPhase.start - hour : (24 - hour + nextPhase.start);
+                    progressEl.textContent = `${hoursUntil}h→${nextPhase.label}`;
+                }
+
+                // 更新时段样式类
+                timeEl.className = 'period-' + period.key;
+
+                // 更新效果提示
+                const effectsEl = document.getElementById('time-effects');
+                if(effectsEl) {
+                    const desc = {
+                        dawn: '🌅 破晓 — 灵气回升，妖兽蛰伏',
+                        day: '☀️ 白天 — 万象平稳',
+                        dusk: '🌇 日暮 — 妖兽渐起，阵法微弱',
+                        night: '🌙 幽夜 — 妖兽猖獗，阵法式微'
+                    };
+                    const spiritClass = period.spiritRegenMult > 1 ? 'effect-positive' : period.spiritRegenMult < 1 ? 'effect-negative' : 'effect-neutral';
+                    const formClass = period.formationMult > 1 ? 'effect-positive' : period.formationMult < 1 ? 'effect-negative' : 'effect-neutral';
+                    const monsClass = period.monsterMult < 1 ? 'effect-positive' : period.monsterMult > 1 ? 'effect-negative' : 'effect-neutral';
+                    effectsEl.innerHTML = `
+                        <div class="effect-neutral">${desc[period.key]}</div>
+                        <div class="${spiritClass}">灵气回复 ×${period.spiritRegenMult}</div>
+                        <div class="${formClass}">阵法效率 ×${period.formationMult}</div>
+                        <div class="${monsClass}">妖兽强度 ×${period.monsterMult}</div>
+                    `;
+                }
+            }
+        }
+
+        // ===== 符箓系统 =====
+        initTalismans() {
+            // 初始给1个天雷符
+            GameData.talismans.owned = [
+                { type: 'attack', count: 1, cooldown: 0, maxCooldown: TALISMAN_TYPES.attack.cooldown },
+                { type: 'slow',   count: 0, cooldown: 0, maxCooldown: TALISMAN_TYPES.slow.cooldown },
+                { type: 'shield', count: 0, cooldown: 0, maxCooldown: TALISMAN_TYPES.shield.cooldown }
+            ];
+            GameData.talismans.activeEffects = [];
+            this.updateTalismanUI();
+        }
+
+        updateTalismanUI() {
+            const bar = document.getElementById('talisman-bar');
+            if(!bar) return;
+            bar.innerHTML = '';
+
+            GameData.talismans.owned.forEach((t, idx) => {
+                const config = TALISMAN_TYPES[t.type];
+                const isOnCooldown = t.cooldown > 0;
+                const isUsedUp = t.count <= 0;
+                const disabled = isOnCooldown || isUsedUp;
+
+                const slot = document.createElement('div');
+                slot.className = 'talisman-slot' + (disabled ? ' on-cooldown' : '');
+                slot.innerHTML = `
+                    <div class="talisman-icon">${config.icon}</div>
+                    <div class="talisman-name">${config.name}</div>
+                    <div class="talisman-count">x${t.count}</div>
+                    <button class="talisman-shop-btn" data-type="${t.type}">💎${config.cost}</button>
+                    ${isOnCooldown ? `<div class="talisman-cooldown-overlay">${t.cooldown}</div>` : ''}
+                `;
+
+                // 点击使用符箓
+                slot.addEventListener('click', (e) => {
+                    if(e.target.classList.contains('talisman-shop-btn')) return;
+                    if(disabled) return;
+                    this.useTalisman(t.type);
+                });
+
+                // 购买按钮
+                slot.querySelector('.talisman-shop-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.buyTalisman(t.type);
+                });
+
+                bar.appendChild(slot);
+            });
+        }
+
+        useTalisman(type) {
+            if(this.isGameOver) return; // 游戏已结束
+            const t = GameData.talismans.owned.find(t => t.type === type);
+            if(!t || t.count <= 0 || t.cooldown > 0) return;
+
+            t.count--;
+            t.cooldown = t.maxCooldown;
+
+            const config = TALISMAN_TYPES[type];
+
+            if(type === 'attack') {
+                // 天雷符：对所有在场妖兽造成伤害
+                const dmg = config.power + GameData.tree.level * 20;
+                let hitCount = 0;
+                this.monsters.slice().forEach(m => {
+                    if(m && m.active) {
+                        this.damageMonster(m, dmg, true);
+                        hitCount++;
+                        // 雷击特效
+                        const bolt = this.add.circle(m.x, m.y, 30, 0xFFD700, 0.9);
+                        this.tweens.add({ targets: bolt, scale: 2, alpha: 0, duration: 400, onComplete: () => bolt.destroy() });
+                    }
+                });
+                this.showMsg(`⚡ 天雷符! ${hitCount}只妖兽受创!`);
+                // 全屏闪光
+                const flash = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height/2,
+                    this.cameras.main.width, this.cameras.main.height, 0xFFD700, 0.3).setDepth(999);
+                this.tweens.add({ targets: flash, alpha: 0, duration: 300, onComplete: () => flash.destroy() });
+
+            } else if(type === 'slow') {
+                // 定身符：冻结所有怪物3秒
+                GameData.talismans.activeEffects.push({ type: 'slow', remaining: config.power, power: config.power });
+                this.monsters.forEach(m => {
+                    if(m && m.active) {
+                        // 暂停怪物移动tween
+                        this.tweens.getAllTweens().forEach(tw => {
+                            if(tw.targets && tw.targets.includes(m)) {
+                                tw.pause();
+                            }
+                        });
+                        // 冻结视觉效果 - 跟随怪物
+                        const iceOverlay = this.add.circle(m.x, m.y, 25, 0x4169E1, 0.3);
+                        m.setData('iceOverlay', iceOverlay);
+                        // 冰冻overlay跟随怪物移动
+                        const iceFollow = this.time.addEvent({
+                            delay: 16, loop: true,
+                            callback: () => {
+                                if(iceOverlay && iceOverlay.active && m && m.active) {
+                                    iceOverlay.setPosition(m.x, m.y);
+                                } else {
+                                    iceFollow.remove();
+                                }
+                            }
+                        });
+                        this.tweens.add({ targets: iceOverlay, alpha: 0.1, duration: 500, yoyo: true, repeat: 5 });
+                        // 延迟恢复
+                        this.time.delayedCall(config.power * 1000, () => {
+                            if(iceOverlay && iceOverlay.active) iceOverlay.destroy();
+                            // 恢复怪物移动tween
+                            this.tweens.getAllTweens().forEach(tw => {
+                                if(tw.targets && tw.targets.includes(m) && tw.isPaused()) {
+                                    tw.resume();
+                                }
+                            });
+                        });
+                    }
+                });
+                this.showMsg(`❄️ 定身符! 冻结${config.power}秒!`);
+
+            } else if(type === 'shield') {
+                // 金钟符：灵木3秒免疫伤害
+                GameData.talismans.activeEffects.push({ type: 'shield', remaining: config.power, power: config.power });
+                // 金钟视觉
+                if(this.treeGlow) {
+                    this.treeGlow.setStrokeStyle(4, 0x5CBF7C);
+                    this.treeGlow.setFillStyle(0x5CBF7C, 0.2);
+                }
+                this.time.delayedCall(config.power * 1000, () => {
+                    if(this.treeGlow && this.treeGlow.active) {
+                        this.treeGlow.setStrokeStyle(0);
+                        this.treeGlow.setFillStyle(0x4A7C59, 0.08);
+                    }
+                });
+                this.showMsg(`🛡️ 金钟符! ${config.power}秒护体!`);
+            }
+
+            this.updateTalismanUI();
+        }
+
+        buyTalisman(type) {
+            if(this.isGameOver) return; // 游戏已结束
+            const config = TALISMAN_TYPES[type];
+            if(GameData.player.spiritStones < config.cost) {
+                this.showMsg('灵石不足!');
+                return;
+            }
+            GameData.player.spiritStones -= config.cost;
+            const t = GameData.talismans.owned.find(t => t.type === type);
+            if(t) t.count++;
+            this.updateUI();
+            this.updateTalismanUI();
+            this.showMsg(`获得${config.icon}${config.name}!`);
         }
 
         updateUI() {
@@ -1020,7 +3389,7 @@
             if(this.expBarFill && this.expBarFill.active) {
                 const nextLevelData = GameData.tree.level + 1 < TREE_LEVELS.length ? TREE_LEVELS[GameData.tree.level + 1] : null;
                 const expPercent = nextLevelData ? Math.min(1, GameData.tree.exp / nextLevelData.expNeeded) : 1;
-                this.expBarFill.setDisplaySize(Math.max(1, 120 * expPercent), 10);
+                this.expBarFill.setDisplaySize(Math.max(1, 68 * expPercent), 6);
                 // 经验条颜色：满变金色
                 if(expPercent >= 1) {
                     this.expBarFill.setFillStyle(0xFFD700);
@@ -1042,6 +3411,13 @@
             // 更新经验数值
             this.updateExpText();
 
+            // 更新阵法位信息
+            if(this.slotInfoText && this.slotInfoText.active) {
+                const uc = this.getUnlockedSlotCount();
+                const pc = this.formations.length;
+                this.slotInfoText.setText(`⭕ 阵法位 ${pc}/${uc}`);
+            }
+
             // 更新阵法视觉 - 等级越高外观越强
             this.formations.forEach(slot => {
                 if(slot.formation && slot.formation.levelBadge) {
@@ -1052,7 +3428,7 @@
                     const baseSize = 28;
                     const newSize = baseSize + lvl * 3;
                     if(slot.formation.sprite && slot.formation.sprite.active) {
-                        slot.formation.sprite.setRadius(newSize);
+                        slot.formation.sprite.setDisplaySize(newSize * 2, newSize * 2);
                         // 高等级阵法边框更亮
                         if(lvl >= 5) {
                             slot.formation.sprite.setStrokeStyle(3, 0xFFD700);
@@ -1063,7 +3439,26 @@
 
                     // 槽位底座也随之变大
                     if(slot.bg && slot.bg.active) {
-                        slot.bg.setRadius(newSize + 6);
+                        slot.bg.setDisplaySize((newSize + 6) * 2, (newSize + 6) * 2);
+                    }
+
+                    // 旋转光环也随之变大
+                    if(slot.formation.orbitRing && slot.formation.orbitRing.active) {
+                        const ringSize = newSize + 8;
+                        slot.formation.orbitRing.setDisplaySize(ringSize * 2, ringSize * 2);
+                        // 高等级加速旋转
+                        if(lvl >= 5) {
+                            this.tweens.killTweensOf(slot.formation.orbitRing, 'angle');
+                            this.tweens.add({ targets: slot.formation.orbitRing, angle: 360, duration: 4000, repeat: -1 });
+                        }
+                    }
+
+                    // 粒子也随之变大
+                    if(slot.formation.particles) {
+                        const particleRadius = 3 + Math.floor(lvl / 3);
+                        slot.formation.particles.forEach(p => {
+                            if(p && p.active) p.setDisplaySize(particleRadius * 2, particleRadius * 2);
+                        });
                     }
                 }
             });
@@ -1084,9 +3479,36 @@
                 GameData.tree.spirit = nextLevelData.capacity;
                 this.updateUI();
 
+                // 灵木形态视觉进化
+                this.renderTreeByLevel();
+
                 // 升级特效
                 this.showTreeLevelUpEffect();
                 this.showMsg(`灵木升级! → ${nextLevelData.name}`);
+
+                // 检查是否解锁新阵法位
+                this.checkSlotUnlock();
+
+                // 更新境界
+                this.updateRealm();
+                // 递归检查是否可以连续升级
+                this.checkTreeLevelUp();
+            }
+        }
+
+        // 更新境界显示（灵木等级→修仙境界）
+        updateRealm() {
+            const level = GameData.tree.level;
+            const tribulations = GameData.tribulation.completed.length;
+            let realm = '炼气期';
+            if(tribulations >= 3) realm = '元婴期';
+            else if(tribulations >= 2) realm = '金丹期';
+            else if(tribulations >= 1) realm = '筑基期';
+            else if(level >= 5) realm = '筑基期';
+            else if(level >= 3) realm = '炼气后期';
+            GameData.player.realm = realm;
+            if(this.realmText && this.realmText.active) {
+                this.realmText.setText('✦ ' + realm);
             }
         }
 
@@ -1121,6 +3543,7 @@
 
         showTreeUpgradeDialog() {
             const currentLevel = GameData.tree.level;
+            if(currentLevel >= TREE_LEVELS.length || !TREE_LEVELS[currentLevel]) return;
             const currentData = TREE_LEVELS[currentLevel];
             const nextLevel = currentLevel + 1;
             const isMaxLevel = nextLevel >= TREE_LEVELS.length;
@@ -1159,6 +3582,7 @@
                     <div style="color:#FFD700; font-weight:bold; margin-bottom:4px">→ ${nextData.name} Lv.${nextLevel}</div>
                     <div>🌿 灵气上限: <span style="color:#9B7ED9">${GameData.tree.spiritCapacity}</span> → <span style="color:#5CBF7C;font-weight:bold">${nextData.capacity}</span></div>
                     <div>💚 恢复速率: <span style="color:#9B7ED9">${currentData.regen}/秒</span> → <span style="color:#5CBF7C;font-weight:bold">${nextData.regen}/秒</span></div>
+                    <div>⭕ 阵法位: <span style="color:#9B7ED9">${currentData.slots}</span> → <span style="color:#5CBF7C;font-weight:bold">${nextData.slots}</span>${nextData.slots > currentData.slots ? ' 🆕' : ''}</div>
                 </div>
                 ${canLevelUp
                     ? '<div style="font-size:15px; color:#5CBF7C; margin:8px 0">✦ 经验已满，灵木自动突破!</div>'
@@ -1184,22 +3608,59 @@
             this.tweens.add({ targets: t, y: t.y - 50, alpha: 0, duration: 2200, onComplete: () => t.destroy() });
         }
 
+        // 生成评级
+        getRating() {
+            const wave = GameData.battle.currentWave;
+            const kills = GameData.battle.monstersKilled;
+            const perfects = GameData.battle.perfectDefenses;
+            let score = wave * 10 + kills * 2 + perfects * 20 + GameData.tribulation.completed.length * 50 + GameData.arts.learned.length * 30;
+            if(GameData.spiritBeast.contracted) score += 40;
+            if(score >= 800) return { grade: 'SSS', color: '#FF44FF', title: '天选之人' };
+            if(score >= 600) return { grade: 'SS', color: '#FFD700', title: '大道至尊' };
+            if(score >= 450) return { grade: 'S', color: '#FF6347', title: '仙途可期' };
+            if(score >= 300) return { grade: 'A', color: '#5CBF7C', title: '道心坚定' };
+            if(score >= 180) return { grade: 'B', color: '#4A90D9', title: '初窥门径' };
+            if(score >= 80)  return { grade: 'C', color: '#9B7ED9', title: '蹒跚学步' };
+            return { grade: 'D', color: '#888', title: '凡尘未脱' };
+        }
+
         gameOver() {
             if(this.monsterAttackTimer) { this.monsterAttackTimer.remove(); this.monsterAttackTimer = null; }
             if(this.waveEndTimer) { this.waveEndTimer.remove(); this.waveEndTimer = null; }
+            // 清除残留的spawn定时器
+            this.spawnTimers.forEach(t => { if(t) t.remove(); });
+            this.spawnTimers = [];
+            // 清除场上怪物tween避免拖尾粒子
+            this.monsters.forEach(m => { this.tweens.killTweensOf(m); });
             this.isWaveActive = false;
             this.isGameOver = true;
 
             const w = this.cameras.main.width, h = this.cameras.main.height;
             this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.85).setDepth(1000);
 
+            const rating = this.getRating();
+            const beasts = GameData.tribulation.completed.map(t => t.name).join('、') || '无';
+            const artsLearned = GameData.arts.learned.map(id => { const a = CULTIVATION_ARTS.find(x => x.id === id); return a ? a.name : ''; }).filter(Boolean).join('、') || '无';
+
             // 用HTML对话框展示结算
             dialogContent.innerHTML = `
-                <div class="dialog-title" style="color:#FF4444">灵气耗尽</div>
-                <div style="font-size:48px; margin:12px 0">💀</div>
-                <div style="font-size:17px; color:#ccc; margin:8px 0">存活波次: <span style="color:#FFD700;font-weight:bold">${GameData.battle.currentWave}</span></div>
-                <div style="font-size:17px; color:#ccc; margin:6px 0">击杀妖兽: <span style="color:#FF6347;font-weight:bold">${GameData.battle.monstersKilled}</span></div>
-                <div style="margin-top:20px">
+                <div class="dialog-title" style="color:#FF4444">💀 灵气耗尽</div>
+                <div style="text-align:center;margin:8px 0">
+                    <span style="font-size:42px;font-weight:bold;color:${rating.color};text-shadow:0 0 20px ${rating.color}">${rating.grade}</span>
+                    <div style="font-size:13px;color:${rating.color};margin-top:2px">${rating.title}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:14px;margin:10px 0">
+                    <div style="color:#aaa">存活波次</div><div style="color:#FFD700;text-align:right;font-weight:bold">${GameData.battle.currentWave}</div>
+                    <div style="color:#aaa">击杀妖兽</div><div style="color:#FF6347;text-align:right;font-weight:bold">${GameData.battle.monstersKilled}</div>
+                    <div style="color:#aaa">完美防守</div><div style="color:#5CBF7C;text-align:right;font-weight:bold">${GameData.battle.perfectDefenses}</div>
+                    <div style="color:#aaa">累计灵石</div><div style="color:#DAA520;text-align:right;font-weight:bold">${GameData.battle.totalSpiritsEarned}</div>
+                    <div style="color:#aaa">累计伤害</div><div style="color:#C0C0C0;text-align:right;font-weight:bold">${GameData.battle.totalDamageDealt}</div>
+                    <div style="color:#aaa">灵木等级</div><div style="color:#6BAF7D;text-align:right;font-weight:bold">Lv.${GameData.tree.level}</div>
+                    <div style="color:#aaa">已渡劫</div><div style="color:#9B7ED9;text-align:right;font-weight:bold">${beasts}</div>
+                    <div style="color:#aaa">已参悟</div><div style="color:#4A90D9;text-align:right;font-weight:bold">${artsLearned}</div>
+                    ${GameData.spiritBeast.contracted ? `<div style="color:#aaa">契约灵兽</div><div style="color:#DAA520;text-align:right;font-weight:bold">${GameData.spiritBeast.contracted.icon} ${GameData.spiritBeast.contracted.name}</div>` : ''}
+                </div>
+                <div style="margin-top:16px">
                     <button class="upgrade-btn" id="restart-btn" style="background:linear-gradient(135deg,#1a3d2a,#0f2619);color:#5CBF7C;border-color:#4A7C59">重新修仙</button>
                 </div>
             `;
@@ -1207,34 +3668,85 @@
 
             document.getElementById('restart-btn').addEventListener('click', () => {
                 dialogOverlay.classList.remove('active');
+                // 清理所有残留的DOM弹窗（渡劫/天命/升级等overlay），防止重启后幽灵弹窗
+                document.querySelectorAll('body > div[style*="position:fixed"]').forEach(el => {
+                    if(el.id !== 'dialog-overlay' && el.id !== 'talisman-bar' && el.id !== 'system-bar' && el.id !== 'time-indicator' && el.id !== 'game-container') {
+                        el.remove();
+                    }
+                });
                 GameData.battle.currentWave = 0;
                 GameData.battle.monstersKilled = 0;
                 GameData.battle.spawnedThisWave = 0;
                 GameData.battle.totalThisWave = 0;
                 GameData.battle.killedThisWave = 0;
+                GameData.battle.waveCycle = 0;
+                GameData.battle.perfectDefenses = 0;
+                GameData.battle.hasPlacedFirstFormation = false;
+                GameData.battle.totalSpiritsEarned = 0;
+                GameData.battle.totalDamageDealt = 0;
+                GameData.battle.weakenActive = false;
                 GameData.tree.level = 1;
                 GameData.tree.spirit = 100;
                 GameData.tree.spiritCapacity = 100;
                 GameData.tree.exp = 0;
-                GameData.player.spiritStones = 100;
+                GameData.player.realm = '炼气期';
+                GameData.player.spiritStones = 200;
+                GameData.time.hour = 6;
+                GameData.time.tickAccum = 0;
+                GameData.time.phase = 'day';
+                GameData.time.isNight = false;
+                GameData.talismans.owned = [];
+                GameData.talismans.activeEffects = [];
+                GameData.destiny.eventsTriggered = 0;
+                GameData.destiny.lastEventWave = 0;
+                GameData.spiritBeast.contracted = null;
+                GameData.spiritBeast.unlocked = false;
+                GameData.tribulation.completed = [];
+                GameData.tribulation.inProgress = false;
+                GameData.tribulation.currentTrib = null;
+                GameData.tribulation.timer = 0;
+                GameData.tribulation.declinedUntil = 0;
+                GameData.explore.timesExplored = 0;
+                GameData.explore.cooldown = 0;
+                GameData.arts.learned = [];
                 this.scene.restart();
             });
         }
 
         victory() {
             if(this.monsterAttackTimer) { this.monsterAttackTimer.remove(); this.monsterAttackTimer = null; }
+            if(this.waveEndTimer) { this.waveEndTimer.remove(); this.waveEndTimer = null; }
+            // 清除残留的spawn定时器
+            this.spawnTimers.forEach(t => { if(t) t.remove(); });
+            this.spawnTimers = [];
             this.isWaveActive = false;
             this.isGameOver = true;
 
             const w = this.cameras.main.width, h = this.cameras.main.height;
             this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.85).setDepth(1000);
 
+            const rating = this.getRating();
+            const beasts = GameData.tribulation.completed.map(t => t.name).join('、') || '无';
+            const artsLearned = GameData.arts.learned.map(id => { const a = CULTIVATION_ARTS.find(x => x.id === id); return a ? a.name : ''; }).filter(Boolean).join('、') || '无';
+
             dialogContent.innerHTML = `
-                <div class="dialog-title" style="color:#FFD700">🎉 通关!</div>
-                <div style="font-size:48px; margin:12px 0">🏆</div>
-                <div style="font-size:18px; color:#FFD700; margin:8px 0">成功抵御50波妖兽!</div>
-                <div style="font-size:16px; color:#ccc; margin:6px 0">击杀妖兽: <span style="color:#FF6347;font-weight:bold">${GameData.battle.monstersKilled}</span></div>
-                <div style="margin-top:20px">
+                <div class="dialog-title" style="color:#FFD700">🏆 通关!</div>
+                <div style="text-align:center;margin:8px 0">
+                    <span style="font-size:48px;font-weight:bold;color:${rating.color};text-shadow:0 0 20px ${rating.color}">${rating.grade}</span>
+                    <div style="font-size:14px;color:${rating.color};margin-top:2px">${rating.title}</div>
+                </div>
+                <div style="font-size:16px; color:#FFD700; margin:8px 0;text-align:center">成功抵御50波妖兽!</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:14px;margin:10px 0">
+                    <div style="color:#aaa">击杀妖兽</div><div style="color:#FF6347;text-align:right;font-weight:bold">${GameData.battle.monstersKilled}</div>
+                    <div style="color:#aaa">完美防守</div><div style="color:#5CBF7C;text-align:right;font-weight:bold">${GameData.battle.perfectDefenses}</div>
+                    <div style="color:#aaa">累计灵石</div><div style="color:#DAA520;text-align:right;font-weight:bold">${GameData.battle.totalSpiritsEarned}</div>
+                    <div style="color:#aaa">累计伤害</div><div style="color:#C0C0C0;text-align:right;font-weight:bold">${GameData.battle.totalDamageDealt}</div>
+                    <div style="color:#aaa">灵木等级</div><div style="color:#6BAF7D;text-align:right;font-weight:bold">Lv.${GameData.tree.level}</div>
+                    <div style="color:#aaa">已渡劫</div><div style="color:#9B7ED9;text-align:right;font-weight:bold">${beasts}</div>
+                    <div style="color:#aaa">已参悟</div><div style="color:#4A90D9;text-align:right;font-weight:bold">${artsLearned}</div>
+                    ${GameData.spiritBeast.contracted ? `<div style="color:#aaa">契约灵兽</div><div style="color:#DAA520;text-align:right;font-weight:bold">${GameData.spiritBeast.contracted.icon} ${GameData.spiritBeast.contracted.name}</div>` : ''}
+                </div>
+                <div style="margin-top:16px">
                     <button class="upgrade-btn" id="victory-restart-btn">再来一局</button>
                 </div>
             `;
@@ -1242,16 +3754,47 @@
 
             document.getElementById('victory-restart-btn').addEventListener('click', () => {
                 dialogOverlay.classList.remove('active');
+                // 清理所有残留的DOM弹窗（渡劫/天命/升级等overlay），防止重启后幽灵弹窗
+                document.querySelectorAll('body > div[style*="position:fixed"]').forEach(el => {
+                    if(el.id !== 'dialog-overlay' && el.id !== 'talisman-bar' && el.id !== 'system-bar' && el.id !== 'time-indicator' && el.id !== 'game-container') {
+                        el.remove();
+                    }
+                });
                 GameData.battle.currentWave = 0;
                 GameData.battle.monstersKilled = 0;
                 GameData.battle.spawnedThisWave = 0;
                 GameData.battle.totalThisWave = 0;
                 GameData.battle.killedThisWave = 0;
+                GameData.battle.waveCycle = 0;
+                GameData.battle.perfectDefenses = 0;
+                GameData.battle.hasPlacedFirstFormation = false;
+                GameData.battle.totalSpiritsEarned = 0;
+                GameData.battle.totalDamageDealt = 0;
+                GameData.battle.weakenActive = false;
                 GameData.tree.level = 1;
                 GameData.tree.spirit = 100;
                 GameData.tree.spiritCapacity = 100;
                 GameData.tree.exp = 0;
-                GameData.player.spiritStones = 100;
+                GameData.player.realm = '炼气期';
+                GameData.player.spiritStones = 200;
+                GameData.time.hour = 6;
+                GameData.time.tickAccum = 0;
+                GameData.time.phase = 'day';
+                GameData.time.isNight = false;
+                GameData.talismans.owned = [];
+                GameData.talismans.activeEffects = [];
+                GameData.destiny.eventsTriggered = 0;
+                GameData.destiny.lastEventWave = 0;
+                GameData.spiritBeast.contracted = null;
+                GameData.spiritBeast.unlocked = false;
+                GameData.tribulation.completed = [];
+                GameData.tribulation.inProgress = false;
+                GameData.tribulation.currentTrib = null;
+                GameData.tribulation.timer = 0;
+                GameData.tribulation.declinedUntil = 0;
+                GameData.explore.timesExplored = 0;
+                GameData.explore.cooldown = 0;
+                GameData.arts.learned = [];
                 this.scene.restart();
             });
         }
@@ -1267,6 +3810,16 @@
         parent: 'game-container',
         backgroundColor: '#0a0a1a',
         scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
+    };
+
+    // 全局错误捕获，方便调试
+    window.onerror = function(msg, url, line, col, err) {
+        console.error('❌ JS Error:', msg, 'at line', line);
+        const errDiv = document.createElement('div');
+        errDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:red;color:#fff;padding:8px;z-index:9999;font-size:12px;';
+        errDiv.textContent = '❌ Error at line ' + line + ': ' + msg;
+        document.body.appendChild(errDiv);
+        setTimeout(() => errDiv.remove(), 8000);
     };
 
     const game = new Phaser.Game(config);
