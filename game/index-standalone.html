@@ -654,6 +654,7 @@
                 battleText.setColor('#5CBF7C');
             });
             battleBtn.on('pointerdown', () => {
+                if(window._overlayOpen) return; // 弹窗打开中，阻止误触
                 GameData.lobby.playCount++;
                 GameData.lobby.lastPlayDate = new Date().toISOString().split('T')[0];
                 savePlayerProfile();
@@ -720,6 +721,7 @@
                 const hitArea = this.add.rectangle(nx, navY, navW, 56, 0x000000, 0)
                     .setInteractive({ useHandCursor: true }).setDepth(102);
                 hitArea.on('pointerdown', () => {
+                    if(window._overlayOpen) return; // 防止弹窗穿透
                     if(n.name === '灵兽') {
                         this.showBeastCollection();
                     } else if(n.name === '功法') {
@@ -824,13 +826,15 @@
         // ===== 通用弹窗辅助（防止点击穿透到Phaser canvas） =====
         setupOverlay(overlay, card) {
             document.body.appendChild(overlay);
+            window._overlayOpen = true; // 全局标志：弹窗打开中
             // 禁用Phaser canvas的pointer事件，防止穿透
             const canvas = document.querySelector('canvas');
             if(canvas) canvas.style.pointerEvents = 'none';
             // 统一关闭方法：移除overlay，延迟恢复canvas交互（防止click穿透到Phaser按钮）
             overlay._close = () => {
                 overlay.remove();
-                setTimeout(() => { if(canvas) canvas.style.pointerEvents = 'auto'; }, 300);
+                window._overlayOpen = false;
+                setTimeout(() => { if(canvas && !window._overlayOpen) canvas.style.pointerEvents = 'auto'; }, 400);
             };
             // 阻止card内部点击穿透
             card.addEventListener('click', (e) => e.stopPropagation());
