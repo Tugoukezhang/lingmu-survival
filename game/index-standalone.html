@@ -179,6 +179,10 @@
         <button id="btn-beast" class="sys-btn" title="灵兽契约" style="display:none">🐯</button>
         <button id="btn-tribulation" class="sys-btn" title="渡劫" style="display:none">⚡</button>
         <button id="btn-explore" class="sys-btn" title="问道探索" style="display:none">🗺️</button>
+        <button id="btn-alchemy" class="sys-btn" title="炼丹炉" style="display:none">🧪</button>
+        <button id="btn-library" class="sys-btn" title="藏经阁" style="display:none">📚</button>
+        <button id="btn-beast-hall" class="sys-btn" title="灵兽阁" style="display:none">🏠</button>
+        <button id="btn-buildings" class="sys-btn" title="仙府总览" style="display:none">🏯</button>
     </div>
     <style>
         .sys-btn {
@@ -212,6 +216,22 @@
     </div>
 
     <script>
+    // === DEBUG: Capture syntax/parse errors at earliest possible moment ===
+    (function() {
+        var errBox = document.createElement('div');
+        errBox.id = 'debug-errors';
+        errBox.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#c00;color:#fff;padding:15px;z-index:999999;font-family:monospace;font-size:13px;word-break:break-all;display:none;';
+        document.body.appendChild(errBox);
+        window.addEventListener('error', function(e) {
+            errBox.style.display = 'block';
+            errBox.innerHTML = '<b>ERROR:</b> ' + e.message + '<br>Line: ' + (e.lineno||'?') + ', Col: ' + (e.colno||'?') + '<br>File: ' + (e.filename||'') + '<pre>' + (e.error && e.error.stack || '') + '</pre>';
+            e.preventDefault();
+        }, true);  // capture phase - catches errors before other handlers
+        window.addEventListener('unhandledrejection', function(e) {
+            errBox.style.display = 'block';
+            errBox.innerHTML += '<br><b>PROMISE ERROR:</b> ' + (e.reason ? (e.reason.message || e.reason || e) : e);
+        });
+    })();
     /* ========================================
        灵木求生 - 游戏数据与配置
        ======================================== */
@@ -277,7 +297,7 @@
         },
         // 灵兽契约系统
         spiritBeast: {
-            contracted: null,      // 当前契约灵兽 {id, name, icon, element, level, exp, skillCooldown}
+            contracted: null,      // 当前契约灵兽 {id, name, icon, element, level, exp, skillCooldown, star}
             unlocked: false        // 是否已解锁灵兽系统
         },
         // 渡劫系统
@@ -600,6 +620,64 @@
         { id: 'chaos_dragon', name: '混元龙', icon: '🐉', element: 'ALL', cost: 800, rarity: 4, passiveDesc: '【神兽】随机切换属性克制，所有阵法+15%伤害', passiveType: 'chaos_element', passiveMult: 0.15, skillName: '混元·灭', skillDesc: '无视属性克制对全场妖兽造成4倍伤害', skillCooldown: 90 },
     ];
 
+    // ===== v4.3 P2 灵兽突破/升星系统配置 =====
+    // 突破等级阈值：Lv.5 / 10 / 15 / 20 / 25 各可突破一次（共5星）
+    const BEAST_BREAKTHROUGH_LEVELS = [5, 10, 15, 20, 25];
+    // 每次突破的星级效果
+    const BEAST_STAR_EFFECTS = [
+        {   // ★☆☆☆☆ (第1次突破 Lv.5)
+            star: 1, name: '初醒', title: '一星·初醒',
+            atkMult: 0.15, hpMult: 0.15,       // 攻击/生命 +15%
+            skillBoost: 0.10,                  // 技能伤害 +10%
+            cooldownReduction: 3,              // 技能冷却 -3秒
+            passiveBonus: 0.05,                // 被动效果 +5%
+            newPassive: null,                  // 无新被动
+            desc: '灵兽初开灵智，感知天地灵气',
+            color: '#FFFFFF',
+        },
+        {   // ★★☆☆☆ (第2次突破 Lv.10)
+            star: 2, name: '通灵', title: '二星·通灵',
+            atkMult: 0.20, hpMult: 0.20,
+            skillBoost: 0.15,
+            cooldownReduction: 3,
+            passiveBonus: 0.08,
+            newPassive: { name: '灵韵', desc: '每30秒自动回复灵木5%灵气', type: 'auto_spirit_regen', value: 0.05, interval: 30 },
+            desc: '灵兽与主人心意相通，可自主运转灵力',
+            color: '#4A90D9',
+        },
+        {   // ★★★☆☆ (第3次突破 Lv.15)
+            star: 3, name: '化形', title: '三星·化形',
+            atkMult: 0.25, hpMult: 0.25,
+            skillBoost: 0.20,
+            cooldownReduction: 4,
+            passiveBonus: 0.12,
+            newPassive: { name: '护主', desc: '灵木受到致命伤时，有20%概率替灵木承受(冷却60s)', type: 'protect_master', value: 0.20, interval: 60 },
+            desc: '灵兽化为人形，战力大幅提升',
+            color: '#9B7ED9',
+        },
+        {   // ★★★★☆ (第4次突破 Lv.20)
+            star: 4, name: '天阶', title: '四星·天阶',
+            atkMult: 0.35, hpMult: 0.35,
+            skillBoost: 0.25,
+            cooldownReduction: 5,
+            passiveBonus: 0.18,
+            newPassive: { name: '威压', desc: '入场时眩晕最近妖兽3秒(每场战斗一次)', type: 'aura_fear', value: 3 },
+            desc: '踏入天阶，妖兽见之丧胆',
+            color: '#FF6347',
+        },
+        {   // ★★★★★ (第5次突破 Lv.25) — 满星！
+            star: 5, name: '仙兽', title: '五星·仙兽',
+            atkMult: 0.50, hpMult: 0.50,
+            skillBoost: 0.40,
+            cooldownReduction: 8,
+            passiveBonus: 0.25,
+            newPassive: { name: '仙佑', desc: '所有阵法伤害+10%，灵气回复+20%（永久全局加成）', type: 'immortal_blessing', value: 0.10, spiritRegen: 0.20 },
+            desc: '脱胎换骨，晋升仙兽之列！',
+            color: '#FFD700',
+        },
+    ];
+    // 突破消耗公式：灵石 = 200 × (starIndex+1), 碎片 = 3 + starIndex × 2
+
     // ===== 渡劫系统 =====
     const TRIBULATION_CONFIG = [
         { level: 3, name: '风劫', icon: '🌪️', desc: '妖风肆虐，灵木受损', duration: 15, dmgPerTick: 3, reward: { spiritStones: 100, exp: 200 }, failPenalty: { spiritLoss: 0.3 } },
@@ -685,6 +763,116 @@
         spirit_gem: { name: '灵髓', icon: '💠', rarity: 4, desc: '灵气凝炼的精华' },
     };
 
+    // ===== v4.3 炼丹系统 — 丹药配方配置 =====
+    const ALCHEMY_PILLS = [
+        // 💚 回复类（低级）
+        {
+            id: 'spirit_recovery_pill', name: '回灵丹', icon: '💊', quality: 1,
+            desc: '立即恢复30%灵气',
+            ingredients: { spirit_grass: 3, wood_shard: 1 },
+            costStones: 20, levelReq: 1,
+            effect: { type: 'restoreSpirit', value: 0.30 }, duration: 0,
+            color: '#5CBF7C'
+        },
+        {
+            id: 'hp_recovery_pill', name: '疗伤散', icon: '💚', quality: 1,
+            desc: '探索中恢复20%生命值',
+            ingredients: { spirit_grass: 2, earth_shard: 2 },
+            costStones: 25, levelReq: 1,
+            effect: { type: 'restoreHP', value: 0.20 }, duration: 0,
+            color: '#5CBF7C'
+        },
+        // ⚔️ 战斗增益类（中级）
+        {
+            id: 'attack_boost_pill', name: '狂暴丹', icon: '⚔️', quality: 2,
+            desc: '本次探索灵兽攻击+25%（持续到探索结束）',
+            ingredients: { fire_shard: 2, metal_shard: 2, spirit_herb: 1 },
+            costStones: 80, levelReq: 3,
+            effect: { type: 'attackBoost', value: 0.25 }, duration: 0,
+            color: '#FF6347'
+        },
+        {
+            id: 'defense_boost_pill', name: '铁壁丹', icon: '🛡️', quality: 2,
+            desc: '本次探索受到伤害-25%',
+            ingredients: { earth_shard: 3, water_shard: 2, spirit_herb: 1 },
+            costStones: 80, levelReq: 3,
+            effect: { type: 'defenseBoost', value: 0.25 }, duration: 0,
+            color: '#4A90D9'
+        },
+        {
+            id: 'speed_pill', name: '疾风丹', icon: '💨', quality: 2,
+            desc: '灵兽攻速+40%，持续本次探索',
+            ingredients: { wind_shard: 2, spirit_herb: 2 },
+            costStones: 70, levelReq: 3,
+            effect: { type: 'speedBoost', value: 0.40 }, duration: 0,
+            color: '#9B7ED9'
+        },
+        // ✨ 特殊效果类（高级）
+        {
+            id: 'crit_pill', name: '破军丹', icon: '💥', quality: 3,
+            desc: '暴击率+30%，暴击伤害+50%',
+            ingredients: { metal_shard: 3, fire_shard: 2, rare_herb: 2 },
+            costStones: 200, levelReq: 5,
+            effect: { type: 'critBoost', value: 0.30 }, duration: 0,
+            color: '#FF4444'
+        },
+        {
+            id: 'elemental_pill', name: '五行丹', icon: '☯️', quality: 3,
+            desc: '五行克制倍率从×1.5提升至×2.0',
+            ingredients: { fire_shard: 2, water_shard: 2, metal_shard: 2, wood_shard: 2, earth_shard: 2, rare_herb: 1 },
+            costStones: 300, levelReq: 6,
+            effect: { type: 'elementalBoost', value: 0.5 }, duration: 0,
+            color: '#FFD700'
+        },
+        {
+            id: 'exp_pill', name: '悟道丹', icon: '🧠', quality: 3,
+            desc: '本次探索经验获取+80%',
+            ingredients: { celestial_herb: 1, spirit_crystal: 2, spirit_herb: 3 },
+            costStones: 250, levelReq: 5,
+            effect: { type: 'expBoost', value: 0.80 }, duration: 0,
+            color: '#DAA520'
+        },
+        // 🌟 仙品（顶级）
+        {
+            id: 'immortality_pill', name: '不死药', icon: '🌟', quality: 4,
+            desc: '探索中首次致命伤时免死一次，回复50%HP',
+            ingredients: { celestial_herb: 2, divine_shard: 2, spirit_gem: 1 },
+            costStones: 500, levelReq: 8,
+            effect: { type: 'cheatDeath', value: 1 }, duration: 0,
+            color: '#E8D5A3'
+        },
+        {
+            id: 'loot_pill', name: '探宝丹', icon: '🎁', quality: 4,
+            desc: '本次探索灵材掉落+100%，必定发现隐藏房间',
+            ingredients: { divine_shard: 3, celestial_herb: 1, spirit_crystal: 2 },
+            costStones: 400, levelReq: 7,
+            effect: { type: 'lootBoost', value: 1.0 }, duration: 0,
+            color: '#FFD700'
+        },
+    ];
+
+    // 炼丹产出数据（玩家背包中的丹药）
+    if(!GameData.potions) GameData.potions = {};  // { pillId: count }
+
+    // v4.3 商业化：月卡/战令
+    if(!GameData.monthlyCard) GameData.monthlyCard = {
+        active: false,       // 是否激活
+        expireDate: null,   // 到期日期（ISO string）
+        dailyClaimed: '',   // 今日是否已领取 (YYYY-MM-DD)
+        daysRemaining: 0,
+        gemsCost: 30,
+        durationDays: 30,
+    };
+    if(!GameData.battlePass) GameData.battlePass = {
+        active: false,
+        level: 0,
+        exp: 0,
+        freeRewards: [],     // 已领取免费奖励等级列表
+        paidRewards: [],     // 已领取付费奖励等级列表
+        isPremium: false,    // 是否购买进阶版
+        totalExp: 0,
+    };
+
     // 顿悟配置（Roguelike构筑）
     const ENLIGHTENMENTS = [
         // ⚔️ 攻击类
@@ -720,13 +908,22 @@
 
     // ===== 修仙功法系统 =====
     const CULTIVATION_ARTS = [
-        { id: 'sword_intent', name: '万剑诀', icon: '⚔️', desc: '剑意通神，阵法伤害+25%', cost: 150, levelReq: 1, effect: { type: 'formationDamage', value: 0.25 }, color: '#C0C0C0' },
-        { id: 'spirit_shield', name: '金刚护体', icon: '🛡️', desc: '灵木灵气上限+40%', cost: 200, levelReq: 2, effect: { type: 'spiritCapacity', value: 0.4 }, color: '#4169E1' },
-        { id: 'alchemy', name: '炼丹术', icon: '🧪', desc: '灵气回复速率+50%', cost: 250, levelReq: 3, effect: { type: 'spiritRegen', value: 0.5 }, color: '#5CBF7C' },
-        { id: 'five_elements', name: '五行归元', icon: '☯️', desc: '五行克制伤害加成+50%', cost: 350, levelReq: 4, effect: { type: 'elementalBonus', value: 0.5 }, color: '#9B7ED9' },
-        { id: 'beast_taming', name: '驭兽心经', icon: '🐾', desc: '灵兽技能伤害+40%', cost: 400, levelReq: 5, effect: { type: 'beastSkill', value: 0.4 }, color: '#DAA520' },
-        { id: 'heavenly_trib', name: '天劫心法', icon: '⚡', desc: '渡劫成功率+30%，失败惩罚减半', cost: 500, levelReq: 6, effect: { type: 'tribulation', value: 0.3 }, color: '#FF6347' },
+        { id: 'sword_intent', name: '万剑诀', icon: '⚔️', desc: '剑意通神，阵法伤害+25%', cost: 150, levelReq: 1, effect: { type: 'formationDamage', value: 0.25 }, color: '#C0C0C0',
+          maxLevel: 5, upgradeCostBase: 100, upgradeMat: 'metal_shard' },
+        { id: 'spirit_shield', name: '金刚护体', icon: '🛡️', desc: '灵木灵气上限+40%', cost: 200, levelReq: 2, effect: { type: 'spiritCapacity', value: 0.4 }, color: '#4169E1',
+          maxLevel: 5, upgradeCostBase: 150, upgradeMat: 'earth_shard' },
+        { id: 'alchemy', name: '炼丹术', icon: '🧪', desc: '灵气回复速率+50%', cost: 250, levelReq: 3, effect: { type: 'spiritRegen', value: 0.5 }, color: '#5CBF7C',
+          maxLevel: 5, upgradeCostBase: 120, upgradeMat: 'spirit_herb' },
+        { id: 'five_elements', name: '五行归元', icon: '☯️', desc: '五行克制伤害加成+50%', cost: 350, levelReq: 4, effect: { type: 'elementalBonus', value: 0.5 }, color: '#9B7ED9',
+          maxLevel: 5, upgradeCostBase: 200, upgradeMat: 'spirit_crystal' },
+        { id: 'beast_taming', name: '驭兽心经', icon: '🐾', desc: '灵兽技能伤害+40%', cost: 400, levelReq: 5, effect: { type: 'beastSkill', value: 0.4 }, color: '#DAA520',
+          maxLevel: 5, upgradeCostBase: 180, upgradeMat: 'fire_shard' },
+        { id: 'heavenly_trib', name: '天劫心法', icon: '⚡', desc: '渡劫成功率+30%，失败惩罚减半', cost: 500, levelReq: 6, effect: { type: 'tribulation', value: 0.3 }, color: '#FF6347',
+          maxLevel: 5, upgradeCostBase: 250, upgradeMat: 'divine_shard' },
     ];
+
+    // v4.3 功法研究等级（藏经阁）
+    if(!GameData.artLevels) GameData.artLevels = {};  // { artId: level (1-5) }
 
     /* ========================================
        HTML对话框控制
@@ -877,10 +1074,18 @@
                     element: GameData.spiritBeast.contracted.element,
                     level: GameData.spiritBeast.contracted.level,
                     exp: GameData.spiritBeast.contracted.exp,
+                    star: GameData.spiritBeast.contracted.star || 0,
                 } : null,
                 // v4.1 永久顿悟 & 炼化加成
                 permanentEnlightenments: GameData.permanentEnlightenments || [],
                 refineBonuses: GameData._refineBonuses || null,
+                // v4.3 丹药背包
+                potions: GameData.potions || {},
+                // v4.3 功法研究等级
+                artLevels: GameData.artLevels || {},
+                // v4.3 月卡/战令
+                monthlyCard: GameData.monthlyCard || {},
+                battlePass: GameData.battlePass || {},
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
         } catch(e) {}
@@ -902,6 +1107,13 @@
             // v4.1 恢复永久顿悟 & 炼化加成
             if(saved.permanentEnlightenments) GameData.permanentEnlightenments = saved.permanentEnlightenments;
             if(saved.refineBonuses) GameData._refineBonuses = saved.refineBonuses;
+            // v4.3 恢复丹药背包
+            if(saved.potions) GameData.potions = { ...GameData.potions, ...saved.potions };
+            // v4.3 恢复功法研究等级
+            if(saved.artLevels) GameData.artLevels = { ...GameData.artLevels, ...saved.artLevels };
+            // v4.3 恢复月卡/战令
+            if(saved.monthlyCard) GameData.monthlyCard = { ...GameData.monthlyCard, ...saved.monthlyCard };
+            if(saved.battlePass) GameData.battlePass = { ...GameData.battlePass, ...saved.battlePass };
         }
     }
 
@@ -1039,7 +1251,8 @@
                 { icon: '📅', name: '每日签到', desc: GameData.lobby.signIn > 0 ? `已签${GameData.lobby.signIn}天` : '领取奖励', color: 0x2a1a3a, border: 0x9B7ED9, action: () => this.showSignIn() },
                 { icon: '⚔️', name: '秘境出征', desc: '探索秘境获取灵材顿悟', color: 0x1a3d2a, border: 0x5CBF7C, action: () => this.showExpeditionPanel() },
                 { icon: '🏆', name: '排行榜', desc: '修仙榜', color: 0x3a2a1a, border: 0xDAA520, action: () => this.showRank() },
-                { icon: '🏪', name: '仙缘商店', desc: '兑换/购买', color: 0x1a2a3a, border: 0x5CBF7C, action: () => this.showShop() },
+                { icon: '🧪', name: '炼丹炉', desc: '灵材炼制丹药', color: 0x1a2d2a, border: 0x5CBF7C, action: () => this.showAlchemyPanel() },
+                { icon: '✨', name: '仙缘卡', desc: '月卡特权', color: 0x2a1a3a, border: 0xFFD700, action: () => this.showMonthlyCardPanel() },
             ];
 
             gridItems.forEach((item, i) => {
@@ -1375,6 +1588,209 @@
             this.setupOverlay(overlay, card);
         }
 
+        // ===== v4.0 秘境出征系统（MainMenuScene入口） =====
+        showExpeditionPanel() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,10,25,0.97);border:2px solid #4A7C59;border-radius:16px;padding:20px 16px;text-align:center;max-width:460px;width:90%;animation:destinyIn 0.3s ease;max-height:80vh;overflow-y:auto;';
+
+            let realmsHTML = REALM_CONFIGS.map(r => {
+                const waveEqLevel = Math.max(1, Math.floor((GameData.lobby.bestWave || 0) / 5));
+                const effectiveLevel = Math.max(GameData.tree.level, waveEqLevel);
+                const unlocked = effectiveLevel >= r.levelReq;
+                const diff = '★'.repeat(r.difficulty) + '☆'.repeat(4 - r.difficulty);
+                let unlockTip = '';
+                if(unlocked) {
+                    if(GameData.tree.level >= r.levelReq) unlockTip = '🌳 灵木解锁';
+                    else unlockTip = `⚔ 波次解锁(Lv.${waveEqLevel})`;
+                } else {
+                    const needMoreTree = r.levelReq > GameData.tree.level ? `需灵木Lv.${r.levelReq}` : '';
+                    const needMoreWave = r.levelReq > waveEqLevel ? `或波次${r.levelReq * 5}` : '';
+                    unlockTip = `🔒 ${needMoreTree} ${needMoreWave}`;
+                }
+                return `<div class="realm-option" data-realm="${r.id}" style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:rgba(${unlocked ? '74,124,89' : '26,26,58'},0.15);border:1px solid ${unlocked ? r.color : '#333'};border-radius:10px;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? 1 : 0.4};transition:all 0.2s;">
+                    <span style="font-size:28px">${r.icon}</span>
+                    <div style="flex:1;text-align:left;">
+                        <div style="font-size:14px;color:${unlocked ? '#E8D5A3' : '#555'};font-weight:bold">${r.name}</div>
+                        <div style="font-size:11px;color:${unlocked ? '#aaa' : '#444'}">${r.desc}</div>
+                        <div style="font-size:10px;color:#FFD700;margin-top:2px">${diff} | ${r.rooms}房间 | ${unlockTip}</div>
+                    </div>
+                    <div style="font-size:11px;color:${unlocked ? '#5CBF7C' : '#555'}">${unlocked ? '▶ 出征' : '🔒'}</div>
+                </div>`;
+            }).join('');
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#4A7C59;font-weight:bold;margin-bottom:4px">⚔️ 秘境出征</div>
+                <div style="font-size:11px;color:#888;margin-bottom:10px">选择秘境深入探索，获取灵材与顿悟</div>
+                ${GameData.spiritBeast.contracted ? `<div style="font-size:12px;color:#DAA520;margin-bottom:8px">出征灵兽: ${GameData.spiritBeast.contracted.icon} ${GameData.spiritBeast.contracted.name} Lv.${GameData.spiritBeast.contracted.level}</div>` : '<div style="font-size:12px;color:#FF6347;margin-bottom:8px">⚠ 尚未契约灵兽，建议先契约!</div>'}
+                ${realmsHTML}
+                <button id="expedition-close" style="width:100%;background:#333;color:#fff;border:none;padding:8px;border-radius:8px;font-size:13px;margin-top:8px;cursor:pointer">返回仙府</button>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#expedition-close').addEventListener('click', () => overlay.remove());
+            card.querySelectorAll('.realm-option').forEach(el => {
+                const realmId = el.dataset.realm;
+                const realmCfg = REALM_CONFIGS.find(r => r.id === realmId);
+                const waveEqLevel = Math.max(1, Math.floor((GameData.lobby.bestWave || 0) / 5));
+                if(!realmCfg || Math.max(GameData.tree.level, waveEqLevel) < realmCfg.levelReq) return;
+                el.addEventListener('click', () => {
+                    overlay.remove();
+                    this.startExpedition(realmId);
+                });
+                el.addEventListener('mouseenter', () => { el.style.borderColor = '#FFD700'; el.style.transform = 'translateY(-2px)'; });
+                el.addEventListener('mouseleave', () => { el.style.borderColor = realmCfg.color; el.style.transform = 'none'; });
+            });
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        startExpedition(realmId) {
+            GameData.expedition.inProgress = true;
+            GameData.expedition.currentRealm = realmId;
+            savePlayerProfile();
+            this.scene.start('Explore', { realmId });
+        }
+
+        // ===== v4.3 仙缘卡（MainMenuScene入口）=====
+        showMonthlyCardPanel() {
+            const mc = GameData.monthlyCard || {};
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:linear-gradient(135deg,rgba(30,20,40,0.98),rgba(20,15,30,0.98));border:2px solid #FFD700;border-radius:16px;padding:18px;max-width:360px;width:90%;animation:destinyIn 0.3s ease;';
+            const today=new Date().toISOString().split('T')[0];
+            const isActive=mc.active&&(!mc.expireDate||new Date(mc.expireDate)>new Date());
+            const daysLeft=isActive?Math.max(0,Math.ceil((new Date(mc.expireDate)-new Date())/86400000)):0;
+            const claimedToday=mc.dailyClaimed===today;
+
+            card.innerHTML=`
+                <div style="font-size:20px;color:#FFD700;font-weight:bold;text-align:center">✨ 仙缘卡</div>
+                <div style="text-align:center;margin:6px 0"><span style="font-size:32px">🌙</span></div>
+                ${isActive?
+                    `<div style="text-align:center;padding:10px;background:rgba(100,200,100,0.1);border-radius:10px;margin-bottom:10px">
+                        <div style="color:#5CBF7C;font-weight:bold;font-size:14px">已激活 · 剩${daysLeft}天</div>
+                    </div>
+                    ${claimedToday?'<button disabled style="width:100%;background:#333;color:#555;padding:10px;border-radius:8px;font-size:14px;border:none;cursor:not-allowed">今日已领 ✅</button>':'<button id="mc-claim-mm" style="width:100%;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:10px;border-radius:8px;font-size:14px;font-weight:bold;border:none;cursor:pointer">🎁 领取每日奖励</button>'}
+                    <div style="margin-top:12px;background:rgba(255,215,0,0.05);border-radius:8px;padding:10px">
+                        <div style="color:#FFD700;font-weight:bold;font-size:12px;margin-bottom:4px">👑 特权</div>
+                        <div style="color:#aaa;font-size:11px;line-height:1.8">• 100💎/日 • 免费单抽×1<br>• 探索收益+10% • 灵材+1</div>
+                    </div>`:
+                    `<div style="text-align:center;padding:12px;background:rgba(60,50,80,0.3);border-radius:10px;margin-bottom:10px">
+                        <div style="color:#aaa;font-size:13px">未激活</div>
+                        <div style="color:#666;font-size:11px;margin-top:4px">30天 · 每日100灵晶+免费抽卡+探索加成</div>
+                    </div>
+                    <button id="mc-buy-mm" style="width:100%;background:linear-gradient(135deg,#9B7ED9,#E8B0F0);color:#fff;padding:12px;border-radius:10px;font-size:15px;font-weight:bold;border:none;cursor:pointer;margin-top:10px">💎30灵晶 购买仙缘卡</button>`}
+                <button id="mc-close2" style="width:100%;margin-top:8px;background:#222;color:#888;padding:8px;border-radius:8px;font-size:13px;border:none;cursor:pointer">关闭</button>`;
+            overlay.appendChild(card);
+            this.setupOverlay(overlay, card);
+
+            if(isActive&&!claimedToday&&card.querySelector('#mc-claim-mm')) {
+                card.querySelector('#mc-claim-mm').addEventListener('click',()=>{
+                    GameData.lobby.spiritGems+=100;
+                    if(!GameData.monthlyCard.freeDraws) GameData.monthlyCard.freeDraws=0;
+                    GameData.monthlyCard.freeDraws++;
+                    GameData.monthlyCard.dailyClaimed=today;
+                    savePlayerProfile();
+                    alert('🎁 获得100💎 + 1次免费抽卡');
+                    overlay.remove();this.showMonthlyCardPanel();
+                });
+            }
+            if(!isActive&&card.querySelector('#mc-buy-mm')) {
+                card.querySelector('#mc-buy-mm').addEventListener('click',()=>{
+                    if((GameData.lobby.spiritGems||0)>=30) {
+                        GameData.lobby.spiritGems-=30;
+                        const exp=new Date(); exp.setDate(exp.getDate()+30);
+                        GameData.monthlyCard={active:true,expireDate:exp.toISOString(),daysRemaining:30,dailyClaimed:'',freeDraws:0,gemsCost:30};
+                        savePlayerProfile();
+                        alert('🌙 仙缘卡激活！有效期30天');overlay.remove();this.showMonthlyCardPanel();
+                    } else alert('需要30💎');
+                });
+            }
+            card.querySelector('#mc-close2').addEventListener('click',()=>overlay.remove());
+        }
+
+        // ===== v4.3 炼丹炉（MainMenuScene入口）=====
+        showAlchemyPanel() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,8,25,0.97);border:2px solid #5CBF7C;border-radius:16px;padding:20px;max-width:440px;width:92%;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+
+            const potionCount = Object.values(GameData.potions || {}).reduce((s,c)=>s+c,0);
+            const matCount = Object.values(GameData.materials||{}).reduce((s,c)=>s+c,0);
+
+            let pillsHTML = '';
+            ALCHEMY_PILLS.forEach(pill => {
+                const canCraft = GameData.tree.level >= pill.levelReq;
+                const locked = GameData.tree.level < pill.levelReq;
+                let matOk = true;
+                for(const [mid,need] of Object.entries(pill.ingredients)) {
+                    if(((GameData.materials||{})[mid]||0)<need) matOk=false;
+                }
+                const stoneOk = (GameData.lobby.spiritStones||0) >= pill.costStones;
+                const craftable=canCraft && matOk && stoneOk;
+                const stars='★'.repeat(pill.quality)+'☆'.repeat(4-pill.quality);
+                const owned=(GameData.potions||{})[pill.id]||0;
+
+                pillsHTML+=`<div style="background:rgba(${craftable?'30,60,45':(locked?'20,20,35':'40,30,30')},0.6);border:2px solid ${locked?'#333':(craftable?pill.color:'#555')};border-radius:12px;padding:10px 14px;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:24px">${pill.icon}</span>
+                        <div style="flex:1">
+                            <div style="font-size:14px;color:${locked?'#444':pill.color};font-weight:bold">${pill.name} ${owned>0?`<span style="font-size:11px;color:#5CBF7C">×${owned}</span>`:''}</div>
+                            <div style="font-size:11px;color:#888">${pill.desc}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap">
+                        <span style="font-size:10px;color:#FFD700">${stars}</span>
+                        ${Object.entries(pill.ingredients).map(([mid,need])=>{
+                            const have=(GameData.materials||{})[mid]||0;
+                            return `<span style="font-size:10px;color:${have>=need?'#aaa':'#FF4444'};padding:2px 6px;background:${have>=need?'rgba(255,255,255,0.05)':'rgba(255,68,68,0.1)'};border-radius:4px">${SPIRIT_MATERIALS[mid]?SPIRIT_MATERIALS[mid].icon:'?'}${have}/${need}</span>`;
+                        }).join('')}
+                        <span style="font-size:10px;color:${stoneOk?'#5CBF7C':'#FF6347'}">💎${pill.costStones}</span>
+                        ${locked?'':`<button data-pill="${pill.id}" class="mm-alc-craft-btn" style="margin-left:auto;background:${craftable?pill.color:'#333'};color:${craftable?'#000':'#666'};border:none;padding:4px 14px;border-radius:6px;font-size:12px;font-weight:bold;cursor:${craftable?'pointer':'not-allowed'}">${!matOk?'材料不足':(!stoneOk?'灵石不足':'炼制')}</button>`}
+                    </div>
+                    <div style="font-size:9px;color:${locked?'#333':'#666'}">需灵木Lv.${pill.levelReq} ${locked?'(未解锁)':''}</div>
+                </div>`;
+            });
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#5CBF7C;font-weight:bold;margin-bottom:2px;text-align:center">🧪 炼丹炉</div>
+                <div style="font-size:11px;color:#666;margin-bottom:8px;text-align:center">消耗灵材+灵石 → 炼制丹药（探索中使用）</div>
+                <div style="display:flex;justify-content:center;gap:16px;margin-bottom:12px">
+                    <span style="font-size:12px;color:#aaa">🎒灵材<span style="color:#FFD700;font-weight:bold">${matCount}</span></span>
+                    <span style="font-size:12px;color:#aaa">💊丹药<span style="color:#5CBF7C;font-weight:bold">${potionCount}</span></span>
+                    <span style="font-size:12px;color:#aaa">💰${GameData.lobby.spiritStones}灵石</span>
+                </div>
+                ${pillsHTML}
+                <div style="text-align:center;margin-top:8px"><button id="alc-close-mm" style="background:#333;color:#ccc;border:none;padding:8px 24px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button></div>`;
+            overlay.appendChild(card);
+            this.setupOverlay(overlay, card);
+            card.querySelectorAll('.mm-alc-craft-btn').forEach(btn=>{
+                btn.addEventListener('click',()=>{
+                    // MainMenuScene炼丹：直接扣材料+给丹药
+                    const pId=btn.dataset.pill;
+                    const pill=ALCHEMY_PILLS.find(p=>p.id===pId);
+                    if(!pill)return;
+                    for(const [mid,need] of Object.entries(pill.ingredients)){
+                        if(((GameData.materials||{})[mid]||0)<need){alert(`材料不足：${SPIRIT_MATERIALS[mid]?SPIRIT_MATERIALS[mid].name:mid}`);return;}
+                    }
+                    if((GameData.lobby.spiritStones||0)<pill.costStones){alert('灵石不足！');return;}
+                    for(const [mid,need] of Object.entries(pill.ingredients)){
+                        GameData.materials[mid]-=need;if(GameData.materials[mid]<=0)delete GameData.materials[mid];
+                    }
+                    GameData.lobby.spiritStones-=pill.costStones;
+                    let cnt=1;if(Math.random()<0.1)cnt=2;
+                    GameData.potions[pId]=(GameData.potions[pId]||0)+cnt;
+                    savePlayerProfile();
+                    alert(`${cnt>1?'🎉双倍产出！':''}${pill.icon}${pill.name}×${cnt}`);
+                    overlay.remove();this.showAlchemyPanel();
+                });
+            });
+            card.querySelector('#alc-close-mm').addEventListener('click',()=>overlay.remove());
+        }
+
         // ===== 邮件/公告 =====
         showMail() {
             const overlay = document.createElement('div');
@@ -1495,6 +1911,13 @@
 
             // ===== v4.1 探索增益反馈（资源循环核心体验） =====
             this.showExpeditionBonus();
+
+            // ===== P2-1 灵兽突破被动技能状态初始化 =====
+            this._beastPassiveTimers = {
+                spiritRegen: 0,   // 灵韵：灵气回复计时器（每30秒触发）
+                protectMaster: 0 // 护主：替身冷却（每次触发后冷却60秒）
+            };
+            this._auraFearUsed = false;  // 威压：本场战斗是否已使用
 
             console.log('[GameScene] create() done, displayList:', this.children.length);
         }
@@ -2192,6 +2615,34 @@
                 btnExplore2.addEventListener('click', () => this.showExplorePanel());
             }
 
+            // v4.3 炼丹炉按钮
+            const btnAlchemy = document.getElementById('btn-alchemy');
+            if(btnAlchemy) {
+                btnAlchemy.style.display = 'flex';
+                btnAlchemy.addEventListener('click', () => this.showAlchemyPanel());
+            }
+
+            // v4.3 藏经阁按钮
+            const btnLibrary = document.getElementById('btn-library');
+            if(btnLibrary) {
+                btnLibrary.style.display = 'flex';
+                btnLibrary.addEventListener('click', () => this.showLibraryPanel());
+            }
+
+            // v4.3 灵兽阁按钮
+            const btnBeastHall = document.getElementById('btn-beast-hall');
+            if(btnBeastHall) {
+                btnBeastHall.style.display = 'flex';
+                btnBeastHall.addEventListener('click', () => this.showBeastHallPanel());
+            }
+
+            // v4.3 仙府总览按钮
+            const btnBuildings = document.getElementById('btn-buildings');
+            if(btnBuildings) {
+                btnBuildings.style.display = 'flex';
+                btnBuildings.addEventListener('click', () => this.showBuildingsPanel());
+            }
+
             // 灵兽图标（如果已契约）
             if(GameData.spiritBeast.contracted) {
                 this.createBeastSprite();
@@ -2493,6 +2944,47 @@
             // Boss技能状态初始化
             this.activeBossSkillEffects = [];
             this.currentBossRef = null;
+
+            // P2-1 灵兽被动：威压（四星·入场眩晕最近妖兽3秒）
+            this._auraFearUsed = false;
+            const passives = this.getBeastStarPassives();
+            const auraFear = passives.find(p => p.type === 'aura_fear');
+            if(auraFear) {
+                // 延迟2秒（等第一只妖兽入场后触发）
+                this.time.delayedCall(2000, () => {
+                    if(this.isWaveActive && !this._auraFearUsed && this.monsters.length > 0) {
+                        // 找最近的妖兽
+                        let nearest = null;
+                        let nearestDist = Infinity;
+                        this.monsters.forEach(m => {
+                            if(!m || !m.active || m.getData('stunned')) return;
+                            const d = Phaser.Math.Distance.Between(m.x, m.y, this.treeX, this.treeY);
+                            if(d < nearestDist) { nearestDist = d; nearest = m; }
+                        });
+                        if(nearest) {
+                            this._auraFearUsed = true;
+                            const stunDuration = (auraFear.value || 3) * 1000;
+                            // 眩晕目标
+                            this.tweens.killTweensOf(nearest);
+                            nearest.setData('stunned', true);
+                            const stunIcon = this.add.text(nearest.x, nearest.y - 25, '😱', { fontSize: '16px' }).setOrigin(0.5).setDepth(50);
+                            nearest.setData('stunIcon', stunIcon);
+                            // 威压特效：紫色冲击波
+                            const fearFx = this.add.circle(nearest.x, nearest.y, 30, 0x9B7ED9, 0.7).setDepth(45);
+                            this.tweens.add({ targets: fearFx, scale: 5, alpha: 0, duration: 600, onComplete: () => fearFx.destroy() });
+                            // 恢复移动
+                            this.time.delayedCall(stunDuration, () => {
+                                if(nearest && nearest.active) {
+                                    nearest.setData('stunned', false);
+                                    if(stunIcon && stunIcon.active) stunIcon.destroy();
+                                    this.resumeMonster(nearest);
+                                }
+                            });
+                            this.showMsg(`🌀 威压! ${nearest.name || '妖兽'}被震慑${auraFear.value}秒!`);
+                        }
+                    }
+                });
+            }
 
             // 按波次配置生成怪物
             let spawnDelay = 0;
@@ -3064,12 +3556,30 @@
 
             // 没有可攻击的阵法时，攻击灵木
             if(!attackedFormation) {
-                GameData.tree.spirit -= dmg;
-                this.waveDamageTaken += dmg;
+                // P2-1 灵兽被动：护主（三星·替身承受20%伤害）
+                let actualDmg = dmg;
+                const passives = this.getBeastStarPassives();
+                const protectMaster = passives.find(p => p.type === 'protect_master');
+                if(protectMaster && this._beastPassiveTimers.protectMaster <= 0) {
+                    const blockedDmg = Math.floor(dmg * (protectMaster.value || 0.2));
+                    if(blockedDmg > 0) {
+                        actualDmg -= blockedDmg;
+                        this._beastPassiveTimers.protectMaster = protectMaster.interval || 60; // 进入冷却
+                        this.showMsg(`🛡️ 护主! 灵兽替你抵挡${blockedDmg}点!`);
+                        // 护主特效：灵兽位置闪烁金盾
+                        if(this.beastSprite) {
+                            const shieldFx = this.add.circle(this.beastSprite.x, this.beastSprite.y - 15, 25, 0xFFD700, 0.5).setDepth(48);
+                            this.tweens.add({ targets: shieldFx, scale: 1.5, alpha: 0, duration: 500, onComplete: () => shieldFx.destroy() });
+                        }
+                    }
+                }
+
+                GameData.tree.spirit -= actualDmg;
+                this.waveDamageTaken += actualDmg;
 
                 // 怪物特殊技能：毒雾(poison)额外造成50%灵气伤害
                 if(special === 'poison') {
-                    const poisonDmg = Math.floor(dmg * 0.5);
+                    const poisonDmg = Math.floor(actualDmg * 0.5);
                     GameData.tree.spirit -= poisonDmg;
                     this.waveDamageTaken += poisonDmg;
                     this.showMsg(`☠️ 毒雾! 额外-${poisonDmg}灵气`);
@@ -3496,7 +4006,7 @@
             if(!bDef) return;
             if(GameData.player.spiritStones < bDef.cost) { this.showMsg('灵石不足!'); return; }
             GameData.player.spiritStones -= bDef.cost;
-            GameData.spiritBeast.contracted = { id: beastId, name: bDef.name, icon: bDef.icon, element: bDef.element, level: 1, exp: 0, skillCooldown: 0 };
+            GameData.spiritBeast.contracted = { id: beastId, name: bDef.name, icon: bDef.icon, element: bDef.element, level: 1, exp: 0, skillCooldown: 0, star: 0 };
             GameData.spiritBeast.unlocked = true;
             this.updateUI();
             // 契约特效
@@ -3533,7 +4043,11 @@
                         const baseDmg = 20 * 3 * (1 + (beast.level - 1) * 0.3);
                         // 功法加成：驭兽心经
                         const beastArtBonus = this.getArtBonus('beastSkill');
-                        const dmg = baseDmg * (1 + beastArtBonus);
+                        // 突破星级技能加成（P2）
+                        const starSkillBonus = this.getBeastStarBonus('skill');
+                        // 突破星级攻击加成（P2）
+                        const starAtkBonus = this.getBeastStarBonus('atk');
+                        const dmg = baseDmg * (1 + beastArtBonus + starSkillBonus + starAtkBonus);
                         this.damageMonster(target, dmg);
                         // 虎啸特效
                         const fx = this.add.circle(target.x, target.y, 20, 0xC0C0C0, 0.8);
@@ -3577,7 +4091,10 @@
                     break;
             }
 
-            beast.skillCooldown = Math.max(1, bDef.skillCooldown - (beast.level - 1) * 5);
+            // 基础CD - 等级减免 - 突破星级减免（P2）
+            const baseCD = bDef.skillCooldown - (beast.level - 1) * 5;
+            const starCDR = this.getBeastTotalCDReduction();
+            beast.skillCooldown = Math.max(1, baseCD - starCDR);
             this.updateUI();
         }
 
@@ -4510,15 +5027,859 @@
             this.addBeastExp(5);
         }
 
+        // ===== v4.3 炼丹系统（灵材→丹药核心闭环）=====
+        showAlchemyPanel() {
+            if(this.isGameOver) return;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,8,25,0.97);border:2px solid #5CBF7C;border-radius:16px;padding:20px;max-width:440px;width:92%;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+
+            // 统计已有丹药
+            const potionCount = Object.values(GameData.potions || {}).reduce((s,c) => s + c, 0);
+            const matCount = Object.values(GameData.materials || {}).reduce((s,c) => s + c, 0);
+
+            // 丹药列表
+            let pillsHTML = '';
+            ALCHEMY_PILLS.forEach(pill => {
+                const canCraft = GameData.tree.level >= pill.levelReq;
+                const locked = GameData.tree.level < pill.levelReq;
+                let matOk = true;
+                for(const [mid, need] of Object.entries(pill.ingredients)) {
+                    const have = (GameData.materials || {})[mid] || 0;
+                    if(have < need) matOk = false;
+                }
+                const stoneOk = (GameData.player.spiritStones || 0) >= pill.costStones;
+                const craftable = canCraft && matOk && stoneOk;
+
+                const stars = '★'.repeat(pill.quality) + '☆'.repeat(4 - pill.quality);
+                const owned = (GameData.potions || {})[pill.id] || 0;
+
+                pillsHTML += `<div class="alchemy-pill-card" data-pill="${pill.id}" style="background:rgba(${craftable ? '30,60,45' : (locked ? '20,20,35' : '40,30,30')},0.6);border:2px solid ${locked ? '#333' : (craftable ? pill.color : '#555')};border-radius:12px;padding:10px 14px;margin-bottom:8px;transition:all 0.2s;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:24px">${pill.icon}</span>
+                        <div style="flex:1">
+                            <div style="font-size:14px;color:${locked ? '#444' : pill.color};font-weight:bold">${pill.name} ${owned > 0 ? `<span style="font-size:11px;color:#5CBF7C">×${owned}</span>` : ''}</div>
+                            <div style="font-size:11px;color:#888">${pill.desc}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap">
+                        <span style="font-size:10px;color:#FFD700">${stars}</span>
+                        ${Object.entries(pill.ingredients).map(([mid,need]) => {
+                            const have = (GameData.materials || {})[mid] || 0;
+                            const enough = have >= need;
+                            return `<span style="font-size:10px;color:${enough ? '#aaa' : '#FF4444'};padding:2px 6px;background:${enough ? 'rgba(255,255,255,0.05)' : 'rgba(255,68,68,0.1)'};border-radius:4px">${SPIRIT_MATERIALS[mid]?SPIRIT_MATERIALS[mid].icon:'?'}${have}/${need}</span>`;
+                        }).join('')}
+                        <span style="font-size:10px;color:${stoneOk ? '#5CBF7C' : '#FF6347'}">💎${pill.costStones}</span>
+                        ${locked ? '' : `<button class="alc-craft-btn" data-pill="${pill.id}" style="margin-left:auto;background:${craftable?pill.color:'#333'};color:${craftable?'#000':'#666'};border:none;padding:4px 14px;border-radius:6px;font-size:12px;font-weight:bold;cursor:${craftable?'pointer':'not-allowed'}">${!matOk?'材料不足':(!stoneOk?'灵石不足':'炼制')}</button>`}
+                    </div>
+                    <div style="font-size:9px;color:${locked?'#333':'#666'};margin-top:2px">需灵木Lv.${pill.levelReq} ${locked?'(未解锁)':''}</div>
+                </div>`;
+            });
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#5CBF7C;font-weight:bold;margin-bottom:2px;text-align:center">🧪 炼丹炉</div>
+                <div style="font-size:11px;color:#666;margin-bottom:8px;text-align:center">消耗灵材+灵石 → 炼制丹药（探索中使用）</div>
+                <div style="display:flex;justify-content:center;gap:16px;margin-bottom:12px">
+                    <span style="font-size:12px;color:#aaa">🎒 灵材 <span style="color:#FFD700;font-weight:bold">${matCount}</span></span>
+                    <span style="font-size:12px;color:#aaa">💊 丹药 <span style="color:#5CBF7C;font-weight:bold">${potionCount}</span></span>
+                    <span style="font-size:12px;color:#aaa">💰 ${GameData.player.spiritStones}灵石</span>
+                </div>
+                ${pillsHTML}
+                <div style="text-align:center;margin-top:8px">
+                    <button id="alc-close" style="background:#333;color:#ccc;border:none;padding:8px 24px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>
+                </div>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#alc-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+
+            card.querySelectorAll('.alc-craft-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    this.craftPill(btn.dataset.pill);
+                    overlay.remove();
+                    this.showAlchemyPanel();
+                });
+            });
+        }
+
+        craftPill(pillId) {
+            const pill = ALCHEMY_PILLS.find(p => p.id === pillId);
+            if(!pill) return;
+            if(GameData.tree.level < pill.levelReq) { this.showMsg(`需灵木Lv.${pill.levelReq}!`); return; }
+
+            for(const [mid, need] of Object.entries(pill.ingredients)) {
+                if(((GameData.materials||{})[mid]||0) < need) { this.showMsg(`材料不足：${SPIRIT_MATERIALS[mid]?SPIRIT_MATERIALS[mid].name:mid}!`); return; }
+            }
+            if((GameData.player.spiritStones||0) < pill.costStones) { this.showMsg('灵石不足!'); return; }
+
+            // 扣除材料
+            for(const [mid, need] of Object.entries(pill.ingredients)) {
+                GameData.materials[mid] -= need;
+                if(GameData.materials[mid] <= 0) delete GameData.materials[mid];
+            }
+            GameData.player.spiritStones -= pill.costStones;
+
+            // 产出丹药（有10%概率双倍炼制）
+            let count = 1;
+            if(Math.random() < 0.1) { count = 2; }
+            GameData.potions[pillId] = (GameData.potions[pillId] || 0) + count;
+            savePlayerProfile();
+
+            const bonusText = count > 1 ? ' 🎉 炉火纯青，双倍产出！' : '';
+            this.showMsg(`🧪 炼制成功！${pill.icon}${pill.name}×${count}${bonusText}`);
+            this.updateUI();
+
+            // 炼丹特效
+            const fx = this.add.circle(this.treeX, this.treeY, 25, parseInt(pill.color.replace('#','0x'), 16), 0.8);
+            this.tweens.add({ targets: fx, scale: 5, alpha: 0, duration: 1000, onComplete: () => fx.destroy() });
+        }
+
+        usePill(pillId) {
+            const pill = ALCHEMY_PILLS.find(p => p.id === pillId);
+            if(!pill || !GameData.potions[pillId] || GameData.potions[pillId] <= 0) return false;
+
+            // 在探索中使用
+            if(this.scene.key === 'Explore') {
+                GameData.potions[pillId]--;
+                savePlayerProfile();
+                return true;
+            }
+
+            // 在GameScene中：回灵丹可以直接用（恢复灵木灵气）
+            if(pill.effect.type === 'restoreSpirit') {
+                GameData.potions[pillId]--;
+                const healAmount = Math.floor(GameData.tree.spiritCapacity * pill.effect.value);
+                GameData.tree.spirit = Math.min(GameData.tree.spiritCapacity, GameData.tree.spirit + healAmount);
+                savePlayerProfile();
+                this.updateUI();
+                this.showMsg(`${pill.icon} 使用${pill.name}，恢复${healAmount}点灵气！`);
+                return true;
+            }
+
+            this.showMsg(`💊 ${pill.name}只能在秘境探索中使用`);
+            return false;
+        }
+
+        // ===== v4.3 仙缘卡（月卡）=====
+        showMonthlyCardPanel() {
+            if(this.isGameOver) return;
+            const mc = GameData.monthlyCard || {};
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:linear-gradient(135deg,rgba(30,20,40,0.98),rgba(20,15,30,0.98));border:2px solid #FFD700;border-radius:16px;padding:20px;max-width:380px;width:92%;animation:destinyIn 0.3s ease;';
+
+            const today = new Date().toISOString().split('T')[0];
+            const isActive = mc.active && (!mc.expireDate || new Date(mc.expireDate) > new Date());
+            const daysLeft = isActive ? Math.max(0, Math.ceil((new Date(mc.expireDate)-new Date())/(86400000))) : 0;
+            const claimedToday = mc.dailyClaimed === today;
+
+            // 每日奖励内容
+            const dailyRewardHTML = `
+                <div style="display:flex;gap:8px;margin-top:8px">
+                    <div style="flex:1;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);border-radius:8px;padding:6px;text-align:center">
+                        <div style="font-size:18px">💎</div>
+                        <div style="font-size:12px;color:#FFD700;font-weight:bold">100灵晶</div>
+                    </div>
+                    <div style="flex:1;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);border-radius:8px;padding:6px;text-align:center">
+                        <div style="font-size:18px">🎴</div>
+                        <div style="font-size:12px;color:#FFD700;font-weight:bold">免费单抽</div>
+                    </div>
+                </div>`;
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#FFD700;font-weight:bold;text-align:center;margin-bottom:2px">✨ 仙缘卡</div>
+                <div style="text-align:center;margin-bottom:10px"><span style="font-size:36px">🌙</span></div>
+
+                ${isActive ? `
+                    <div style="text-align:center;padding:10px;background:rgba(100,200,100,0.1);border-radius:10px;margin-bottom:10px">
+                        <div style="font-size:14px;color:#5CBF7C;font-weight:bold">已激活</div>
+                        <div style="font-size:11px;color:#888">剩余 ${daysLeft} 天</div>
+                    </div>
+                    ${claimedToday ?
+                        `<button id="mc-claim" disabled style="width:100%;background:#333;color:#555;border:none;padding:10px;border-radius:8px;font-size:14px;font-weight:bold;cursor:not-allowed">今日已领取 ✅</button>` :
+                        `<button id="mc-claim" style="width:100%;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;border:none;padding:10px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer">🎁 领取每日奖励</button>`
+                    }
+                    ${dailyRewardHTML}
+                    <!-- 月卡特权列表 -->
+                    <div style="margin-top:12px;background:rgba(255,215,0,0.05);border-radius:8px;padding:10px">
+                        <div style="font-size:12px;color:#FFD700;font-weight:bold;margin-bottom:6px">👑 月卡特权（持续生效）</div>
+                        <div style="font-size:11px;color:#aaa;line-height:1.8">
+                            • 每日100灵晶<br>
+                            • 免费单抽×1/天<br>
+                            • 秘境探索收益+10%<br>
+                            • 灵材掉落+1件/次
+                        </div>
+                    </div>
+                ` : `
+                    <div style="text-align:center;padding:14px;background:rgba(60,50,80,0.3);border-radius:10px;margin-bottom:10px">
+                        <div style="font-size:13px;color:#aaa">未激活</div>
+                        <div style="font-size:11px;color:#666;margin-top:4px">30天 · 每日100灵晶+免费抽卡+探索加成</div>
+                    </div>
+                    ${dailyRewardHTML}
+                    <button id="mc-buy" style="width:100%;background:linear-gradient(135deg,#9B7ED9,#E8B0F0);color:#fff;border:none;padding:12px;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px">
+                        💎 30灵晶 购买仙缘卡
+                    </button>
+                    <div style="text-align:center;margin-top:6px"><span style="font-size:10px;color:#555">（模拟购买·实际接入微信支付）</span></div>
+                `}
+                <button id="mc-close" style="width:100%;margin-top:10px;background:#222;color:#888;border:none;padding:8px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>`;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#mc-close').addEventListener('click', () => overlay.remove());
+
+            if(isActive && !claimedToday && card.querySelector('#mc-claim')) {
+                card.querySelector('#mc-claim').addEventListener('click', () => {
+                    GameData.lobby.spiritGems += 100;
+                    // 免费单抽标记
+                    if(!GameData.monthlyCard.freeDraws) GameData.monthlyCard.freeDraws = 0;
+                    GameData.monthlyCard.freeDraws++;
+                    GameData.monthlyCard.dailyClaimed = today;
+                    savePlayerProfile();
+                    this.updateUI();
+                    alert('🎁 领取成功！获得 100💎灵晶 + 1次免费抽卡');
+                    overlay.remove();
+                    this.showMonthlyCardPanel();
+                });
+            }
+
+            if(!isActive && card.querySelector('#mc-buy')) {
+                card.querySelector('#mc-buy').addEventListener('click', () => {
+                    if((GameData.lobby.spiritGems||0) >= 30) {
+                        GameData.lobby.spiritGems -= 30;
+                        const expire = new Date();
+                        expire.setDate(expire.getDate() + 30);
+                        GameData.monthlyCard.active = true;
+                        GameData.monthlyCard.expireDate = expire.toISOString();
+                        GameData.monthlyCard.daysRemaining = 30;
+                        GameData.monthlyCard.dailyClaimed = '';
+                        savePlayerProfile();
+                        this.updateUI();
+                        alert('🌙 仙缘卡激活成功！有效期30天');
+                        overlay.remove();
+                        this.showMonthlyCardPanel();
+                    } else {
+                        alert('灵晶不足！需要30💎');
+                    }
+                });
+            }
+
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        // ===== v4.3 渡劫战令 =====
+        showBattlePassPanel() {
+            if(this.isGameOver) return;
+            const bp = GameData.battlePass || {};
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:linear-gradient(135deg,rgba(35,20,25,0.98),rgba(20,10,18,0.98));border:2px solid #FF6347;border-radius:16px;padding:18px;max-width:400px;width:92%;max-height:82vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+
+            const level = bp.level || 0;
+            const exp = bp.exp || 0;
+            const expNeeded = (level + 1) * 300;
+            const expPct = Math.min(1, exp / expNeeded);
+
+            // 战令等级奖励
+            let rewardsHTML = '';
+            for(let lv = 0; lv <= Math.min(level + 5, 50); lv++) {
+                const isCurrent = lv === level;
+                const freeDone = (bp.freeRewards||[]).includes(lv);
+                const paidDone = (bp.paidRewards||[]).includes(lv);
+                const locked = lv > level;
+
+                // 根据等级生成奖励
+                let freeRwd = '', paidRwd = '';
+                if(lv % 5 === 0) { freeRwd='💎×50'; paidRwd='🐾碎片×10'; }
+                else if(lv % 3 === 0) { freeRwd='💰×200'; paidRwd='🌿灵草×5'; }
+                else { freeRwd='💰×50'; paidRwd='⭐材料包'; }
+
+                rewardsHTML += `<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;margin-bottom:3px;background:${isCurrent?'rgba(255,99,71,0.15)':'rgba(255,255,255,0.03)'};border-radius:6px;border-left:3px solid ${isCurrent?'#FF6347':'#333'}">
+                    <span style="font-size:11px;color:${locked?'#444':(isCurrent?'#FF6347':'#aaa')};font-weight:${isCurrent?'bold':'normal'};min-width:24px">${lv}</span>
+                    <div style="flex:1;display:flex;gap:4px">
+                        <span style="font-size:10px;color:${freeDone?'#555':'#ccc'};padding:1px 6px;background:rgba(100,100,100,0.2);border-radius:4px">${freeRwd}${freeDone?'✅':''}</span>
+                        <span style="font-size:10px;color:${paidDone||(bp.isPremium?(!locked?'#FFD700':'#666'):'#444'};padding:1px 6px;background:rgba(255,215,0,${bp.isPremium?'0.1':'0.02'});border-radius:4px">${paidRwd}${paidDone?'✅':(!bp.isPremium&&locked?'🔒':'')}</span>
+                    </div>
+                    ${isCurrent ? '<span style="font-size:10px;color:#FF6347">◀</span>' : ''}
+                </div>`;
+            }
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#FF6347;font-weight:bold;text-align:center;margin-bottom:2px">⚔️ 渡劫战令</div>
+                <div style="font-size:11px;color:#666;text-align:center;margin-bottom:8px">战斗获取经验升级，领取丰厚奖励</div>
+
+                <!-- 等级和经验 -->
+                <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,99,71,0.08);border-radius:10px;margin-bottom:10px">
+                    <div style="text-align:center">
+                        <div style="font-size:22px;color:#FF6347;font-weight:bold">${level}</div>
+                        <div style="font-size:9px;color:#666">等级</div>
+                    </div>
+                    <div style="flex:1">
+                        <div style="background:rgba(0,0,0,0.4);border-radius:4px;height:10px;overflow:hidden">
+                            <div style="width:${expPct*100}%;height:100%;background:linear-gradient(90deg,#FF6347,#FFD700);border-radius:4px"></div>
+                        </div>
+                        <div style="font-size:9px;color:#666;margin-top:2px">EXP ${exp}/${expNeeded}</div>
+                    </div>
+                </div>
+
+                <!-- 进阶版状态 -->
+                ${!bp.isPremium ? `
+                    <button id="bp-premium-btn" style="width:100%;background:linear-gradient(135deg,#FF6347,#FF4500);color:#fff;border:none;padding:8px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;margin-bottom:10px">👑 解锁进阶版（68灵晶）</button>
+                ` : `
+                    <div style="text-align:center;padding:6px;background:rgba(255,215,0,0.08);border-radius:6px;margin-bottom:10px">
+                        <span style="font-size:12px;color:#FFD700;font-weight:bold">👑 进阶版已激活</span>
+                    </div>
+                `}
+
+                <!-- 奖励预览 -->
+                <div style="font-size:12px;color:#aaa;font-weight:bold;margin-bottom:4px">奖励路线</div>
+                ${rewardsHTML}
+
+                <button id="bp-close" style="width:100%;margin-top:8px;background:#222;color:#888;border:none;padding:8px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>`;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#bp-close').addEventListener('click', () => overlay.remove());
+            if(card.querySelector('#bp-premium-btn')) {
+                card.querySelector('#bp-premium-btn').addEventListener('click', () => {
+                    if((GameData.lobby.spiritGems||0) >= 68) {
+                        GameData.lobby.spiritGems -= 68;
+                        GameData.battlePass.isPremium = true;
+                        savePlayerProfile();
+                        this.updateUI();
+                        alert('👑 渡劫战令进阶版激活！');
+                        overlay.remove();
+                        this.showBattlePassPanel();
+                    } else {
+                        alert('灵晶不足！需要68💎');
+                    }
+                });
+            }
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        // ===== v4.3 仙府建筑总览 =====
+        showBuildingsPanel() {
+            if(this.isGameOver) return;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,12,20,0.97);border:2px solid #E8D5A3;border-radius:16px;padding:20px;max-width:420px;width:92%;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+
+            const artsLearned = GameData.arts.learned.length || 0;
+            const artsUpgraded = Object.values(GameData.artLevels||{}).filter(l=>l>1).length || 0;
+            const potionCount = Object.values(GameData.potions||{}).reduce((s,c)=>s+c,0);
+            const beastLv = GameData.spiritBeast.contracted ? GameData.spiritBeast.contracted.level : 0;
+
+            const buildings = [
+                { icon: '🌳', name: '灵木', desc: `Lv.${GameData.tree.level} · 提供${10+GameData.tree.level*2}阵法位`, color: '#4A7C59', action: null },
+                { icon: '⚔️', name: '阵法台', desc: `${this.formations?this.formations.length:0}个阵法已部署`, color: '#9B7ED9', action: null },
+                { icon: '🧪', name: '炼丹炉', desc: `${potionCount}种丹药已炼制`, color: '#5CBF7C', action: 'alchemy' },
+                { icon: '📚', name: '藏经阁', desc: `${artsLearned}种功法已学 · ${artsUpgraded}项研究`, color: '#4A90D9', action: 'library' },
+                { icon: '🏠', name: '灵兽阁', desc: beastLv ? `契约灵兽 Lv.${beastLv}` : '尚未契约', color: '#DAA520', action: 'beastHall' },
+            ];
+
+            let bldHTML = `<div style="font-size:20px;color:#E8D5A3;font-weight:bold;text-align:center;margin-bottom:4px">🏯 仙府总览</div>
+                <div style="font-size:11px;color:#666;margin-bottom:12px;text-align:center">管理你的仙府建筑</div>`;
+
+            buildings.forEach(b => {
+                bldHTML += `<div class="bld-card" data-action="${b.action||''}" style="display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:6px;background:rgba(30,25,40,0.7);border:2px solid ${b.color};border-radius:10px;cursor:${b.action?'pointer':'default'};transition:all 0.2s;">
+                    <span style="font-size:28px">${b.icon}</span>
+                    <div style="flex:1">
+                        <div style="font-size:14px;color:${b.color};font-weight:bold">${b.name}</div>
+                        <div style="font-size:11px;color:#888">${b.desc}</div>
+                    </div>
+                    ${b.action ? '<span style="font-size:16px;color:#666">▸</span>' : '<span style="font-size:11px;color:#555">核心</span>'}
+                </div>`;
+            });
+
+            bldHTML += `<button id="bld-close" style="width:100%;margin-top:8px;background:#333;color:#ccc;border:none;padding:8px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>`;
+            card.innerHTML = bldHTML;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#bld-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+
+            card.querySelectorAll('.bld-card[data-action]').forEach(el => {
+                el.addEventListener('mouseenter', () => { el.style.transform='translateY(-2px)'; el.style.boxShadow='0 4px 15px rgba(232,213,163,0.15)'; });
+                el.addEventListener('mouseleave', () => { el.style.transform='none'; el.style.boxShadow='none'; });
+                el.addEventListener('click', () => {
+                    const action = el.dataset.action;
+                    overlay.remove();
+                    if(action === 'alchemy') this.showAlchemyPanel();
+                    else if(action === 'library') this.showLibraryPanel();
+                    else if(action === 'beastHall') this.showBeastHallPanel();
+                });
+            });
+        }
+
+        // ===== v4.3 P2 灵兽阁（训练+升星/突破）完整版 =====
+        showBeastHallPanel() {
+            if(this.isGameOver) return;
+            const beast = GameData.spiritBeast.contracted;
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(18,10,12,0.98);border:2px solid #DAA520;border-radius:16px;padding:20px;max-width:440px;width:94%;max-height:82vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+
+            if(!beast) {
+                card.innerHTML = `
+                    <div style="font-size:20px;color:#DAA520;font-weight:bold;text-align:center;margin-bottom:8px">🏠 灵兽阁</div>
+                    <div style="text-align:center;padding:30px">
+                        <div style="font-size:48px;margin-bottom:10px">🐾</div>
+                        <div style="font-size:14px;color:#888">尚未契约任何灵兽</div>
+                        <div style="font-size:12px;color:#666;margin-top:6px">先通过灵兽召唤🎴契约一只灵兽</div>
+                    </div>
+                    <button id="bh-close" style="width:100%;background:#333;color:#ccc;border:none;padding:8px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>`;
+                overlay.appendChild(card);
+                document.body.appendChild(overlay);
+                card.querySelector('#bh-close').addEventListener('click', () => overlay.remove());
+                return;
+            }
+
+            const bDef = SPIRIT_BEASTS.find(b => b.id === beast.id);
+            if(!bDef) { overlay.remove(); this.showMsg('灵兽数据异常'); return; }
+
+            // ===== 突破/星级系统核心计算 =====
+            const star = beast.star || 0;
+            const currentBtIdx = star;  // 当前已突破次数=当前星级
+            const maxStar = BEAST_STAR_EFFECTS.length;
+            const nextBtLevel = (currentBtIdx < maxStar) ? BEAST_BREAKTHROUGH_LEVELS[currentBtIdx] : null;
+
+            // 是否处于需要突破才能升级的状态（等级达到突破门槛但还没突破）
+            const atBreakthroughGate = nextBtLevel !== null && beast.level >= nextBtLevel && beast.level < (BEAST_BREAKTHROUGH_LEVELS[currentBtIdx + 1] || 999);
+            const canBreakthroughNow = atBreakthroughGate && beast.level >= nextBtLevel;
+
+            // 计算突破后的总加成
+            function calcTotalBonuses(s) {
+                let totalAtk = 0, totalHp = 0, totalSkill = 0, totalCDR = 0, totalPassive = 0;
+                for(let i = 0; i < s; i++) {
+                    const eff = BEAST_STAR_EFFECTS[i];
+                    if(eff) { totalAtk += eff.atkMult; totalHp += eff.hpMult; totalSkill += eff.skillBoost; totalCDR += eff.cooldownReduction; totalPassive += eff.passiveBonus; }
+                }
+                return { totalAtk, totalHp, totalSkill, totalCDR, totalPassive };
+            }
+            const bonuses = calcTotalBonuses(star);
+            const baseAtk = 10 + beast.level * 3;
+            const baseHp = 100 + beast.level * 20;
+            const finalAtk = Math.floor(baseAtk * (1 + bonuses.totalAtk));
+            const finalHp = Math.floor(baseHp * (1 + bonuses.totalHp));
+
+            // 训练费用
+            const trainCost = Math.floor(30 * (1 + beast.level * 0.2));
+            const trainExp = Math.floor(50 + beast.level * 10);
+            const canTrain = (GameData.player.spiritStones || 0) >= trainCost;
+
+            // 碎片数量
+            const myShards = (GameData.beastShards || {})[beast.id] || 0;
+
+            // ===== 突破区域 HTML =====
+            let btHTML = '';
+            if(currentBtIdx < maxStar) {
+                const btCost = 200 * (currentBtIdx + 1);
+                const shardNeed = 3 + currentBtIdx * 2;
+                const nextEffect = BEAST_STAR_EFFECTS[currentBtIdx];
+                const canAffordBT = (GameData.player.spiritStones || 0) >= btCost && myShards >= shardNeed;
+
+                btHTML = `<div style="background:linear-gradient(135deg,rgba(218,165,32,0.12),rgba(255,100,50,0.08));border:2px solid ${canBreakthroughNow ? '#DAA520' : '#555'};border-radius:10px;padding:12px;margin-top:8px">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                        <span style="font-size:15px;color:${nextEffect.color};font-weight:bold">⚡ ${nextEffect.title}</span>
+                        ${atBreakthroughGate ? '<span style="font-size:9px;background:#FF6347;color:#fff;padding:1px 6px;border-radius:4px;font-weight:bold">可突破!</span>' : ''}
+                    </div>
+                    <div style="font-size:11px;color:#aaa;margin-bottom:4px">${nextEffect.desc}</div>
+                    <div style="font-size:11px;color:#E8D5A3;margin-bottom:6px">
+                        ⚔️+${Math.round(nextEffect.atkMult*100)}%攻击 ❤️+${Math.round(nextEffect.hpMult*100)}%生命 ✦技能+${Math.round(nextEffect.skillBoost*100)}% 冷却-${nextEffect.cooldownReduction}s 被动+${Math.round(nextEffect.passiveBonus*100)}%
+                    </div>
+                    ${nextEffect.newPassive ? `<div style="font-size:11px;color:#9B7ED9;margin-bottom:6px">🌟 新被动：<b>${nextEffect.newPassive.name}</b> — ${nextEffect.newPassive.desc}</div>` : ''}
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">
+                        <span style="font-size:11px;color:#FFD700">💎 ${btCost}灵石</span>
+                        <span style="font-size:11px;color:#FFD700">🧩 ${bDef.name}碎片×${shardNeed}</span>
+                        <span style="font-size:10px;color:${myShards >= shardNeed ? '#5CBF7C' : '#FF6347'}">(拥有${myShards})</span>
+                        <button class="bt-btn" data-bt-idx="${currentBtIdx}" style="margin-left:auto;background:${canAffordBT?(canBreakthroughNow?'#DAA520':'#4A90D9'):'#333'};color:${canAffordBT?'#000':'#666'};border:none;padding:6px 16px;border-radius:8px;font-size:13px;cursor:${canAffordBT?'pointer':'not-allowed'};font-weight:bold">${!canBreakthroughNow?`需达Lv.${nextBtLevel}`:'⚡ 立即突破'}</button>
+                    </div>
+                </div>`;
+            } else {
+                // 满星状态
+                const maxEff = BEAST_STAR_EFFECTS[maxStar - 1];
+                btHTML = `<div style="background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,100,50,0.1));border:2px solid #FFD700;border-radius:10px;padding:12px;margin-top:8px;text-align:center">
+                    <div style="font-size:16px;color:#FFD700;font-weight:bold">🌟 ${maxEff.title} · 已满星！</div>
+                    <div style="font-size:12px;color:#E8D5A3;margin-top:4px">${maxEff.desc} — 灵兽已达到最高境界！</div>
+                </div>`;
+            }
+
+            // ===== 已解锁星级效果展示 =====
+            let unlockedStarsHTML = '';
+            if(star > 0) {
+                unlockedStarsHTML = '<div style="margin-top:8px"><div style="font-size:12px;color:#DAA520;font-weight:bold;margin-bottom:4px">✨ 已解锁星级效果</div>';
+                for(let i = 0; i < star; i++) {
+                    const eff = BEAST_STAR_EFFECTS[i];
+                    unlockedStarsHTML += `<div style="background:rgba(${i===star-1?'218,165,32':'60,60,80'},0.15);border:1px solid ${eff.color}40;border-radius:6px;padding:6px 8px;margin-bottom:4px">
+                        <span style="color:${eff.color};font-weight:bold;font-size:11px">${eff.title}</span>
+                        <span style="font-size:10px;color:#888;margin-left:4px">${eff.desc}</span>
+                        ${eff.newPassive ? `<div style="font-size:10px;color:#9B7ED9;margin-top:2px">→ 🌟${eff.newPassive.name}: ${eff.newPassive.desc}</div>` : ''}
+                    </div>`;
+                }
+                unlockedStarsHTML += '</div>';
+            }
+
+            // 经验条
+            const expToNext = beast.level * 100;
+            const expPct = Math.min(1, (beast.exp || 0) / expToNext);
+
+            // 星级显示 — 每颗星带颜色渐变
+            let starsDisplay = '';
+            for(let i = 0; i < maxStar; i++) {
+                if(i < star) {
+                    const c = BEAST_STAR_EFFECTS[i].color;
+                    starsDisplay += `<span style="color:${c};text-shadow:0 0 6px ${c}80;font-size:14px">★</span>`;
+                } else {
+                    starsDisplay += `<span style="color:#444;font-size:14px">☆</span>`;
+                }
+            }
+
+            // 品质颜色（基于rarity）
+            const rarityColorMap = { 1: '#888', 2: '#4A90D9', 3: '#9B7ED9', 4: '#FF6347' };
+            const beastQualityColor = rarityColorMap[bDef.rarity] || '#888';
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#DAA520;font-weight:bold;text-align:center;margin-bottom:2px">🏠 灵兽阁</div>
+                <div style="font-size:11px;color:#555;text-align:center;margin-bottom:10px">训练 · 升星 · 突破 · 强化你的灵兽伙伴</div>
+
+                <!-- 灵兽信息卡片 -->
+                <div style="background:linear-gradient(135deg,rgba(40,25,15,0.85),rgba(20,10,5,0.9));border:2px solid ${beastQualityColor};border-radius:12px;padding:14px;margin-bottom:8px;position:relative;overflow:hidden">
+                    <!-- 品质光效背景 -->
+                    <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,${beastQualityColor}15,transparent 70%);opacity:0.15"></div>
+
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;position:relative">
+                        <span style="font-size:40px;filter:drop-shadow(0 0 8px ${beastQualityColor}80)">${beast.icon}</span>
+                        <div style="flex:1">
+                            <div style="font-size:17px;color:${beastQualityColor};font-weight:bold">${bDef.name}</div>
+                            <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
+                                <span style="font-size:12px;color:#DAA520;font-weight:bold">Lv.${beast.level}</span>
+                                <span style="letter-spacing:1px">${starsDisplay}</span>
+                            </div>
+                            <div style="font-size:10px;color:#777;margin-top:1px">${bDef.rarity >= 4 ? '【神兽】' : bDef.rarity >= 3 ? '【珍稀】' : bDef.rarity >= 2 ? '【优秀】' : '【普通']'} ${ELEMENTS[bDef.element]?.name||''}属性</div>
+                        </div>
+                    </div>
+
+                    <!-- 经验条 -->
+                    <div style="background:rgba(0,0,0,0.5);border-radius:4px;height:8px;overflow:hidden;margin-top:4px">
+                        <div style="width:${expPct*100}%;height:100%;background:linear-gradient(90deg,#DAA520,#FFD700,#FFF8DC);border-radius:4px;transition:width 0.3s"></div>
+                    </div>
+                    <div style="font-size:10px;color:#555;margin-top:1px;text-align:right">EXP ${beast.exp||0}/${expToNext}${atBreakthroughGate ? ' <span style="color:#FF6347">(需突破)</span>' : ''}</div>
+
+                    <!-- 属性面板 -->
+                    <div style="display:flex;gap:10px;margin-top:8px;font-size:11px">
+                        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:6px;padding:6px;text-align:center">
+                            <div style="color:#FF6347;font-weight:bold">⚔️ ${finalAtk}</div>
+                            <div style="color:#555;font-size:9px">攻击 ${bonuses.totalAtk>0?'+'+Math.round(bonuses.totalAtk*100)+'%':''}</div>
+                        </div>
+                        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:6px;padding:6px;text-align:center">
+                            <div style="color:#5CBF7C;font-weight:bold">❤️ ${finalHp}</div>
+                            <div style="color:#555;font-size:9px">生命 ${bonuses.totalHp>0?'+'+Math.round(bonuses.totalHp*100)+'%':''}</div>
+                        </div>
+                        <div style="flex:1;background:rgba(0,0,0,0.3);border-radius:6px;padding:6px;text-align:center">
+                            <div style="color:#DAA520;font-weight:bold">✦ +${Math.round(bonuses.totalSkill*100)}%</div>
+                            <div style="color:#555;font-size:9px">技能伤害</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 训练区 -->
+                <div style="background:rgba(30,35,45,0.6);border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:6px">
+                    <div style="font-size:12px;color:#9B7ED9;font-weight:bold;margin-bottom:4px">🏋️ 训练营</div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="font-size:10px;color:#666">灵石换经验</span>
+                        <button id="train-btn" style="margin-left:auto;background:${canTrain?'linear-gradient(135deg,#2a4a6a,#1a3a5a)':'#222'};color:${canTrain?'#8ec8f4':'#444'};border:1px solid ${canTrain?'#4A90D9':'#333'};padding:6px 14px;border-radius:6px;font-size:12px;font-weight:bold;cursor:${canTrain?'pointer':'not-allowed'}">💎${trainCost} → +${trainExp}EXP</button>
+                    </div>
+                </div>
+
+                <!-- 突破区 -->
+                ${btHTML}
+
+                <!-- 已解锁效果列表 -->
+                ${unlockedStarsHTML}
+
+                <!-- 灵兽碎片信息 -->
+                <div style="background:rgba(20,20,30,0.5);border-radius:8px;padding:8px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:11px">
+                    <span style="color:#888">🧩 ${bDef.name}碎片</span>
+                    <span style="color:#FFD700;font-weight:bold">${myShards} 个</span>
+                    <span style="color:#555">${currentBtIdx < maxStar ? `下次需 ${3+currentBtIdx*2} 个` : '已无更多需求'}</span>
+                </div>
+
+                <button id="bh-close" style="width:100%;margin-top:10px;background:rgba(40,35,30,0.9);color:#ccc;border:1px solid #444;padding:8px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>`;
+
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#bh-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+
+            // ===== 训练按钮逻辑 =====
+            const trainBtn = card.querySelector('#train-btn');
+            if(trainBtn && canTrain) {
+                trainBtn.addEventListener('click', () => {
+                    GameData.player.spiritStones -= trainCost;
+                    GameData.spiritBeast.contracted.exp += trainExp;
+                    // 检查升级（不能超过下一个未突破的门槛）
+                    while(true) {
+                        const lvl = GameData.spiritBeast.contracted.level;
+                        const needed = lvl * 100;
+                        const nextGate = (star < maxStar) ? BEAST_BREAKTHROUGH_LEVELS[star] : 9999;
+                        if(GameData.spiritBeast.contracted.exp >= needed && lvl < nextGate) {
+                            GameData.spiritBeast.contracted.exp -= needed;
+                            GameData.spiritBeast.contracted.level++;
+                        } else break;
+                    }
+                    savePlayerProfile();
+                    this.updateUI();
+                    this.addBeastExp(trainExp);
+                    overlay.remove();
+                    this.showBeastHallPanel(); // 刷新
+                });
+            }
+
+            // ===== 突破按钮逻辑 =====
+            card.querySelectorAll('.bt-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.btIdx);
+                    const cost = 200 * (idx + 1);
+                    const shardNeed = 3 + idx * 2;
+                    if((GameData.player.spiritStones || 0) < cost) { this.showMsg('灵石不足！'); return; }
+                    if(myShards < shardNeed) { this.showMsg(`需要更多${bDef.name}碎片！(已有${myShards}/${shardNeed})`); return; }
+
+                    // 扣除消耗
+                    GameData.player.spiritStones -= cost;
+                    GameData.beastShards[beast.id] -= shardNeed;
+                    if(GameData.beastShards[beast.id] <= 0) delete GameData.beastShards[beast.id];
+
+                    // ★★★ 突破成功！提升星级 ★★★
+                    const newStar = (beast.star || 0) + 1;
+                    GameData.spiritBeast.contracted.star = newStar;
+                    const effect = BEAST_STAR_EFFECTS[idx];
+
+                    savePlayerProfile();
+
+                    // ===== 突破成功特效序列 =====
+                    this.showMsg(`⚡ ${bDef.name}${effect.title}突破成功！`);
+                    const tx = this.treeX, ty = this.treeY;
+
+                    // 第一层：金色扩散圆
+                    const fx1 = this.add.circle(tx, ty, 20, 0xDAA520, 0.9);
+                    this.tweens.add({ targets: fx1, scale: 8, alpha: 0, duration: 800, ease: 'Cubic.easeOut', onComplete: () => fx1.destroy() });
+
+                    // 第二层：星级闪光（根据品质变色）
+                    setTimeout(() => {
+                        const fx2 = this.add.circle(tx, ty, 15, Phaser.Display.Color.HexStringToColor(effect.color).color, 0.95);
+                        this.tweens.add({ targets: fx2, scale: 5, alpha: 0, duration: 1000, ease: 'Back.easeOut', onComplete: () => fx2.destroy() });
+                        // 星级文字飘起
+                        const starTxt = this.add.text(tx, ty - 30, `${'★'.repeat(newStar)} ${effect.title}`, {
+                            fontSize: '22px', color: effect.color, fontStyle: 'bold',
+                            stroke: '#000', strokeThickness: 3
+                        }).setOrigin(0.5).setDepth(300);
+                        this.tweens.add({
+                            targets: starTxt, y: ty - 80, alpha: 0, scale: 1.3,
+                            duration: 1500, ease: 'Cubic.easeOut', onComplete: () => starTxt.destroy()
+                        });
+                    }, 300);
+
+                    // 第三层：粒子爆发
+                    setTimeout(() => {
+                        for(let p = 0; p < 8; p++) {
+                            const angle = (p / 8) * Math.PI * 2;
+                            const px = tx + Math.cos(angle) * 30;
+                            const py = ty + Math.sin(angle) * 30;
+                            const particle = this.add.circle(px, py, 4 + Math.random() * 4,
+                                Phaser.Display.Color.HexStringToColor(effect.color).color, 0.8).setDepth(250);
+                            this.tweens.add({
+                                targets: particle,
+                                x: tx + Math.cos(angle) * (80 + Math.random() * 60),
+                                y: ty + Math.sin(angle) * (80 + Math.random() * 60),
+                                alpha: 0, scale: 0, duration: 600 + Math.random() * 400,
+                                ease: 'Cubic.easeOut', onComplete: () => particle.destroy()
+                            });
+                        }
+                    }, 400);
+
+                    // 刷新面板
+                    setTimeout(() => { overlay.remove(); this.showBeastHallPanel(); }, 200);
+                });
+            });
+        }
+
+        // 获取灵兽突破总加成的辅助方法（供战斗系统调用）
+        getBeastStarBonus(type) {
+            const beast = GameData.spiritBeast.contracted;
+            if(!beast || !beast.star || beast.star <= 0) return 0;
+            let val = 0;
+            for(let i = 0; i < beast.star; i++) {
+                const eff = BEAST_STAR_EFFECTS[i];
+                if(!eff) continue;
+                switch(type) {
+                    case 'atk': val += eff.atkMult; break;
+                    case 'hp': val += eff.hpMult; break;
+                    case 'skill': val += eff.skillBoost; break;
+                    case 'passive': val += eff.passiveBonus; break;
+                }
+            }
+            return val;
+        }
+
+        // 获取灵兽总冷却减免（秒）
+        getBeastTotalCDReduction() {
+            const beast = GameData.spiritBeast.contracted;
+            if(!beast || !beast.star || beast.star <= 0) return 0;
+            let cdr = 0;
+            for(let i = 0; i < beast.star; i++) {
+                const eff = BEAST_STAR_EFFECTS[i];
+                if(eff) cdr += eff.cooldownReduction;
+            }
+            return cdr;
+        }
+
+        // 获取已解锁的新被动列表
+        getBeastStarPassives() {
+            const beast = GameData.spiritBeast.contracted;
+            if(!beast || !beast.star || beast.star <= 0) return [];
+            const passives = [];
+            for(let i = 0; i < beast.star; i++) {
+                const eff = BEAST_STAR_EFFECTS[i];
+                if(eff && eff.newPassive) passives.push({...eff.newPassive, starLevel: i + 1});
+            }
+            return passives;
+        }
+
+        // ===== v4.3 藏经阁（功法研究升级）=====
+        showLibraryPanel() {
+            if(this.isGameOver) return;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,12,28,0.97);border:2px solid #4A90D9;border-radius:16px;padding:20px;max-width:420px;width:92%;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+
+            let artsHTML = `<div style="font-size:20px;color:#4A90D9;font-weight:bold;margin-bottom:2px;text-align:center">📚 藏经阁</div>
+                <div style="font-size:11px;color:#666;margin-bottom:10px;text-align:center">研究已学功法，提升效果（最高Lv.5）</div>`;
+
+            CULTIVATION_ARTS.forEach(art => {
+                const learned = GameData.arts.learned.includes(art.id);
+                const artLevel = (GameData.artLevels || {})[art.id] || (learned ? 1 : 0);
+                const maxLvl = art.maxLevel || 5;
+                const canUpgrade = learned && artLevel < maxLvl;
+                const upgradeCost = canUpgrade ? art.upgradeCostBase * artLevel : 0;
+                const upgradeMat = canUpgrade ? (art.upgradeMat || null) : null;
+                const matHave = upgradeMat ? ((GameData.materials || {})[upgradeMat] || 0) : 0;
+                const matNeed = canUpgrade ? Math.ceil(artLevel * 1.5) : 0;
+                const stoneOk = (GameData.player.spiritStones || 0) >= upgradeCost;
+                const matOk = !upgradeMat || matHave >= matNeed;
+                const fullOk = stoneOk && matOk;
+
+                // 等级星星
+                const levelStars = '★'.repeat(Math.min(artLevel, maxLvl)) + '☆'.repeat(maxLvl - Math.min(artLevel, maxLvl));
+                // 当前加成值
+                let currentBonus = art.effect.value;
+                if(artLevel > 1 && learned) currentBonus = art.effect.value * (1 + (artLevel - 1) * 0.3);
+
+                artsHTML += `<div style="background:rgba(${learned ? '20,35,60' : '20,20,30'},0.9);border:2px solid ${learned ? art.color : '#333'};border-radius:10px;padding:10px 14px;margin-bottom:8px;${!learned ? 'opacity:0.5' : ''}">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                        <span style="font-size:22px">${art.icon}</span>
+                        <div style="flex:1">
+                            <div style="font-size:14px;color:${learned ? '#E8D5A3' : '#555'};font-weight:bold">${art.name} ${learned ? `<span style="font-size:11px;color:#4A90D9">Lv.${artLevel}</span>` : ''}</div>
+                            <div style="font-size:11px;color:${learned ? '#aaa' : '#444'}">${art.desc}</div>
+                        </div>
+                    </div>
+                    ${learned ? `
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+                        <span style="font-size:10px;color:#FFD700">${levelStars}</span>
+                        <span style="font-size:11px;color:#4A90D9">当前+${Math.floor(currentBonus*100)}%</span>
+                        ${canUpgrade ? `
+                            <span style="margin-left:auto;font-size:10px;color:${matOk?'#aaa':'#FF4444'}">${upgradeMat?SPIRIT_MATERIALS[upgradeMat]?SPIRIT_MATERIALS[upgradeMat].icon:'?':''}${matHave}/${matNeed}</span>
+                            <span style="font-size:10px;color:${stoneOk?'#5CBF7C':'#FF6347'}">💎${upgradeCost}</span>
+                            <button class="lib-upgrade-btn" data-art="${art.id}" style="background:${fullOk?art.color:'#333'};color:${fullOk?'#000':'#666'};border:none;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:bold;cursor:${fullOk?'pointer':'not-allowed'}">${fullOk?'研究':'资源不足'}</button>
+                        ` : `<span style="font-size:11px;color:#FFD700;margin-left:auto">✨ 已满级</span>`}
+                    </div>` : `
+                    <div style="font-size:11px;color:#888;margin-top:4px">
+                        🔒 需先在功法面板参悟（💎${art.cost}灵石）
+                    </div>`}
+                </div>`;
+            });
+
+            artsHTML += `<div style="text-align:center;margin-top:10px"><button id="lib-close" style="background:#333;color:#ccc;border:none;padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button></div>`;
+            card.innerHTML = artsHTML;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelector('#lib-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+
+            card.querySelectorAll('.lib-upgrade-btn').forEach(btn => {
+                btn.addEventListener('click', () => this.upgradeArt(btn.dataset.art, overlay));
+            });
+        }
+
+        upgradeArt(artId, overlay) {
+            const art = CULTIVATION_ARTS.find(a => a.id === artId);
+            if(!art) return;
+            if(!GameData.arts.learned.includes(artId)) { this.showMsg('未参悟此功法！'); return; }
+            const curLvl = (GameData.artLevels || {})[artId] || 1;
+            if(curLvl >= (art.maxLevel || 5)) { this.showMsg('已达满级！'); return; }
+
+            const cost = art.upgradeCostBase * curLvl;
+            if((GameData.player.spiritStones || 0) < cost) { this.showMsg('灵石不足！'); return; }
+
+            // 检查材料
+            if(art.upgradeMat) {
+                const need = Math.ceil(curLvl * 1.5);
+                if(((GameData.materials || {})[art.upgradeMat] || 0) < need) { this.showMsg(`材料不足：${SPIRIT_MATERIALS[art.upgradeMat]?SPIRIT_MATERIALS[art.upgradeMat].name:''}`); return; }
+                GameData.materials[art.upgradeMat] -= need;
+                if(GameData.materials[art.upgradeMat] <= 0) delete GameData.materials[art.upgradeMat];
+            }
+
+            GameData.player.spiritStones -= cost;
+            if(!GameData.artLevels) GameData.artLevels = {};
+            GameData.artLevels[artId] = curLvl + 1;
+
+            const newBonusVal = art.effect.value * (1 + curLvl * 0.3);
+            savePlayerProfile();
+            this.updateUI();
+
+            this.showMsg(`📚 研究成功！${art.name} → Lv.${curLvl+1}，效果+${Math.floor(newBonusVal*100)}%`);
+
+            // 特效
+            const fx = this.add.circle(this.treeX, this.treeY, 25, parseInt(art.color.replace('#','0x'), 16), 0.8);
+            this.tweens.add({ targets: fx, scale: 5, alpha: 0, duration: 1000, onComplete: () => fx.destroy() });
+
+            overlay.remove();
+            this.showLibraryPanel(); // 刷新
+        }
+
+        // 获取功法总加成（含研究等级）
+        getArtTotalBonus(type) {
+            let bonus = 0;
+            GameData.arts.learned.forEach(artId => {
+                const art = CULTIVATION_ARTS.find(a => a.id === artId);
+                if(art && art.effect.type === type) {
+                    const lvl = (GameData.artLevels || {})[artId] || 1;
+                    bonus += art.effect.value * (1 + (lvl - 1) * 0.3);
+                }
+            });
+            return bonus;
+        }
+
         // ===== 修仙功法系统 =====
         showArtsPanel() {
             if(this.isGameOver) return;
             const overlay = document.createElement('div');
-            overlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;`;
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:600;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
             const card = document.createElement('div');
-            card.style.cssText = `background:rgba(15,15,25,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:20px;max-width:340px;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;box-shadow:0 0 30px #9B7ED940;`;
-            let artsHTML = `<div style="font-size:18px;color:#9B7ED9;font-weight:bold;margin-bottom:4px;text-align:center">📖 修仙功法</div>
-                <div style="font-size:12px;color:#888;margin-bottom:12px;text-align:center">灵石参悟功法，获得永久加成</div>`;
+            card.style.cssText = 'background:rgba(15,10,30,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:20px;max-width:420px;width:92%;max-height:80vh;overflow-y:auto;animation:destinyIn 0.3s ease;';
+            let artsHTML = `<div style="font-size:20px;color:#9B7ED9;font-weight:bold;margin-bottom:2px;text-align:center">📖 功法参悟</div>
+                <div style="font-size:11px;color:#666;margin-bottom:10px;text-align:center">消耗灵石参悟功法，获得永久加成</div>`;
 
             CULTIVATION_ARTS.forEach(art => {
                 const learned = GameData.arts.learned.includes(art.id);
@@ -6197,7 +7558,7 @@
             }).setOrigin(0.5);
 
             // 进度信息栏（暗色底板）
-            this.add.rectangle(w/2, 48, 360, 22, 0x0a0512, 0.7).setStrokeStyle(1, 0x442255, 0.4).setRoundedRect(11);
+            this.add.rectangle(w/2, 48, 360, 22, 0x0a0512, 0.7).setStrokeStyle(1, 0x442255);
             this.add.text(w/2, 48, `已探索 ${this.roomsCleared}/${this.rooms.length - 1}  💰${this.gainedSpiritStones}  ✨${this.enlightenments.length}顿悟`, {
                 fontSize: '12px', color: '#E8D5A3', stroke: '#000', strokeThickness: 1
             }).setOrigin(0.5);
@@ -6450,6 +7811,14 @@
                 .setStrokeStyle(1, 0xFF6347).setInteractive({ useHandCursor: true }).setDepth(30);
             this.add.text(w - 60, 20, '🏃 撤退', { fontSize: '11px', color: '#FF6347' }).setOrigin(0.5).setDepth(31);
             retreatBtn.on('pointerdown', () => this.retreatFromBattle(room));
+
+            // v4.3 丹药使用按钮（探索战斗中）
+            const potionBtn = this.add.rectangle(w - 150, 20, 70, 24, 0x1a2d2a, 1)
+                .setStrokeStyle(1, 0x5CBF7C).setInteractive({ useHandCursor: true }).setDepth(30);
+            this.potionBtnLabel = this.add.text(w - 150, 20, '🧪 丹药', { fontSize: '11px', color: '#5CBF7C' }).setOrigin(0.5).setDepth(31);
+            potionBtn.on('pointerdown', () => this.showPotionMenu());
+            // 初始化探索增益buff列表
+            if(!this.activeBuffs) this.activeBuffs = [];
 
             // 战斗tick
             this.battleTimer = this.time.addEvent({ delay: 800, callback: this.battleTick, callbackScope: this, loop: true });
@@ -6782,8 +8151,16 @@
                     this.showBattleMsg('🦊 魅惑！最强妖兽攻击-90%!');
                     break;
                 case 'ice_phoenix':
-                    aliveMonsters.forEach(m => { m.atk = Math.floor(m.atk * 0.5); });
-                    this.time.delayedCall(3200, () => { aliveMonsters.forEach(m => { if(m.alive) m.atk = Math.floor(m.atk * 2); }); });
+                    // 保存原始atk用于正确恢复（避免与狂暴等buff叠加时数值错误）
+                    aliveMonsters.forEach(m => { m._origAtk = m.atk; m.atk = Math.floor(m.atk * 0.5); });
+                    this.time.delayedCall(3200, () => {
+                        aliveMonsters.forEach(m => {
+                            if(m.alive && m._origAtk !== undefined) {
+                                m.atk = m._origAtk;
+                                delete m._origAtk;
+                            }
+                        });
+                    });
                     break;
                 case 'thunder_hawk': {
                     const chainTargets = aliveMonsters.slice(0, 3);
@@ -6836,6 +8213,127 @@
             // 特效
             const fx = this.add.circle(this.cameras.main.width/2, this.cameras.main.height - 100, 20, 0x9B7ED9, 0.7).setDepth(60);
             this.tweens.add({ targets: fx, scale: 4, alpha: 0, duration: 500, onComplete: () => fx.destroy() });
+        }
+
+        // ===== v4.3 丹药使用菜单（探索战斗中）=====
+        showPotionMenu() {
+            const w = this.cameras.main.width, h = this.cameras.main.height;
+            // 检查已有丹药
+            const ownedPills = Object.entries(GameData.potions || {})
+                .filter(([id, count]) => count > 0)
+                .map(([id, count]) => {
+                    const pill = ALCHEMY_PILLS.find(p => p.id === id);
+                    return pill ? { ...pill, count } : null;
+                })
+                .filter(Boolean);
+
+            if(ownedPills.length === 0) {
+                this.showBattleMsg('🧪 没有丹药！先去炼丹炉炼制');
+                return;
+            }
+
+            // 弹出DOM选择面板
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,8,25,0.97);border:2px solid #5CBF7C;border-radius:14px;padding:16px;max-width:300px;width:88%;';
+
+            let itemsHTML = '';
+            ownedPills.forEach(pill => {
+                itemsHTML += `<div data-pill="${pill.id}" style="display:flex;align-items:center;gap:8px;padding:10px;margin-bottom:6px;background:rgba(30,60,45,0.4);border:1px solid ${pill.color};border-radius:8px;cursor:pointer;">
+                    <span style="font-size:22px">${pill.icon}</span>
+                    <div style="flex:1">
+                        <div style="font-size:13px;color:${pill.color};font-weight:bold">${pill.name}</div>
+                        <div style="font-size:10px;color:#888">${pill.desc}</div>
+                    </div>
+                    <span style="font-size:12px;color:#5CBF7C;font-weight:bold">×${pill.count}</span>
+                </div>`;
+            });
+
+            card.innerHTML = `
+                <div style="font-size:16px;color:#5CBF7C;font-weight:bold;text-align:center;margin-bottom:8px">💊 使用丹药</div>
+                ${itemsHTML}
+                <button id="pot-close" style="width:100%;margin-top:6px;background:#333;color:#aaa;border:none;padding:6px;border-radius:6px;font-size:12px;cursor:pointer">取消</button>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+
+            card.querySelectorAll('[data-pill]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const pid = el.dataset.pill;
+                    const pill = ALCHEMY_PILLS.find(p => p.id === pid);
+                    if(!pill || !GameData.potions[pid]) return;
+
+                    // 消耗丹药
+                    GameData.potions[pid]--;
+                    savePlayerProfile();
+
+                    // 应用效果
+                    this.applyPillEffect(pill);
+                    overlay.remove();
+                    this.showBattleMsg(`🧪 使用${pill.name}！`);
+                });
+            });
+            card.querySelector('#pot-close').addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+        }
+
+        applyPillEffect(pill) {
+            switch(pill.effect.type) {
+                case 'restoreHP':
+                    const healAmt = Math.floor(this.playerMaxHP * pill.effect.value);
+                    this.playerHP = Math.min(this.playerMaxHP, this.playerHP + healAmt);
+                    this.updatePlayerHPBar();
+                    break;
+                case 'attackBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'attackBoost', value: pill.effect.value });
+                    this.showBattleMsg(`⚔️ 攻击+${Math.floor(pill.effect.value*100)}%！`);
+                    break;
+                case 'defenseBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'defenseBoost', value: pill.effect.value });
+                    this.showBattleMsg(`🛡️ 伤害-${Math.floor(pill.effect.value*100)}%！`);
+                    break;
+                case 'speedBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'speedBoost', value: pill.effect.value });
+                    this.showBattleMsg(`💨 攻速+${Math.floor(pill.effect.value*100)}%！`);
+                    break;
+                case 'critBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'critBoost', value: pill.effect.value });
+                    this.showBattleMsg(`💥 暴击率+${Math.floor(pill.effect.value*100)}%！`);
+                    break;
+                case 'elementalBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'elementalBoost', value: pill.effect.value });
+                    this.showBattleMsg(`☯️ 五行克制增强！`);
+                    break;
+                case 'expBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'expBoost', value: pill.effect.value });
+                    this.showBattleMsg(`🧠 经验+${Math.floor(pill.effect.value*100)}%！`);
+                    break;
+                case 'cheatDeath':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'cheatDeath' });
+                    this.showBattleMsg(`🌟 不死药激活！免死一次！`);
+                    break;
+                case 'lootBoost':
+                    if(!this.activeBuffs) this.activeBuffs = [];
+                    this.activeBuffs.push({ type: 'lootBoost', value: pill.effect.value });
+                    this.showBattleMsg(`🎁 探宝丹激活！掉落翻倍！`);
+                    break;
+            }
+        }
+
+        updatePlayerHPBar() {
+            if(this.playerHPBar && this.playerHPText) {
+                const pct = Math.max(0, this.playerHP / this.playerMaxHP);
+                this.playerHPBar.setWidth(200 * pct);
+                this.playerHPText.setText(`${this.playerHP}/${this.playerMaxHP}`);
+            }
         }
 
         showBattleMsg(text) {
