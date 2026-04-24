@@ -5302,7 +5302,7 @@
                     <span style="font-size:11px;color:${locked?'#444':(isCurrent?'#FF6347':'#aaa')};font-weight:${isCurrent?'bold':'normal'};min-width:24px">${lv}</span>
                     <div style="flex:1;display:flex;gap:4px">
                         <span style="font-size:10px;color:${freeDone?'#555':'#ccc'};padding:1px 6px;background:rgba(100,100,100,0.2);border-radius:4px">${freeRwd}${freeDone?'✅':''}</span>
-                        <span style="font-size:10px;color:${paidDone||(bp.isPremium?(!locked?'#FFD700':'#666'):'#444'};padding:1px 6px;background:rgba(255,215,0,${bp.isPremium?'0.1':'0.02'});border-radius:4px">${paidRwd}${paidDone?'✅':(!bp.isPremium&&locked?'🔒':'')}</span>
+                        <span style="font-size:10px;color:${paidDone?'#555':(bp.isPremium?(!locked?'#FFD700':'#666'):'#444')};padding:1px 6px;background:rgba(255,215,0,${bp.isPremium?'0.1':'0.02'});border-radius:4px">${paidRwd}${paidDone?'✅':(!bp.isPremium&&locked?'🔒':'')}</span>
                     </div>
                     ${isCurrent ? '<span style="font-size:10px;color:#FF6347">◀</span>' : ''}
                 </div>`;
@@ -5564,7 +5564,7 @@
                                 <span style="font-size:12px;color:#DAA520;font-weight:bold">Lv.${beast.level}</span>
                                 <span style="letter-spacing:1px">${starsDisplay}</span>
                             </div>
-                            <div style="font-size:10px;color:#777;margin-top:1px">${bDef.rarity >= 4 ? '【神兽】' : bDef.rarity >= 3 ? '【珍稀】' : bDef.rarity >= 2 ? '【优秀】' : '【普通']'} ${ELEMENTS[bDef.element]?.name||''}属性</div>
+                            <div style="font-size:10px;color:#777;margin-top:1px">${bDef.rarity >= 4 ? '【神兽】' : bDef.rarity >= 3 ? '【珍稀】' : bDef.rarity >= 2 ? '【优秀】' : '【普通】'} ${ELEMENTS[bDef.element]?.name||''}属性</div>
                         </div>
                     </div>
 
