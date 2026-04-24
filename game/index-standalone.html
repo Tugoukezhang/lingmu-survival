@@ -862,6 +862,13 @@
         daysRemaining: 0,
         gemsCost: 30,
         durationDays: 30,
+        freeDraws: 0,       // 累计免费抽卡次数
+    };
+    // v4.3 商店购买道具（跨场景生效）
+    if(!GameData.shopPurchases) GameData.shopPurchases = {
+        spiritPill: 0,       // 灵气丹数量
+        formationScroll: 0,  // 阵法残卷数量
+        talismanShield: 0,   // 护体符数量
     };
     if(!GameData.battlePass) GameData.battlePass = {
         active: false,
@@ -1081,6 +1088,8 @@
                 refineBonuses: GameData._refineBonuses || null,
                 // v4.3 丹药背包
                 potions: GameData.potions || {},
+                // v4.3 商店购买道具
+                shopPurchases: GameData.shopPurchases || {},
                 // v4.3 功法研究等级
                 artLevels: GameData.artLevels || {},
                 // v4.3 月卡/战令
@@ -1109,6 +1118,8 @@
             if(saved.refineBonuses) GameData._refineBonuses = saved.refineBonuses;
             // v4.3 恢复丹药背包
             if(saved.potions) GameData.potions = { ...GameData.potions, ...saved.potions };
+            // v4.3 恢复商店购买道具
+            if(saved.shopPurchases) GameData.shopPurchases = { ...GameData.shopPurchases, ...saved.shopPurchases };
             // v4.3 恢复功法研究等级
             if(saved.artLevels) GameData.artLevels = { ...GameData.artLevels, ...saved.artLevels };
             // v4.3 恢复月卡/战令
@@ -1309,7 +1320,7 @@
             });
 
             // ========== 版本号 ==========
-            this.add.text(w/2, h - 4, 'v4.0 · 探索重构版', { fontSize: '10px', color: '#333' }).setOrigin(0.5).setDepth(101);
+            this.add.text(w/2, h - 4, 'v4.3 · 仙府修炼版', { fontSize: '10px', color: '#333' }).setOrigin(0.5).setDepth(101);
         }
 
         // ===== 导航弹窗（灵兽/功法介绍） =====
@@ -1338,10 +1349,58 @@
             card.innerHTML = `
                 <div style="font-size:20px;color:#DAA520;font-weight:bold;margin-bottom:4px;">🐾 灵兽图鉴</div>
                 <div style="font-size:11px;color:#888;margin-bottom:10px;">已契约 ${owned.length}/${SPIRIT_BEASTS.length} · 征战中解锁</div>
+                <div style="display:flex;gap:6px;margin-bottom:10px;">
+                    <button id="beast-gacha-mm" style="flex:1;background:rgba(218,165,32,0.15);border:1px solid #DAA520;border-radius:8px;color:#DAA520;padding:8px;font-size:11px;cursor:pointer;">🎴 召唤</button>
+                    <button id="beast-hall-mm" style="flex:1;background:rgba(155,126,217,0.15);border:1px solid #9B7ED9;border-radius:8px;color:#9B7ED9;padding:8px;font-size:11px;cursor:pointer;">🏠 灵兽阁</button>
+                </div>
                 ${beastsHTML}
             `;
             overlay.appendChild(card);
             this.setupOverlay(overlay, card);
+            // 灵兽阁快捷入口
+            if(card.querySelector('#beast-hall-mm')) {
+                card.querySelector('#beast-hall-mm').addEventListener('click', () => {
+                    overlay.remove();
+                    // MainMenuScene中用弹窗模拟灵兽阁
+                    this.showBeastHallEntry();
+                });
+            }
+            if(card.querySelector('#beast-gacha-mm')) {
+                card.querySelector('#beast-gacha-mm').addEventListener('click', () => {
+                    overlay.remove();
+                    this.showMsg('📞 前往战斗场景使用灵兽召唤');
+                });
+            }
+        }
+
+        // ===== 灵兽阁入口（MainMenuScene版） =====
+        showBeastHallEntry() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:700;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:rgba(15,10,30,0.97);border:2px solid #9B7ED9;border-radius:16px;padding:20px 16px;text-align:center;max-width:360px;width:90%;animation:destinyIn 0.4s ease;';
+            const contracted = GameData.spiritBeast && GameData.spiritBeast.contracted;
+            const beastDef = contracted ? SPIRIT_BEASTS.find(b => b.id === contracted.id) : null;
+            const star = contracted ? (contracted.star || 0) : 0;
+
+            card.innerHTML = `
+                <div style="font-size:20px;color:#9B7ED9;font-weight:bold;margin-bottom:8px;">🏠 灵兽阁</div>
+                ${contracted ? `
+                    <div style="font-size:32px;margin:10px 0">${beastDef ? beastDef.icon : '🐾'}</div>
+                    <div style="color:#E8D5A3;font-size:14px;font-weight:bold">${beastDef ? beastDef.name : '未知灵兽'}</div>
+                    <div style="color:#FFD700;font-size:12px;margin:4px 0">${'★'.repeat(star)}${'☆'.repeat(5-star)}</div>
+                    <div style="color:#888;font-size:11px;margin:6px 0">等级: Lv.${contracted.level || 1} · 突破: ${star}星</div>
+                    <div style="color:#9B7ED9;font-size:11px;margin:4px 0">📞 进入战斗场景可训练/突破</div>
+                ` : `
+                    <div style="font-size:32px;margin:10px 0">❓</div>
+                    <div style="color:#888;font-size:13px">尚未契约灵兽</div>
+                    <div style="color:#555;font-size:11px;margin-top:6px">在战斗中契约第一只灵兽吧!</div>
+                `}
+                <button id="bhe-close" style="width:100%;margin-top:12px;background:#222;color:#888;border:none;padding:8px;border-radius:8px;font-size:13px;cursor:pointer">关闭</button>
+            `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+            card.querySelector('#bhe-close').addEventListener('click', () => overlay.remove());
         }
 
         // ===== 功法收藏 =====
@@ -1491,17 +1550,29 @@
                     <div style="display:flex;align-items:center;padding:8px;border:1px solid #333;border-radius:8px;margin-bottom:6px;">
                         <span style="font-size:24px;margin-right:10px;">🧪</span>
                         <div style="flex:1;text-align:left;"><div style="color:#E8D5A3;font-size:13px;font-weight:bold;">灵气丹</div><div style="color:#888;font-size:10px;">下局灵木+50灵气</div></div>
-                        <button class="buy-btn" data-cost="100" data-currency="stones" style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:6px;color:#5CBF7C;padding:4px 12px;font-size:11px;cursor:pointer;">💎100</button>
+                        <button class="buy-btn" data-cost="100" data-currency="stones" data-item="spiritPill" style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:6px;color:#5CBF7C;padding:4px 12px;font-size:11px;cursor:pointer;">💎100</button>
                     </div>
                     <div style="display:flex;align-items:center;padding:8px;border:1px solid #333;border-radius:8px;margin-bottom:6px;">
                         <span style="font-size:24px;margin-right:10px;">📜</span>
                         <div style="flex:1;text-align:left;"><div style="color:#E8D5A3;font-size:13px;font-weight:bold;">阵法残卷</div><div style="color:#888;font-size:10px;">下局免费阵法+1</div></div>
-                        <button class="buy-btn" data-cost="200" data-currency="stones" style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:6px;color:#5CBF7C;padding:4px 12px;font-size:11px;cursor:pointer;">💎200</button>
+                        <button class="buy-btn" data-cost="200" data-currency="stones" data-item="formationScroll" style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:6px;color:#5CBF7C;padding:4px 12px;font-size:11px;cursor:pointer;">💎200</button>
                     </div>
                     <div style="display:flex;align-items:center;padding:8px;border:1px solid #333;border-radius:8px;margin-bottom:6px;">
                         <span style="font-size:24px;margin-right:10px;">🛡️</span>
                         <div style="flex:1;text-align:left;"><div style="color:#E8D5A3;font-size:13px;font-weight:bold;">护体符</div><div style="color:#888;font-size:10px;">下局免一次渡劫失败</div></div>
-                        <button class="buy-btn" data-cost="5" data-currency="gems" style="background:#3a2a1a;border:1px solid #DAA520;border-radius:6px;color:#DAA520;padding:4px 12px;font-size:11px;cursor:pointer;">✦5</button>
+                        <button class="buy-btn" data-cost="5" data-currency="gems" data-item="talismanShield" style="background:#3a2a1a;border:1px solid #DAA520;border-radius:6px;color:#DAA520;padding:4px 12px;font-size:11px;cursor:pointer;">✦5</button>
+                    </div>
+                </div>
+                <div id="shop-gems" style="display:none;">
+                    <div style="display:flex;align-items:center;padding:8px;border:1px solid #333;border-radius:8px;margin-bottom:6px;">
+                        <span style="font-size:24px;margin-right:10px;">💎</span>
+                        <div style="flex:1;text-align:left;"><div style="color:#E8D5A3;font-size:13px;font-weight:bold;">小灵晶袋</div><div style="color:#888;font-size:10px;">获得5灵晶</div></div>
+                        <button class="buy-btn" data-cost="500" data-currency="stones" data-item="gemBag5" style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:6px;color:#5CBF7C;padding:4px 12px;font-size:11px;cursor:pointer;">💎500</button>
+                    </div>
+                    <div style="display:flex;align-items:center;padding:8px;border:1px solid #333;border-radius:8px;margin-bottom:6px;">
+                        <span style="font-size:24px;margin-right:10px;">💎</span>
+                        <div style="flex:1;text-align:left;"><div style="color:#E8D5A3;font-size:13px;font-weight:bold;">大灵晶袋</div><div style="color:#888;font-size:10px;">获得15灵晶</div></div>
+                        <button class="buy-btn" data-cost="1200" data-currency="stones" data-item="gemBag15" style="background:#1a3d2a;border:1px solid #5CBF7C;border-radius:6px;color:#5CBF7C;padding:4px 12px;font-size:11px;cursor:pointer;">💎1200</button>
                     </div>
                 </div>
                 <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
@@ -1515,18 +1586,55 @@
             overlay.appendChild(card);
             this.setupOverlay(overlay, card);
 
+            // Tab切换逻辑
+            card.querySelectorAll('.shop-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+                    card.querySelectorAll('.shop-tab').forEach(t => {
+                        t.style.background = 'rgba(26,26,58,0.5)';
+                        t.style.borderColor = '#333';
+                        t.style.color = '#888';
+                    });
+                    tab.style.background = target === 'items' ? 'rgba(74,124,89,0.3)' : 'rgba(218,165,32,0.2)';
+                    tab.style.borderColor = target === 'items' ? '#5CBF7C' : '#DAA520';
+                    tab.style.color = target === 'items' ? '#5CBF7C' : '#DAA520';
+                    const shopItems = card.querySelector('#shop-items');
+                    const shopGems = card.querySelector('#shop-gems');
+                    if(shopItems) shopItems.style.display = target === 'items' ? 'block' : 'none';
+                    if(shopGems) shopGems.style.display = target === 'gems' ? 'block' : 'none';
+                });
+            });
+
             // 购买逻辑
             card.querySelectorAll('.buy-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const cost = parseInt(btn.dataset.cost);
                     const currency = btn.dataset.currency;
+                    const item = btn.dataset.item;
+                    // 灵晶袋特殊处理：直接兑换灵晶
+                    if(item === 'gemBag5' || item === 'gemBag15') {
+                        if(GameData.lobby.spiritStones >= cost) {
+                            GameData.lobby.spiritStones -= cost;
+                            const gems = item === 'gemBag5' ? 5 : 15;
+                            GameData.lobby.spiritGems += gems;
+                            savePlayerProfile();
+                            btn.textContent = '✅ 已兑';
+                            btn.disabled = true;
+                        } else {
+                            btn.textContent = '❌ 不足';
+                            setTimeout(() => { btn.textContent = `💎${cost}`; }, 1000);
+                        }
+                        return;
+                    }
                     if(currency === 'stones' && GameData.lobby.spiritStones >= cost) {
                         GameData.lobby.spiritStones -= cost;
+                        if(item && GameData.shopPurchases) GameData.shopPurchases[item] = (GameData.shopPurchases[item] || 0) + 1;
                         savePlayerProfile();
                         btn.textContent = '✅ 已购';
                         btn.disabled = true;
                     } else if(currency === 'gems' && GameData.lobby.spiritGems >= cost) {
                         GameData.lobby.spiritGems -= cost;
+                        if(item && GameData.shopPurchases) GameData.shopPurchases[item] = (GameData.shopPurchases[item] || 0) + 1;
                         savePlayerProfile();
                         btn.textContent = '✅ 已购';
                         btn.disabled = true;
@@ -1918,6 +2026,33 @@
                 protectMaster: 0 // 护主：替身冷却（每次触发后冷却60秒）
             };
             this._auraFearUsed = false;  // 威压：本场战斗是否已使用
+
+            // ===== v4.3 消费商店购买道具 =====
+            if(GameData.shopPurchases) {
+                // 灵气丹：每颗+50灵气
+                const pills = GameData.shopPurchases.spiritPill || 0;
+                if(pills > 0) {
+                    const bonus = pills * 50;
+                    GameData.tree.spirit = Math.min(GameData.tree.spirit + bonus, GameData.tree.spiritCapacity);
+                    GameData.shopPurchases.spiritPill = 0;
+                    this.showMsg(`🧪 灵气丹×${pills}! 开局+${bonus}灵气!`);
+                }
+                // 阵法残卷：每张免费放置+1
+                const scrolls = GameData.shopPurchases.formationScroll || 0;
+                if(scrolls > 0) {
+                    GameData.player.freeFormationTokens = (GameData.player.freeFormationTokens || 0) + scrolls;
+                    GameData.shopPurchases.formationScroll = 0;
+                    this.showMsg(`📜 阵法残卷×${scrolls}! 免费放置+${scrolls}!`);
+                }
+                // 护体符：记录到渡劫系统
+                const shields = GameData.shopPurchases.talismanShield || 0;
+                if(shields > 0) {
+                    GameData.tribulation.shields = (GameData.tribulation.shields || 0) + shields;
+                    GameData.shopPurchases.talismanShield = 0;
+                    this.showMsg(`🛡️ 护体符×${shields}! 渡劫失败免死×${shields}!`);
+                }
+                savePlayerProfile();
+            }
 
             console.log('[GameScene] create() done, displayList:', this.children.length);
         }
@@ -4288,12 +4423,18 @@
                 this.showMsg(`✨ ${trib.name}渡劫成功! +💎${trib.reward.spiritStones} +${trib.reward.exp}经验`);
                 this.addBeastExp(30);
             } else {
-                // 失败惩罚（天劫心法减半惩罚）
-                const tribArtBonus = this.getArtBonus('tribulation');
-                const lossMult = tribArtBonus > 0 ? 0.5 : 1;
-                const lossAmt = Math.floor(GameData.tree.spiritCapacity * trib.failPenalty.spiritLoss * lossMult);
-                GameData.tree.spirit = Math.max(1, GameData.tree.spirit - lossAmt);
-                this.showMsg(`💀 ${trib.name}渡劫失败! -${lossAmt}灵气`);
+                // 护体符免死检查
+                if(GameData.tribulation.shields && GameData.tribulation.shields > 0) {
+                    GameData.tribulation.shields--;
+                    this.showMsg(`🛡️ 护体符触发! 免除渡劫失败惩罚! (剩余${GameData.tribulation.shields}张)`);
+                } else {
+                    // 失败惩罚（天劫心法减半惩罚）
+                    const tribArtBonus = this.getArtBonus('tribulation');
+                    const lossMult = tribArtBonus > 0 ? 0.5 : 1;
+                    const lossAmt = Math.floor(GameData.tree.spiritCapacity * trib.failPenalty.spiritLoss * lossMult);
+                    GameData.tree.spirit = Math.max(1, GameData.tree.spirit - lossAmt);
+                    this.showMsg(`💀 ${trib.name}渡劫失败! -${lossAmt}灵气`);
+                }
             }
 
             GameData.tribulation.currentTrib = null;
@@ -4708,6 +4849,7 @@
                     <div style="color:#E8D5A3">普通召唤: <span style="color:#4A90D9">80%</span></div>
                     <div style="color:#E8D5A3">珍稀概率: <span style="color:#9B7ED9">18%</span></div>
                     <div style="color:#E8D5A3">神兽概率: <span style="color:#FF6347">2%</span></div>
+                    ${GameData.monthlyCard && GameData.monthlyCard.freeDraws > 0 ? `<div style="color:#FFD700;grid-column:span 2">🌙 月卡免费抽卡: ${GameData.monthlyCard.freeDraws}次</div>` : ''}
                 </div>
                 <div style="display:flex;gap:8px;margin-bottom:14px">
                     <button id="gacha-single" style="flex:1;background:${stones>=GACHA_COST_SINGLE?'#1a3d2a':'#1a1a1a'};color:${stones>=GACHA_COST_SINGLE?'#5CBF7C':'#555'};border:1px solid ${stones>=GACHA_COST_SINGLE?'#5CBF7C':'#333'};padding:10px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer">
@@ -4726,10 +4868,16 @@
 
             card.querySelector('#gacha-close').addEventListener('click', () => overlay.remove());
 
-            // 单抽逻辑
+            // 单抽逻辑（优先消耗月卡免费次数）
             card.querySelector('#gacha-single').addEventListener('click', () => {
-                if(GameData.player.spiritStones < GACHA_COST_SINGLE) { this.showMsg('灵石不足！'); return; }
-                GameData.player.spiritStones -= GACHA_COST_SINGLE;
+                const hasFree = GameData.monthlyCard && GameData.monthlyCard.freeDraws > 0;
+                if(!hasFree && GameData.player.spiritStones < GACHA_COST_SINGLE) { this.showMsg('灵石不足！'); return; }
+                if(hasFree) {
+                    GameData.monthlyCard.freeDraws--;
+                    this.showMsg('🎴 月卡免费抽卡!');
+                } else {
+                    GameData.player.spiritStones -= GACHA_COST_SINGLE;
+                }
                 const result = this._doGacha(1);
                 overlay.remove();
                 this._showGachaResult(result);
