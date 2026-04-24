@@ -2470,10 +2470,16 @@
             const bonusRowY = slotRowY + 13;
             const permEnls = GameData.permanentEnlightenments || [];
             const refineDmg = (GameData._refineBonuses && GameData._refineBonuses.formationDamage) ? (GameData._refineBonuses.formationDamage * 100).toFixed(0) : '0';
-            if(permEnls.length > 0 || parseFloat(refineDmg) > 0) {
+            // P2-1 灵兽突破加成信息
+            const beastStar = GameData.spiritBeast?.contracted?.star || 0;
+            const beastPassives = beastStar >= 2 ? this.getBeastStarPassives() : [];
+            const hasImmortalBlessing = beastPassives.some(p => p.type === 'immortal_blessing');
+            if(permEnls.length > 0 || parseFloat(refineDmg) > 0 || beastStar > 0) {
                 const bonusParts = [];
                 if(parseFloat(refineDmg) > 0) bonusParts.push(`阵+${refineDmg}%`);
                 bonusParts.push(`顿${permEnls.length}`);
+                if(beastStar > 0) bonusParts.push(`🌟${beastStar}星`);
+                if(hasImmortalBlessing) bonusParts.push(`仙佑`);
                 this.bonusInfoText = this.add.text(expBarX, bonusRowY, `✨ ${bonusParts.join(' ')}`, {
                     fontSize: '9px', color: '#FFD700'
                 });
@@ -3731,6 +3737,14 @@
                     // 功法加成：万剑诀（阵法伤害+25%）
                     const artDmgBonus = this.getArtBonus('formationDamage');
                     if(artDmgBonus > 0) finalDamage = Math.floor(finalDamage * (1 + artDmgBonus));
+
+                    // P2-1 灵兽被动：仙佑（五星·所有阵法伤害+10%）
+                    if(GameData.spiritBeast.contracted && GameData.spiritBeast.contracted.star >= 5) {
+                        const immortalBlessing = this.getBeastStarPassives().find(p => p.type === 'immortal_blessing');
+                        if(immortalBlessing && immortalBlessing.value > 0) {
+                            finalDamage = Math.floor(finalDamage * (1 + immortalBlessing.value));
+                        }
+                    }
 
                     // 功法加成：五行归元（克制伤害额外+50%）
                     if(isEffective && this.getArtBonus('elementalBonus') > 0) {
@@ -6686,8 +6700,35 @@
                 // 功法加成：炼丹术（灵气回复+50%）
                 const regenArtBonus = this.getArtBonus('spiritRegen');
                 if(regenArtBonus > 0) regen = Math.floor(regen * (1 + regenArtBonus));
+                // P2-1 灵兽被动：仙佑（五星·灵气回复+20%）
+                if(GameData.spiritBeast.contracted && GameData.spiritBeast.contracted.star >= 5) {
+                    const immortalBlessing = this.getBeastStarPassives().find(p => p.type === 'immortal_blessing');
+                    if(immortalBlessing && immortalBlessing.spiritRegen > 0) {
+                        regen = Math.floor(regen * (1 + immortalBlessing.spiritRegen));
+                    }
+                }
                 GameData.tree.spirit = Math.min(GameData.tree.spirit + regen, GameData.tree.spiritCapacity);
                 this.spiritText.setText(`${Math.max(0, GameData.tree.spirit)}/${GameData.tree.spiritCapacity}`);
+            }
+
+            // ===== P2-1 灵兽被动：灵韵（二星·每30秒回复5%灵气）=====
+            if(GameData.spiritBeast.contracted && GameData.spiritBeast.contracted.star >= 2) {
+                this._beastPassiveTimers.spiritRegen++;
+                const spiritRegenPassive = this.getBeastStarPassives().find(p => p.type === 'auto_spirit_regen');
+                if(spiritRegenPassive && this._beastPassiveTimers.spiritRegen >= spiritRegenPassive.interval) {
+                    this._beastPassiveTimers.spiritRegen = 0;
+                    const regenAmount = Math.floor(GameData.tree.spiritCapacity * spiritRegenPassive.value);
+                    if(regenAmount > 0 && GameData.tree.spirit < GameData.tree.spiritCapacity) {
+                        GameData.tree.spirit = Math.min(GameData.tree.spirit + regenAmount, GameData.tree.spiritCapacity);
+                        this.spiritText.setText(`${Math.max(0, GameData.tree.spirit)}/${GameData.tree.spiritCapacity}`);
+                        this.showMsg(`✨ 灵韵! 灵兽为你回复${regenAmount}灵气`);
+                        // 灵韵特效：灵木位置蓝色光圈上浮
+                        if(this.treeSprite) {
+                            const fx = this.add.circle(this.treeX, this.treeY - 30, 35, 0x4A90D9, 0.5).setDepth(48);
+                            this.tweens.add({ targets: fx, y: fx.y - 40, alpha: 0, scale: 1.5, duration: 800, onComplete: () => fx.destroy() });
+                        }
+                    }
+                }
             }
 
             // ===== 灵兽被动：阵法耐久加成 =====
