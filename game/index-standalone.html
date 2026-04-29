@@ -932,6 +932,89 @@
     // v4.3 功法研究等级（藏经阁）
     if(!GameData.artLevels) GameData.artLevels = {};  // { artId: level (1-5) }
 
+    // ===== v5.0 灵根系统配置 =====
+    const SPIRIT_ROOTS = {
+        METAL: { name: '金灵根', icon: '⚔️', color: '#C0C0C0', desc: '金属性攻击+30%', effect: { type: 'elementDamage', element: 'METAL', value: 0.3 } },
+        WOOD:  { name: '木灵根', icon: '🌿', color: '#4A7C59', desc: '灵气回复+30%', effect: { type: 'spiritRegen', value: 0.3 } },
+        WATER: { name: '水灵根', icon: '💧', color: '#4169E1', desc: '防御加成+30%', effect: { type: 'defense', value: 0.3 } },
+        FIRE:  { name: '火灵根', icon: '🔥', color: '#FF6347', desc: '暴击伤害+50%', effect: { type: 'critDamage', value: 0.5 } },
+        EARTH: { name: '土灵根', icon: '🏔️', color: '#DAA520', desc: '灵气上限+30%', effect: { type: 'spiritCapacity', value: 0.3 } },
+        MIXED: { name: '混沌灵根', icon: '🌀', color: '#9B7ED9', desc: '全属性+10%', effect: { type: 'allStats', value: 0.1 } },
+    };
+
+    const ROOT_QUALITIES = {
+        SS: { name: '天灵根', color: '#FFD700', bgClass: 'root-ss', mult: 1.0,   chance: 0.05 },
+        S:  { name: '真灵根', color: '#FF69B4', bgClass: 'root-s',  mult: 0.75,  chance: 0.10 },
+        A:  { name: '上灵根', color: '#4169E1', bgClass: 'root-a',  mult: 0.55,  chance: 0.20 },
+        B:  { name: '凡灵根', color: '#5CBF7C', bgClass: 'root-b',  mult: 0.35,  chance: 0.30 },
+        C:  { name: '伪灵根', color: '#888888', bgClass: 'root-c',  mult: 0.20,  chance: 0.35 },
+    };
+
+    // 灵根觉醒：首次渡劫成功时触发，后续渡劫可重塑
+    function awakenSpiritRoot() {
+        if(!GameData.tree.rootType) {
+            // 首次觉醒：随机灵根类型 + 品质
+            const rootKeys = Object.keys(SPIRIT_ROOTS);
+            const roll = Math.random();
+            let rootKey;
+            if(roll < 0.20) rootKey = 'MIXED'; // 20%混沌灵根
+            else rootKey = rootKeys[Math.floor(Math.random() * 5)]; // 80%五行灵根
+
+            // 随机品质（加权）
+            const quality = rollRootQuality();
+
+            GameData.tree.rootType = rootKey;
+            GameData.tree.rootQuality = quality;
+            return { type: rootKey, quality, isNew: true };
+        } else {
+            // 已有灵根，渡劫时小概率重塑（10%）
+            if(Math.random() < 0.10) {
+                const newQuality = rollRootQuality();
+                // 只升不降
+                const qualityOrder = ['C','B','A','S','SS'];
+                const curIdx = qualityOrder.indexOf(GameData.tree.rootQuality);
+                const newIdx = qualityOrder.indexOf(newQuality);
+                if(newIdx > curIdx) {
+                    GameData.tree.rootQuality = newQuality;
+                    return { type: GameData.tree.rootType, quality: newQuality, isNew: false, upgraded: true };
+                }
+            }
+            return null; // 未重塑
+        }
+    }
+
+    function rollRootQuality() {
+        const roll = Math.random();
+        let cumulative = 0;
+        for(const [key, cfg] of Object.entries(ROOT_QUALITIES)) {
+            cumulative += cfg.chance;
+            if(roll < cumulative) return key;
+        }
+        return 'C';
+    }
+
+    // 计算灵根加成
+    function getRootBonus(effectType) {
+        if(!GameData.tree.rootType) return 0;
+        const root = SPIRIT_ROOTS[GameData.tree.rootType];
+        const quality = ROOT_QUALITIES[GameData.tree.rootQuality] || ROOT_QUALITIES.C;
+        const effect = root.effect;
+
+        // 全属性加成匹配所有类型
+        if(effect.type === 'allStats') return quality.mult * effect.value;
+
+        if(effect.type === effectType) return quality.mult * effect.value;
+
+        // 金灵根的elementDamage额外匹配
+        if(effect.type === 'elementDamage' && effectType === 'elementDamage') return quality.mult * effect.value;
+
+        return 0;
+    }
+
+    // 初始化灵根数据
+    if(!GameData.tree.rootType) GameData.tree.rootType = null;
+    if(!GameData.tree.rootQuality) GameData.tree.rootQuality = 'C';
+
     /* ========================================
        HTML对话框控制
        ======================================== */
@@ -1320,7 +1403,7 @@
             });
 
             // ========== 版本号 ==========
-            this.add.text(w/2, h - 4, 'v4.3 · 仙府修炼版', { fontSize: '10px', color: '#333' }).setOrigin(0.5).setDepth(101);
+            this.add.text(w/2, h - 4, 'v5.0 · 灵根觉醒版', { fontSize: '10px', color: '#333' }).setOrigin(0.5).setDepth(101);
         }
 
         // ===== 导航弹窗（灵兽/功法介绍） =====
@@ -3697,8 +3780,13 @@
 
             // 没有可攻击的阵法时，攻击灵木
             if(!attackedFormation) {
-                // P2-1 灵兽被动：护主（三星·替身承受20%伤害）
+                // v5.0 灵根加成：水灵根防御+30%（减少受伤）
                 let actualDmg = dmg;
+                const rootDefBonus = getRootBonus('defense');
+                if(rootDefBonus > 0) {
+                    actualDmg = Math.floor(actualDmg * (1 - rootDefBonus));
+                }
+                // P2-1 灵兽被动：护主（三星·替身承受20%伤害）
                 const passives = this.getBeastStarPassives();
                 const protectMaster = passives.find(p => p.type === 'protect_master');
                 if(protectMaster && this._beastPassiveTimers.protectMaster <= 0) {
@@ -3872,6 +3960,28 @@
                     // 功法加成：万剑诀（阵法伤害+25%）
                     const artDmgBonus = this.getArtBonus('formationDamage');
                     if(artDmgBonus > 0) finalDamage = Math.floor(finalDamage * (1 + artDmgBonus));
+
+                    // v5.0 灵根加成：金灵根(属性伤害)/火灵根(暴击)/混沌灵根(全属性)
+                    const rootAtkBonus = getRootBonus('elementDamage');
+                    if(rootAtkBonus > 0) {
+                        // 金灵根：只对同属性阵法生效
+                        const rootDef = SPIRIT_ROOTS[GameData.tree.rootType];
+                        if(rootDef.effect.type === 'elementDamage') {
+                            if(rootDef.effect.element === fElement) {
+                                finalDamage = Math.floor(finalDamage * (1 + rootAtkBonus));
+                            }
+                        } else {
+                            finalDamage = Math.floor(finalDamage * (1 + rootAtkBonus));
+                        }
+                    }
+                    // 火灵根：暴击伤害加成
+                    const rootCritBonus = getRootBonus('critDamage');
+                    if(rootCritBonus > 0 && Math.random() < 0.25) { // 25%暴击率
+                        finalDamage = Math.floor(finalDamage * (1 + rootCritBonus));
+                        // 暴击视觉反馈
+                        const critFx = this.add.circle(target.x, target.y, 8, 0xFF6347, 0.8);
+                        this.tweens.add({ targets: critFx, scale: 2, alpha: 0, duration: 400, onComplete: () => critFx.destroy() });
+                    }
 
                     // P2-1 灵兽被动：仙佑（五星·所有阵法伤害+10%）
                     if(GameData.spiritBeast.contracted && GameData.spiritBeast.contracted.star >= 5) {
@@ -4422,6 +4532,15 @@
                 this.tweens.add({ targets: fx, scale: 6, alpha: 0, duration: 1000, onComplete: () => fx.destroy() });
                 this.showMsg(`✨ ${trib.name}渡劫成功! +💎${trib.reward.spiritStones} +${trib.reward.exp}经验`);
                 this.addBeastExp(30);
+
+                // v5.0 灵根觉醒
+                const rootResult = awakenSpiritRoot();
+                if(rootResult) {
+                    // 延迟显示灵根觉醒弹窗
+                    this.time.delayedCall(800, () => {
+                        this.showSpiritRootAwakening(rootResult);
+                    });
+                }
             } else {
                 // 护体符免死检查
                 if(GameData.tribulation.shields && GameData.tribulation.shields > 0) {
@@ -6687,6 +6806,107 @@
             }
         }
 
+        // ===== v5.0 灵根觉醒弹窗 =====
+        showSpiritRootAwakening(result) {
+            const root = SPIRIT_ROOTS[result.type];
+            const quality = ROOT_QUALITIES[result.quality];
+            const w = this.cameras.main.width, h = this.cameras.main.height;
+
+            const overlay = this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.75).setInteractive().setDepth(200);
+
+            // 金色光柱效果
+            const lightPillar = this.add.rectangle(w/2, h/2, 60, h, 0xFFD700, 0).setDepth(201);
+            this.tweens.add({ targets: lightPillar, alpha: 0.3, duration: 500, yoyo: true, repeat: 3 });
+
+            const panel = this.add.container(w/2, h/2).setDepth(202);
+
+            // 背景面板
+            const panelBg = this.add.graphics();
+            panelBg.fillStyle(0x0a0a1a, 0.95);
+            panelBg.fillRoundedRect(-220, -180, 440, 360, 16);
+            panelBg.lineStyle(2, Phaser.Display.Color.HexStringToColor(root.color).color, 0.8);
+            panelBg.strokeRoundedRect(-220, -180, 440, 360, 16);
+            panel.add(panelBg);
+
+            // 标题
+            const titleStr = result.isNew ? '🌟 灵根觉醒！' : (result.upgraded ? '⬆️ 灵根升华！' : '✨ 灵根共鸣');
+            const title = this.add.text(0, -150, titleStr, {
+                fontSize: '26px', fontFamily: 'Microsoft YaHei', color: root.color, fontStyle: 'bold'
+            }).setOrigin(0.5);
+            panel.add(title);
+
+            // 灵根图标（大号）
+            const rootIcon = this.add.text(0, -70, root.icon, { fontSize: '56px' }).setOrigin(0.5);
+            panel.add(rootIcon);
+            // 灵根图标呼吸动画
+            this.tweens.add({ targets: rootIcon, scale: 1.15, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+            // 灵根名称
+            const rootName = this.add.text(0, -15, root.name, {
+                fontSize: '22px', fontFamily: 'Microsoft YaHei', color: root.color, fontStyle: 'bold'
+            }).setOrigin(0.5);
+            panel.add(rootName);
+
+            // 品质标签
+            const qualBg = this.add.graphics();
+            const qualColor = Phaser.Display.Color.HexStringToColor(quality.color).color;
+            qualBg.fillStyle(qualColor, 0.2);
+            qualBg.fillRoundedRect(-60, 15, 120, 30, 8);
+            qualBg.lineStyle(1, qualColor, 0.6);
+            qualBg.strokeRoundedRect(-60, 15, 120, 30, 8);
+            panel.add(qualBg);
+
+            const qualText = this.add.text(0, 30, quality.name + ' · ' + result.quality, {
+                fontSize: '14px', fontFamily: 'Microsoft YaHei', color: quality.color
+            }).setOrigin(0.5);
+            panel.add(qualText);
+
+            // 灵根效果
+            const effectText = this.add.text(0, 65, root.desc, {
+                fontSize: '16px', fontFamily: 'Microsoft YaHei', color: '#CCCCCC'
+            }).setOrigin(0.5);
+            panel.add(effectText);
+
+            // 品质倍率说明
+            const multText = this.add.text(0, 90, `品质加成: ×${(quality.mult * 100).toFixed(0)}% 实际效果`, {
+                fontSize: '13px', fontFamily: 'Microsoft YaHei', color: '#888888'
+            }).setOrigin(0.5);
+            panel.add(multText);
+
+            // 实际数值
+            const actualValue = (quality.mult * root.effect.value * 100).toFixed(0);
+            const actualText = this.add.text(0, 112, `当前生效: +${actualValue}%`, {
+                fontSize: '15px', fontFamily: 'Microsoft YaHei', color: '#5CBF7C', fontStyle: 'bold'
+            }).setOrigin(0.5);
+            panel.add(actualText);
+
+            // 确认按钮
+            const btnBg = this.add.graphics();
+            const btnColor = Phaser.Display.Color.HexStringToColor(root.color).color;
+            btnBg.fillStyle(btnColor, 0.3);
+            btnBg.fillRoundedRect(-80, 140, 160, 40, 10);
+            btnBg.lineStyle(1, btnColor, 0.8);
+            btnBg.strokeRoundedRect(-80, 140, 160, 40, 10);
+            panel.add(btnBg);
+
+            const btnText = this.add.text(0, 160, '确认', {
+                fontSize: '18px', fontFamily: 'Microsoft YaHei', color: root.color
+            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+            panel.add(btnText);
+
+            btnText.on('pointerdown', () => {
+                this.tweens.add({
+                    targets: [overlay, panel, lightPillar],
+                    alpha: 0, duration: 200,
+                    onComplete: () => { overlay.destroy(); panel.destroy(); lightPillar.destroy(); }
+                });
+            });
+
+            // 入场动画
+            panel.setScale(0.7).setAlpha(0);
+            this.tweens.add({ targets: panel, scale: 1, alpha: 1, duration: 300, ease: 'Back.easeOut' });
+        }
+
         // 万妖至尊天劫触发
         _triggerTribulation(boss) {
             this.showMsg('⚡ 天劫降临!');
@@ -6838,6 +7058,10 @@
             if(period.key === 'dawn' && regen === 0) regen = 1;
 
             if(regen > 0 && GameData.tree.spirit < GameData.tree.spiritCapacity) {
+                // v5.0 灵根加成：土灵根灵气上限+30%
+                const rootCapBonus = getRootBonus('spiritCapacity');
+                const effectiveCap = rootCapBonus > 0 ? Math.floor(GameData.tree.spiritCapacity * (1 + rootCapBonus)) : GameData.tree.spiritCapacity;
+                if(GameData.tree.spirit >= effectiveCap) return; // 土灵根加成后上限已满
                 // 灵兽被动：灵气回复加成
                 if(GameData.spiritBeast.contracted) {
                     const bDef = SPIRIT_BEASTS.find(b => b.id === GameData.spiritBeast.contracted.id);
@@ -6848,6 +7072,9 @@
                 // 功法加成：炼丹术（灵气回复+50%）
                 const regenArtBonus = this.getArtBonus('spiritRegen');
                 if(regenArtBonus > 0) regen = Math.floor(regen * (1 + regenArtBonus));
+                // v5.0 灵根加成：木灵根（灵气回复+30%）/混沌灵根（+10%）
+                const rootRegenBonus = getRootBonus('spiritRegen');
+                if(rootRegenBonus > 0) regen = Math.floor(regen * (1 + rootRegenBonus));
                 // P2-1 灵兽被动：仙佑（五星·灵气回复+20%）
                 if(GameData.spiritBeast.contracted && GameData.spiritBeast.contracted.star >= 5) {
                     const immortalBlessing = this.getBeastStarPassives().find(p => p.type === 'immortal_blessing');
@@ -7141,7 +7368,10 @@
 
         updateUI() {
             this.stoneText.setText(`${GameData.player.spiritStones}`);
-            this.spiritText.setText(`${Math.max(0, GameData.tree.spirit)}/${GameData.tree.spiritCapacity}`);
+            // v5.0 灵根加成：土灵根灵气上限+30%
+            const rootCapBonus = getRootBonus('spiritCapacity');
+            const effectiveCap = rootCapBonus > 0 ? Math.floor(GameData.tree.spiritCapacity * (1 + rootCapBonus)) : GameData.tree.spiritCapacity;
+            this.spiritText.setText(`${Math.max(0, GameData.tree.spirit)}/${effectiveCap}`);
             this.waveText.setText(`波次 ${GameData.battle.currentWave}/50`);
 
             // 更新经验条
@@ -7159,7 +7389,12 @@
 
             // 更新灵木等级文本
             if(this.treeLevelText && this.treeLevelText.active) {
-                this.treeLevelText.setText(`Lv.${GameData.tree.level} 灵木`);
+                let label = `Lv.${GameData.tree.level} 灵木`;
+                if(GameData.tree.rootType) {
+                    const root = SPIRIT_ROOTS[GameData.tree.rootType];
+                    label += ` ${root.icon}`;
+                }
+                this.treeLevelText.setText(label);
             }
 
             // 更新游戏场景中灵木主体旁的标签
