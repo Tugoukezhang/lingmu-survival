@@ -1729,12 +1729,26 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/tab_general.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "gpt_image_candidate_local_only_pending_original_and_upload",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/mnt/data/lingmu_tab_general_20261108/tab_general_GPTImage_V4_textguided_candidate_v1_1024.png",
+      "reference_match": "single V4 identity match, original screenshot unavailable",
+      "notes": "Not approved. Native game sizes 32/48/64/96 visually inspected; original JPG absent in accessible Library. GitHub text QA committed; binary transfer unsupported; Library AccessDeny. Preserve production.",
+      "candidate_sha256": "fbeef89bb04febe7300771668da49f4de6d11890396638293325213f276feffc",
+      "candidate_format": "1024x1024 transparent RGBA PNG",
+      "candidate_bbox_xyxy": [
+        74,
+        77,
+        949,
+        949
+      ],
+      "candidate_kind": "single GPT Image sprite, V4-only visually guided, no verified image edit binding",
+      "original_screenshot_bbox_verified": false,
+      "github_binary_uploaded": false,
+      "library_uploaded": false,
+      "qa": "Reviews/inventory_tab_general_V4_fallback_20261108/tab_general_v1_QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 35,
@@ -3068,9 +3082,21 @@
       "original_screenshot_crop_verified": false,
       "review_report": "Reviews/inventory_detail_wood_panel_failed_20261108/QA.json",
       "next": "other96/inventory/tab_general"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/inventory/tab_general",
+      "action": "Created one 1024 transparent GPT Image green heart icon using visually inspected V4 isolated asset (not original screenshot; image binding unverified); cleaned alpha and checked small-screen previews",
+      "result": "Distinct icon, technical alpha QA only; artwork original-source/engine QA pending. GitHub QA JSON committed, binary PNG GitHub upload blocked, Library AccessDeny, production untouched.",
+      "created_candidates_local": 1,
+      "github_candidates_uploaded": 0,
+      "qa_final_passed": 0,
+      "sha256": "fbeef89bb04febe7300771668da49f4de6d11890396638293325213f276feffc",
+      "review_report": "Reviews/inventory_tab_general_V4_fallback_20261108/tab_general_v1_QA.json",
+      "next": "other96/inventory/tab_food"
     }
   ],
-  "current_focus": "other96/inventory/tab_general",
+  "current_focus": "other96/inventory/tab_food",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
