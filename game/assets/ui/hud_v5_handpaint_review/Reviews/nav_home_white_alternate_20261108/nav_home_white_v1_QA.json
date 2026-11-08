@@ -1,0 +1,38 @@
+{
+  "task_id": "other96/activity/nav_home_white",
+  "variant": "gpt_image_painterly_V4_reference_alternate_v1",
+  "created_at_utc": "2026-11-08",
+  "explicit_source_status": "The original source screenshot 03_活动大厅(4).jpg and its previously used single crop were not available in this automation environment; the referenced Library path returned not found/access denied.",
+  "reference_kind": "OLD V4 SVG RECONSTRUCTION—not authentic screenshot crop",
+  "reference_repo_path": "game/assets/ui/hud_extra_five_screens/SVG_Editable/03_activity/nav_home_white.svg",
+  "source_screenshot_reference": "03_活动大厅(4).jpg",
+  "expected_original_source_bbox_xyxy": [
+    158,
+    200,
+    219,
+    258
+  ],
+  "expected_bbox_provenance": "Existing GitHub queue; not independently re-read from authentic source in this run.",
+  "source_original_screen_bounding_box_verified": false,
+  "candidate_file": "nav_home_white_gpt_handpaint_candidate_v1_1024.png",
+  "candidate_sha256": "fb0f82d26800e9d89711c34e5a818d8f52b448b66d13e9a42da193eaa7817f94",
+  "native_qa_sizes": [
+    32,
+    48,
+    64,
+    96
+  ],
+  "candidate_canvas": [
+    1024,
+    1024
+  ],
+  "identity": "single centered pale ivory peaked-roof home silhouette with doorway; transparent center; subtle brown hand-painted edges",
+  "known_unverified_detail": "Existing source-specific task notes mention a teardrop attic detail which this V4-referenced alternative does NOT carry.",
+  "generated_by": "GPT Image gen_id 0f77ed64-232d-4cd6-a8ba-68f143f83575",
+  "alpha_cleanup": true,
+  "standalone_png": true,
+  "original_shape_match": "not verified; source absent",
+  "verdict": "EXPERIMENTAL ONLY. Not artistically approved or eligible for production. Existing source-locked candidate remains primary.",
+  "queue_counters_changed": false,
+  "production_changed": false
+}
