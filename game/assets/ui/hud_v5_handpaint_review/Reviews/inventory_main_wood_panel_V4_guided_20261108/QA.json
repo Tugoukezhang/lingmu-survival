@@ -1,0 +1,55 @@
+{
+  "asset_id": "inventory/main_wood_panel",
+  "task_id": "other96/inventory/main_wood_panel",
+  "status": "review_preview_uploaded_fullcolor_local_only",
+  "original_source": "04_背包(5).jpg",
+  "original_source_crop_verified": false,
+  "original_screenshot_bbox_xyxy": null,
+  "fallback_source": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/main_wood_panel.svg",
+  "fallback_kind": "V4 independently isolated single component (not original screenshot)",
+  "v4_engineering_layout": {
+    "size": [
+      1649,
+      928
+    ],
+    "bbox_xywh": [
+      624,
+      44,
+      900,
+      835
+    ],
+    "bbox_source": "game/assets/ui/hud_v4/production/Engineering/reference_layout_1649x928.json",
+    "warning": "V4 estimated layout; NOT independently verified original screenshot bbox"
+  },
+  "one_element_source_standalone": true,
+  "generator_input_binding_verified": false,
+  "identity_check": "pass — solitary dark brown wood rounded frame with blank cream inset; no text/item/extra button",
+  "palette_check": "pass — brown outer wood and cream inset; new handpaint grain introduced",
+  "alpha_check": "pass — RGBA, transparent outside panel, restored mostly opaque inside",
+  "output_size": [
+    2480,
+    2000
+  ],
+  "native_visual_check": "previewed at 900x835 on cream and charcoal backgrounds; engine QA pending",
+  "original_fidelity_check": "blocked — real source screenshot not available in expected Library folder",
+  "fullcolor_candidate": {
+    "filename": "main_wood_panel_handpaint_V4_guided_candidate_v1_2480x2000.png",
+    "sha256": "7f84a109fa84def9b8db3147fa67f452b865f327b0122101db46b4f6d1e021a3",
+    "delivery": "conversation sandbox only",
+    "github_upload": "failed, h2 transport error on 6MB base64"
+  },
+  "github_preview": {
+    "filename": "main_wood_panel_handpaint_web_review_palette_preview_2480x2000.png",
+    "sha256": "081d5bfccf81aa7b78f841ebf585ef5a890e6ed3dafc0a2e15ab7ffc1d8167a7",
+    "note": "256-color palette quantized PNG for GitHub viewing, NOT full-quality final and not production eligible"
+  },
+  "source_reference": "main_wood_panel_V4_isolated_reference.png",
+  "comparison": "main_wood_panel_V4_vs_candidate_review.jpg",
+  "art_qa": "pending",
+  "engine_qa": "pending",
+  "final_approved": false,
+  "production_replaced": false,
+  "generated_count": 1,
+  "accepted_into_review_count": 1,
+  "final_approval_increment": 0
+}

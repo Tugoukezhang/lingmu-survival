@@ -338,9 +338,16 @@
       "target_png": "PNG_Transparent/04_inventory/main_wood_panel.png",
       "target_resolution": "2480x2000",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
+      "status": "review_preview_uploaded_fullcolor_candidate_local_original_source_blocked",
       "qa": "pending",
-      "notes": "Screenshot faithful large dark brown frame and cream inset. No items or text."
+      "notes": "Screenshot faithful large dark brown frame and cream inset. No items or text. One new GPT Image review candidate produced with V4 isolated fallback; original screenshot unavailable; full-color GitHub binary upload blocked; user/art/engine QA not complete.",
+      "art_qa": "pending",
+      "engine_qa": "pending",
+      "fullcolor_sha256": "7f84a109fa84def9b8db3147fa67f452b865f327b0122101db46b4f6d1e021a3",
+      "preview_file": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_main_wood_panel_V4_guided_20261108/main_wood_panel_handpaint_web_review_palette_preview_2480x2000.png",
+      "preview_sha256": "081d5bfccf81aa7b78f841ebf585ef5a890e6ed3dafc0a2e15ab7ffc1d8167a7",
+      "original_screenshot_bbox_verified": false,
+      "production_replaced": false
     },
     {
       "index": 34,

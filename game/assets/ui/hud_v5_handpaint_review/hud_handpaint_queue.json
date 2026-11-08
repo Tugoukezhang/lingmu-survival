@@ -1670,12 +1670,22 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/main_wood_panel.png",
       "target_resolution": "2480x2000",
-      "state": "not_generated",
+      "state": "candidate_unapproved_original_source_blocked",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": "Screenshot faithful large dark brown frame and cream inset. No items or text."
+      "reference_match": "V4 single isolated panel only; original screenshot not accessible",
+      "notes": "Screenshot faithful large dark brown frame and cream inset. No items or text.",
+      "review_candidate_preview": "Reviews/inventory_main_wood_panel_V4_guided_20261108/main_wood_panel_handpaint_web_review_palette_preview_2480x2000.png",
+      "fullcolor_candidate_local_filename": "main_wood_panel_handpaint_V4_guided_candidate_v1_2480x2000.png",
+      "fullcolor_sha256": "7f84a109fa84def9b8db3147fa67f452b865f327b0122101db46b4f6d1e021a3",
+      "review_preview_sha256": "081d5bfccf81aa7b78f841ebf585ef5a890e6ed3dafc0a2e15ab7ffc1d8167a7",
+      "source_original_crop_verified": false,
+      "original_screenshot_bbox_xyxy": null,
+      "source_binary_upload_blocked": true,
+      "art_qa": "pending",
+      "game_qa": "pending",
+      "production_promoted": false
     },
     {
       "queue_number": 33,
@@ -3010,9 +3020,23 @@
       "source_original_crop_verified": false,
       "candidate_sha256": "7dbfd3b97e160cc2cfddbf1eaa7d36988bc9bce861858c360c19e584f7c8bfdc",
       "next": "other96/inventory/main_wood_panel"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/inventory/main_wood_panel",
+      "action": "GPT Image independently generated one blank wood-frame+cream-panel candidate, cleaned RGBA edges, exported 2480x2000 and examined V4 comparison and 900x835 game-scale previews",
+      "result": "Full-color PNG exists in sandbox, but GitHub transfer of 4.49MB binary failed h2. Uploaded palette PNG preview, source V4 isolated single-item, and QA to GitHub. Original screenshot Library path not found and Library uploads AccessDeny; art QA, source QA and engine QA pending; no production overwrite.",
+      "created_candidates": 1,
+      "gpt_image_unapproved": 1,
+      "approved": 0,
+      "final_approved_delta": 0,
+      "production_replaced": false,
+      "fullcolor_sha256": "7f84a109fa84def9b8db3147fa67f452b865f327b0122101db46b4f6d1e021a3",
+      "github_preview_sha256": "081d5bfccf81aa7b78f841ebf585ef5a890e6ed3dafc0a2e15ab7ffc1d8167a7",
+      "next": "other96/inventory/detail_wood_panel"
     }
   ],
-  "current_focus": "other96/inventory/main_wood_panel",
+  "current_focus": "other96/inventory/detail_wood_panel",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
