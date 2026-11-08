@@ -1591,12 +1591,39 @@
       "source_reference": "03_活动大厅(4).jpg",
       "target_png": "PNG_Transparent/03_activity/activity_card_rope.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "fallback_v4_guided_review_candidate_pending_original_and_art_qa",
+      "approval": "pending_original_source_user_art_and_engine_qa",
+      "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_git_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/activity_card_rope_V4_fallback_20261108/activity_card_rope_V4_guided_painterly_v1_1024.png",
+      "candidate_sha256": "a9e3c361b96d8b6eec0535a2b42bbeac6a3c3271f60265a6b8c9e9fd5564750c",
+      "candidate_kind": "Manually source-guided painterly raster from V4 isolated SVG; NOT successful GPT Image single sprite",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "source_crop": {
+        "source": "V4 SVG isolated single stroke (original 03_activity screenshot unavailable)",
+        "repo": "game/assets/ui/hud_extra_five_screens/SVG_Editable/03_activity/activity_card_rope.svg",
+        "isolated_reference_size": [
+          512,
+          512
+        ],
+        "visible_bbox_xyxy": [
+          22,
+          152,
+          490,
+          229
+        ],
+        "original_screenshot_bbox": null,
+        "original_screenshot_verified": false
+      },
+      "last_generation_note": "Two GPT Image attempts produced unrelated ornate dark question-mark medallions from prior question_dark task; rejected. Source original screenshot Library inaccessible, V4 single stroke reference used for an explicitly non-GPT painterly reference candidate. In-game/art/original screenshot QA required; no production promotion.",
+      "review_comparison_git_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/activity_card_rope_V4_fallback_20261108/activity_card_rope_source_vs_candidate_QA.jpg",
+      "production_promoted": false
     },
     {
       "queue_number": 30,
@@ -2947,9 +2974,22 @@
       "counted_as_complete": false,
       "candidate_sha256": "381faf7c8121e0d6478b9f9de119b2768bc49c6a76a61029d7cceba023b15d32",
       "next": "other96/activity/activity_card_rope"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/activity/activity_card_rope",
+      "action": "2 direct GPT Image attempts returned question medallion, rejected; 1024 transparent V4-reference painterly rope created and reviewed at 128/64/32",
+      "result": "Generated 1 manual fallback reference candidate (NOT direct GPT Image accepted); uploaded single PNG, isolated V4 reference, QA JPG, source SVG and manifest to GitHub. Original 03_activity screenshot and binder unavailable; art and engine QA pending. Library upload AccessDeny. Production unchanged.",
+      "created_candidates": 1,
+      "gpt_image_passed": 0,
+      "approved": 0,
+      "counted_as_complete": false,
+      "original_crop_verified": false,
+      "candidate_sha256": "a9e3c361b96d8b6eec0535a2b42bbeac6a3c3271f60265a6b8c9e9fd5564750c",
+      "next": "other96/activity/event_title_chip"
     }
   ],
-  "current_focus": "other96/activity/activity_card_rope",
+  "current_focus": "other96/activity/event_title_chip",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
@@ -2986,7 +3026,8 @@
     "main_top_F3",
     "main_top_J",
     "main_top_P",
-    "activity/reward_shell_only"
+    "activity/reward_shell_only",
+    "other96/activity/activity_card_rope"
   ],
   "deferred_retry_policy": "Skip prior failed icon image-generation attempts until all never-attempted HUD/other remaining queue items receive first candidates; preserve their failed status and revisit at end. Do not count them as approved.",
   "generation_target_integrity_protocol": {

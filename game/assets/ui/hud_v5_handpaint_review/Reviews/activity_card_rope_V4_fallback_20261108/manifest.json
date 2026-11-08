@@ -1,0 +1,44 @@
+{
+  "asset_id": "activity/activity_card_rope",
+  "task_id": "other96/activity/activity_card_rope",
+  "source_screen": "03_活动大厅(4).jpg / 03_activity.jpg",
+  "original_screen_verified_this_run": false,
+  "original_crop_bbox": null,
+  "source_kind": "V4 isolated SVG fallback (not exact original screenshot crop)",
+  "source_repo_path": "game/assets/ui/hud_extra_five_screens/SVG_Editable/03_activity/activity_card_rope.svg",
+  "source_curve": "M30 195 Q250 260 482 160, stroke #739a58 width 16 on 512x512 canvas",
+  "source_visible_alpha_bbox_512": [
+    22,
+    152,
+    490,
+    229
+  ],
+  "output_png": "activity_card_rope_V4_guided_painterly_v1_1024.png",
+  "size": [
+    1024,
+    1024
+  ],
+  "format": "RGBA",
+  "candidate_kind": "Independently drawn source-guided painterly raster; NOT GPT Image handpainted output",
+  "candidate_sha256": "a9e3c361b96d8b6eec0535a2b42bbeac6a3c3271f60265a6b8c9e9fd5564750c",
+  "qa": {
+    "single_target": true,
+    "identity": "one sagging muted green rope / cord",
+    "dominant_color": "sage green, approx #719856",
+    "no_extra_parts": true,
+    "alpha": "transparent outside rope, antialiased edges",
+    "native_preview_sizes_px": [
+      128,
+      64,
+      32
+    ],
+    "original_screenshot_comparison": "blocked_original_not_accessible",
+    "user_art_approved": false,
+    "engine_approved": false,
+    "production_promoted": false,
+    "not_qualified_gpt_image_final": true
+  },
+  "gpt_image_failures": 2,
+  "gpt_image_note": "Two calls returned ornate golden dark question-mark medallion (the prior question_dark icon), not a green rope. Rejected, not counted.",
+  "forbidden": "No question mark, badge, book, card, flowers, gold frame, labels, or separate decorations."
+}
