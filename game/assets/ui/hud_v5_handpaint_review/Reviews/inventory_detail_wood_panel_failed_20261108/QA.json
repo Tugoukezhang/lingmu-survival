@@ -1,0 +1,84 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "status": "failed_two_generations_deferred",
+  "result": "no_candidate_accepted",
+  "review_date": "2026-11-08",
+  "reference_kind": "V4 single-element reference, NOT authentic screenshot crop",
+  "v4_source_png": "game/assets/ui/hud_v4/production/PNG_Transparent/04_inventory/detail_wood_panel.png",
+  "v4_source_svg": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/detail_wood_panel.svg",
+  "v4_source_blob_sha": "fe87e341f5a0c452e64f59454e1b7b378d2d3c98",
+  "expected_original_screenshot": "04_背包(5).jpg",
+  "original_screenshot_available": false,
+  "engineering_layout": {
+    "image_size": [
+      1649,
+      928
+    ],
+    "bbox_xywh": [
+      213,
+      174,
+      450,
+      579
+    ],
+    "is_original_screenshot_bbox": false
+  },
+  "target_png": "PNG_Transparent/04_inventory/detail_wood_panel.png",
+  "target_resolution": [
+    1260,
+    1640
+  ],
+  "expected": "single PORTRAIT vertical empty cream panel within walnut wood rounded frame, no wording or decorations",
+  "attempts": [
+    {
+      "attempt": 1,
+      "generation_id": "0ffde014-a18e-4586-a0ea-765a07345aab",
+      "size": [
+        1536,
+        1024
+      ],
+      "rgba": true,
+      "alpha_bbox": [
+        65,
+        9,
+        1473,
+        1024
+      ],
+      "sha256": "37b478768a1fe500b7f9f075a95f07ea53aba8ff4c986e3bdb3bdfff8b23e009",
+      "failure": "landscape instead of portrait; added leaves and top emblem",
+      "accepted": false
+    },
+    {
+      "attempt": 2,
+      "generation_id": "da4d90b4-b787-4796-a0ec-ecdd31937f5a",
+      "size": [
+        1536,
+        1024
+      ],
+      "rgba": true,
+      "alpha_bbox": [
+        0,
+        0,
+        1475,
+        1024
+      ],
+      "sha256": "c2eb1acd8993695c523c93f66f985be4787eebf7dfa0c2058a57f5ffa228dec2",
+      "failure": "repeated wrong landscape panel and leaf/crest ornaments",
+      "accepted": false
+    }
+  ],
+  "qa": {
+    "identity": "FAIL",
+    "target_portrait_aspect": "FAIL",
+    "alpha_present": "PASS",
+    "original_source_fidelity": "BLOCKED",
+    "game_engine": "NOT TESTED",
+    "manual_art_approval": "NOT APPROVED"
+  },
+  "candidate_uploaded": false,
+  "counted_complete": false,
+  "approved": false,
+  "production_replaced": false,
+  "failure_evidence_download": "Available in current ChatGPT run sandbox: /mnt/data/lingmu_detail_wood_panel_review_20261108/detail_wood_panel_qa_rejected_comparison.jpg",
+  "next_task": "other96/inventory/tab_general",
+  "notes": "Do not retry until original source crop or reliable portrait-conditioned image generation can be bound. Avoid conflating V4 engineering bbox with original screenshot."
+}
