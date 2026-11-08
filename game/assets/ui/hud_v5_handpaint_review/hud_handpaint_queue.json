@@ -16,7 +16,7 @@
     "07_world_map.jpg"
   ],
   "rule": "One output = one graphic component, transparent RGBA, same content and shape as original screenshot; no full atlas, mock dashboard, unrequested ornament. Review at native on-screen dimensions. Split text. Never replace production until verified.",
-  "workflow": "At each scheduled run, take exactly the first unapproved item from priority_main_hud. Attempt a single GPT Image render for that item (do not render a composite or status dashboard). Check actual pixels and references, save candidate and status. If blocked/failed, leave pending and note reason, then next run can retry or select another item. After main HUD, work on other_96 list without skipping candidates that still need review. Always update GitHub queue and report real status. Do not claim background processing outside actual automation runs.",
+  "workflow": "Choose one pending unapproved item each run. Temporarily skip entries with state blocked_on_image_generation after repeated unrelated outputs; never call them completed. Mark the next actual pending component in priority_main_hud (currently main_quest) then move down the original 96-item queue. Generate one single sprite, not a sheet or dashboard, independently per call. Validate style and native size; upload only candidates with honest status, preserve ids and text layers. Revisit blocked calendar once tool supports tightly controlled editing.",
   "counts": {
     "other_total": 97,
     "other_queue_remaining": 96,
@@ -40,7 +40,7 @@
       "title": "主界面左上日历 HUD",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "calendar_icon.png",
-      "state": "needs_gpt_image_regeneration",
+      "state": "blocked_on_image_generation",
       "approval": "pending",
       "notes": "单件为日历符号；22 DAY文字单独渲染，原图无厚实底板",
       "existing_candidate": null,
@@ -55,7 +55,8 @@
       "next_attempt_restriction": "Generate only the 3×2 grid white translucent calendar glyph, on transparent background. No 22 DAY text, no queue/status/dashboard text, no panels, progress or user interface beyond the calendar icon.",
       "fidelity_reference": "PNG_Transparent/00_gameplay/calendar_icon_v2_geometry_locked_painterly_reference.png",
       "fidelity_reference_sha256": "ded614277f011fa9fb11b1095d23afbf23310a93878f265b996d10d559b9c226",
-      "fidelity_reference_kind": "programmatic V2 geometry/alpha-preserving pixel treatment, NOT independently GPT Image generated; unapproved"
+      "fidelity_reference_kind": "programmatic V2 geometry/alpha-preserving pixel treatment, NOT independently GPT Image generated; unapproved",
+      "retry_policy": "Do not repeat this image in every hourly run; preserve the 512x512 fidelity reference, resume only on a target-controlled image edit path or new reliable reference editing ability."
     },
     {
       "queue_number": "HUD-02",
@@ -1551,6 +1552,15 @@
       "candidate_not_approved": true,
       "locked_reference_saved": "PNG_Transparent/00_gameplay/calendar_icon_v2_geometry_locked_painterly_reference.png",
       "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_calendar",
+      "result": "temporarily_blocked_after_five_unrelated_gpt_image_generations",
+      "next": "main_quest",
+      "qa_passed": false,
+      "production_replaced": false
     }
-  ]
+  ],
+  "current_focus": "main_quest"
 }
