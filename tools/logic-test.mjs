@@ -11,6 +11,7 @@ import { ELEMENTS, NORMAL, elementMultiplier } from '../game/src/data/elements.j
 import { mulberry32 } from '../game/src/systems/rng.js';
 import * as M from '../game/src/systems/petMath.js';
 import * as S from '../game/src/systems/save.js';
+import * as T from '../game/src/systems/time.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -205,6 +206,71 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
 
   store.wipe();
   check('重新开始会清掉主存档和备份', mem.getItem(S.KEYS.main) === null && mem.getItem(S.KEYS.backup) === null);
+}
+
+// ---------- time, day/night, settlement (T10; docs/06 第 0 节, docs/00 第 3 节) ----------
+{
+  near('1 游戏分钟 ≈ 0.67 现实秒', T.MS_PER_GAME_MIN / 1000, 0.667, 0.001);
+  near('6:00–24:00 = 现实 12 分钟', (T.BEDTIME - T.DAY_START) * T.MS_PER_GAME_MIN / 60000, 12, 1e-9);
+  near('一跳（10 游戏分钟）≈ 6.7 现实秒', T.TICK_MIN * T.MS_PER_GAME_MIN / 1000, 6.67, 0.01);
+  const ph = (h, m = 0) => T.phaseAt(h * 60 + m);
+  check('昼夜阶段边界：5:59 夜 / 6:00 昼 / 17:59 昼 / 18:00 黄昏 / 19:59 黄昏 / 20:00 夜 / 25:00 夜',
+    ph(5, 59) === 'night' && ph(6) === 'day' && ph(17, 59) === 'day' && ph(18) === 'dusk' && ph(19, 59) === 'dusk' && ph(20) === 'night' && ph(25) === 'night');
+  eq('时钟显示 25:30 → 01:30', T.formatClock(25 * 60 + 30), '01:30');
+  eq('白天不调色', T.tintAt(12 * 60).dark, 0);
+  check('黄昏开始变暗、夜里最暗', T.tintAt(19 * 60).dark > 0.2 && T.tintAt(23 * 60).dark > 0.5 && T.tintAt(23 * 60).dark === T.tintAt(25 * 60).dark,
+    `19:00 ${T.tintAt(19 * 60).dark} 23:00 ${T.tintAt(23 * 60).dark}`);
+  check('调色随时间连续变化（每分钟变化 ≤ 0.01）', Array.from({ length: 1440 }, (_, m) => Math.abs(T.tintAt(m + 1).dark - T.tintAt(m).dark)).every((d) => d <= 0.01));
+
+  const home = () => ({ day: 1, clock: 6 * 60, player: { area: 'home', hp: 40, hpMax: 100, hunger: 50, hungerMax: 100 } });
+  const ms = (min) => min * T.MS_PER_GAME_MIN;
+  let s = home(), c = new T.GameClock();
+  let ev = c.advance(s, ms(60));
+  check('走 60 游戏分钟 → 时钟 7:00，6 跳', s.clock === 7 * 60 && ev.filter((e) => e.type === 'tick').length === 6, `${s.clock} ${ev.length}`);
+  c.advance(s, ms(0.4)); c.advance(s, ms(0.4)); c.advance(s, ms(0.4));
+  eq('不足 1 分钟的零头会累计（3 × 0.4 分钟 = 1 分钟）', s.clock, 7 * 60 + 1);
+  c.pause('menu');
+  c.advance(s, ms(120));
+  eq('打开菜单时时间暂停', s.clock, 7 * 60 + 1);
+  c.resume('menu');
+  s.clock = 17 * 60 + 55;
+  ev = c.advance(s, ms(10 * 60));
+  const phases = ev.filter((e) => e.type === 'phase').map((e) => `${e.to}@${T.formatClock(e.clock)}`);
+  check('家园：18:00 黄昏、20:00 夜晚，24:00 强制睡觉并停住', phases.join() === 'dusk@18:00,night@20:00' && ev.at(-1).type === 'bedtime' && s.clock === T.BEDTIME && c.paused,
+    `${phases.join()} 最后 ${ev.at(-1).type} ${T.formatClock(s.clock)}`);
+  c.advance(s, ms(60));
+  eq('强制睡觉后时钟不再走', s.clock, T.BEDTIME);
+
+  const ex = { ...home(), clock: 23 * 60, player: { ...home().player, area: 'expedition' } }, c2 = new T.GameClock();
+  ev = c2.advance(ex, ms(2 * 60));
+  check('远征：过了 24:00 不强制睡觉，继续到 1:00', ex.clock === 25 * 60 && !ev.some((e) => e.type === 'bedtime'));
+  ev = c2.advance(ex, ms(10 * 60));
+  check('远征：熬到 6:00 天亮 → 结束这一天', ev.some((e) => e.type === 'phase' && e.to === 'day') && ev.at(-1).type === 'dawn' && ex.clock === T.DAWN_LIMIT);
+
+  // settlement
+  s = home(); s.clock = T.BEDTIME;
+  const r = T.runSettlement(s, { slept: true });
+  check('结算顺序：休息 → 出货 → 作物 → 宠物打工 → 家园资源 → 天气', r.order.join() === 'rest,shipping,crops,petWork,resources,weather', r.order.join());
+  check('睡觉后：第 2 天 6:00，生命回满，饱食 −20', s.day === 2 && s.clock === 360 && s.player.hp === 100 && s.player.hunger === 30, JSON.stringify(s));
+  const hungry = home(); hungry.player.hunger = 12; T.runSettlement(hungry, { slept: true });
+  eq('饱食不会降到 0 以下', hungry.player.hunger, 0);
+  const noSleep = home(); T.runSettlement(noSleep, { slept: false });
+  check('没睡觉天亮：进入新的一天但生命不恢复', noSleep.day === 2 && noSleep.player.hp === 40);
+
+  // three consecutive days through the clock + settlement, like the game loop does
+  const g = home(), gc = new T.GameClock(), log = [];
+  for (let d = 0; d < 3; d++) {
+    let guard = 0;
+    while (!gc.paused && guard++ < 2000) {
+      for (const e of gc.advance(g, ms(30))) if (e.type !== 'tick') log.push(`${g.day}:${e.type === 'phase' ? e.to : e.type}`);
+    }
+    const rr = T.runSettlement(g, { slept: true }); log.push(`→${rr.day}`);
+    gc.restart();
+  }
+  eq('连续推进 3 天，事件顺序正确', log.join(' '),
+    '1:dusk 1:night 1:bedtime →2 2:dusk 2:night 2:bedtime →3 3:dusk 3:night 3:bedtime →4');
+  check('3 天后存档仍合法', S.validate({ ...S.newGameState(), day: g.day, clock: g.clock }).length === 0);
+  check('远征凌晨的时钟（25:30）存档合法', S.validate({ ...S.newGameState(), clock: 25 * 60 + 30 }).length === 0);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

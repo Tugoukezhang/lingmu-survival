@@ -101,6 +101,17 @@ export function settingsPanel(scene, stack) {
   return c;
 }
 
+export function summaryPanel(scene, stack, report) {
+  const w = 460, h = 300;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, 0, -h / 2 + 42, `第 ${report.endedDay} 天结束`, 26, { ox: 0.5, oy: 0.5 }));
+  const lines = report.lines.length ? report.lines : ['平静的一天。'];
+  c.add(text(scene, 0, -16, lines.join('\n'), 16, { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6 }));
+  c.add(text(scene, 0, 36, `☀ 第 ${report.day} 天 06:00`, 18, { ox: 0.5, oy: 0.5, color: '#9a8468' }));
+  c.add(capsuleButton(scene, 0, h / 2 - 50, '开始新的一天', { w: 200, onClick: () => stack.pop(), name: 'summary-ok' }));
+  return c;
+}
+
 export function confirmDialog(scene, stack, message, onOk) {
   const w = 400, h = 230;
   const c = woodPanel(scene, w, h);

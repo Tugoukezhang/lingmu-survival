@@ -22,3 +22,5 @@ export const FONT = '"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-seri
 const params = new URLSearchParams(location.search);
 export const DEBUG = params.has('debug');
 export const SEED = Number(params.get('seed')) || 20261108;
+// ?timescale=60 makes game time run 60× faster (testing day/night)
+export const TIMESCALE = Math.max(0.1, Number(params.get('timescale')) || 1);

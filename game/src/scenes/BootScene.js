@@ -32,6 +32,7 @@ export default class BootScene extends Phaser.Scene {
       g.fillStyle = grd; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); g.fill();
     });
     this.makeCanvas('cloud', 220, 90, drawCloud);
+    this.makeCanvas('tent', 104, 92, drawTent);
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
     this.game.session.load();
@@ -97,6 +98,24 @@ function drawRock(g, w, h) {
   g.beginPath();
   g.moveTo(6, h - 4); g.quadraticCurveTo(2, 14, 20, 8); g.quadraticCurveTo(34, 0, 46, 12);
   g.quadraticCurveTo(w, 22, w - 4, h - 4); g.closePath(); g.fill(); g.stroke();
+}
+
+function drawTent(g, w, h) {
+  const cx = w / 2, base = h - 8;
+  g.fillStyle = 'rgba(40,60,30,0.25)';
+  g.beginPath(); g.ellipse(cx, base + 2, w / 2 - 4, 7, 0, 0, Math.PI * 2); g.fill();
+  g.lineWidth = 3; g.strokeStyle = '#5b3d26'; g.lineJoin = 'round';
+  // canvas body
+  g.fillStyle = '#fbf3dc';
+  g.beginPath(); g.moveTo(cx, 14); g.lineTo(w - 8, base); g.lineTo(8, base); g.closePath(); g.fill(); g.stroke();
+  // pink stripe and dark door
+  g.fillStyle = '#f0a9a0';
+  g.beginPath(); g.moveTo(cx, 14); g.lineTo(cx + 14, base); g.lineTo(cx + 6, base); g.closePath(); g.fill();
+  g.fillStyle = '#6e4529';
+  g.beginPath(); g.moveTo(cx, 40); g.lineTo(cx + 15, base); g.lineTo(cx - 15, base); g.closePath(); g.fill();
+  // pole + flag
+  g.strokeStyle = '#8a5a36'; g.beginPath(); g.moveTo(cx, 16); g.lineTo(cx, 2); g.stroke();
+  g.fillStyle = '#f5c84b'; g.beginPath(); g.moveTo(cx + 1, 2); g.lineTo(cx + 16, 6); g.lineTo(cx + 1, 10); g.closePath(); g.fill();
 }
 
 function drawCloud(g, w, h) {

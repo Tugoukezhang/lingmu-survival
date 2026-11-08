@@ -197,6 +197,17 @@ export function drawIcon(scene, kind, s) {
       for (const [px, py] of [[0, -5], [5, 0], [0, 5], [-5, 0]]) g.fillCircle(px * k, py * k, 5 * k);
       g.fillStyle(0x3f7d2a).fillRect(-1 * k, 4 * k, 2 * k, 8 * k);
       break;
+    case 'moon':
+      g.fillStyle(COLORS.yellow).fillCircle(0, 0, 9 * k);
+      g.fillStyle(COLORS.cream).fillCircle(4.5 * k, -3.5 * k, 8 * k);
+      g.fillStyle(COLORS.yellow).fillCircle(-8 * k, -8 * k, 1.4 * k).fillCircle(8 * k, 8 * k, 1.2 * k);
+      break;
+    case 'dusk': // sun half below the horizon
+      g.fillStyle(0xf08a3a).slice(0, 3 * k, 8 * k, Math.PI, 0, false).fillPath();
+      g.fillStyle(0xf08a3a);
+      for (let i = 0; i < 5; i++) { const a = Math.PI + (i + 0.5) * Math.PI / 5; g.fillCircle(Math.cos(a) * 12 * k, 3 * k + Math.sin(a) * 12 * k, 1.6 * k); }
+      g.fillStyle(COLORS.woodMid).fillRect(-12 * k, 4 * k, 24 * k, 2 * k);
+      break;
     case 'sun':
       g.fillStyle(COLORS.yellow).fillCircle(0, 0, 6 * k);
       for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; g.fillCircle(Math.cos(a) * 10 * k, Math.sin(a) * 10 * k, 1.8 * k); }

@@ -126,7 +126,7 @@ try {
   const smallTargets = (u) => u.targets.filter((t) => t.w < u.minTouch || t.h < u.minTouch);
 
   let u = await ui();
-  check('HUD 显示天数时间和货币', u.day.includes('第 1 天') && u.day.includes('06:00') && u.clover === '120', `${u.day} / ${u.clover}`);
+  check('HUD 显示天数时间和货币', /第 1 天\s+0[67]:\d\d/.test(u.day) && u.clover === '120', `${u.day} / ${u.clover}`);
   check('HUD 离屏幕边缘 ≥ 24', u.hudEdge >= 24, `最近 ${u.hudEdge}px`);
   await page.evaluate(() => window.__game.registry.set('clover', 345));
   await page.waitForTimeout(50);
@@ -210,6 +210,43 @@ try {
     stored: localStorage.getItem('lingmu.save.main')?.includes('"clover":120'), backup: localStorage.getItem('lingmu.save.backup') }));
   check('设置 → 重新开始：进度清空、存档重置', fresh.clover === '120' && fresh.follower === 'pup' && fresh.stored && fresh.backup === null, JSON.stringify(fresh).slice(0, 160));
   await page.screenshot({ path: join(OUT, '12-new-game.png') });
+
+  // ---------- time & day/night (T10) ----------
+  const advanceTo = (minute) => scene((m) => { const sc = window.__game.scene.getScene('play'); sc.debugAdvance(m - sc.state.clock); }, minute);
+  const t0 = await state();
+  await page.waitForTimeout(2100);
+  const t1 = await state();
+  check('时间自己往前走（约 0.67 秒 1 游戏分钟）', t1.clock - t0.clock >= 2 && t1.clock - t0.clock <= 4, `${t0.clock} → ${t1.clock}`);
+  await tapTarget('hud-bag');
+  const p0 = (await state()).clock; await page.waitForTimeout(1500); const p1 = (await state()).clock;
+  await tapTarget('close');
+  check('打开面板时时间暂停', p0 === p1, `${p0} → ${p1}`);
+  await advanceTo(19 * 60); await page.waitForTimeout(150);
+  const dusk = await state();
+  check('19:00 黄昏：画面变暗、HUD 时间更新', dusk.phase === 'dusk' && dusk.tint > 0.1 && /19:0\d/.test((await ui()).day), `${dusk.phase} ${dusk.tint} ${(await ui()).day}`);
+  await page.screenshot({ path: join(OUT, '13-dusk.png') });
+  await advanceTo(21 * 60 + 30); await page.waitForTimeout(150);
+  const night = await state();
+  check('21:30 夜晚：更暗', night.phase === 'night' && night.tint > dusk.tint, `${night.phase} ${night.tint}`);
+  await page.screenshot({ path: join(OUT, '14-night.png') });
+  await advanceTo(24 * 60);
+  await page.waitForTimeout(2600);
+  const morning = await state();
+  u = await ui();
+  const savedDay = await page.evaluate(() => localStorage.getItem('lingmu.save.main')?.match(/"day":(\d+)/)?.[1]);
+  check('24:00 家园强制睡觉 → 第 2 天 6:00，弹出结算，结算后已存档', u.stack.join() === 'summary' && morning.day === 2 && morning.clock === 360 && u.day.includes('第 2 天') && savedDay === '2',
+    `${u.stack.join()} day ${morning.day} clock ${morning.clock} saved ${savedDay}`);
+  await page.screenshot({ path: join(OUT, '15-summary.png') });
+  await tapTarget('summary-ok');
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.bed.x + 10, sc.bed.y + 36); });
+  await page.waitForTimeout(150);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('在帐篷旁按互动 → 询问是否睡觉', (await ui()).stack.join() === 'sleep', (await ui()).stack.join());
+  await page.screenshot({ path: join(OUT, '16-sleep-confirm.png') });
+  await tapTarget('ok');
+  await page.waitForTimeout(1800);
+  check('确认睡觉 → 第 3 天', (await state()).day === 3 && (await ui()).stack.join() === 'summary', `day ${(await state()).day}`);
+  await tapTarget('summary-ok');
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });

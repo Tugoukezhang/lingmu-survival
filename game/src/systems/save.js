@@ -48,7 +48,7 @@ export function validate(s) {
   if (!s || typeof s !== 'object') return ['不是对象'];
   if (!isInt(s.version)) err.push('version');
   if (!isInt(s.day) || s.day < 1) err.push('day');
-  if (!isInt(s.clock) || s.clock < 0 || s.clock >= 24 * 60) err.push('clock');
+  if (!isInt(s.clock) || s.clock < 0 || s.clock > 30 * 60) err.push('clock'); // may run past 24:00 on expeditions
   if (!isInt(s.clover) || s.clover < 0) err.push('clover');
   const p = s.player;
   if (!p || typeof p !== 'object') err.push('player');

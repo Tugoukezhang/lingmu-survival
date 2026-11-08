@@ -2,7 +2,8 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel } from '../ui/panels.js';
+import { phaseAt, formatClock } from '../systems/time.js';
 
 export const SAFE = 24; // keep HUD at least this far from screen edges (notches, rounded corners)
 
@@ -27,7 +28,12 @@ export default class UIScene extends Phaser.Scene {
     const ev = this.game.events;
     ev.on('toast', this.showToast, this);
     ev.on('interact-available', this.setActionReady, this);
-    this.events.once('shutdown', () => { ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this); });
+    ev.on('sleep-request', this.askSleep, this);
+    ev.on('day-summary', this.showSummary, this);
+    this.events.once('shutdown', () => {
+      ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
+      ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
+    });
     this.refreshAll();
     const session = this.game.session;
     this.showToast(session.notice ?? '摇杆 / WASD 移动，靠近宠物按「互动」');
@@ -35,6 +41,19 @@ export default class UIScene extends Phaser.Scene {
   }
 
   uiLocked() { return this.stack.locked(); }
+
+  askSleep(clock) {
+    if (this.stack.size) return;
+    const early = phaseAt(clock) === 'day' && clock < 18 * 60;
+    const msg = early ? `现在才 ${formatClock(clock)}，天还亮着。\n确定要直接睡到明天吗？` : `现在 ${formatClock(clock)}，要睡觉吗？\n睡到明天早上 6:00。`;
+    this.stack.push('sleep', (s, st) => confirmDialog(s, st, msg,
+      () => this.game.events.emit('sleep-confirm')));
+  }
+
+  showSummary(report) {
+    this.stack.clear();
+    this.stack.push('summary', (s, st) => summaryPanel(s, st, report));
+  }
 
   onModal(open) {
     this.registry.set('uiModal', open);
@@ -45,13 +64,12 @@ export default class UIScene extends Phaser.Scene {
 
   // ---------- top-left: day/time + bars ----------
   createStatus() {
-    const badge = this.add.container(SAFE, SAFE).setDepth(10000);
+    const badge = this.dayBadge = this.add.container(SAFE, SAFE).setDepth(10000);
     const g = this.add.graphics();
     g.fillStyle(COLORS.woodDark).fillRoundedRect(0, 0, 190, 40, 20);
     g.fillStyle(COLORS.cream).fillRoundedRect(3, 3, 184, 34, 17);
-    const sun = drawIcon(this, 'sun', 26).setPosition(24, 20);
     this.dayText = text(this, 44, 20, '', 17, { oy: 0.5 });
-    badge.add([g, sun, this.dayText]);
+    badge.add([g, this.dayText]);
     this.hud.push(badge);
 
     this.hpBar = statBar(this, SAFE + 14, SAFE + 64, { w: 160, icon: 'heart', color: 0xe8564a }).setDepth(10000);
@@ -138,8 +156,14 @@ export default class UIScene extends Phaser.Scene {
 
   refreshDay() {
     const m = this.registry.get('clock') ?? 360;
-    const hh = String(Math.floor(m / 60) % 24).padStart(2, '0'), mm = String(m % 60).padStart(2, '0');
-    this.dayText.setText(`第 ${this.registry.get('day') ?? 1} 天  ${hh}:${mm}`);
+    this.dayText.setText(`第 ${this.registry.get('day') ?? 1} 天  ${formatClock(m)}`);
+    const phase = phaseAt(m);
+    if (phase !== this.dayPhase) {   // sun / sunset / moon icon
+      this.dayPhase = phase;
+      this.dayIcon?.destroy();
+      this.dayIcon = drawIcon(this, { day: 'sun', dusk: 'dusk', night: 'moon' }[phase], 26).setPosition(24, 20);
+      this.dayBadge.add(this.dayIcon);
+    }
   }
 
   refreshAll() {

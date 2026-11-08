@@ -1,7 +1,8 @@
-import { GAME_W, GAME_H, TILE, COLORS, FONT, DEBUG, SEED } from '../config.js';
+import { GAME_W, GAME_H, TILE, COLORS, FONT, DEBUG, SEED, TIMESCALE } from '../config.js';
 import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
 import { mulberry32, valueNoise2D } from '../systems/rng.js';
 import InputActions from '../systems/input.js';
+import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock } from '../systems/time.js';
 
 // T02 technical baseline: a placeholder floating island where the player
 // walks with the joystick or keyboard, one pet follows, the others idle on a
@@ -30,6 +31,7 @@ export default class PlayScene extends Phaser.Scene {
     this.createPets();
 
     this.createWorldUi();
+    this.createDayNight();
 
     // HUD values (day, clock, hp, hunger, clover) are mirrored into the
     // registry by GameSession; this scene writes the player position back.
@@ -43,8 +45,10 @@ export default class PlayScene extends Phaser.Scene {
     this.scene.launch('ui');
     this.actions = new InputActions(this, () => this.scene.get('ui')?.joystick?.vector);
     const onAction = () => this.actions.queueInteract();
+    const onSleep = () => this.startSleep(true);
     this.game.events.on('action-pressed', onAction);
-    this.events.once('shutdown', () => this.game.events.off('action-pressed', onAction));
+    this.game.events.on('sleep-confirm', onSleep);
+    this.events.once('shutdown', () => { this.game.events.off('action-pressed', onAction); this.game.events.off('sleep-confirm', onSleep); });
 
     const cam = this.cameras.main;
     cam.setBounds(0, 0, COLS * TILE, ROWS * TILE + CLIFF + TILE);
@@ -161,6 +165,13 @@ export default class PlayScene extends Phaser.Scene {
     fire.setScale(64 / fire.width);
     this.tweens.add({ targets: fire, scaleY: fire.scaleY * 1.04, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
 
+    // placeholder tent = the bed until the house exists (sleep → next day)
+    const bx = this.spawnTile.x + 2, by = this.spawnTile.y - 2;
+    this.blocked[by][bx] = true;
+    const tpx = bx * TILE + TILE / 2, tpy = by * TILE + TILE - 2;
+    this.add.image(tpx, tpy, 'tent').setOrigin(0.5, 0.92).setDepth(tpy);
+    this.bed = { x: tpx, y: tpy + 4 };
+
     const reserved = (x, y) => Math.hypot(x - this.spawnTile.x, y - this.spawnTile.y) < 3.5
       || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2;
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
@@ -241,12 +252,79 @@ export default class PlayScene extends Phaser.Scene {
 
   showToast(msg) { this.game.events.emit('toast', msg); }
 
+  // ---------- time & day/night (T10) ----------
+
+  createDayNight() {
+    this.clock = new GameClock({ msPerMin: MS_PER_GAME_MIN / TIMESCALE });
+    this.sleeping = false;
+    this.tint = this.add.rectangle(0, 0, GAME_W, GAME_H, 0xffffff, 1).setOrigin(0).setScrollFactor(0).setDepth(8500)
+      .setBlendMode(Phaser.BlendModes.MULTIPLY);
+    this.refreshTint();
+  }
+
+  refreshTint() {
+    const t = tintAt(this.state.clock);
+    this.tint.setFillStyle(t.color, 1).setVisible(t.dark > 0);
+    this.tintDark = t.dark;
+  }
+
+  updateTime(delta) {
+    const c = this.clock;
+    if (this.registry.get('uiModal')) c.pause('menu'); else c.resume('menu');
+    const before = this.state.clock;
+    const events = c.advance(this.state, delta);
+    if (this.state.clock !== before) { this.registry.set('clock', this.state.clock); this.refreshTint(); }
+    for (const e of events) this.onTimeEvent(e);
+  }
+
+  onTimeEvent(e) {
+    const home = this.state.player.area === 'home';
+    if (e.type === 'tick') this.game.events.emit('time-tick', e.clock);
+    else if (e.type === 'phase') {
+      this.game.events.emit('phase-change', e.to);
+      const msg = { dusk: home ? '天色暗下来了' : '天色暗下来了，雾要起来了', night: home ? '夜深了，早点去睡吧' : '入夜了，小心雾怪', day: '天亮了' }[e.to];
+      if (msg) this.showToast(msg);
+    } else if (e.type === 'bedtime') {
+      this.showToast('太晚了……你困得睡着了');
+      this.startSleep(true, 900);
+    } else if (e.type === 'dawn') {
+      this.startSleep(false, 600);
+    }
+  }
+
+  // Fade out → daily settlement → save → fade in → summary panel.
+  startSleep(slept, delay = 0) {
+    if (this.sleeping) return;
+    this.sleeping = true;
+    this.clock.pause('sleep');
+    this.time.delayedCall(delay, () => {
+      const cam = this.cameras.main;
+      cam.fadeOut(700, 0, 0, 0);
+      cam.once('camerafadeoutcomplete', () => {
+        const report = runSettlement(this.state, { slept });
+        if (this.bed) this.teleport(this.bed.x, this.bed.y + 44);
+        this.session.pushToRegistry();
+        this.session.save('settlement');
+        this.clock.restart();
+        this.clock.resume('sleep');
+        this.refreshTint();
+        this.sleeping = false;
+        cam.fadeIn(700, 0, 0, 0);
+        this.game.events.emit('day-summary', report);
+      });
+    });
+  }
+
+  // Test helper: run game time forward by `minutes` through the normal path.
+  debugAdvance(minutes) { this.updateTime(minutes * this.clock.msPerMin + 1); }
+
   // ---------- loop ----------
 
   update(time, delta) {
     const dt = Math.min(delta, 50) / 1000;
     this.actions.update();
-    this.movePlayer(dt);
+    this.updateTime(Math.min(delta, 250));
+    if (!this.sleeping) this.movePlayer(dt);
     this.updatePets(time, dt);
     this.updateInteraction();
     for (const c of this.clouds) {
@@ -255,7 +333,7 @@ export default class PlayScene extends Phaser.Scene {
     }
     if (this.debugText) {
       const p = this.player;
-      this.debugText.setText(`fps ${Math.round(this.game.loop.actualFps)}\ntile ${Math.floor(p.x / TILE)},${Math.floor(p.y / TILE)}`);
+      this.debugText.setText(`fps ${Math.round(this.game.loop.actualFps)}\ntile ${Math.floor(p.x / TILE)},${Math.floor(p.y / TILE)}\n${formatClock(this.state.clock)} ${phaseAt(this.state.clock)} ×${TIMESCALE}`);
     }
   }
 
@@ -328,6 +406,15 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   updateInteraction() {
+    if (this.sleeping) return;
+    const p = this.player;
+    const atBed = this.bed && Phaser.Math.Distance.Between(p.x, p.y, this.bed.x, this.bed.y) < INTERACT_RANGE;
+    if (atBed) {
+      if (!this.lastCanAct) { this.lastCanAct = true; this.game.events.emit('interact-available', true); }
+      this.nameTag.setText('帐篷 · 点互动睡觉').setBackgroundColor('#5b3d26').setPosition(this.bed.x, this.bed.y - 92).setVisible(true);
+      if (this.actions.consumeInteract()) this.game.events.emit('sleep-request', this.state.clock);
+      return;
+    }
     const pet = this.nearestPet();
     const canAct = !!(pet && (pet !== this.follower || pet.data.humanForm));
     if (canAct !== this.lastCanAct) {   // tell the UI only when it changes
@@ -392,6 +479,8 @@ export default class PlayScene extends Phaser.Scene {
       follower: this.follower.data.id,
       followerHuman: this.follower.inst.form === 'human',
       onWalkable: this.footFits(this.player.x, this.player.y),
+      day: this.state.day, clock: this.state.clock, phase: phaseAt(this.state.clock), tint: this.tintDark,
+      sleeping: this.sleeping, bed: this.bed,
     };
   }
 }
