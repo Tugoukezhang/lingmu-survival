@@ -555,9 +555,9 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('P09 好感 100：第一次致命伤害保留 1 体力', B.active(bd, 'me').hp === 1 && r1.events.some((e) => e.t === 'bond'), `hp ${B.active(bd, 'me').hp}`);
   B.resolveTurn(bd, { type: 'skill', skill: 'tackle' });
   check('P09 同一场第二次致命伤害正常倒下', bd.over === 'lose');
-  check('野生宠物组：第 1–3 天 1 只、第 4–6 天 2 只、第 7 天起 3 只', [1, 3, 4, 6, 7, 20].map(B.wildGroupSize).join() === '1,1,2,2,3,3');
-  const g1 = B.makeWildGroup({ species: 'acorn', level: 3, islandSeed: 77, wildIndex: 2, day: 8, pool: PETS.map((x) => x.id) });
-  const g2 = B.makeWildGroup({ species: 'acorn', level: 3, islandSeed: 77, wildIndex: 2, day: 8, pool: PETS.map((x) => x.id) });
+  check('野生宠物组：第 1–4 天 1 只、第 5–9 天 2 只、第 10 天起 3 只', [1, 4, 5, 9, 10, 20].map(B.wildGroupSize).join() === '1,1,2,2,3,3');
+  const g1 = B.makeWildGroup({ species: 'acorn', level: 3, islandSeed: 77, wildIndex: 2, day: 12, pool: PETS.map((x) => x.id) });
+  const g2 = B.makeWildGroup({ species: 'acorn', level: 3, islandSeed: 77, wildIndex: 2, day: 12, pool: PETS.map((x) => x.id) });
   check('野生宠物组由种子决定，领头的是碰到的那只', g1.length === 3 && g1[0].species === 'acorn' && g1[0].level === 3 && JSON.stringify(g1) === JSON.stringify(g2));
   const sl = S.newGameState(); sl.pets[0].hp = 3; T.runSettlement(sl, { slept: true });
   check('睡一觉后宠物体力回满', sl.pets.every((x) => x.hp == null));

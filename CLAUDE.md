@@ -65,6 +65,7 @@
 ## 运行与验证
 - 本地运行：`python -m http.server 8000 --directory game`，浏览器打开 `http://localhost:8000`。URL 参数：`?debug=1` 显示帧率、格子坐标和时钟，`?seed=数字` 换一座占位岛，`?timescale=60` 时间加快 60 倍。
 - 逻辑检查：`cd tools && node logic-test.mjs`（不开浏览器，核对文档里的演算例子和验收用例；纯规则代码放 `systems/`、`data/`，不能引用 Phaser）。
+- 长时间游玩测试：`cd tools && node soak-test.mjs [天数]`（默认 6 天，真实游戏里连续玩，检查存档、数值、泄漏、报错；大改后跑一次）。
 - 自动检查：`cd tools && npm install && node smoke-test.mjs`。用本机 Edge（playwright-core，不下载浏览器）以 844×390 手机横屏 + 触屏打开游戏，测加载、缩放、键盘、触屏摇杆、岛边碰撞、互动、按钮、竖屏提示、报错；截图在 `tools/out/`（不提交）。**改完代码都要跑一遍，并看截图。**
 - 夜色与光：PlayScene 的 `tint` 是 MULTIPLY 混合的 RenderTexture，每帧 `clear → fill(夜色) → erase(光刷, 每个光源) → render()`（Phaser 4 的 RenderTexture 要调 `render()` 才生效）。光源来自 `night.lights()`：`this.fires`（营火）+ 玩家身边的光。要在夜里看得见的东西（雾怪、预警圈）深度设在 8500 以上。
 - 时间：PlayScene 每帧调 `GameClock.advance()`，时钟写回 state 和 registry；每 10 游戏分钟发 `time-tick`，阶段变化发 `phase-change`，结算后发 `day-summary`。新系统要在每日结算里做事，就在 `time.js` 的 `SETTLEMENT_STEPS` 对应步骤里填，别另起结算。

@@ -14,8 +14,9 @@ import { mulberry32 } from './rng.js';
 
 export const CLOVER_PER_LEVEL = 3;      // 【建议】 clover per KO = 3 × enemy level
 
-// Wild group size by day 【建议】: days 1–3 → 1, 4–6 → 2, 7+ → 3.
-export const wildGroupSize = (day) => Math.min(3, 1 + Math.floor((day - 1) / 3));
+// Wild group size by day 【建议】: days 1–4 → 1, 5–9 → 2, 10+ → 3
+// (softened after the soak test: groups of 3 from day 7 outpaced pet growth).
+export const wildGroupSize = (day) => (day >= 10 ? 3 : day >= 5 ? 2 : 1);
 
 // The touched wild pet leads; companions are rolled from the island seed.
 export function makeWildGroup({ species: lead, level, islandSeed, wildIndex, day, pool }) {

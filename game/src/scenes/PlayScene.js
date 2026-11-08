@@ -116,6 +116,11 @@ export default class PlayScene extends Phaser.Scene {
     return ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols && this.walk[ty][tx] && !this.blocked[ty][tx];
   }
 
+  isOnIsland(px, py) {
+    const tx = Math.floor(px / TILE), ty = Math.floor(py / TILE);
+    return ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols && this.walk[ty][tx];
+  }
+
   isWalkablePx(px, py) {
     return this.isWalkableTile(Math.floor(px / TILE), Math.floor(py / TILE));
   }
@@ -359,7 +364,7 @@ export default class PlayScene extends Phaser.Scene {
 
   // Returns false when no battle started (tired party).
   startBattle(w) {
-    if (this.inBattle || this.traveling || this.sleeping) return false;
+    if (this.inBattle || this.traveling || this.sleeping || this.fainted) return false;
     const party = this.partyInsts();
     if (!canStartBattle(party)) { this.showToast('伙伴们累了，回家休息吧'); return false; }   // A06
     this.session.pullFromRegistry();
@@ -424,7 +429,6 @@ export default class PlayScene extends Phaser.Scene {
     });
   }
 
-  // Interim until T23: wake up at home the next morning, nothing is lost yet.
   // Fainting (docs/06 第 2 节): the whole result is applied and saved at once,
   // then the animation plays (refreshing mid-animation is safe, E10).
   faint() {
@@ -604,7 +608,6 @@ export default class PlayScene extends Phaser.Scene {
     this.sleeping = false;
     // darkness = a screen-sized texture multiplied over the world, with soft
     // holes erased where lights are (campfires, torch, glowing pets)
-    if (this.textures.exists('night_rt')) this.textures.remove('night_rt');
     this.tint = this.add.renderTexture(0, 0, GAME_W, GAME_H).setOrigin(0).setScrollFactor(0).setDepth(8500)
       .setBlendMode(Phaser.BlendModes.MULTIPLY);
     this.brush = this.make.image({ key: 'lightbrush', add: false }).setOrigin(0.5);
@@ -621,6 +624,15 @@ export default class PlayScene extends Phaser.Scene {
   currentLights() { return N.lights(this.state, this.player, this.fires); }
 
   drawLighting() {
+    // torch flame in the player's hand (day or night)
+    const lit = N.torchLit(this.state);
+    if (lit && !this.torchFx) {
+      this.torchFx = this.add.image(0, 0, 'item_torch').setScale(0.3).setOrigin(0.5, 1);
+      this.tweens.add({ targets: this.torchFx, scaleY: 0.33, duration: 180, yoyo: true, repeat: -1 });
+    }
+    if (!lit && this.torchFx) { this.torchFx.destroy(); this.torchFx = null; }
+    if (this.torchFx) this.torchFx.setPosition(this.player.x + 14, this.player.y - 18).setDepth(this.player.y + 1);
+
     const rt = this.tint;
     if (!this.tintDark) { rt.setVisible(false); return; }
     rt.setVisible(true).clear().fill(this.tintColor, 1);
@@ -630,14 +642,6 @@ export default class PlayScene extends Phaser.Scene {
       rt.erase(this.brush, l.x - cam.scrollX, l.y - cam.scrollY);
     }
     rt.render();
-    // torch flame in the player's hand
-    const lit = N.torchLit(this.state);
-    if (lit && !this.torchFx) {
-      this.torchFx = this.add.image(0, 0, 'item_torch').setScale(0.3).setOrigin(0.5, 1);
-      this.tweens.add({ targets: this.torchFx, scaleY: 0.33, duration: 180, yoyo: true, repeat: -1 });
-    }
-    if (!lit && this.torchFx) { this.torchFx.destroy(); this.torchFx = null; }
-    if (this.torchFx) this.torchFx.setPosition(this.player.x + 14, this.player.y - 18).setDepth(this.player.y + 1);
   }
 
   // drifting fog over the 雾林 at night
@@ -671,7 +675,7 @@ export default class PlayScene extends Phaser.Scene {
       return;
     }
     const ls = this.currentLights();
-    const canStand = (x, y) => this.footFits(x, y);
+    const canStand = (x, y) => this.isOnIsland(x, y);   // ghosts float over trees and rocks
     if (N.shouldSpawn(this.state.clock, this.lastSpawn, this.monsters.length)) {
       const at = N.pickSpawn(this.rand, this.player, ls, canStand);
       this.lastSpawn = this.state.clock;
@@ -769,7 +773,7 @@ export default class PlayScene extends Phaser.Scene {
     };
     for (const e of ev) {
       if (msg[e]) this.showToast(msg[e]);
-      if (e === 'faint') this.game.events.emit('player-faint'); // handled by T23 (lost bag, wake at home)
+      if (e === 'faint') this.game.events.emit('player-faint'); // → faint(): lost bag, wake at home
     }
   }
 
@@ -806,7 +810,8 @@ export default class PlayScene extends Phaser.Scene {
     const dt = Math.min(delta, 50) / 1000;
     this.actions.update();
     this.updateTime(Math.min(delta, 250));
-    if (!this.sleeping) this.movePlayer(dt);
+    const busy = this.sleeping || this.fainted || this.traveling;   // no control during fades and fainting
+    if (!busy) this.movePlayer(dt);
     this.updatePets(time, dt);
     this.updateWild(time, dt);
     this.updateNight(time, delta);
@@ -902,7 +907,7 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   updateInteraction() {
-    if (this.sleeping) return;
+    if (this.sleeping || this.fainted || this.traveling) { this.nameTag.setVisible(false); return; }
     const p = this.player;
     // fixed spots first (bed, dock, airship), then pets
     const spots = [
