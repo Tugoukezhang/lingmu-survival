@@ -1,0 +1,89 @@
+{
+  "schema": "lingmu-single-sprite-qa-v1",
+  "date": "2026-11-08",
+  "task_id": "other96/inventory/tab_documents",
+  "source": {
+    "kind": "V3 isolated SVG fallback; NOT original screenshot",
+    "svg": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_documents.svg",
+    "rendered_reference": "tab_documents_V3_isolated_reference.png",
+    "source_sha256": "f9bc7b1ad1fc7c8fbae05460585da979715691b3f701fd4f9e740310a91c0c61",
+    "source_render_size": [
+      1024,
+      1024
+    ],
+    "source_visible_bbox_xyxy": [
+      140,
+      122,
+      894,
+      900
+    ],
+    "original_screenshot": "04_背包(5).jpg",
+    "original_screen_accessible": false,
+    "original_bbox_verified": false,
+    "image_edit_binding_verified": false
+  },
+  "required_identity": "Single rounded dusty peach/pink square with pale brown outer stroke; central dark taupe line-drawing of folded open booklet with curved left spine, squared right portion and three lines, no filled cream paper. V3 fallback shape/palette only.",
+  "source_palette": {
+    "background": "#e7c3b3",
+    "outer_border": "#a88772",
+    "symbol": "#695d58"
+  },
+  "output": {
+    "target_png": "PNG_Transparent/04_inventory/tab_documents.png",
+    "target_size": [
+      1024,
+      1024
+    ],
+    "candidate_accepted": false,
+    "approval": "pending",
+    "production_promoted": false
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "file": "tab_documents_rejected_attempt_01.png",
+      "size": [
+        1261,
+        1247
+      ],
+      "mode": "RGBA",
+      "alpha_bbox_xyxy": [
+        0,
+        37,
+        1239,
+        1247
+      ],
+      "sha256": "e291f71ae2553ef32f46b3b95d00f8333254c4620eca135fad57e4b52c5a3207",
+      "identity_qa": "failed_wrong_icon_and_palette",
+      "visual_issue": "Blue-gray center / thick wooden frame and filled cream sheet with turned upper-right corner instead of muted peach badge and simple dark line booklet"
+    },
+    {
+      "number": 2,
+      "file": "tab_documents_rejected_attempt_02.png",
+      "size": [
+        1261,
+        1247
+      ],
+      "mode": "RGBA",
+      "alpha_bbox_xyxy": [
+        0,
+        39,
+        1242,
+        1247
+      ],
+      "sha256": "cc845507e75911e495ef2b66016b10a6156cda2a7c228475ad82c96fc31be85a",
+      "identity_qa": "failed_wrong_icon_and_palette",
+      "visual_issue": "Repeated same wrong wood-blue badge and cream sheet, missing source peach frame and booklet spine"
+    }
+  ],
+  "alpha_qa": "Both have partial alpha pixels, but actual rendered edges have fringe and image extends to left and bottom canvas boundaries; not accepted. Pixel geometry/color and game-scale fail.",
+  "comparison_local": "/mnt/data/lingmu_tab_documents_20261108/tab_documents_V3_vs_2_rejected_QA.jpg",
+  "game_scale_local": "/mnt/data/lingmu_tab_documents_20261108/tab_documents_native_scale_QA.jpg",
+  "downloadable_bundle_local": "/mnt/data/lingmu_tab_documents_rejected_20261108_review.zip",
+  "status": "deferred_two_wrong_generations",
+  "accepted_candidate_delta": 0,
+  "final_approved_delta": 0,
+  "production_replaced_delta": 0,
+  "next": "other96/inventory/tab_plants",
+  "note": "Two failures => stop. Missing original JPG and verified image binding; retry later with true single original crop. Full failed raster files not uploaded to GitHub; preserved in downloadable sandbox zip."
+}
