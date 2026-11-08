@@ -32,6 +32,10 @@ def main():
         base=im.convert("RGB")
         strength=0.011 if item["group"]=="title" else (0.018 if item["type"]=="icon" else 0.023)
         base=Image.blend(base,Image.merge("RGB",(field,field,field)),strength)
+        # The reference title-screen utility glyphs are ivory/white, not leaf green.
+        # Color correction only; keep original stroke geometry and alpha unmodified.
+        if item["group"]=="title" and item["slug"] in ("music","settings","announcement","support"):
+            base=Image.blend(base,Image.new("RGB",(w,h),(251,248,231)),0.94)
         base.putalpha(im.getchannel("A"))
         output=dest/item["png"]
         output.parent.mkdir(parents=True,exist_ok=True)
