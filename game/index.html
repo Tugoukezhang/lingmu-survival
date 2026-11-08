@@ -14,7 +14,8 @@
       touch-action: none; -webkit-user-select: none; user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    #game { position: fixed; inset: 0; }
+    /* keep the game clear of notches / rounded corners (viewport-fit=cover) */
+    #game { position: fixed; top: env(safe-area-inset-top); right: env(safe-area-inset-right); bottom: env(safe-area-inset-bottom); left: env(safe-area-inset-left); }
     #rotate {
       display: none; position: fixed; inset: 0; z-index: 10;
       background: #fbf3dc; color: #5a4030;

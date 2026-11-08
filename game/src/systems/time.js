@@ -30,9 +30,9 @@ export function formatClock(clock) {
 // keyframes [minute, rgb], linear in between. Warm at dusk, deep blue at night.
 const TINT_KEYS = [
   [0, 0x5866a8],
-  [5 * 60, 0x5866a8],
-  [DAY_START, 0x8a88b8],
-  [7 * 60, 0xffffff],
+  [4 * 60 + 30, 0x5866a8],
+  [DAY_START, 0xe6dcea],      // already light at 6:00 (players start their day here)
+  [6 * 60 + 40, 0xffffff],
   [17 * 60, 0xffffff],
   [DUSK_START, 0xffd2a8],
   [19 * 60, 0xd8a0b0],
@@ -104,6 +104,8 @@ export class GameClock {
   restart() { this.stopped = false; this.carry = 0; }
 }
 
+import { bump } from './guide.js';
+
 // ---------- daily settlement ----------
 // Order from docs/00 第 3 节: shipping → crops → pet work → home resources →
 // weather → (save, done by the caller). Each later system fills in its step;
@@ -114,6 +116,7 @@ export const SETTLEMENT_STEPS = [
     s.player.hp = s.player.hpMax;
     s.player.hunger = Math.max(0, s.player.hunger - 20);
     for (const p of s.pets ?? []) p.hp = null;   // pets rest too: full HP (null = full)
+    if (s.flags) bump(s, 'sleeps');
     return ['睡了个好觉：生命回满，饱食 −20，伙伴们也恢复了精神'];
   } },
   { id: 'shipping', name: '出货结算', run: () => [] },     // T11

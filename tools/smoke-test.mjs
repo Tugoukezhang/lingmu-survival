@@ -128,6 +128,8 @@ try {
   let u = await ui();
   check('HUD 显示天数时间和货币', /第 1 天\s+0[67]:\d\d/.test(u.day) && u.clover === '120', `${u.day} / ${u.clover}`);
   check('HUD 离屏幕边缘 ≥ 24', u.hudEdge >= 24, `最近 ${u.hudEdge}px`);
+  const guide0 = await page.evaluate(() => { const ui = window.__game.scene.getScene('ui'); return { visible: ui.guideBox.visible, text: ui.guideText.text }; });
+  check('新手目标显示在状态条下方（第一个：去码头出发）', guide0.visible && guide0.text.includes('码头'), JSON.stringify(guide0));
   await page.evaluate(() => window.__game.registry.set('clover', 345));
   await page.waitForTimeout(50);
   check('数值变化时 HUD 自动更新', (await ui()).clover === '345');
@@ -679,6 +681,26 @@ try {
   const cloth1 = await inv('item_cloth');
   await page.keyboard.press('KeyE'); await page.waitForTimeout(400);
   check('走进清出的缺口，打开秘密宝箱（布 ≥3）', (await inv('item_cloth')) >= cloth1 + 3, await toastText());
+  await scene(() => window.__game.scene.getScene('play').goHome());
+  await waitArea('home'); await page.waitForTimeout(400);
+
+  // ---------- new-player guide (T42) ----------
+  await tapTarget('hud-settings');
+  await tapTarget('restart'); await tapTarget('ok');
+  await page.waitForFunction(() => window.__game.scene.isActive('ui') && window.__game.scene.getScene('ui').cloverText?.text === '120', null, { timeout: 5000 });
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: join(OUT, '47-guide-start.png') });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.dock.x, sc.dock.y + 20); });
+  await page.waitForTimeout(200);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  await tapTarget('depart-new');
+  await waitArea('expedition'); await page.waitForTimeout(1200);
+  const g2 = await page.evaluate(() => window.__game.scene.getScene('ui').guideText.text);
+  check('出发后新手目标自动换成下一步（采集）', g2.includes('采集'), g2);
+  await page.screenshot({ path: join(OUT, '48-guide-step2.png') });
+  await tapTarget('hud-settings');
+  await tapTarget('guide-toggle');
+  check('设置里可以关闭新手目标', await page.evaluate(() => !window.__game.scene.getScene('ui').guideBox.visible));
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(400);
 

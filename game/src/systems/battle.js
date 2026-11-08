@@ -11,6 +11,7 @@ import { countOf, removeItem } from './inventory.js';
 
 export const PARTY_MAX = 3;
 import { mulberry32 } from './rng.js';
+import { bump } from './guide.js';
 
 export const CLOVER_PER_LEVEL = 3;      // 【建议】 clover per KO = 3 × enemy level
 
@@ -232,6 +233,8 @@ export function catchChance(b, netId) {
 // defeated wild pets go into the island record. Returns a summary for the UI.
 export function finishBattle(state, b, { wildId } = {}) {
   const summary = { result: b.over, exp: [], clover: b.clover, levelUps: [] };
+  if (b.over !== 'flee') bump(state, 'battles');
+  if (b.over === 'caught') bump(state, 'catches');
   for (const m of b.sides.me.mons) {
     const inst = state.pets.find((p) => p.uid === m.uid);
     if (!inst) continue;

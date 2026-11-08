@@ -14,6 +14,7 @@ import * as N from '../systems/night.js';
 import { applyDamage } from '../systems/survival.js';
 import * as CP from '../systems/camp.js';
 import * as EX from '../systems/explore.js';
+import * as GD from '../systems/guide.js';
 import { countOf } from '../systems/inventory.js';
 import { ITEMS } from '../data/items.js';
 
@@ -396,6 +397,7 @@ export default class PlayScene extends Phaser.Scene {
   onCampSleep(fireId) {
     const r = CP.canCampSleep(this.state, fireId);
     if (!r.ok) { this.showToast(r.reason === 'no-tent' ? '要有帐篷才能在野外睡觉' : `火撑不到天亮，还差 ${r.wood} 根柴`); return; }
+    GD.bump(this.state, 'campSleeps');
     this.session.save('camp');
     this.startSleep(true);
   }
@@ -960,6 +962,7 @@ export default class PlayScene extends Phaser.Scene {
     this.updatePets(time, dt);
     this.updateWild(time, dt);
     this.wading = EX.canWade(this.state);
+    if (time > (this.nextGuideCheck ?? 0)) { this.nextGuideCheck = time + 500; this.updateGuide(); }
     this.updateFires(time);
     this.updateNight(time, delta);
     this.drawLighting();
@@ -1051,6 +1054,21 @@ export default class PlayScene extends Phaser.Scene {
       if (d < bestD) { best = pet; bestD = d; }
     }
     return best;
+  }
+
+  // New-player goals and one-time tips (systems/guide.js).
+  updateGuide() {
+    if (this.sleeping || this.fainted || this.traveling || this.registry.get('uiModal')) return;
+    this.session.pullFromRegistry();
+    const done = GD.checkGuide(this.state);
+    if (done) {
+      this.session.markDirty();
+      this.game.events.emit('guide-changed');
+      this.showToast(GD.guideDone(this.state) ? '新手目标全部完成！接下来自由探索吧' : `目标完成！下一步：${GD.currentGoal(this.state).text}`);
+      return;
+    }
+    const tip = GD.nextTip(this.state);
+    if (tip) { this.session.markDirty(); this.showToast(tip); }
   }
 
   // The action button shows what pressing it will do (null = nothing nearby).

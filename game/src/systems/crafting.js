@@ -3,6 +3,7 @@
 import { RECIPE_BY_ID } from '../data/recipes.js';
 import { countOf, addItem, removeItem, BAG_SLOTS } from './inventory.js';
 import { carryBonus } from './explore.js';
+import { bump } from './guide.js';
 
 // Bag size: 20, +4 while a 驮运 pet (冰蓝小狼) is in the party, +6 at affection 100 (docs/02 第 9 节, 07 第 7 节).
 export const bagSlots = (state) => BAG_SLOTS + carryBonus(state);
@@ -42,6 +43,7 @@ export function gather(state, resource) {
   if (!fits(state, pv.gains)) return { ok: false, reason: 'full' };
   for (const [id, n] of Object.entries(pv.gains)) addItem(state.inventory, id, n, Infinity);
   changes.collected.push(resource.id);
+  bump(state, 'gather');
   return { ok: true, gains: pv.gains, usedTool: pv.usedTool };
 }
 
@@ -70,5 +72,6 @@ export function craft(state, recipeId) {
   if (needsSlot && after.length + 1 > bagSlots(state)) return { ok: false, reason: 'full' };
   for (const [id, n] of Object.entries(r.cost)) removeItem(state.inventory, id, n);
   addItem(state.inventory, r.out, r.n, Infinity);
+  bump(state, 'craft');
   return { ok: true };
 }

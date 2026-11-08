@@ -8,6 +8,7 @@ import { runSettlement, TICK_MIN } from './time.js';
 import { ITEMS } from '../data/items.js';
 import { addItem } from './inventory.js';
 import { bagSlots } from './crafting.js';
+import { bump } from './guide.js';
 
 export const TRAVEL_MIN = 60;    // departure and return each take 1 game hour
 export const WAKE_CLOCK = 8 * 60;
@@ -37,6 +38,7 @@ export function depart(state, mode) {
   if (mode === 'last' && !state.expedition) return { ok: false, reason: 'no-last' };
   if (mode === 'new') state.expedition = { seed: newIslandSeed(state), biome: 'mistwood', changes: emptyChanges(), lostBag: null };
   state.flags.trips = (state.flags.trips ?? 0) + 1;
+  bump(state, 'trips');
   passTime(state, TRAVEL_MIN);
   state.player.area = 'expedition';
   state.player.x = null; state.player.y = null; // land at the airship
@@ -49,6 +51,7 @@ export function returnHome(state) {
   state.player.area = 'home';
   state.player.x = null; state.player.y = null;
   state.flags.arriveAt = 'dock';
+  bump(state, 'returns');
   return { ok: true };
 }
 

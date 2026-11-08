@@ -6,6 +6,7 @@ import { NATURES } from '../data/natures.js';
 import { joinParty, leaveParty, setLead } from '../systems/party.js';
 import { lightTorch } from '../systems/night.js';
 import { SKILL_NAMES, SKILL_HELP, depositAll, withdrawAll } from '../systems/explore.js';
+import { guideState, setGuideOff, guideDone } from '../systems/guide.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
 import { canCraft, craft, bagSlots, stationOk } from '../systems/crafting.js';
@@ -186,8 +187,14 @@ export function settingsPanel(scene, stack) {
   const when = new Date(session.state.savedAt);
   const saved = session.persistent ? `进度自动保存 · 上次 ${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}` : '当前浏览器不能存档';
   c.add(text(scene, 0, -18, saved, 14, { ox: 0.5, oy: 0.5, bold: false, color: '#9a8468' }));
-  c.add(capsuleButton(scene, 0, 60, '重新开始', {
-    w: 180, style: 'yellow', name: 'restart',
+  if (!guideDone(session.state)) {
+    const off = guideState(session.state).off;
+    c.add(capsuleButton(scene, -100, 60, off ? '打开新手目标' : '关闭新手目标', { w: 170, name: 'guide-toggle', onClick: () => {
+      setGuideOff(session.state, !off); session.markDirty(); scene.game.events.emit('guide-changed'); stack.pop();
+    } }));
+  }
+  c.add(capsuleButton(scene, guideDone(session.state) ? 0 : 100, 60, '重新开始', {
+    w: 170, style: 'yellow', name: 'restart',
     onClick: () => stack.push('confirm', (s, st) => confirmDialog(s, st, '确定要重新开始吗？\n当前进度会被清除。', () => {
       scene.game.session.newGame();
       scene.scene.get('play').scene.restart();

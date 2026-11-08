@@ -4,6 +4,7 @@ import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
 import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
+import { currentGoal, GOALS, guideState } from '../systems/guide.js';
 
 export const SAFE = 24; // keep HUD at least this far from screen edges (notches, rounded corners)
 
@@ -15,13 +16,14 @@ export default class UIScene extends Phaser.Scene {
 
   create() {
     this.hud = [];
-    this.dayPhase = null; this.dayIcon = null; // scene object is reused on restart
+    this.dayPhase = null; this.dayIcon = null; this.guideBox = null; // scene object is reused on restart
     this.stack = new PanelStack(this, { onChange: (open) => this.onModal(open) });
     this.joystick = new VirtualJoystick(this, { isBlocked: (over) => this.stack.size > 0 || over.length > 0 });
     this.createStatus();
     this.createButtons();
     this.createActionButton();
     this.createToast();
+    this.createGuide();
 
     // HUD reacts to state changes instead of polling every frame
     this.registry.events.on('changedata', this.onData, this);
@@ -35,10 +37,11 @@ export default class UIScene extends Phaser.Scene {
     ev.on('airship-request', this.askReturn, this);
     ev.on('camp-request', this.openCamp, this);
     ev.on('storage-request', this.openStorage, this);
+    ev.on('guide-changed', this.refreshGuide, this);
     this.events.once('shutdown', () => {
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
-      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this); ev.off('storage-request', this.openStorage, this);
+      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this); ev.off('storage-request', this.openStorage, this); ev.off('guide-changed', this.refreshGuide, this);
     });
     this.refreshAll();
     const session = this.game.session;
@@ -130,6 +133,29 @@ export default class UIScene extends Phaser.Scene {
       const t = text(this, x, y + 33, label, 14, { color: '#ffffff', stroke: '#5b3d26', strokeThickness: 3, ox: 0.5, oy: 0 }).setDepth(10000);
       this.hud.push(b, t);
     });
+  }
+
+  // ---------- new-player goal (under the bars) ----------
+  createGuide() {
+    this.guideBox = this.add.container(SAFE, SAFE + 116).setDepth(10000);
+    this.guideBg = this.add.graphics();
+    this.guideTitle = text(this, 12, 8, '', 14, { color: '#d9572b' });
+    this.guideText = text(this, 12, 28, '', 15, { bold: false, wrap: 236, lineSpacing: 3 });
+    this.guideBox.add([this.guideBg, this.guideTitle, this.guideText]);
+    this.hud.push(this.guideBox);
+    this.refreshGuide();
+  }
+
+  refreshGuide() {
+    const goal = currentGoal(this.game.session.state);
+    this.guideBox.setVisible(!!goal);
+    if (!goal) return;
+    const step = guideState(this.game.session.state).step;
+    this.guideTitle.setText(`目标 ${step + 1}/${GOALS.length}`);
+    this.guideText.setText(goal.text);
+    const h = this.guideText.height + 38;
+    this.guideBg.clear().fillStyle(COLORS.woodDark, 0.9).fillRoundedRect(0, 0, 260, h, 14).fillStyle(COLORS.cream, 0.95).fillRoundedRect(3, 3, 254, h - 6, 12);
+    this.tweens.add({ targets: this.guideBox, scale: { from: 1.06, to: 1 }, duration: 200 });
   }
 
   // ---------- bottom-right: action button ----------

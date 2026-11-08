@@ -24,6 +24,7 @@ import * as PT from '../game/src/systems/party.js';
 import * as NI from '../game/src/systems/night.js';
 import * as CP from '../game/src/systems/camp.js';
 import * as EX from '../game/src/systems/explore.js';
+import * as GD from '../game/src/systems/guide.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -835,6 +836,43 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('全部存入：工具和食物留在身上', n > 0 && s3.inventory.every((x) => ITEMS[x.id].tool || ITEMS[x.id].food));
   const w = EX.withdrawAll(s3, CR.bagSlots(s3));
   check('全部取回：放得下的拿回来，放不下的留在仓库', s3.inventory.length <= 20 && w.took > 0 && (w.left === 0 || s3.inventory.length === 20));
+}
+
+// ---------- new-player guide (T42) ----------
+{
+  const s = S.newGameState();
+  check('新档第一个目标：去码头出发', GD.currentGoal(s).id === 'depart');
+  TR.depart(s, 'new');
+  check('出发后 → 第二个目标：采集 3 次', GD.checkGuide(s)?.id === 'depart' && GD.currentGoal(s).id === 'gather');
+  for (let i = 0; i < 2; i++) CR.gather(s, { id: `g${i}`, type: 'grass' });
+  check('采集 2 次还不算完成', GD.checkGuide(s) === null);
+  CR.gather(s, { id: 'g9', type: 'bush' });
+  check('采集第 3 次完成 → 目标：做石斧', GD.checkGuide(s)?.id === 'gather' && GD.currentGoal(s).id === 'axe');
+  s.inventory.push({ id: 'item_wood', count: 3 }, { id: 'item_stone', count: 2 });
+  CR.craft(s, 'axe');
+  check('做出石斧 → 目标：打一场', GD.checkGuide(s)?.id === 'axe' && GD.currentGoal(s).id === 'battle');
+  const b = B.createBattle({ party: [s.pets[0]], enemies: [M.createPet('acorn', { uid: 'gw', stars: 3, nature: 'gentle', shiny: false })], inventory: s.inventory, rng: () => 0.5 });
+  B.resolveTurn(b, { type: 'flee' }); B.finishBattle(s, b);
+  check('溜走不算打了一场', GD.checkGuide(s) === null);
+  const b2 = B.createBattle({ party: [s.pets[0]], enemies: [M.createPet('acorn', { uid: 'gw2', stars: 3, nature: 'gentle', shiny: false })], inventory: s.inventory, rng: () => 0.5 });
+  let g = 0; while (!b2.over && g++ < 30) B.resolveTurn(b2, b2.needSwitch ? { type: 'switch', index: 0 } : { type: 'skill', skill: 'tackle' });
+  B.finishBattle(s, b2);
+  check('打完一场 → 目标：天黑前回家', GD.checkGuide(s)?.id === 'battle' && GD.currentGoal(s).id === 'return');
+  TR.returnHome(s);
+  check('坐飞艇回家 → 目标：睡觉', GD.checkGuide(s)?.id === 'return' && GD.currentGoal(s).id === 'sleep');
+  T.runSettlement(s, { slept: true });
+  check('睡一觉 → 新手目标全部完成，不再显示', GD.checkGuide(s)?.id === 'sleep' && GD.guideDone(s) && GD.currentGoal(s) === null);
+  check('引导进度存档合法', S.validate(s).length === 0);
+  // camp sleep also counts for "回家"
+  const c = S.newGameState(); c.flags.guide = { step: 4, base: { ...GD.stats(c) }, off: false };
+  GD.bump(c, 'campSleeps');
+  check('扎营过夜也算完成「天黑前回家」', GD.checkGuide(c)?.id === 'return');
+  // switching off
+  const o = S.newGameState(); GD.setGuideOff(o, true);
+  check('关闭新手目标后不显示、也不推进', GD.currentGoal(o) === null && (TR.depart(o, 'new'), GD.checkGuide(o) === null));
+  // tips once
+  const tp = S.newGameState(); tp.player.hunger = 20;
+  check('饿了的提示只出现一次', GD.nextTip(tp)?.includes('吃') && GD.nextTip(tp) === null);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

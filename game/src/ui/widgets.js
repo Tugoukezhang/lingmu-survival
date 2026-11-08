@@ -6,8 +6,11 @@ import { COLORS, FONT } from '../config.js';
 
 export const MIN_TOUCH = 44; // minimum touch target (docs/01 手机横屏注意)
 
+// Phones show the 960×540 canvas at ~0.72× (844×390 screen): keep text ≥ 14
+// logical px (≈ 10 px on screen) so nothing becomes unreadable.
+export const MIN_FONT = 14;
 export const text = (scene, x, y, str, size = 16, opts = {}) => scene.add.text(x, y, str, {
-  fontFamily: FONT, fontSize: `${size}px`, color: opts.color || COLORS.text,
+  fontFamily: FONT, fontSize: `${Math.max(MIN_FONT, size)}px`, color: opts.color || COLORS.text,
   fontStyle: opts.bold === false ? 'normal' : 'bold',
   stroke: opts.stroke, strokeThickness: opts.stroke ? (opts.strokeThickness || 4) : 0,
   align: opts.align || 'left', wordWrap: opts.wrap ? { width: opts.wrap, useAdvancedWrap: true } : undefined,
