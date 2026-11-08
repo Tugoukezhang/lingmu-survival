@@ -45,3 +45,5 @@ jobs:
             git commit -m "Publish HUD V4 97 transparent per-asset PNG files and layouts"
             git push origin HEAD:main
           fi
+
+# Trigger v4 title icon color-correction rebuild.
