@@ -24,6 +24,7 @@ import nightMethods from './play/night.js';
 import expeditionMethods from './play/expedition.js';
 import flowMethods from './play/flow.js';
 import interactionMethods from './play/interaction.js';
+import farmMethods from './play/farm.js';
 
 // The world: either the home island (placeholder layout) or a generated
 // expedition island (systems/islandGen.js), chosen by state.player.area.
@@ -41,6 +42,7 @@ export default class PlayScene extends Phaser.Scene {
     this.fires = []; this.monsters = []; this.warnings = []; this.lastSpawn = null; this.fogWisps = []; this.torchFx = null;
     this.fireSprites = new Map(); this.chestSprites = new Map(); this.thornSprites = new Map(); this.water = null; this.storageSpot = null;
     this.wading = EX.canWade(this.state);
+    this.farmRect = null; this.plots = null; this.shipSpot = null; this.seedSpot = null;
     this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
     this.traveling = false; this.fainted = false; this.inBattle = null;
     this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
@@ -77,8 +79,10 @@ export default class PlayScene extends Phaser.Scene {
     const onPlaceFire = () => this.placeCampfireNear();
     const onWood = (id) => this.onAddWood(id);
     const onCampSleep = (id) => this.onCampSleep(id);
+    const onPlant = (r) => this.onPlant(r);
+    const onFarmRefresh = () => this.refreshFarm();
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
@@ -153,4 +157,4 @@ export default class PlayScene extends Phaser.Scene {
 }
 
 // The rest of the scene lives in ./play/*.js, grouped by topic.
-Object.assign(PlayScene.prototype, worldMethods, actorsMethods, nightMethods, expeditionMethods, flowMethods, interactionMethods);
+Object.assign(PlayScene.prototype, worldMethods, actorsMethods, nightMethods, expeditionMethods, flowMethods, interactionMethods, farmMethods);

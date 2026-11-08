@@ -7,6 +7,8 @@ import { joinParty, leaveParty, setLead } from '../systems/party.js';
 import { lightTorch } from '../systems/night.js';
 import { SKILL_NAMES, SKILL_HELP, depositAll, withdrawAll } from '../systems/explore.js';
 import { guideState, setGuideOff, guideDone } from '../systems/guide.js';
+import * as FM from '../systems/farm.js';
+import { CROPS } from '../data/crops.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
 import { canCraft, craft, bagSlots, stationOk } from '../systems/crafting.js';
@@ -344,6 +346,84 @@ export function storagePanel(scene, stack) {
       const r = withdrawAll(stateOf(scene), bagSlots(stateOf(scene)));
       scene.game.session.markDirty(); scene.showToast(r.left ? `取回了 ${r.took} 格，背包满了，还有 ${r.left} 格留在仓库` : r.took ? `取回了 ${r.took} 格` : '仓库是空的'); draw();
     } }));
+  };
+  draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// ---------- farm panels (T11) ----------
+// Choose which seed to plant on a tilled plot.
+export function seedPanel(scene, stack, { key }) {
+  const w = 480, h = 320;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, 0, -h / 2 + 40, '种什么？', 26, { ox: 0.5, oy: 0.5 }));
+  const seeds = stateOf(scene).inventory.filter((s) => ITEMS[s.id]?.tag === '种子');
+  if (!seeds.length) c.add(text(scene, 0, -10, '没有种子了。\n农田右边的种子摊可以买。', 17, { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6 }));
+  seeds.slice(0, 6).forEach((s, i) => {
+    const crop = CROPS[Object.keys(CROPS).find((k) => CROPS[k].seed === s.id)];
+    c.add(capsuleButton(scene, -110 + (i % 2) * 220, -50 + Math.floor(i / 2) * 60, `${crop.name} ×${s.count}（${crop.days} 天）`, { w: 205, h: 46, name: `plant-${s.id}`,
+      onClick: () => { stack.clear(); scene.game.events.emit('plant', { key, seed: s.id }); } }));
+  });
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// Seed stand (interim, at home): buy seeds with clover.
+export function seedShopPanel(scene, stack) {
+  const w = 700, h = 400;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '种子摊', 26));
+  const money = text(scene, w / 2 - 70, -h / 2 + 30, '', 18, { ox: 1 });
+  c.add(money);
+  const refresh = () => money.setText(`四叶草 ${scene.registry.get('clover')}`);
+  const buy = (id, n) => {
+    const session = scene.game.session;
+    session.pullFromRegistry();
+    const r = FM.buySeed(session.state, id, n);
+    if (r.ok) { session.pushToRegistry(); session.markDirty(); scene.showToast(`买了 ${CROPS[id].name}种子 ×${n}（−${r.cost} 四叶草）`); }
+    else scene.showToast(r.reason === 'clover' ? '四叶草不够' : '背包满了');
+    refresh();
+  };
+  Object.entries(CROPS).forEach(([id, cr], i) => {
+    const y = -h / 2 + 90 + i * 56;
+    const ic = scene.add.image(-w / 2 + 64, y, ITEMS[cr.seed].icon); ic.setScale(40 / Math.max(ic.width, ic.height));
+    c.add(ic);
+    c.add(text(scene, -w / 2 + 96, y - 24, `${cr.name}种子`, 17));
+    c.add(text(scene, -w / 2 + 96, y + 12, `浇水 ${cr.days} 天成熟 · 出货 ${FM.priceOf(cr.crop)}`, 14, { bold: false, color: '#7a6450', oy: 0.5 }));
+    c.add(text(scene, 40, y, `${cr.seedPrice} 四叶草`, 16, { oy: 0.5, color: '#4f7d3a' }));
+    c.add(capsuleButton(scene, 190, y, '买 1', { w: 76, h: 44, style: 'yellow', name: `buy-${id}-1`, onClick: () => buy(id, 1) }));
+    c.add(capsuleButton(scene, 280, y, '买 5', { w: 76, h: 44, name: `buy-${id}-5`, onClick: () => buy(id, 5) }));
+  });
+  refresh();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// Shipping box: tap a bag item to put the whole stack in; tap a boxed item to take it back.
+export function shipPanel(scene, stack) {
+  const w = 760, h = 420;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '出货箱', 26));
+  const body = scene.add.container(0, 0);
+  c.add(body);
+  const draw = () => {
+    body.removeAll(true);
+    const st = stateOf(scene);
+    body.add(text(scene, -w / 2 + 40, -h / 2 + 70, '背包（点一下放进箱子）', 15, { bold: false }));
+    body.add(text(scene, 40, -h / 2 + 70, '出货箱（点一下取回）', 15, { bold: false }));
+    const sellable = st.inventory.filter((s) => FM.priceOf(s.id) != null);
+    sellable.slice(0, 15).forEach((s, i) => {
+      const x = -w / 2 + 70 + (i % 5) * 64, y = -h / 2 + 130 + Math.floor(i / 5) * 72;
+      body.add(slot(scene, x, y, { size: 54, iconKey: ITEMS[s.id].icon, count: s.count, name: `ship-${s.id}`, onClick: () => { FM.ship(stateOf(scene), s.id, s.count); scene.game.session.markDirty(); draw(); } }));
+      body.add(text(scene, x, y + 32, `${FM.priceOf(s.id)}`, 14, { ox: 0.5, color: '#4f7d3a' }));
+    });
+    const box = FM.farmOf(st).shipping;
+    box.slice(0, 15).forEach((s, i) => {
+      const x = 70 + (i % 5) * 64, y = -h / 2 + 130 + Math.floor(i / 5) * 72;
+      body.add(slot(scene, x, y, { size: 54, iconKey: ITEMS[s.id].icon, count: s.count, name: `unship-${s.id}`, onClick: () => { const r = FM.unship(stateOf(scene), s.id); if (!r.ok) scene.showToast('背包满了'); scene.game.session.markDirty(); draw(); } }));
+    });
+    body.add(text(scene, 0, h / 2 - 44, `明早结算：+${FM.shippingValue(st)} 四叶草`, 19, { ox: 0.5, oy: 0.5, color: '#4f7d3a' }));
   };
   draw();
   c.add(closeBtn(scene, stack, w, h));

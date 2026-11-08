@@ -1,6 +1,7 @@
 import { GAME_W, GAME_H, FONT, COLORS } from '../config.js';
 import { PETS, petTextureKey } from '../data/pets.js';
 import GameSession from '../systems/GameSession.js';
+import { CROPS } from '../data/crops.js';
 
 // Loads real art (pet sprites) and draws code-made placeholder textures for
 // everything that has no art yet (player, trees, rocks, clouds, shadows).
@@ -42,12 +43,14 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('item_tent', 128, 128, (g, w, h) => { g.save(); g.scale(1.2, 1.2); g.translate(2, 8); drawTent(g, 104, 92); g.restore(); });
     this.makeCanvas('fogmonster', 84, 84, drawFogMonster);
     this.makeCanvas('thorn', 60, 56, drawThorn);
+    this.makeCanvas('seedstand', 72, 60, drawSeedStand);
     this.makeCanvas('lightbrush', 256, 256, (g, w) => {   // soft round light: opaque core, fading edge
       const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
       grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.62, 'rgba(255,255,255,1)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
       g.fillStyle = grd; g.fillRect(0, 0, w, w);
     });
-    for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS })) this.makeCanvas(k, 128, 128, fn);
+    for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS, ...FARM_ICONS })) this.makeCanvas(k, 128, 128, fn);
+    for (const [id, c] of Object.entries(CROPS)) for (let st = 0; st < 3; st++) this.makeCanvas(`crop_${id}_${st}`, 48, 56, (g, w, h) => drawCropStage(g, w, h, id, c.color, st));
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
     this.game.session.load();
@@ -195,6 +198,70 @@ const MATERIAL_ICONS = {
   },
 };
 
+// farm placeholders (T11)
+function seedBag(g, color) {
+  g.lineWidth = 4; g.strokeStyle = '#5b3d26';
+  g.fillStyle = '#e8d2a8'; g.beginPath(); g.moveTo(34, 40); g.lineTo(94, 40); g.lineTo(104, 110); g.lineTo(24, 110); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = '#c99a5a'; g.fillRect(40, 28, 48, 14); g.strokeRect(40, 28, 48, 14);
+  g.fillStyle = color; g.beginPath(); g.arc(64, 78, 18, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#6fae4a'; g.beginPath(); g.ellipse(72, 58, 10, 5, -0.6, 0, Math.PI * 2); g.fill();
+}
+const FARM_ICONS = {
+  item_seed_carrot: (g) => seedBag(g, '#f08a3a'), item_seed_strawberry: (g) => seedBag(g, '#e8445a'), item_seed_sunflower: (g) => seedBag(g, '#f5c84b'),
+  item_seed_starwheat: (g) => seedBag(g, '#e8d27a'), item_seed_pumpkin: (g) => seedBag(g, '#e07a2a'),
+  item_strawberry: (g) => {
+    g.lineWidth = 4; g.strokeStyle = '#8a2a3a'; g.fillStyle = '#e8445a';
+    g.beginPath(); g.moveTo(64, 112); g.quadraticCurveTo(18, 70, 34, 44); g.quadraticCurveTo(64, 30, 94, 44); g.quadraticCurveTo(110, 70, 64, 112); g.fill(); g.stroke();
+    g.fillStyle = '#ffe9a0'; for (const [x, y] of [[50, 60], [72, 58], [60, 78], [80, 76], [56, 94], [70, 92]]) { g.beginPath(); g.ellipse(x, y, 2.5, 4, 0, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = '#5a9a3c'; for (const a of [-0.9, -0.3, 0.3, 0.9]) { g.beginPath(); g.ellipse(64 + Math.sin(a) * 16, 40 - Math.cos(a) * 6, 12, 5, a, 0, Math.PI * 2); g.fill(); }
+  },
+  item_pumpkin: (g) => {
+    g.lineWidth = 4; g.strokeStyle = '#8a4a1a';
+    for (const [x, rx] of [[40, 26], [88, 26], [64, 30]]) { g.fillStyle = '#e8862e'; g.beginPath(); g.ellipse(x, 76, rx, 34, 0, 0, Math.PI * 2); g.fill(); g.stroke(); }
+    g.fillStyle = '#6a8a3a'; g.fillRect(58, 30, 12, 16);
+  },
+  item_sunflower: (g) => {
+    g.strokeStyle = '#4f8a3a'; g.lineWidth = 6; g.beginPath(); g.moveTo(64, 120); g.lineTo(64, 70); g.stroke();
+    g.fillStyle = '#f5c84b'; for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; g.beginPath(); g.ellipse(64 + Math.cos(a) * 26, 50 + Math.sin(a) * 26, 12, 6, a, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = '#6e4529'; g.beginPath(); g.arc(64, 50, 18, 0, Math.PI * 2); g.fill();
+  },
+  item_starwheat: (g) => {
+    g.strokeStyle = '#c9a85a'; g.lineWidth = 4;
+    for (const dx of [-14, 0, 14]) { g.beginPath(); g.moveTo(64 + dx * 0.3, 120); g.quadraticCurveTo(64 + dx, 70, 64 + dx * 1.4, 26); g.stroke(); }
+    g.fillStyle = '#f0dc8a'; for (const dx of [-14, 0, 14]) for (let k = 0; k < 5; k++) { g.beginPath(); g.ellipse(64 + dx * 1.3 + (k % 2 ? 5 : -5), 34 + k * 9, 5, 8, 0, 0, Math.PI * 2); g.fill(); }
+    g.fillStyle = '#ffffff'; for (const [x, y] of [[40, 30], [92, 44], [70, 20]]) { g.beginPath(); g.arc(x, y, 2.5, 0, Math.PI * 2); g.fill(); }
+  },
+  item_hoe: (g) => {
+    g.lineWidth = 4; g.strokeStyle = '#5b3d26';
+    g.fillStyle = '#b07a48'; g.save(); g.translate(64, 70); g.rotate(0.7); g.fillRect(-6, -50, 12, 100); g.strokeRect(-6, -50, 12, 100); g.restore();
+    g.fillStyle = '#c8c2b4'; g.beginPath(); g.moveTo(84, 22); g.lineTo(112, 34); g.lineTo(104, 58); g.lineTo(88, 40); g.closePath(); g.fill(); g.stroke();
+  },
+  item_can: (g) => {
+    g.lineWidth = 4; g.strokeStyle = '#3d5a7a';
+    g.fillStyle = '#7cb4e0'; g.beginPath(); g.moveTo(30, 54); g.lineTo(90, 54); g.lineTo(86, 108); g.lineTo(34, 108); g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(88, 70); g.lineTo(116, 46); g.lineTo(120, 52); g.lineTo(90, 82); g.stroke();
+    g.beginPath(); g.arc(60, 54, 22, Math.PI, 0); g.stroke();
+    g.fillStyle = '#aee0ff'; for (const [x, y] of [[118, 62], [122, 72], [114, 74]]) { g.beginPath(); g.arc(x, y, 3, 0, Math.PI * 2); g.fill(); }
+  },
+};
+
+// crop on a plot: 0 sprout, 1 growing, 2 ripe (crop coloured)
+function drawCropStage(g, w, h, id, color, st) {
+  const base = h - 6;
+  g.strokeStyle = '#4f8a3a'; g.fillStyle = '#6fae4a'; g.lineWidth = 3;
+  if (st === 0) { g.beginPath(); g.moveTo(w / 2, base); g.lineTo(w / 2, base - 10); g.stroke(); for (const s of [-1, 1]) { g.beginPath(); g.ellipse(w / 2 + s * 6, base - 12, 6, 3, s * 0.5, 0, Math.PI * 2); g.fill(); } return; }
+  const tall = id === 'sunflower' || id === 'starwheat' ? 1.6 : 1;
+  for (const s of [-1, 0, 1]) { g.beginPath(); g.moveTo(w / 2, base); g.quadraticCurveTo(w / 2 + s * 8, base - 14 * tall, w / 2 + s * 12, base - 22 * tall); g.stroke(); g.beginPath(); g.ellipse(w / 2 + s * 12, base - 22 * tall, 7, 4, s, 0, Math.PI * 2); g.fill(); }
+  if (st === 2) {
+    g.fillStyle = color; g.strokeStyle = 'rgba(80,40,20,0.7)'; g.lineWidth = 2;
+    if (id === 'pumpkin') { g.beginPath(); g.ellipse(w / 2, base - 8, 15, 11, 0, 0, Math.PI * 2); g.fill(); g.stroke(); }
+    else if (id === 'carrot') { g.beginPath(); g.moveTo(w / 2 - 7, base - 6); g.lineTo(w / 2 + 7, base - 6); g.lineTo(w / 2, base + 4); g.closePath(); g.fill(); g.stroke(); }
+    else if (id === 'sunflower') { for (let i = 0; i < 10; i++) { const a = i * Math.PI / 5; g.beginPath(); g.ellipse(w / 2 + Math.cos(a) * 9, base - 40 + Math.sin(a) * 9, 5, 3, a, 0, Math.PI * 2); g.fill(); } g.fillStyle = '#6e4529'; g.beginPath(); g.arc(w / 2, base - 40, 6, 0, Math.PI * 2); g.fill(); }
+    else if (id === 'starwheat') { for (const s of [-1, 0, 1]) { g.beginPath(); g.ellipse(w / 2 + s * 12, base - 40, 4, 8, 0, 0, Math.PI * 2); g.fill(); } }
+    else { for (const [x, y] of [[-8, -10], [6, -14], [0, -4]]) { g.beginPath(); g.arc(w / 2 + x, base + y, 5, 0, Math.PI * 2); g.fill(); g.stroke(); } }
+  }
+}
+
 function berries(g, color) {
   g.fillStyle = '#5a9a3c'; g.beginPath(); g.ellipse(76, 30, 20, 9, -0.5, 0, Math.PI * 2); g.fill();
   for (const [x, y] of [[48, 62], [78, 66], [62, 90], [36, 88], [90, 92]]) {
@@ -242,6 +309,14 @@ function drawChest(g, w, h) {
   roundRect(g, 4, 8, w - 8, 18, 8); g.fillStyle = '#a8703f'; g.fill(); g.stroke();
   g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 6, 18, 12, 14); g.strokeRect(w / 2 - 6, 18, 12, 14);
   g.fillStyle = '#f5c84b'; g.fillRect(10, 22, 4, h - 28); g.fillRect(w - 14, 22, 4, h - 28);
+}
+
+function drawSeedStand(g, w, h) {
+  g.lineWidth = 3; g.strokeStyle = '#5b3d26';
+  g.fillStyle = '#a8703f'; g.fillRect(8, 26, w - 16, 10); g.strokeRect(8, 26, w - 16, 10);
+  g.fillRect(12, 36, 6, h - 40); g.fillRect(w - 18, 36, 6, h - 40);
+  g.fillStyle = '#f0a9a0'; g.beginPath(); g.moveTo(4, 26); g.lineTo(w / 2, 4); g.lineTo(w - 4, 26); g.closePath(); g.fill(); g.stroke();
+  for (const [x, c] of [[18, '#f08a3a'], [32, '#e8445a'], [46, '#f5c84b'], [58, '#e07a2a']]) { g.fillStyle = '#e8d2a8'; g.fillRect(x - 5, 16 + 0, 10, 10); g.fillStyle = c; g.beginPath(); g.arc(x, 21, 3, 0, Math.PI * 2); g.fill(); }
 }
 
 function drawThorn(g, w, h) {

@@ -19,14 +19,27 @@ export const ITEMS = {
   // tools are kept when fainting (docs/06 第 2 节)
   item_axe: { name: '石斧', tag: '工具', tool: true, icon: 'item_axe', desc: '砍树一次得到 3 个木材。', quip: '咚、咚、咚！' },
   item_pickaxe: { name: '石镐', tag: '工具', tool: true, icon: 'item_pickaxe', desc: '敲石头一次得到 3 个石头，\n还能敲下雾晶。', quip: '叮！' },
+  item_hoe: { name: '锄头', tag: '工具', tool: true, icon: 'item_hoe', desc: '在家园农田开垦土地。', quip: '一下一下，松松土。' },
+  item_can: { name: '水壶', tag: '工具', tool: true, icon: 'item_can', desc: '给作物浇水。每块地每天浇一次，\n不浇水作物就不长。', quip: '咕嘟咕嘟～' },
   item_tent: { name: '帐篷', tag: '工具', tool: true, icon: 'item_tent', desc: '在营火旁按互动，可以睡到天亮。\n能反复使用，倒下也不会丢。', quip: '野外的小小家。' },
   item_torch: { name: '火把', tag: '照明', icon: 'item_torch', desc: '在背包里「使用」点亮，\n身边照亮 2 格，烧 3 小时。', quip: '小小的光。' },
 
   // food (icons are code-drawn placeholders until the art arrives)
+  // farm crops (T11)
+  item_strawberry: { name: '草莓', tag: '作物', icon: 'item_strawberry', food: 12, desc: '甜甜的草莓，月影狐猫最爱。\n饱食 +12　出货 40', quip: '一口一个！' },
+  item_pumpkin: { name: '南瓜', tag: '作物', icon: 'item_pumpkin', food: 25, desc: '又大又圆的南瓜，焰尾狐最爱。\n饱食 +25　出货 90', quip: '抱都抱不动。' },
+  item_sunflower: { name: '向日葵', tag: '作物', icon: 'item_sunflower', desc: '冰蓝小狼最爱的花。\n可以喂宠物、当诱饵。出货 45', quip: '一直朝着太阳。' },
+  item_starwheat: { name: '星光麦', tag: '作物', icon: 'item_starwheat', desc: '麦穗会发微光，星星熊仔最爱。\n可以喂宠物、当诱饵。出货 60', quip: '晚上也亮晶晶。' },
+  item_seed_carrot: { name: '萝卜种子', tag: '种子', icon: 'item_seed_carrot', desc: '浇水 3 天成熟。\n在开垦好的农田上播种。', quip: '小小一粒。' },
+  item_seed_strawberry: { name: '草莓种子', tag: '种子', icon: 'item_seed_strawberry', desc: '浇水 4 天成熟。', quip: '会结红果子。' },
+  item_seed_sunflower: { name: '向日葵种子', tag: '种子', icon: 'item_seed_sunflower', desc: '浇水 5 天成熟。', quip: '会长得很高。' },
+  item_seed_starwheat: { name: '星光麦种子', tag: '种子', icon: 'item_seed_starwheat', desc: '浇水 6 天成熟。', quip: '摸起来暖暖的。' },
+  item_seed_pumpkin: { name: '南瓜种子', tag: '种子', icon: 'item_seed_pumpkin', desc: '浇水 7 天成熟。\n最值钱的作物。', quip: '耐心等等。' },
+
   item_berry: { name: '浆果', tag: '食物', icon: 'item_berry', food: 10,
     desc: '林间随手摘的小浆果。\n饱食 +10', quip: '酸酸甜甜！' },
-  item_carrot: { name: '萝卜', tag: '食物', icon: 'item_carrot', food: 15,
-    desc: '脆生生的萝卜，橡果刺猬最爱。\n饱食 +15', quip: '咔嚓咔嚓～' },
+  item_carrot: { name: '萝卜', tag: '作物', icon: 'item_carrot', food: 15,
+    desc: '脆生生的萝卜，橡果刺猬最爱。\n饱食 +15　出货 25', quip: '咔嚓咔嚓～' },
   item_berry_roast: { name: '烤浆果', tag: '食物', icon: 'item_berry_roast', food: 20, heal: 5,
     desc: '在营火旁烤得软软的浆果。\n饱食 +20　生命 +5', quip: '暖乎乎的。' },
   item_fish_roast: { name: '烤鱼', tag: '食物', icon: 'item_fish_roast', food: 30, heal: 10,

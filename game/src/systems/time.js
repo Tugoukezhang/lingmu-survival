@@ -105,6 +105,7 @@ export class GameClock {
 }
 
 import { bump } from './guide.js';
+import { settleShipping, growCrops } from './farm.js';
 
 // ---------- daily settlement ----------
 // Order from docs/00 第 3 节: shipping → crops → pet work → home resources →
@@ -119,8 +120,8 @@ export const SETTLEMENT_STEPS = [
     if (s.flags) bump(s, 'sleeps');
     return ['睡了个好觉：生命回满，饱食 −20，伙伴们也恢复了精神'];
   } },
-  { id: 'shipping', name: '出货结算', run: () => [] },     // T11
-  { id: 'crops', name: '作物生长', run: () => [] },        // T11
+  { id: 'shipping', name: '出货结算', run: (s) => (s.farm ? settleShipping(s) : []) },   // T11
+  { id: 'crops', name: '作物生长', run: (s) => (s.farm ? growCrops(s) : []) },             // T11
   { id: 'petWork', name: '宠物打工', run: () => [] },      // T12
   { id: 'resources', name: '刷新家园资源', run: () => [] },
   { id: 'weather', name: '天气', run: () => [] },

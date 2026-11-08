@@ -41,6 +41,8 @@ export default {
     this.blocked = this.walk.map((r) => r.map(() => false));
     this.spawnTile = { x: Math.floor(cx), y: Math.floor(cy) };
     this.meadowTile = { x: Math.floor(cx) - 7, y: Math.floor(cy) + 2 };
+    // the farm field (T11): right-below the spawn, boxes on its right edge
+    this.farmRect = { x: this.spawnTile.x + 4, y: this.spawnTile.y + 2, w: 6, h: 4 };
   },
 
   // Expedition island from the saved seed, minus what was already taken.
@@ -205,7 +207,8 @@ export default {
 
     const reserved = (x, y) => Math.hypot(x - this.spawnTile.x, y - this.spawnTile.y) < 3.5
       || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2
-      || Math.hypot(x - this.dockTile.x, y - this.dockTile.y) < 2.5;
+      || Math.hypot(x - this.dockTile.x, y - this.dockTile.y) < 2.5
+      || (x >= this.farmRect.x - 1 && x <= this.farmRect.x + this.farmRect.w + 1 && y >= this.farmRect.y - 1 && y <= this.farmRect.y + this.farmRect.h);
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
     const forest = valueNoise2D(SEED + 23, 5);
     for (let y = 1; y < this.rows - 1; y++) {
@@ -223,6 +226,7 @@ export default {
         }
       }
     }
+    this.placeFarm();
   },
 
   placeExpeditionProps() {

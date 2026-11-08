@@ -448,7 +448,7 @@ try {
     `day ${dayBefore}→${woke.day} clock ${woke.clock} hp ${woke.hp} / ${await toastText()}`);
   await page.screenshot({ path: join(OUT, '23-woke.png') });
   const afterFaint = await page.evaluate(() => ({ inv: window.__game.session.state.inventory, bag: window.__game.session.state.expedition.lostBag }));
-  check('E08 倒下：只留工具，其余进失物包，总数不变', afterFaint.inv.every((s) => ['item_axe', 'item_pickaxe'].includes(s.id)) && !!afterFaint.bag
+  check('E08 倒下：只留工具，其余进失物包，总数不变', afterFaint.inv.every((s) => ['item_axe', 'item_pickaxe', 'item_hoe', 'item_can', 'item_tent'].includes(s.id)) && !!afterFaint.bag
     && totalOf(afterFaint.inv) + totalOf(afterFaint.bag.items) === totalOf(invBefore), `${totalOf(invBefore)} → ${totalOf(afterFaint.inv)} + ${totalOf(afterFaint.bag?.items ?? [])}`);
   // E09: warning before abandoning the lost bag
   await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.dock.x, sc.dock.y + 20); });
@@ -704,6 +704,69 @@ try {
   check('设置里可以关闭新手目标', await page.evaluate(() => !window.__game.scene.getScene('ui').guideBox.visible));
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(400);
+
+  // ---------- farming (T11) ----------
+  const sleepNight = async () => {
+    const d0 = (await state()).day;
+    await scene(() => { const sc = window.__game.scene.getScene('play'); if (sc.state.clock < 24 * 60) sc.debugAdvance(24 * 60 - sc.state.clock); });
+    await page.waitForFunction((dd) => window.__game.session.state.day > dd && window.__game.scene.getScene('ui').stack.names.includes('summary'), d0, { timeout: 8000 });
+    const lines = await page.evaluate(() => window.__game.scene.getScene('ui').stack.names);
+    await page.waitForTimeout(200);
+    await page.evaluate(() => window.__game.scene.getScene('ui').stack.clear());
+    await page.waitForTimeout(250);
+    return lines;
+  };
+  await page.evaluate(() => { window.__game.registry.set({ clover: 200, hp: 100, hunger: 100 }); });
+  // seed stand
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.seedSpot.x + 48, sc.seedSpot.y); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('农田旁的种子摊按互动打开', (await ui()).stack.join() === 'seedshop', (await ui()).stack.join());
+  const seedsBefore = await inv('item_seed_carrot');
+  await tapTarget('buy-carrot-5');
+  check('买 5 包萝卜种子：种子 +5、四叶草 −50', (await inv('item_seed_carrot')) === seedsBefore + 5 && (await reg('clover')) === 150, `种子 ${await inv('item_seed_carrot')} 四叶草 ${await reg('clover')}`);
+  await page.screenshot({ path: join(OUT, '49-seed-shop.png') });
+  await tapTarget('close');
+  // till → plant → water
+  const plotKey = await scene(() => window.__game.scene.getScene('play').standOnPlot(0));
+  await page.waitForTimeout(250);
+  const verb0 = await page.evaluate(() => window.__game.scene.getScene('ui').actionLabel.text);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  const tilled = await page.evaluate((k) => window.__game.session.state.farm.plots[k]?.tilled, plotKey);
+  check('站在农田上：按钮显示「开垦」，按下开垦', verb0 === '开垦' && tilled, `${verb0} ${tilled}`);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('开垦后按互动 → 选种子', (await ui()).stack.join() === 'seeds');
+  await page.screenshot({ path: join(OUT, '50-seed-pick.png') });
+  await tapTarget('plant-item_seed_carrot');
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  const plot1 = await page.evaluate((k) => window.__game.session.state.farm.plots[k], plotKey);
+  check('种下萝卜并浇水', plot1.crop === 'carrot' && plot1.watered, JSON.stringify(plot1));
+  await page.screenshot({ path: join(OUT, '51-planted.png') });
+  // three watered nights → ripe
+  for (let d = 0; d < 3; d++) {
+    if (d > 0) { await scene(() => window.__game.scene.getScene('play').standOnPlot(0)); await page.waitForTimeout(200); await page.keyboard.press('KeyE'); await page.waitForTimeout(250); }
+    await sleepNight();
+  }
+  const plot3 = await page.evaluate((k) => window.__game.session.state.farm.plots[k], plotKey);
+  check('浇水睡觉 3 天：萝卜成熟', plot3.days === 3, JSON.stringify(plot3));
+  await scene(() => window.__game.scene.getScene('play').standOnPlot(0));
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(OUT, '52-ripe.png') });
+  const carrots0 = await inv('item_carrot');
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  check('收获萝卜', (await inv('item_carrot')) === carrots0 + 1);
+  // ship and get paid next morning
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.shipSpot.x + 48, sc.shipSpot.y); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  const carrotsNow = await inv('item_carrot');
+  await tapTarget('ship-item_carrot');
+  await page.screenshot({ path: join(OUT, '53-shipping.png') });
+  await tapTarget('close');
+  const clover1 = await reg('clover');
+  await sleepNight();
+  check('出货的萝卜第二天结算成四叶草（每根 25）', (await reg('clover')) === clover1 + 25 * carrotsNow, `${clover1} → ${await reg('clover')} (${carrotsNow} 根)`);
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });

@@ -25,6 +25,8 @@ import * as NI from '../game/src/systems/night.js';
 import * as CP from '../game/src/systems/camp.js';
 import * as EX from '../game/src/systems/explore.js';
 import * as GD from '../game/src/systems/guide.js';
+import * as FM from '../game/src/systems/farm.js';
+import { CROPS, PRICES } from '../game/src/data/crops.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -143,7 +145,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('没有存档时开新档', fresh.source === 'new' && !fresh.problem && S.validate(fresh.state).length === 0, S.validate(fresh.state).join());
   const st = fresh.state;
   eq('新档版本号', st.version, S.SAVE_VERSION);
-  check('新档：6 只宠物，队伍 3 只（冰蓝小狼领头），背包 6 种物品（含食物）', st.pets.length === 6 && st.party.length === 3 && st.party[0] === 'pet-pup' && st.inventory.length === 6);
+  check('新档：6 只宠物，队伍 3 只（冰蓝小狼领头），背包 9 种物品（含食物、锄头、水壶、萝卜种子）', st.pets.length === 6 && st.party.length === 3 && st.party[0] === 'pet-pup' && st.inventory.length === 9);
   check('存档里不存属性值（永远现算）', !('stats' in st.pets[0]) && !('atk' in st.pets[0]));
 
   st.clover = 345; st.day = 3; st.player.x = 500; st.player.y = 420;
@@ -431,7 +433,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('配方数值与文档一致（石斧 木3石2、石镐 木3石3、火把 木2草2、营火 木4石4、草编网 草3木2、藤编网 布1草3雾晶1）',
     JSON.stringify(RECIPES.map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
       ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }]]));
-  check('只有斧、镐、帐篷算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).join() === 'item_axe,item_pickaxe,item_tent');
+  check('只有斧、镐、锄头、水壶、帐篷算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).sort().join() === 'item_axe,item_can,item_hoe,item_pickaxe,item_tent');
 
   const mk = (inv) => { const s = S.newGameState(); s.inventory = inv; s.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; s.player.area = 'expedition'; return s; };
   let s = mk([]);
@@ -883,6 +885,55 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('保护期倒下照常第二天 8:00 醒来、生命 50', a.day === 4 && a.clock === 480 && a.player.hp === 50);
   const b = mk(4); TR.faint(b, { x: 1, y: 1 });
   check('第 4 天起倒下恢复正常掉落', I.countOf(b.inventory, 'item_wood') === 0 && b.expedition.lostBag.items[0].count === 12);
+}
+
+// ---------- farming & shipping (T11) ----------
+{
+  check('5 种作物的种子、果实都是已定义的物品，果实都有出货价', Object.values(CROPS).every((c) => ITEMS[c.seed] && ITEMS[c.crop] && PRICES[c.crop] > c.seedPrice));
+  check('5 种作物正好是 5 只宠物的喜好食物（向日葵、星光麦等）', ['item_carrot', 'item_strawberry', 'item_sunflower', 'item_starwheat', 'item_pumpkin'].every((id) => PETS.some((p) => p.food === id)));
+  const s = S.newGameState();
+  const k = FM.plotKey(30, 19);
+  eq('没开垦的地：动作是开垦', FM.plotAction(s, k), 'till');
+  check('没开垦不能播种', FM.plant(s, k, 'item_seed_carrot').reason === 'not-tilled');
+  check('有锄头：开垦', FM.till(s, k).ok && FM.plotAction(s, k) === 'plant');
+  const seeds0 = I.countOf(s.inventory, 'item_seed_carrot');
+  check('播种萝卜：种子 −1', FM.plant(s, k, 'item_seed_carrot').ok && I.countOf(s.inventory, 'item_seed_carrot') === seeds0 - 1 && FM.plotAction(s, k) === 'water');
+  check('同一块地不能种两次', FM.plant(s, k, 'item_seed_carrot').reason === 'occupied');
+  // 3 days: water → sleep → water → sleep (skip one day) ...
+  FM.water(s, k);
+  check('浇过水后今天不能再浇', FM.plotAction(s, k) === 'wait' && FM.water(s, k).reason === 'watered');
+  let r = T.runSettlement(s, { slept: true });
+  check('第 1 天浇了水 → 长 1 天，结算里有提示', FM.plotOf(s, k).days === 1 && r.lines.some((l) => l.includes('作物长大')));
+  r = T.runSettlement(s, { slept: true });
+  check('没浇水 → 不长，结算提示没浇水', FM.plotOf(s, k).days === 1 && r.lines.some((l) => l.includes('没浇水')));
+  FM.water(s, k); T.runSettlement(s, { slept: true });
+  FM.water(s, k); r = T.runSettlement(s, { slept: true });
+  check('萝卜浇满 3 天成熟（可以收获）', FM.ripe(FM.plotOf(s, k)) && FM.plotAction(s, k) === 'harvest' && r.lines.some((l) => l.includes('可以收获')));
+  check('成熟后不用再浇水', FM.water(s, k).reason === 'ripe');
+  const c0 = I.countOf(s.inventory, 'item_carrot');
+  check('收获：萝卜 +1，地还是开垦好的', FM.harvest(s, k).ok && I.countOf(s.inventory, 'item_carrot') === c0 + 1 && FM.plotAction(s, k) === 'plant');
+  // shipping
+  const clover0 = s.clover;
+  FM.ship(s, 'item_carrot', 1);
+  check('放进出货箱：明早结算价值 25', FM.shippingValue(s) === 25);
+  check('工具不能出货', FM.ship(s, 'item_hoe', 1).reason === 'no-price');
+  r = T.runSettlement(s, { slept: true });
+  check('出货收入正确：第二天四叶草 +25，出货箱清空', s.clover === clover0 + 25 && FM.farmOf(s).shipping.length === 0 && r.lines.some((l) => l.includes('+25')));
+  check('结算顺序：出货在作物生长之前', r.order.indexOf('shipping') < r.order.indexOf('crops'));
+  FM.ship(s, 'item_berry', 1);
+  check('从出货箱取回', FM.unship(s, 'item_berry').ok && FM.shippingValue(s) === 0);
+  // seeds
+  const cl = s.clover;
+  check('种子摊买南瓜种子：四叶草 −30', FM.buySeed(s, 'pumpkin', 1).ok && s.clover === cl - 30 && I.countOf(s.inventory, 'item_seed_pumpkin') === 1);
+  s.clover = 5;
+  check('四叶草不够买不了', FM.buySeed(s, 'pumpkin', 1).reason === 'clover');
+  const noTool = S.newGameState(); noTool.inventory = [];
+  check('没有锄头不能开垦、没有水壶不能浇水', FM.till(noTool, k).reason === 'no-hoe' && (noTool.farm.plots[k] = { tilled: true, crop: 'carrot', days: 0, watered: false }, FM.water(noTool, k).reason === 'no-can'));
+  check('农田存档合法', S.validate(s).length === 0, S.validate(s).join());
+  // save migration 1 → 2
+  const v1 = { ...S.newGameState(), version: 1 }; delete v1.farm; v1.inventory = v1.inventory.filter((x) => !['item_hoe', 'item_can', 'item_seed_carrot'].includes(x.id));
+  const mig = S.decode(S.encode(v1));
+  check('旧存档（版本 1）读入时自动迁移：加上农田、锄头、水壶、萝卜种子', mig.ok && mig.state.version === 2 && mig.state.farm && ['item_hoe', 'item_can', 'item_seed_carrot'].every((id) => mig.state.inventory.some((x) => x.id === id)), JSON.stringify(mig.reason ?? ''));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

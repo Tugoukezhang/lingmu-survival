@@ -57,13 +57,20 @@ export default {
         act: () => this.game.events.emit('camp-request', this.campInfo(s.f.id)) });
     }
     for (const c of this.island?.chests ?? []) {
-      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, verb: '打开', label: c.bonus ? '秘密宝箱 · 点互动打开' : '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
+      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, verb: '打开', prio: 30, label: c.bonus ? '秘密宝箱 · 点互动打开' : '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
     }
     for (const t of this.island?.thorns ?? []) {
       spots.push({ at: { x: t.tx * TILE + TILE / 2, y: t.ty * TILE + TILE / 2 }, verb: '开路', label: EX.canClear(this.state) ? '荆棘丛 · 让橡果刺猬开路' : '荆棘丛 · 要橡果刺猬才能开路', tagY: 52, act: () => this.tryClearThorn(t) });
     }
+    if (this.shipSpot) spots.push({ at: this.shipSpot, verb: '出货', label: '出货箱 · 放进去的东西明早换成四叶草', tagY: 64, act: () => this.game.events.emit('ship-request') });
+    if (this.seedSpot) spots.push({ at: this.seedSpot, verb: '买种子', label: '种子摊 · 买种子', tagY: 60, act: () => this.game.events.emit('seedshop-request') });
+    const plotSpot = this.farmSpot?.();
+    if (plotSpot) spots.push(plotSpot);
     if (this.storageSpot) spots.push({ at: this.storageSpot, verb: '仓库', label: '仓库 · 点互动打开', tagY: 60, act: () => this.game.events.emit('storage-request') });
-    let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
+    // the closest spot in range wins (a plot under your feet beats the box next to it)
+    let spot = null, bestD = INTERACT_RANGE;
+    // prio: things worth more (a chest) win over things next to them (its thorns)
+    for (const s of spots) { const d = Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y); if (d < INTERACT_RANGE && d - (s.prio ?? 0) < bestD) { bestD = d - (s.prio ?? 0); spot = s; } }
     if (!spot && this.island) spot = this.nearestResourceSpot();
     if (spot) {
       this.setActionVerb(spot.verb ?? '互动');

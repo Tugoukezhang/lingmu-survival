@@ -11,7 +11,7 @@ import { PETS, PET_BY_ID } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { createStarter } from './petMath.js';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;   // 2: farm (T11)
 export const KEYS = { main: 'lingmu.save.main', backup: 'lingmu.save.backup', future: 'lingmu.save.future' };
 export const PARTY_MAX = 3;
 
@@ -36,7 +36,11 @@ export function newGameState({ now = Date.now(), seed = 20261108 } = {}) {
       { id: 'item_berry', count: 5 },
       { id: 'item_carrot', count: 2 },
       { id: 'item_fish_roast', count: 1 },
+      { id: 'item_hoe', count: 1 },
+      { id: 'item_can', count: 1 },
+      { id: 'item_seed_carrot', count: 6 },
     ],
+    farm: { plots: {}, shipping: [] },
     pets,
     party: ['pet-pup', 'pet-fox', 'pet-acorn'],
     expedition: null, // { seed, biome, changes: {...} } while on an expedition island (T05)
@@ -67,6 +71,9 @@ export function validate(s) {
   const ex = s.expedition;
   if (ex != null && !(Number.isInteger(ex.seed) && ex.changes && ['collected', 'chests', 'pets'].every((k) => Array.isArray(ex.changes[k])))) err.push('expedition');
   if (ex?.changes?.thorns != null && !Array.isArray(ex.changes.thorns)) err.push('expedition.thorns');
+  const fm = s.farm;
+  if (fm != null && !(fm.plots && typeof fm.plots === 'object' && Array.isArray(fm.shipping) && fm.shipping.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0)
+    && Object.values(fm.plots).every((p) => typeof p.tilled === 'boolean' && isInt(p.days) && p.days >= 0))) err.push('farm');
   if (s.storage != null && !(Array.isArray(s.storage) && s.storage.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0))) err.push('storage');
   if (ex?.fires != null && !(Array.isArray(ex.fires) && ex.fires.every((f) => typeof f.id === 'string' && isInt(f.tx) && isInt(f.ty) && Number.isFinite(f.until)))) err.push('expedition.fires');
   const lb = ex?.lostBag;
@@ -79,7 +86,14 @@ export function validate(s) {
 // ---------- migrations ----------
 // MIGRATIONS[n] turns a version-n save into version n+1. Add one entry per
 // format change and bump SAVE_VERSION; never edit an old entry.
-export const MIGRATIONS = {};
+export const MIGRATIONS = {
+  // 1 → 2 (T11 farming): empty farm, and the hoe, watering can and some carrot seeds
+  1: (d) => {
+    const inv = [...d.inventory];
+    for (const [id, n] of [['item_hoe', 1], ['item_can', 1], ['item_seed_carrot', 6]]) if (!inv.some((s) => s.id === id)) inv.push({ id, count: n });
+    return { ...d, inventory: inv, farm: { plots: {}, shipping: [] } };
+  },
+};
 
 export function migrate(data, migrations = MIGRATIONS, target = SAVE_VERSION) {
   let d = data;
