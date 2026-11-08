@@ -15,8 +15,8 @@
     "06_home.jpg",
     "07_world_map.jpg"
   ],
-  "rule": "One output = one graphic component, transparent RGBA, same content and shape as original screenshot; no full atlas, mock dashboard, unrequested ornament. Review at native on-screen dimensions. Split text. Never replace production until verified.",
-  "workflow": "Strict one-to-one input: first crop ONLY ONE target item from source screenshot at source resolution, then feed that item crop alone to GPT Image. Do NOT feed full screenshot, multi-asset sheet, dashboard, unrelated images or multiple output requests. Check transparency and in-game-scale fidelity, upload review candidate only; do not modify production until QA passes. Existing notes and counts are authoritative.",
+  "rule": "One output = one graphic component with transparent RGBA, clear original functional identity/shape and palette, user-approved artistic quality (not 100% pixel reproduction), no multi-asset atlas or unrequested UI. Review at on-screen dimensions. Split text; only promote after real QA.",
+  "workflow": "Strict single-element input; isolate ONE source crop per target, no full screen/atlas to generator. Preserve silhouette/function/base palette, but allow tasteful painterly polish consistent with praised two-person avatar. Inspect alpha/readability at game scale, store honest candidate and QA state; do not modify production without QA. Existing counts remain authoritative.",
   "counts": {
     "other_total": 97,
     "other_queue_remaining": 96,
@@ -284,10 +284,11 @@
       "title": "右下相机",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "bottom_Q.png",
-      "state": "pending",
+      "state": "brief_prepared_crop_needed",
       "approval": "pending",
-      "notes": "圆形半拟物按钮，键位Q独立",
-      "existing_candidate": null
+      "notes": "圆形半拟物相机按钮（米白机身、蓝灰顶部、棕色同心镜头、右下金黄星星、半透明圆环），Q键位文字独立。用户不要求100%复刻，允许精致手绘优化。原图源可查但此轮暂未能将真实单件裁图传入图像生成工具；不可冒称已经出图。",
+      "existing_candidate": null,
+      "review_brief": "Reviews/Q_camera_single_asset_brief.md"
     },
     {
       "queue_number": "HUD-09",
@@ -1798,6 +1799,13 @@
       "counted_as_complete": false,
       "qa_passed": false,
       "next": "main_bottom_Q"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "main_bottom_Q",
+      "action": "prepared_single_camera_brief; artistic_fidelity_qa_updated",
+      "result": "source original reviewed; single-item brief committed; crop-to-generator transfer pending, no new Q PNG/QA yet",
+      "counts_changed": false
     }
   ],
   "current_focus": "main_bottom_Q",
@@ -1822,5 +1830,5 @@
     ],
     "generate_sole_target_not_template": true
   },
-  "draw_protocol_version": "strict_one_crop_shape_color_negative_constraints_v2"
+  "draw_protocol_version": "user_quality_fidelity_2026_11_08"
 }
