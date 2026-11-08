@@ -252,31 +252,31 @@
       "approval": "pending",
       "notes": "与原截图保持几何造型",
       "existing_candidate": null,
-      "gpt_image_attempts": 1,
-      "last_failure_reason": "One GPT Image output rendered unrelated highly decorated backpack despite single P avatar crop; rejected; no GPT Image final handpaint candidate.",
+      "gpt_image_attempts": 3,
+      "last_failure_reason": "Generated a two-person group portrait and later a template infographic, instead of the single ivory mascot face icon.",
       "source_crop": {
-        "source": "05_gameplay_hud.jpg",
+        "reference": "05_gameplay_hud.jpg",
         "image_size": [
           1920,
           1080
         ],
         "bbox_xyxy": [
-          1804,
-          49,
-          1884,
-          122
+          1801,
+          47,
+          1896,
+          111
         ],
-        "artifact": "Reviews/P_original_single_crop_80x73.png",
-        "key_label_separate": "P",
-        "notes": "Source image contains the icon composited over striped game scene; transparent original is unavailable."
+        "path": "Reviews/P_original_crop_95x64.png"
       },
-      "fidelity_candidate": "PNG_Transparent/00_gameplay/P_avatar_single_manual_fidelity_v1_512.png",
-      "fidelity_candidate_kind": "independently path-retraced SVG rendered into 96-color transparent PNG, not GPT Image output",
+      "fidelity_candidate": "PNG_Transparent/00_gameplay/P_mascot_shape_locked_review_512.png",
+      "fidelity_candidate_kind": "PIL texture/opacity adjustment of existing V2, not independently painted GPT Image",
       "fidelity_candidate_sha256": "f58cbd9e7b4a0416396e5a6f0e567198e054d30adfbc5ca2777aa04963255e10",
-      "review_comparison": "Reviews/P_original_vs_manual_fidelity_review.jpg",
+      "review_comparison": "Reviews/P_draft_comparison.jpg",
       "candidate_qa": "pending",
       "gpt_image_qa_passed": false,
-      "production_promoted": false
+      "production_promoted": false,
+      "fidelity_sha256": "8ba6afca3a9edf494cf6df1f7cafe67c573222b1e96a972ce963e13672d00d5a",
+      "prompt_spec": "P_precise_prompt_and_QA.json"
     },
     {
       "queue_number": "HUD-08",
@@ -1790,6 +1790,14 @@
       "production_replaced": false,
       "sha256": "f58cbd9e7b4a0416396e5a6f0e567198e054d30adfbc5ca2777aa04963255e10",
       "next": "main_bottom_Q"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_P",
+      "result": "exact 4-part spec + single crop + P reference draft, GPT Image twice rejected",
+      "counted_as_complete": false,
+      "qa_passed": false,
+      "next": "main_bottom_Q"
     }
   ],
   "current_focus": "main_bottom_Q",
@@ -1804,6 +1812,15 @@
       "Request exactly one isolated sprite, transparent background, original proportions/color/line weight; no decorations or new backing card, no text burned into icon when separate text layer exists.",
       "Compare output to crop and actual in-game display size, reject incorrect shape/extra elements, log failure; only passed candidates may be promoted to production."
     ],
-    "output": "individual transparent RGBA PNG + exact crop reference + comparison + checksum + honest QA metadata"
-  }
+    "output": "individual transparent RGBA PNG + exact crop reference + comparison + checksum + honest QA metadata",
+    "must_document": [
+      "precise single identity",
+      "silhouette and exact part counts",
+      "original colors and translucent alpha",
+      "explicit forbidden details",
+      "native displayed size"
+    ],
+    "generate_sole_target_not_template": true
+  },
+  "draw_protocol_version": "strict_one_crop_shape_color_negative_constraints_v2"
 }

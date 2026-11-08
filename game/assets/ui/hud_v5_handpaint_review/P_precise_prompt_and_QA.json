@@ -1,0 +1,57 @@
+{
+  "asset_id": "main_top_P",
+  "file_target": "top_P.png",
+  "source": "05_gameplay_hud.jpg",
+  "source_size": [
+    1920,
+    1080
+  ],
+  "bbox": [
+    1801,
+    47,
+    1896,
+    111
+  ],
+  "single_crop": "Reviews/P_original_crop_95x64.png",
+  "geometry": [
+    "One rounded ivory face with tiny ear-like top bumps",
+    "Exactly two vertical gray oval eyes, nothing else on the face",
+    "One small detached ivory oval below face",
+    "Two pale four-point diamond sparkles on right; no solid background"
+  ],
+  "colors": {
+    "face": "#F9F9F1",
+    "stroke": "#C8C6BF",
+    "eyes": "#B6B6AF",
+    "sparkle": "#FDFDF5",
+    "shadows": "#E8E6DF",
+    "opacity": "V2 alpha approximately 205–235/255; source compositing must be checked"
+  },
+  "prohibited": [
+    "No group portrait, humans, hair or clothing",
+    "No leather, gold frame, leaves, flowers, blue ribbon, ornaments",
+    "No square backing plate, no extra symbols, no text, no baked P label",
+    "No red striped original screenshot background",
+    "No template infographic or dashboard"
+  ],
+  "output": {
+    "mode": "RGBA",
+    "size": [
+      512,
+      512
+    ],
+    "one_icon": true,
+    "key_letter": "separate"
+  },
+  "results": {
+    "gpt_image_attempts": 2,
+    "failures": [
+      "Unrelated group of two people",
+      "Instructional infographic instead of P icon"
+    ],
+    "passed": false
+  },
+  "geometry_locked_reference": "PNG_Transparent/00_gameplay/P_mascot_shape_locked_review_512.png",
+  "reference_kind": "PIL texture/opacity adjustment of existing V2, not independently painted GPT Image",
+  "approved": false
+}
