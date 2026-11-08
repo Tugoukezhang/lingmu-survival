@@ -1381,7 +1381,16 @@
       "review_bundle_library": "/Lingmu_HUD_Exports/Activity_Notification_Dot_Single_Review/notification_orange_dot_review_bundle.zip",
       "manifest_library": "/Lingmu_HUD_Exports/Activity_Notification_Dot_Single_Review/manifest.json",
       "last_generation_note": "GPT Image single attempt produced an ornate labelled infographic with a glossy orange dot rather than a standalone transparent sprite; rejected. Separately created independent simple handpaint-style raster dot with source-aligned palette.",
-      "production_promoted": false
+      "production_promoted": false,
+      "review_alternates": [
+        {
+          "key": "v4_single_alternative_20261108",
+          "qa_file": "Reviews/notification_orange_dot_alt_v4_20261108/QA.json",
+          "candidate": "Reviews/notification_orange_dot_alt_v4_20261108/notification_orange_dot_painterly_alt_1024.png",
+          "sha256": "0fe6eefe4de83cf65d601e2d1cbba84b5d091d2bb587368e3bb89e78cf56af73",
+          "state": "unapproved_v4_fallback_not_counted"
+        }
+      ]
     },
     {
       "queue_number": 25,
@@ -2746,6 +2755,17 @@
       "approved": 0,
       "counted_as_complete": false,
       "candidate_sha256": "8becd3c74c269a465c6731fb3a945ad555572d507c9a7671c291445edf4df413",
+      "next": "other96/activity/reward_card_normal"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/activity/notification_orange_dot",
+      "key": "v4_single_alternative_20261108",
+      "action": "Archival of V4-only alternate orange notification dot candidate; Gpt Image question-icon failure rejected",
+      "result": "RGB/source hue adjusted to independently source-measured orange; single transparent 1024 PNG and QA preview archived. Original crop unavailable for this branch. Existing source-based candidate and production untouched.",
+      "created_candidates": 0,
+      "approved": 0,
+      "counted_as_complete": false,
       "next": "other96/activity/reward_card_normal"
     }
   ],

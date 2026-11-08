@@ -1,0 +1,60 @@
+{
+  "task_id": "other96/activity/notification_orange_dot",
+  "version": "v4-fallback-painterly-alt-1",
+  "date": "2026-11-08",
+  "reference_identity": "V4 isolated notification_orange_dot SVG, not a screenshot crop",
+  "reference_path": "game/assets/ui/hud_extra_five_screens/SVG_Editable/03_activity/notification_orange_dot.svg",
+  "original_screenshot": "03_活动大厅(4).jpg / 03_activity.jpg",
+  "original_screenshot_crop_available_this_run": false,
+  "original_bbox_reported_by_concurrent_queue": [
+    362,
+    611,
+    408,
+    656
+  ],
+  "bbox_source": "current GitHub queue metadata, not directly cropped in this run",
+  "design_target": "Single small orange notification marker, no text, rim plate or question glyph",
+  "dominant_hue": "coral orange near #F9773D per concurrent queue source-match note",
+  "alternate_to_existing_source_based_candidate": true,
+  "candidate_png": "Reviews/notification_orange_dot_alt_v4_20261108/notification_orange_dot_painterly_alt_1024.png",
+  "resolution": [
+    1024,
+    1024
+  ],
+  "mode": "RGBA",
+  "sha256": "0fe6eefe4de83cf65d601e2d1cbba84b5d091d2bb587368e3bb89e78cf56af73",
+  "bytes": 203223,
+  "alpha_coverage": {
+    "transparent": 0.8028898239135742,
+    "partial": 0.0025205612182617188,
+    "opaque": 0.19458961486816406
+  },
+  "checks": {
+    "component_count": 1,
+    "small_scale_test_px": [
+      12,
+      16,
+      24,
+      32,
+      48,
+      64
+    ],
+    "alpha_check": "pass",
+    "visual_identity": "pass as orange dot",
+    "original_screenshot_match": "not verified",
+    "in_engine": "not tested"
+  },
+  "image_generation": {
+    "gpt_image_attempts": 1,
+    "accepted": 0,
+    "rejected": "Ornate dark question-mark medallion, previous-task contamination",
+    "alternate_process": "independent controlled painterly RGBA raster"
+  },
+  "state": "secondary_candidate_unapproved_not_counted",
+  "art_qa": "pending",
+  "game_qa": "pending",
+  "production_replaced": false,
+  "comparison": "Reviews/notification_orange_dot_alt_v4_20261108/notification_orange_dot_comparison.jpg",
+  "reference_png": "Reviews/notification_orange_dot_alt_v4_20261108/notification_dot_v4_single_reference.png",
+  "note": "Another run generated a first source-based notification-dot candidate and advanced current_focus before this archival commit. Preserve original source-based candidate, queue counts and focus."
+}
