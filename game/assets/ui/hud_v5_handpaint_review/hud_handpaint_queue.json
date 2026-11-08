@@ -1802,12 +1802,18 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/tab_documents.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "deferred_two_wrong_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": "V3 isolated reconstructed SVG fallback only; original screenshot inaccessible, image binding unverified",
+      "notes": "",
+      "candidate_count": 0,
+      "original_screenshot_bbox_verified": false,
+      "production_promoted": false,
+      "qa": "Reviews/inventory_tab_documents_failed_20261108/QA.json",
+      "last_failure_reason": "Both attempts generated blue-gray wooden badge with separate cream paper page and right folded corner instead of original V3 pastel-peach badge with simple dark folded-booklet outline. Color/silhouette mismatch; no accepted candidate.",
+      "source_reference_fallback": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_documents.svg"
     },
     {
       "queue_number": 38,
@@ -3138,9 +3144,21 @@
       "reference_kind": "V3 repository single SVG fallback",
       "qa_path": "Reviews/inventory_tab_clothing_failed_20261108/QA.json",
       "next": "other96/inventory/tab_documents"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/inventory/tab_documents",
+      "action": "Two single-item painterly generation attempts after inspecting isolated V3 reference; authentic screenshot Library path missing",
+      "result": "Both rejected (wrong palette, functional silhouette, unintended parchment fill). QA JSON saved on GitHub; full failed images+comparison in sandbox zip, no accepted candidate, production untouched.",
+      "generated": 2,
+      "rejected": 2,
+      "approved": 0,
+      "production_replaced": false,
+      "qa_path": "Reviews/inventory_tab_documents_failed_20261108/QA.json",
+      "next": "other96/inventory/tab_plants"
     }
   ],
-  "current_focus": "other96/inventory/tab_documents",
+  "current_focus": "other96/inventory/tab_plants",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
@@ -3180,7 +3198,8 @@
     "activity/reward_shell_only",
     "other96/activity/activity_card_rope",
     "other96/inventory/detail_wood_panel",
-    "other96/inventory/tab_clothing"
+    "other96/inventory/tab_clothing",
+    "other96/inventory/tab_documents"
   ],
   "deferred_retry_policy": "Skip prior failed icon image-generation attempts until all never-attempted HUD/other remaining queue items receive first candidates; preserve their failed status and revisit at end. Do not count them as approved.",
   "generation_target_integrity_protocol": {
