@@ -1,0 +1,986 @@
+{
+  "title": "Lingmu HUD individually GPT Image created assets",
+  "total": 97,
+  "preexistingFirstCandidate": "activity/reward_shell_only",
+  "userRequestedToFinish": 96,
+  "individual_candidates_on_github": 10,
+  "additionally_recovered_candidates": 9,
+  "still_needing_individual_images": 87,
+  "qa_passed": 0,
+  "production_replaced": 0,
+  "production_directory": "game/assets/ui/hud_v4/production",
+  "review_directory": "game/assets/ui/hud_v5_handpaint_review",
+  "process": "one screenshot-faithful GPT Image output per target, transparent edge clean-up, compare at real display size, approve, upload; never promote sheet crops, SVG rasterizations, or duplicate icons",
+  "items": [
+    {
+      "index": 1,
+      "id": "title/music",
+      "target_png": "PNG_Transparent/01_title/music.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": "Title right-side overlay icon; translucent white/cream outline."
+    },
+    {
+      "index": 2,
+      "id": "title/settings",
+      "target_png": "PNG_Transparent/01_title/settings.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": "Title right-side overlay icon; translucent white/cream outline."
+    },
+    {
+      "index": 3,
+      "id": "title/announcement",
+      "target_png": "PNG_Transparent/01_title/announcement.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": "Title right-side overlay icon; translucent white/cream outline."
+    },
+    {
+      "index": 4,
+      "id": "title/support",
+      "target_png": "PNG_Transparent/01_title/support.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": "Title right-side overlay icon; translucent white/cream outline."
+    },
+    {
+      "index": 5,
+      "id": "title/left_chevrons",
+      "target_png": "PNG_Transparent/01_title/left_chevrons.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "title adventure button flanking chevrons"
+    },
+    {
+      "index": 6,
+      "id": "title/right_chevrons",
+      "target_png": "PNG_Transparent/01_title/right_chevrons.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "title adventure button flanking chevrons"
+    },
+    {
+      "index": 7,
+      "id": "title/start_pill",
+      "target_png": "PNG_Transparent/01_title/start_pill.png",
+      "target_resolution": "1640x400",
+      "reference": "01_标题页(1).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": "Blank start button; add editable text in engine."
+    },
+    {
+      "index": 8,
+      "id": "title/age_12_badge",
+      "target_png": "PNG_Transparent/01_title/age_12_badge.png",
+      "target_resolution": "1024x1024",
+      "reference": "01_标题页(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Age rating. If text should remain dynamic, use text-free version."
+    },
+    {
+      "index": 9,
+      "id": "title/logo_chinese_fallback",
+      "target_png": "PNG_Transparent/01_title/logo_chinese_fallback.png",
+      "target_resolution": "2000x700",
+      "reference": "01_标题页(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Approximate editable wordmark; original stylized calligraphy cannot be pixel-extracted here."
+    },
+    {
+      "index": 10,
+      "id": "shared/close_wood",
+      "target_png": "PNG_Transparent/00_common/close_wood.png",
+      "target_resolution": "1024x1024",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Wood-and-cream close icon with small leaves/flower."
+    },
+    {
+      "index": 11,
+      "id": "shared/back_wood",
+      "target_png": "PNG_Transparent/00_common/back_wood.png",
+      "target_resolution": "1024x1024",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Back arrow circular wood/cream and leaves."
+    },
+    {
+      "index": 12,
+      "id": "shared/question_dark",
+      "target_png": "PNG_Transparent/00_common/question_dark.png",
+      "target_resolution": "1024x1024",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 13,
+      "id": "shared/flower_decoration",
+      "target_png": "PNG_Transparent/00_common/flower_decoration.png",
+      "target_resolution": "1024x1024",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 14,
+      "id": "activity/nav_bar_base",
+      "target_png": "PNG_Transparent/03_activity/nav_bar_base.png",
+      "target_resolution": "2000x440",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 15,
+      "id": "activity/nav_hourglass_white",
+      "target_png": "PNG_Transparent/03_activity/nav_hourglass_white.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "White compact nav glyph, no background."
+    },
+    {
+      "index": 16,
+      "id": "activity/nav_home_white",
+      "target_png": "PNG_Transparent/03_activity/nav_home_white.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "White compact nav glyph, no background."
+    },
+    {
+      "index": 17,
+      "id": "activity/nav_book_white",
+      "target_png": "PNG_Transparent/03_activity/nav_book_white.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "White compact nav glyph, no background."
+    },
+    {
+      "index": 18,
+      "id": "activity/nav_board_white",
+      "target_png": "PNG_Transparent/03_activity/nav_board_white.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "White compact nav glyph, no background."
+    },
+    {
+      "index": 19,
+      "id": "activity/nav_active_tile",
+      "target_png": "PNG_Transparent/03_activity/nav_active_tile.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": "Cream tile used behind selected activity tab."
+    },
+    {
+      "index": 20,
+      "id": "activity/activity_list_button_normal",
+      "target_png": "PNG_Transparent/03_activity/activity_list_button_normal.png",
+      "target_resolution": "1600x380",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Text-free activity menu row."
+    },
+    {
+      "index": 21,
+      "id": "activity/activity_list_button_selected",
+      "target_png": "PNG_Transparent/03_activity/activity_list_button_selected.png",
+      "target_resolution": "1600x380",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Text-free activity menu row."
+    },
+    {
+      "index": 22,
+      "id": "activity/activity_recommendation_badge",
+      "target_png": "PNG_Transparent/03_activity/activity_recommendation_badge.png",
+      "target_resolution": "1400x720",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 23,
+      "id": "activity/event_timer_black",
+      "target_png": "PNG_Transparent/03_activity/event_timer_black.png",
+      "target_resolution": "1240x300",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 24,
+      "id": "activity/notification_orange_dot",
+      "target_png": "PNG_Transparent/03_activity/notification_orange_dot.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 25,
+      "id": "activity/reward_card_normal",
+      "target_png": "PNG_Transparent/03_activity/reward_card_normal.png",
+      "target_resolution": "840x870",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text."
+    },
+    {
+      "index": 26,
+      "id": "activity/reward_card_claimed",
+      "target_png": "PNG_Transparent/03_activity/reward_card_claimed.png",
+      "target_resolution": "840x870",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text."
+    },
+    {
+      "index": 27,
+      "id": "activity/reward_card_selected",
+      "target_png": "PNG_Transparent/03_activity/reward_card_selected.png",
+      "target_resolution": "840x870",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text."
+    },
+    {
+      "index": 28,
+      "id": "activity/reward_card_tall",
+      "target_png": "PNG_Transparent/03_activity/reward_card_tall.png",
+      "target_resolution": "760x1260",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text."
+    },
+    {
+      "index": 29,
+      "id": "activity/reward_shell_only",
+      "target_png": "PNG_Transparent/03_activity/reward_shell_only.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 30,
+      "id": "activity/activity_card_rope",
+      "target_png": "PNG_Transparent/03_activity/activity_card_rope.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 31,
+      "id": "activity/help_bubble",
+      "target_png": "PNG_Transparent/03_activity/help_bubble.png",
+      "target_resolution": "1024x1024",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 32,
+      "id": "activity/event_title_chip",
+      "target_png": "PNG_Transparent/03_activity/event_title_chip.png",
+      "target_resolution": "1900x320",
+      "reference": "03_活动大厅(4).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 33,
+      "id": "inventory/main_wood_panel",
+      "target_png": "PNG_Transparent/04_inventory/main_wood_panel.png",
+      "target_resolution": "2480x2000",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Screenshot faithful large dark brown frame and cream inset. No items or text."
+    },
+    {
+      "index": 34,
+      "id": "inventory/detail_wood_panel",
+      "target_png": "PNG_Transparent/04_inventory/detail_wood_panel.png",
+      "target_resolution": "1260x1640",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 35,
+      "id": "inventory/tab_general",
+      "target_png": "PNG_Transparent/04_inventory/tab_general.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 36,
+      "id": "inventory/tab_food",
+      "target_png": "PNG_Transparent/04_inventory/tab_food.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 37,
+      "id": "inventory/tab_clothing",
+      "target_png": "PNG_Transparent/04_inventory/tab_clothing.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 38,
+      "id": "inventory/tab_documents",
+      "target_png": "PNG_Transparent/04_inventory/tab_documents.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 39,
+      "id": "inventory/tab_plants",
+      "target_png": "PNG_Transparent/04_inventory/tab_plants.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 40,
+      "id": "inventory/slot_empty",
+      "target_png": "PNG_Transparent/04_inventory/slot_empty.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 41,
+      "id": "inventory/slot_active",
+      "target_png": "PNG_Transparent/04_inventory/slot_active.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 42,
+      "id": "inventory/use_button",
+      "target_png": "PNG_Transparent/04_inventory/use_button.png",
+      "target_resolution": "1580x520",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 43,
+      "id": "inventory/item_description_label",
+      "target_png": "PNG_Transparent/04_inventory/item_description_label.png",
+      "target_resolution": "1120x420",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 44,
+      "id": "inventory/selected_item_separator",
+      "target_png": "PNG_Transparent/04_inventory/selected_item_separator.png",
+      "target_resolution": "1600x320",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 45,
+      "id": "inventory/item_apple",
+      "target_png": "PNG_Transparent/04_inventory/item_apple.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 46,
+      "id": "inventory/item_flower",
+      "target_png": "PNG_Transparent/04_inventory/item_flower.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 47,
+      "id": "inventory/item_potion",
+      "target_png": "PNG_Transparent/04_inventory/item_potion.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 48,
+      "id": "inventory/item_map_fragment",
+      "target_png": "PNG_Transparent/04_inventory/item_map_fragment.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 49,
+      "id": "inventory/item_mushroom",
+      "target_png": "PNG_Transparent/04_inventory/item_mushroom.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 50,
+      "id": "inventory/item_bread",
+      "target_png": "PNG_Transparent/04_inventory/item_bread.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 51,
+      "id": "inventory/item_letter",
+      "target_png": "PNG_Transparent/04_inventory/item_letter.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 52,
+      "id": "inventory/item_forest_book",
+      "target_png": "PNG_Transparent/04_inventory/item_forest_book.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 53,
+      "id": "inventory/item_leaf",
+      "target_png": "PNG_Transparent/04_inventory/item_leaf.png",
+      "target_resolution": "1024x1024",
+      "reference": "04_背包(5).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+    },
+    {
+      "index": 54,
+      "id": "home/edit_tool_vertical",
+      "target_png": "PNG_Transparent/06_home/edit_tool_vertical.png",
+      "target_resolution": "636x1800",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 55,
+      "id": "home/edit_move",
+      "target_png": "PNG_Transparent/06_home/edit_move.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 56,
+      "id": "home/edit_rotate",
+      "target_png": "PNG_Transparent/06_home/edit_rotate.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 57,
+      "id": "home/edit_duplicate",
+      "target_png": "PNG_Transparent/06_home/edit_duplicate.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 58,
+      "id": "home/edit_remove",
+      "target_png": "PNG_Transparent/06_home/edit_remove.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 59,
+      "id": "home/bottom_category_bar",
+      "target_png": "PNG_Transparent/06_home/bottom_category_bar.png",
+      "target_resolution": "2980x420",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 60,
+      "id": "home/category_furniture",
+      "target_png": "PNG_Transparent/06_home/category_furniture.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 61,
+      "id": "home/category_rugs",
+      "target_png": "PNG_Transparent/06_home/category_rugs.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 62,
+      "id": "home/category_hanging",
+      "target_png": "PNG_Transparent/06_home/category_hanging.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 63,
+      "id": "home/category_wall",
+      "target_png": "PNG_Transparent/06_home/category_wall.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 64,
+      "id": "home/category_special",
+      "target_png": "PNG_Transparent/06_home/category_special.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 65,
+      "id": "home/right_furniture_panel",
+      "target_png": "PNG_Transparent/06_home/right_furniture_panel.png",
+      "target_resolution": "2320x3040",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 66,
+      "id": "home/furniture_tab_chair",
+      "target_png": "PNG_Transparent/06_home/furniture_tab_chair.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 67,
+      "id": "home/furniture_tab_nature",
+      "target_png": "PNG_Transparent/06_home/furniture_tab_nature.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 68,
+      "id": "home/furniture_tab_grid",
+      "target_png": "PNG_Transparent/06_home/furniture_tab_grid.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 69,
+      "id": "home/furniture_tab_wall",
+      "target_png": "PNG_Transparent/06_home/furniture_tab_wall.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 70,
+      "id": "home/furniture_tab_star",
+      "target_png": "PNG_Transparent/06_home/furniture_tab_star.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 71,
+      "id": "home/furniture_slot",
+      "target_png": "PNG_Transparent/06_home/furniture_slot.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 72,
+      "id": "home/furniture_slot_selected",
+      "target_png": "PNG_Transparent/06_home/furniture_slot_selected.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 73,
+      "id": "home/place_button",
+      "target_png": "PNG_Transparent/06_home/place_button.png",
+      "target_resolution": "1600x500",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 74,
+      "id": "home/save",
+      "target_png": "PNG_Transparent/06_home/save.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 75,
+      "id": "home/hide",
+      "target_png": "PNG_Transparent/06_home/hide.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 76,
+      "id": "home/currency_clover",
+      "target_png": "PNG_Transparent/06_home/currency_clover.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 77,
+      "id": "home/item_plant_pot",
+      "target_png": "PNG_Transparent/06_home/item_plant_pot.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 78,
+      "id": "home/item_flower_vase",
+      "target_png": "PNG_Transparent/06_home/item_flower_vase.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 79,
+      "id": "home/item_plant_crate",
+      "target_png": "PNG_Transparent/06_home/item_plant_crate.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 80,
+      "id": "home/item_hanging_greenery",
+      "target_png": "PNG_Transparent/06_home/item_hanging_greenery.png",
+      "target_resolution": "1024x1024",
+      "reference": "06_家园布置(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 81,
+      "id": "map/map_back",
+      "target_png": "PNG_Transparent/07_world_map/map_back.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 82,
+      "id": "map/zoom_plus",
+      "target_png": "PNG_Transparent/07_world_map/zoom_plus.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 83,
+      "id": "map/zoom_minus",
+      "target_png": "PNG_Transparent/07_world_map/zoom_minus.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 84,
+      "id": "map/zoom_rail",
+      "target_png": "PNG_Transparent/07_world_map/zoom_rail.png",
+      "target_resolution": "680x1800",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 85,
+      "id": "map/zoom_thumb",
+      "target_png": "PNG_Transparent/07_world_map/zoom_thumb.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 86,
+      "id": "map/status_bar_empty",
+      "target_png": "PNG_Transparent/07_world_map/status_bar_empty.png",
+      "target_resolution": "1600x560",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 87,
+      "id": "map/status_star",
+      "target_png": "PNG_Transparent/07_world_map/status_star.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 88,
+      "id": "map/status_leaf",
+      "target_png": "PNG_Transparent/07_world_map/status_leaf.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 89,
+      "id": "map/location_label_blank",
+      "target_png": "PNG_Transparent/07_world_map/location_label_blank.png",
+      "target_resolution": "1180x390",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Location name text intentionally omitted for engine localization."
+    },
+    {
+      "index": 90,
+      "id": "map/selected_location_marker",
+      "target_png": "PNG_Transparent/07_world_map/selected_location_marker.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "gpt_image_candidate_uploaded_not_approved",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 91,
+      "id": "map/world_area_info_panel",
+      "target_png": "PNG_Transparent/07_world_map/world_area_info_panel.png",
+      "target_resolution": "2100x1300",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": "Lower-left location information panel with text separate."
+    },
+    {
+      "index": 92,
+      "id": "map/progress_track",
+      "target_png": "PNG_Transparent/07_world_map/progress_track.png",
+      "target_resolution": "2100x480",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 93,
+      "id": "map/location_thumbnail_frame",
+      "target_png": "PNG_Transparent/07_world_map/location_thumbnail_frame.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 94,
+      "id": "map/map_faint_leaf_corner",
+      "target_png": "PNG_Transparent/07_world_map/map_faint_leaf_corner.png",
+      "target_resolution": "1024x1024",
+      "reference": "07_世界地图(1).jpg",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 95,
+      "id": "shared/blank_cream_pill",
+      "target_png": "PNG_Transparent/00_common/blank_cream_pill.png",
+      "target_resolution": "2000x440",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 96,
+      "id": "shared/badge_circle_dark",
+      "target_png": "PNG_Transparent/00_common/badge_circle_dark.png",
+      "target_resolution": "1024x1024",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    },
+    {
+      "index": 97,
+      "id": "shared/badge_circle_light",
+      "target_png": "PNG_Transparent/00_common/badge_circle_light.png",
+      "target_resolution": "1024x1024",
+      "reference": "shared across multiple screens",
+      "status": "pending_individual_gpt_image",
+      "qa": "pending",
+      "notes": ""
+    }
+  ]
+}
