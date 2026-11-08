@@ -632,12 +632,12 @@
       "source_reference": "01_标题页(1).jpg",
       "target_png": "PNG_Transparent/01_title/logo_chinese_fallback.png",
       "target_resolution": "2000x700",
-      "state": "not_generated",
-      "approval": "pending",
+      "state": "skipped_by_user_not_required",
+      "approval": "not_applicable",
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Approximate editable wordmark; original stylized calligraphy cannot be pixel-extracted here."
+      "notes": "Approximate editable wordmark; original stylized calligraphy cannot be pixel-extracted here. 用户2026-11-08明确表示中文Logo不需要做；从交付范围移除，不算制作失败，不占后续队列。"
     },
     {
       "queue_number": 10,
@@ -2031,9 +2031,16 @@
       "approved": 0,
       "counted_as_complete": false,
       "next": "other96/title/logo_chinese_fallback"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/title/logo_chinese_fallback",
+      "action": "user requested skip",
+      "result": "Chinese logo is out of scope and will not be generated; next shared/close_wood",
+      "counts_changed": false
     }
   ],
-  "current_focus": "other96/title/logo_chinese_fallback",
+  "current_focus": "other96/shared/close_wood",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
