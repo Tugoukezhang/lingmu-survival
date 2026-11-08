@@ -55,22 +55,23 @@ export function canCampSleep(state, fireId) {
 // ---------- chests ----------
 // Loot 【建议】: cloth 2–3 (the tent needs 4), two random extras, 20 clover.
 const EXTRAS = [['item_crystal', 1], ['item_wood', 4], ['item_stone', 4], ['item_berry', 4], ['item_net_grass', 1]];
-export function chestLoot(islandSeed, chestId) {
+// The thorn-guarded chest (开路) is richer: cloth 3, crystal 2 on top, 40 clover.
+export function chestLoot(islandSeed, chestId, bonus = false) {
   const rng = mulberry32((islandSeed * 53 + Number(chestId.slice(1)) * 977 + 11) >>> 0);
-  const items = { item_cloth: 2 + Math.floor(rng() * 2) };
+  const items = bonus ? { item_cloth: 3, item_crystal: 2 } : { item_cloth: 2 + Math.floor(rng() * 2) };
   const pool = [...EXTRAS];
   for (let i = 0; i < 2; i++) {
     const [id, n] = pool.splice(Math.floor(rng() * pool.length), 1)[0];
     items[id] = (items[id] ?? 0) + n;
   }
-  return { items, clover: 20 };
+  return { items, clover: bonus ? 40 : 20 };
 }
 
 // Open a chest on the current island. Returns { ok, loot } or { ok: false, reason: 'opened' | 'full' }.
-export function openChest(state, chestId) {
+export function openChest(state, chestId, { bonus = false } = {}) {
   const ch = state.expedition?.changes;
   if (!ch || ch.chests.includes(chestId)) return { ok: false, reason: 'opened' };
-  const loot = chestLoot(state.expedition.seed, chestId);
+  const loot = chestLoot(state.expedition.seed, chestId, bonus);
   if (!fits(state, loot.items)) return { ok: false, reason: 'full' };
   for (const [id, n] of Object.entries(loot.items)) addItem(state.inventory, id, n, bagSlots(state));
   state.clover += loot.clover;

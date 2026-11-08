@@ -41,11 +41,13 @@ function pickWeighted(rand, table) {
 
 const pick = (rand, list) => list[Math.floor(rand() * list.length)];
 
-// Cells blocked by remaining entities (resources that block, chests).
+// Cells blocked by remaining entities (resources that block, chests, thorns).
+// Water is separate (island.water): only a party with 航海鲨 can wade.
 export function blockedGrid(island) {
   const b = grid(ISLAND_W, ISLAND_H, false);
   for (const r of island.resources) if (BLOCKING[r.type]) b[r.ty][r.tx] = true;
   for (const c of island.chests) b[c.ty][c.tx] = true;
+  for (const t of island.thorns ?? []) b[t.ty][t.tx] = true;
   return b;
 }
 
@@ -96,6 +98,36 @@ function attempt(seed, plain) {
   const free = (x, y) => isWalk(x, y) && !reserved.has(key(x, y));
   const far = (list, x, y, gap) => list.every((o) => Math.abs(o.tx - x) + Math.abs(o.ty - y) >= gap);
 
+  // 2b. shallow ponds (docs/02 第 9 节 涉水): 1–2 small ponds inland; bigger ones
+  //     may have a tiny islet with a rare crystal only a wading party can reach
+  const water = grid(ISLAND_W, ISLAND_H, false);
+  const islets = [];
+  const pondCount = rand() < 0.35 ? 2 : 1;
+  for (let p = 0, tries = 0; p < pondCount && tries < 60; tries++) {
+    const [px, py] = pick(rand, best);
+    if (dist[py][px] < 7) continue;
+    const prx = 1.6 + rand() * 1.2, pry = 1.2 + rand() * 0.8;
+    const cells = [];
+    let ok = true;
+    for (let y = py - 3; y <= py + 3 && ok; y++) for (let x = px - 4; x <= px + 4; x++) {
+      if (((x - px) / prx) ** 2 + ((y - py) / pry) ** 2 > 1) continue;
+      if (![[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => isWalk(x + dx, y + dy)) || reserved.has(key(x, y)) || water[y][x]) { ok = false; break; }
+      cells.push([x, y]);
+    }
+    if (!ok || cells.length < 5) continue;
+    for (const [x, y] of cells) water[y][x] = true;
+    for (const [x, y] of cells) reserve(x, y, 1);
+    if (cells.length >= 9 && rand() < 0.7) { water[py][px] = false; islets.push({ tx: px, ty: py }); }
+    p++;
+  }
+
+  // 2c. thorn-guarded chest (开路): a far 3×3 spot, chest in the middle, thorns all around
+  let bonus = null;
+  const bonusCells = best.filter(([x, y]) => dist[y][x] >= maxDist * 0.5 && [-2, -1, 0, 1, 2].every((dy) => [-2, -1, 0, 1, 2].every((dx) => free(x + dx, y + dy) && !water[y + dy][x + dx])));
+  if (bonusCells.length) { const [x, y] = pick(rand, bonusCells); bonus = { tx: x, ty: y }; reserve(x, y, 2); }
+  const thorns = [];
+  if (bonus) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) thorns.push({ id: `t${thorns.length}`, tx: bonus.tx + dx, ty: bonus.ty + dy });
+
   // 3. camps: 3×3 open clearings, not too close to the landing
   const camps = [];
   const campCount = 1 + Math.floor(rand() * 2);
@@ -113,6 +145,8 @@ function attempt(seed, plain) {
     const [x, y] = pick(rand, chestCells);
     if (far(chests, x, y, 5)) { chests.push({ id: `c${chests.length}`, tx: x, ty: y }); reserve(x, y, 1); }
   }
+
+  if (bonus) chests.push({ id: `c${chests.length}`, tx: bonus.tx, ty: bonus.ty, bonus: true });
 
   // 5. resource clusters by weight
   const resources = [];
@@ -136,6 +170,8 @@ function attempt(seed, plain) {
     }
   }
 
+  for (const s of islets) resources.push({ id: `r${resources.length}`, type: 'crystal', tx: s.tx, ty: s.ty, rare: true });
+
   // 6. wild pets: 4–6, away from the landing, not on top of each other
   const pets = [];
   const petCount = 4 + Math.floor(rand() * 3);
@@ -145,7 +181,9 @@ function attempt(seed, plain) {
     pets.push({ id: `w${pets.length}`, species: pick(rand, PETS).id, tx: x, ty: y });
   }
 
-  const island = { seed, biome: 'mistwood', cols: ISLAND_W, rows: ISLAND_H, walk, area, landing, airship, camps, chests, resources, pets };
+  // rare spots (shown on the map by a 100-affection 月影狐猫): the thorn chest and islet crystals
+  const rare = [...chests.filter((c) => c.bonus).map((c) => ({ kind: 'chest', id: c.id, tx: c.tx, ty: c.ty })), ...resources.filter((r) => r.rare).map((r) => ({ kind: 'crystal', id: r.id, tx: r.tx, ty: r.ty }))];
+  const island = { seed, biome: 'mistwood', cols: ISLAND_W, rows: ISLAND_H, walk, water, area, landing, airship, camps, chests, resources, pets, thorns, rare };
   const problem = validate(island);
   return problem ? { ok: false, why: problem } : { ok: true, island };
 }
@@ -153,20 +191,30 @@ function attempt(seed, plain) {
 // ---------- reachability check ----------
 // Everything must be reachable from the landing point. Blocking things
 // (trees, rocks, chests) count as reachable when a neighbouring cell is.
+// Without any pet skill: water and thorns block. The thorn chest must be
+// reachable once thorns are cleared; islet crystals once you can wade.
 export function validate(island) {
   const blocked = blockedGrid(island);
-  const walk = island.walk;
-  const dist = bfs((x, y) => walk[y][x] && !blocked[y][x], island.landing.tx, island.landing.ty);
+  const walk = island.walk, water = island.water ?? grid(ISLAND_W, ISLAND_H, false);
+  const dist = bfs((x, y) => walk[y][x] && !water[y][x] && !blocked[y][x], island.landing.tx, island.landing.ty);
   const reach = (x, y) => inside(x, y) && dist[y][x] >= 0;
   const touch = (x, y) => DIRS4.some(([dx, dy]) => reach(x + dx, y + dy));
+  const wadeDist = bfs((x, y) => walk[y][x] && !blocked[y][x], island.landing.tx, island.landing.ty);
+  const touchWading = (x, y) => DIRS4.some(([dx, dy]) => inside(x + dx, y + dy) && wadeDist[y + dy][x + dx] >= 0);
   if (!reach(island.landing.tx, island.landing.ty)) return 'landing blocked';
   if (island.camps.length < 1) return 'no camp';
   if (island.chests.length < 1) return 'no chest';
   if (island.pets.length < 4) return 'too few pets';
   for (const c of island.camps) if (!reach(c.tx, c.ty)) return `camp ${c.id} unreachable`;
   for (const p of island.pets) if (!reach(p.tx, p.ty)) return `pet ${p.id} unreachable`;
-  for (const c of island.chests) if (!touch(c.tx, c.ty)) return `chest ${c.id} unreachable`;
-  for (const r of island.resources) if (!(BLOCKING[r.type] ? touch(r.tx, r.ty) : reach(r.tx, r.ty))) return `resource ${r.id} unreachable`;
+  for (const c of island.chests) {
+    if (c.bonus) { if (!(island.thorns ?? []).some((t) => t.tx !== c.tx && touch(t.tx, t.ty))) return `thorn chest ${c.id} unreachable`; }
+    else if (!touch(c.tx, c.ty)) return `chest ${c.id} unreachable`;
+  }
+  for (const r of island.resources) {
+    if (r.rare) { if (!touchWading(r.tx, r.ty)) return `islet ${r.id} unreachable`; continue; }
+    if (!(BLOCKING[r.type] ? touch(r.tx, r.ty) : reach(r.tx, r.ty))) return `resource ${r.id} unreachable`;
+  }
   return null;
 }
 
@@ -185,10 +233,10 @@ export function generateIsland(requestedSeed) {
 }
 
 // The change record stored in the save for the current/last island.
-export const emptyChanges = () => ({ collected: [], chests: [], pets: [] });
+export const emptyChanges = () => ({ collected: [], chests: [], pets: [], thorns: [] });
 
 // Removes what the player already took (docs/06 第 5 节: collected spots stay empty).
 export function applyChanges(island, changes = emptyChanges()) {
   const gone = (list, ids) => list.filter((o) => !ids.includes(o.id));
-  return { ...island, resources: gone(island.resources, changes.collected), chests: gone(island.chests, changes.chests), pets: gone(island.pets, changes.pets) };
+  return { ...island, resources: gone(island.resources, changes.collected), chests: gone(island.chests, changes.chests), pets: gone(island.pets, changes.pets), thorns: gone(island.thorns ?? [], changes.thorns ?? []) };
 }

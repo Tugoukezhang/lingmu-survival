@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 
 export const SAFE = 24; // keep HUD at least this far from screen edges (notches, rounded corners)
@@ -34,10 +34,11 @@ export default class UIScene extends Phaser.Scene {
     ev.on('dock-request', this.openDock, this);
     ev.on('airship-request', this.askReturn, this);
     ev.on('camp-request', this.openCamp, this);
+    ev.on('storage-request', this.openStorage, this);
     this.events.once('shutdown', () => {
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
-      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this);
+      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this); ev.off('storage-request', this.openStorage, this);
     });
     this.refreshAll();
     const session = this.game.session;
@@ -59,6 +60,11 @@ export default class UIScene extends Phaser.Scene {
   openDock(info) {
     if (this.stack.size) return;
     this.stack.push('dock', (s, st) => departPanel(s, st, info));
+  }
+
+  openStorage() {
+    if (this.stack.size) return;
+    this.stack.push('storage', storagePanel);
   }
 
   openCamp(info) {
@@ -113,7 +119,7 @@ export default class UIScene extends Phaser.Scene {
 
     const defs = [
       ['settings', 'gear', '设置', () => this.stack.push('settings', settingsPanel)],
-      ['map', 'map', '地图', () => this.showToast('地图以后开放')],
+      ['map', 'map', '地图', () => this.stack.push('map', mapPanel)],
       ['pets', 'paw', '宠物', () => this.stack.push('pets', petsPanel)],
       ['bag', 'bag', '背包', () => this.stack.push('bag', bagPanel)],
       ['craft', 'hammer', '制作', () => this.stack.push('craft', craftPanel)],

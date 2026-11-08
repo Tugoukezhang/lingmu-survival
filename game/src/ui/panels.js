@@ -5,6 +5,7 @@ import { calcStats, displayName, expToNext } from '../systems/petMath.js';
 import { NATURES } from '../data/natures.js';
 import { joinParty, leaveParty, setLead } from '../systems/party.js';
 import { lightTorch } from '../systems/night.js';
+import { SKILL_NAMES, SKILL_HELP, depositAll, withdrawAll } from '../systems/explore.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
 import { canCraft, craft, bagSlots, stationOk } from '../systems/crafting.js';
@@ -114,7 +115,7 @@ export function petsPanel(scene, stack) {
   const act = (fn, okMsg) => {
     const st = stateOf(scene);
     const r = fn(st, selected);
-    if (r.ok) { scene.game.session.markDirty(); scene.game.events.emit('party-changed'); if (okMsg) scene.showToast(okMsg); }
+    if (r.ok) { scene.game.session.markDirty(); scene.game.events.emit('party-changed'); scene.showToast(r.moved?.length ? `${okMsg}；背包变小了，多出的 ${r.moved.length} 格物品放进了家园仓库` : okMsg); }
     else scene.showToast({ full: '队伍满了（最多 3 只），先让一只离队', away: '远征中只能调整顺序，回家园再换伙伴', last: '队伍里至少要有 1 只伙伴' }[r.reason] ?? '现在不能这么做');
     draw();
   };
@@ -160,7 +161,9 @@ export function petsPanel(scene, stack) {
     const inst = st.pets.find((x) => x.uid === selected);
     if (inst) {
       const y = h / 2 - 40;
-      body.add(text(scene, -w / 2 + 36, y, `${displayName(inst)} · ${NATURE_NAMES(inst.nature)} · 好感 ${inst.affection} · 经验 ${inst.exp}/${expToNext(inst.level)}`, 14, { oy: 0.5, bold: false }));
+      body.add(text(scene, -w / 2 + 36, y - 9, `${displayName(inst)} · ${NATURE_NAMES(inst.nature)} · 好感 ${inst.affection} · 经验 ${inst.exp}/${expToNext(inst.level)}`, 14, { oy: 0.5, bold: false }));
+      const ex = species(inst.species).explore;
+      body.add(text(scene, -w / 2 + 36, y + 11, `探索：${SKILL_NAMES[ex]}——${SKILL_HELP[ex]}`, 12, { oy: 0.5, bold: false, color: '#7a6450' }));
       const rank = st.party.indexOf(inst.uid);
       if (rank < 0) body.add(capsuleButton(scene, w / 2 - 110, y, '加入队伍', { w: 150, h: 44, onClick: () => act(joinParty, `${displayName(inst)}加入了队伍`), name: 'party-join' }));
       else {
@@ -259,6 +262,82 @@ export function craftPanel(scene, stack) {
     draw();
     scene.time.delayedCall(250, () => { busy = false; });
   }
+  draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// Map (T24): island overview; 月影狐猫 (寻宝) reveals chests, at affection 100 also rare spots.
+export function mapPanel(scene, stack) {
+  const d = scene.scene.get('play').mapData();
+  const w = 760, h = 420;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, d.area === 'home' ? '地图 · 家园岛' : '地图 · 雾林浮岛', 26));
+  const cell = Math.floor(Math.min(440 / d.cols, 320 / d.rows));
+  const ox = -w / 2 + 40, oy = -h / 2 + 70;
+  const g = scene.add.graphics();
+  c.add(g);
+  g.fillStyle(0xbfe3ef).fillRoundedRect(ox - 8, oy - 8, d.cols * cell + 16, d.rows * cell + 16, 12);
+  for (let y = 0; y < d.rows; y++) for (let x = 0; x < d.cols; x++) {
+    if (!d.walk[y][x]) continue;
+    g.fillStyle(d.water?.[y][x] ? 0x6fb4d8 : 0x8cc66a).fillRect(ox + x * cell, oy + y * cell, cell, cell);
+  }
+  const dot = (x, y, color, r = cell * 0.55) => g.fillStyle(color).fillCircle(ox + x * cell, oy + y * cell, r);
+  const sq = (tx, ty, color) => g.fillStyle(color).fillRect(ox + tx * cell + 1, oy + ty * cell + 1, cell - 2, cell - 2);
+  for (const t of d.thorns) sq(t.tx, t.ty, 0x6a5a32);
+  if (d.sense >= 1) for (const ch of d.chests) { if (ch.bonus) dot(ch.tx + 0.5, ch.ty + 0.5, 0xff7a1a, cell * 0.85); else sq(ch.tx, ch.ty, 0xf5c84b); }
+  if (d.sense >= 2) for (const r of d.rare) dot(r.tx + 0.5, r.ty + 0.5, 0x7a4aa0);
+  for (const f of d.fires) dot(f.x, f.y, f.lit ? 0xf08a3a : 0x888888);
+  if (d.airship) dot(d.airship.tx + 0.5, d.airship.ty + 0.5, 0x5b3d26, cell * 0.8);
+  if (d.dock) dot(d.dock.x, d.dock.y, 0x5b3d26, cell * 0.8);
+  if (d.bed) dot(d.bed.x, d.bed.y, 0xf0a9a0, cell * 0.7);
+  if (d.lostBag) dot(d.lostBag.x, d.lostBag.y, 0xc99a5a, cell * 0.8);
+  g.lineStyle(2, 0xffffff).fillStyle(0xe8564a).fillCircle(ox + d.player.x * cell, oy + d.player.y * cell, cell * 0.75).strokeCircle(ox + d.player.x * cell, oy + d.player.y * cell, cell * 0.75);
+  // legend
+  const lx = ox + d.cols * cell + 40;
+  const rows = [[0xe8564a, '你'], [0x5b3d26, d.area === 'home' ? '飞艇码头' : '飞艇'], [0xf08a3a, '营火']];
+  if (d.area === 'home') rows.push([0xf0a9a0, '帐篷']);
+  if (d.lostBag) rows.push([0xc99a5a, '失物包']);
+  if (d.area !== 'home') {
+    rows.push([0x6fb4d8, '浅水（航海鲨能涉水）'], [0x6a5a32, '荆棘（橡果刺猬能开路）']);
+    if (d.sense >= 1) rows.push([0xf5c84b, '宝箱'], [0xd9572b, '秘密宝箱']);
+    if (d.sense >= 2) rows.push([0x7a4aa0, '稀有雾晶']);
+  }
+  rows.forEach(([col, label], i) => {
+    const y = oy + 4 + i * 26;
+    g.fillStyle(col).fillCircle(lx, y + 8, 7);
+    c.add(text(scene, lx + 16, y, label, 14, { bold: false }));
+  });
+  const skills = d.skills.map((s) => `${SKILL_NAMES[s.k]}${s.boosted ? '★' : ''}`).join(' · ') || '（无）';
+  const hint = d.area === 'home' ? '' : d.sense === 0 ? '带上月影狐猫，地图会显示宝箱位置' : d.sense === 1 ? '月影狐猫好感 100 时还能找到稀有雾晶' : '月影狐猫帮你找到了所有宝物！';
+  c.add(text(scene, lx - 8, h / 2 - 82, `队伍探索技能：${skills}`, 14, { wrap: 250 }));
+  if (hint) c.add(text(scene, lx - 8, h / 2 - 50, hint, 13, { bold: false, color: '#9a8468', wrap: 250 }));
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// Home storage (T24): put everything except tools and food away, or take it all back.
+export function storagePanel(scene, stack) {
+  const w = 600, h = 380;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '家园仓库', 26));
+  const body = scene.add.container(0, 0);
+  c.add(body);
+  const draw = () => {
+    body.removeAll(true);
+    const st = stateOf(scene), items = st.storage ?? [];
+    if (!items.length) body.add(text(scene, 0, -40, '仓库是空的', 18, { ox: 0.5, oy: 0.5, bold: false, color: '#9a8468' }));
+    items.slice(0, 14).forEach((s, i) => body.add(slot(scene, -w / 2 + 70 + (i % 7) * 76, -h / 2 + 110 + Math.floor(i / 7) * 80, { size: 62, iconKey: ITEMS[s.id].icon, count: s.count })));
+    if (items.length > 14) body.add(text(scene, w / 2 - 40, -h / 2 + 200, `还有 ${items.length - 14} 种`, 14, { ox: 1, bold: false }));
+    body.add(capsuleButton(scene, -120, h / 2 - 56, '全部存入', { w: 200, style: 'yellow', name: 'storage-deposit', onClick: () => {
+      const n = depositAll(stateOf(scene), (id) => ITEMS[id].tool || ITEMS[id].food);
+      scene.game.session.markDirty(); scene.showToast(n ? `存进了 ${n} 格（工具和食物留在身上）` : '没有可以存的东西'); draw();
+    } }));
+    body.add(capsuleButton(scene, 120, h / 2 - 56, '全部取回', { w: 200, name: 'storage-withdraw', onClick: () => {
+      const r = withdrawAll(stateOf(scene), bagSlots(stateOf(scene)));
+      scene.game.session.markDirty(); scene.showToast(r.left ? `取回了 ${r.took} 格，背包满了，还有 ${r.left} 格留在仓库` : r.took ? `取回了 ${r.took} 格` : '仓库是空的'); draw();
+    } }));
+  };
   draw();
   c.add(closeBtn(scene, stack, w, h));
   return c;

@@ -23,6 +23,7 @@ import * as B from '../game/src/systems/battle.js';
 import * as PT from '../game/src/systems/party.js';
 import * as NI from '../game/src/systems/night.js';
 import * as CP from '../game/src/systems/camp.js';
+import * as EX from '../game/src/systems/explore.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -358,7 +359,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
     if (why) bad.push(`${i}:${why}`);
     if (isl.fallback) fallback++;
     minArea = Math.min(minArea, isl.area);
-    if (isl.pets.length < 4 || isl.pets.length > 6 || isl.chests.length < 1 || isl.chests.length > 2 || isl.camps.length < 1 || isl.camps.length > 2) bad.push(`${i}:数量`);
+    if (isl.pets.length < 4 || isl.pets.length > 6 || isl.chests.filter((c) => !c.bonus).length < 1 || isl.chests.filter((c) => !c.bonus).length > 2 || isl.camps.length < 1 || isl.camps.length > 2) bad.push(`${i}:数量`);
     for (const r of isl.resources) counts[r.type]++;
   }
   check('E02 连续 100 个种子：资源、宝箱、宠物、营地都能从着陆点走到；数量在规定范围', bad.length === 0, bad.slice(0, 3).join(' '));
@@ -777,6 +778,63 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const ft = mk(); ft.inventory = [{ id: 'item_tent', count: 1 }, { id: 'item_wood', count: 3 }];
   TR.faint(ft, { x: 1, y: 1 });
   check('倒下时帐篷保留', I.countOf(ft.inventory, 'item_tent') === 1);
+}
+
+// ---------- pet explore skills (T24; docs/02 第 9 节, docs/07 第 7 节) ----------
+{
+  const st = S.newGameState();
+  const setParty = (...ids) => { st.party = ids.map((id) => `pet-${id}`); };
+  setParty('acorn'); check('只有队伍里的宠物算：橡果刺猬在队 → 能开路，不能涉水', EX.canClear(st) && !EX.canWade(st));
+  setParty('shark'); check('航海鲨在队 → 能涉水', EX.canWade(st));
+  setParty('fox', 'starbear'); eq('焰尾狐 + 星星熊仔都在队：照明不叠加，仍是 1.5 格', NI.playerLightTiles(st), 1.5);
+  st.pets.find((x) => x.uid === 'pet-fox').affection = 100;
+  eq('好感 100：照明 2.5 格', NI.playerLightTiles(st), 2.5);
+  setParty('pup'); eq('冰蓝小狼在队：背包 24 格', CR.bagSlots(st), 24);
+  st.pets.find((x) => x.uid === 'pet-pup').affection = 100;
+  eq('冰蓝小狼好感 100：背包 26 格', CR.bagSlots(st), 26);
+  setParty('acorn'); eq('没有寻宝宠物：地图不显示宝箱', EX.treasureSense(st), 0);
+  setParty('shadecat'); eq('月影狐猫在队：地图显示宝箱', EX.treasureSense(st), 1);
+  st.pets.find((x) => x.uid === 'pet-shadecat').affection = 100;
+  eq('月影狐猫好感 100：还显示稀有地点', EX.treasureSense(st), 2);
+  // generator: ponds, thorn chest, islet crystals; never required
+  let ponds = 0, bonus = 0, islets = 0, ok = true;
+  for (let i = 1; i <= 60; i++) {
+    const isl = G.generateIsland(i * 104729);
+    if (isl.water.flat().some(Boolean)) ponds++;
+    const b = isl.chests.find((c) => c.bonus); if (b) { bonus++; if (isl.thorns.length !== 8 || !isl.thorns.every((x) => Math.max(Math.abs(x.tx - b.tx), Math.abs(x.ty - b.ty)) === 1)) ok = false; }
+    islets += isl.resources.filter((r) => r.rare).length;
+    if (isl.resources.some((r) => isl.water[r.ty][r.tx]) || isl.pets.some((w) => isl.water[w.ty][w.tx]) || isl.camps.some((c) => isl.water[c.ty][c.tx])) ok = false;
+  }
+  check('60 座岛：都有浅水池塘和荆棘宝箱（8 丛荆棘围一圈），东西不会放在水里', ponds === 60 && bonus === 60 && ok, `池塘 ${ponds} 荆棘宝箱 ${bonus}`);
+  check('大部分岛上有池塘小岛雾晶（稀有）', islets >= 40, `小岛雾晶 ${islets}`);
+  check('不需要任何宠物技能也能拿到所有普通内容（E02 的校验把水和荆棘当墙）', G.validate(G.generateIsland(20261108)) === null);
+  // clearing thorns
+  const s2 = S.newGameState(); s2.expedition = { seed: 20261108, biome: 'mistwood', changes: G.emptyChanges() }; s2.player.area = 'expedition';
+  s2.party = ['pet-pup'];
+  check('没有橡果刺猬清不了荆棘', EX.clearThorn(s2, 't0').reason === 'need-clear');
+  s2.party = ['pet-acorn'];
+  check('橡果刺猬在队：清掉荆棘并记入岛屿记录', EX.clearThorn(s2, 't0').ok && s2.expedition.changes.thorns.includes('t0'));
+  check('同一丛荆棘不能清两次', EX.clearThorn(s2, 't0').reason === 'gone');
+  const isl2 = G.applyChanges(G.generateIsland(20261108), s2.expedition.changes);
+  check('回到岛上清掉的荆棘还是没有、格子不再挡路', !isl2.thorns.some((x) => x.id === 't0') && isl2.thorns.length === 7);
+  check('清掉荆棘后的存档合法', S.validate(s2).length === 0, S.validate(s2).join());
+  const nb = CP.chestLoot(5, 'c0'), bb = CP.chestLoot(5, 'c2', true);
+  check('秘密宝箱奖励更好：布 3 + 雾晶 ≥2、四叶草 40', bb.items.item_cloth >= 3 && bb.items.item_crystal >= 2 && bb.clover === 40 && nb.clover === 20);
+  // storage: 冰蓝小狼 leaves → nothing lost
+  const s3 = S.newGameState();
+  // only 17 kinds of items exist yet, so pad with test stacks to overflow a 20-slot bag
+  s3.inventory = [...Object.keys(ITEMS).map((id) => ({ id, count: 1 })), ...Array.from({ length: 23 - Object.keys(ITEMS).length }, (_, i) => ({ id: `test${i}`, count: 2 }))];
+  const total = (inv) => inv.reduce((n, x) => n + x.count, 0);
+  const before = total(s3.inventory), stacks = s3.inventory.length;
+  const lv = PT.leaveParty(s3, 'pet-pup');
+  check('冰蓝小狼离队：背包变回 20 格，多出的放进家园仓库，一件不少', lv.ok && s3.inventory.length === 20 && lv.moved.length === stacks - 20 && total(s3.inventory) + total(s3.storage) === before,
+    `${stacks} 格 → 背包 ${s3.inventory.length} + 仓库 ${s3.storage.length}`);
+  check('有仓库的存档合法', S.validate({ ...S.newGameState(), storage: [{ id: 'item_wood', count: 9 }] }).length === 0);
+  s3.inventory = s3.inventory.filter((x) => ITEMS[x.id]); s3.storage = s3.storage.filter((x) => ITEMS[x.id]);
+  const n = EX.depositAll(s3, (id) => ITEMS[id].tool || ITEMS[id].food);
+  check('全部存入：工具和食物留在身上', n > 0 && s3.inventory.every((x) => ITEMS[x.id].tool || ITEMS[x.id].food));
+  const w = EX.withdrawAll(s3, CR.bagSlots(s3));
+  check('全部取回：放得下的拿回来，放不下的留在仓库', s3.inventory.length <= 20 && w.took > 0 && (w.left === 0 || s3.inventory.length === 20));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

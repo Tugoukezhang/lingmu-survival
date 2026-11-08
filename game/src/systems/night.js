@@ -2,6 +2,7 @@
 // Fog monsters are not saved: they appear by schedule each night and fade at 6:00.
 import { species } from '../data/pets.js';
 import { DAY_START, NIGHT_START, phaseAt } from './time.js';
+import { glowTiles } from './explore.js';
 
 export const TILE_PX = 48;
 export const LIGHT_TILES = { campfire: 4, torch: 2, petGlow: 1.5 };
@@ -44,16 +45,13 @@ export function lightTorch(state) {
 }
 
 // Pets with the 照明 explore skill in the party (docs/02 第 9 节).
-export const partyGlows = (state) => state.party.some((uid) => {
-  const p = state.pets.find((x) => x.uid === uid);
-  return p && species(p.species).explore === 'light';
-});
+export const partyGlows = (state) => glowTiles(state) > 0;
 
 // Light around the player: the biggest of torch / glowing pet (they don't add up).
 export function playerLightTiles(state) {
   let r = 0;
   if (torchLit(state)) r = Math.max(r, LIGHT_TILES.torch);
-  if (partyGlows(state)) r = Math.max(r, LIGHT_TILES.petGlow);
+  r = Math.max(r, glowTiles(state));   // 1.5, or 2.5 with affection 100 (docs/07 第 7 节)
   return r;
 }
 

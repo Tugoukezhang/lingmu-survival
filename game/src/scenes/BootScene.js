@@ -41,6 +41,7 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('lostbag', 56, 56, drawLostBag);
     this.makeCanvas('item_tent', 128, 128, (g, w, h) => { g.save(); g.scale(1.2, 1.2); g.translate(2, 8); drawTent(g, 104, 92); g.restore(); });
     this.makeCanvas('fogmonster', 84, 84, drawFogMonster);
+    this.makeCanvas('thorn', 60, 56, drawThorn);
     this.makeCanvas('lightbrush', 256, 256, (g, w) => {   // soft round light: opaque core, fading edge
       const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
       grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.62, 'rgba(255,255,255,1)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
@@ -241,6 +242,18 @@ function drawChest(g, w, h) {
   roundRect(g, 4, 8, w - 8, 18, 8); g.fillStyle = '#a8703f'; g.fill(); g.stroke();
   g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 6, 18, 12, 14); g.strokeRect(w / 2 - 6, 18, 12, 14);
   g.fillStyle = '#f5c84b'; g.fillRect(10, 22, 4, h - 28); g.fillRect(w - 14, 22, 4, h - 28);
+}
+
+function drawThorn(g, w, h) {
+  g.lineCap = 'round';
+  for (let i = 0; i < 14; i++) {
+    const a = Math.PI + (i / 13) * Math.PI, len = 18 + (i % 3) * 6;
+    g.strokeStyle = i % 2 ? '#6a5a32' : '#4f6a2e'; g.lineWidth = 4;
+    g.beginPath(); g.moveTo(w / 2, h - 6); g.quadraticCurveTo(w / 2 + Math.cos(a) * len * 0.5, h - 6 + Math.sin(a) * len * 0.3, w / 2 + Math.cos(a) * len, h - 8 + Math.sin(a) * len); g.stroke();
+  }
+  g.fillStyle = '#c9b48a';
+  for (let i = 0; i < 16; i++) { const x = 8 + ((i * 37) % (w - 16)), y = 8 + ((i * 23) % (h - 22)); g.beginPath(); g.moveTo(x, y); g.lineTo(x + 3, y - 6); g.lineTo(x + 5, y); g.closePath(); g.fill(); }
+  g.fillStyle = '#d9406a'; g.beginPath(); g.arc(w / 2 + 8, h - 26, 3, 0, Math.PI * 2); g.fill();
 }
 
 function drawFogMonster(g, w, h) {

@@ -2,12 +2,10 @@
 // Pure functions on the game state, no Phaser.
 import { RECIPE_BY_ID } from '../data/recipes.js';
 import { countOf, addItem, removeItem, BAG_SLOTS } from './inventory.js';
+import { carryBonus } from './explore.js';
 
-// Bag size: 20, +4 while 冰蓝小狼 (驮运) is in the party (docs/02 第 9 节).
-export function bagSlots(state) {
-  const carry = state.pets?.some((p) => p.species === 'pup' && state.party.includes(p.uid));
-  return BAG_SLOTS + (carry ? 4 : 0);
-}
+// Bag size: 20, +4 while a 驮运 pet (冰蓝小狼) is in the party, +6 at affection 100 (docs/02 第 9 节, 07 第 7 节).
+export const bagSlots = (state) => BAG_SLOTS + carryBonus(state);
 
 // Would all these stacks fit? (existing stacks always fit; new ones need a free slot)
 export function fits(state, gains) {

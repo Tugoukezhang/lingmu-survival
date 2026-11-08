@@ -486,10 +486,6 @@ try {
   const gone = await page.evaluate((id) => ({ inIsland: window.__game.scene.getScene('play').island.resources.some((r) => r.id === id), recorded: window.__game.session.state.expedition.changes.collected.includes(id) }), treeId);
   check('站在树旁按互动：徒手得 1 木材，树消失并记入采集记录', (await inv('item_wood')) === wood0 + 1 && !gone.inIsland && gone.recorded, `木材 ${wood0}→${await inv('item_wood')} ${JSON.stringify(gone)}`);
   await page.screenshot({ path: join(OUT, '25-gathered.png') });
-  await scene(() => window.__game.scene.getScene('play').standByResource('crystal'));
-  await page.waitForTimeout(200);
-  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
-  check('没有石镐敲雾晶 → 提示需要石镐', (await toastText()).includes('石镐'), await toastText());
   // give materials and craft an axe from the HUD
   await page.evaluate(() => { const inv = window.__game.session.state.inventory; const add = (id, n) => { const s = inv.find((x) => x.id === id); if (s) s.count += n; else inv.push({ id, count: n }); }; add('item_wood', 2); add('item_stone', 2); });
   await tapTarget('hud-craft');
@@ -512,6 +508,13 @@ try {
   await reload(); await waitArea('expedition');
   const still = await page.evaluate((id) => !window.__game.scene.getScene('play').island.resources.some((r) => r.id === id), treeId);
   check('刷新后砍掉的树还是没有', still);
+  // crystals need a pickaxe (island 424243 has ordinary crystals, not only islet ones)
+  await scene(() => window.__game.scene.getScene('play').travelTo(424243));
+  await waitArea('expedition'); await page.waitForTimeout(500);
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.wild.forEach((w) => { w.cooldown = 1e12; }); sc.standByResource('crystal'); });
+  await page.waitForTimeout(200);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  check('没有石镐敲雾晶 → 提示需要石镐', (await toastText()).includes('石镐'), await toastText());
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(400);
 
@@ -605,6 +608,77 @@ try {
   const woke2 = await state();
   check('帐篷里睡到天亮：第二天 6:00、生命回满、还在岛上', woke2.day === dayCamp + 1 && woke2.clock >= 360 && woke2.clock < 365 && woke2.hp === 100 && woke2.area === 'expedition', JSON.stringify({ d: woke2.day, c: woke2.clock, hp: woke2.hp, a: woke2.area }));
   await page.evaluate(() => window.__game.scene.getScene('ui').stack.clear());
+  await scene(() => window.__game.scene.getScene('play').goHome());
+  await waitArea('home'); await page.waitForTimeout(400);
+
+  // ---------- pet explore skills (T24) ----------
+  // map at home
+  await tapTarget('hud-map');
+  check('HUD「地图」打开地图面板', (await ui()).stack.join() === 'map');
+  await page.screenshot({ path: join(OUT, '43-map-home.png') });
+  await tapTarget('close');
+  // storage: 冰蓝小狼 leaves with a full bag → extra stacks go to storage
+  await page.evaluate(() => {
+    const st = window.__game.session.state;
+    st.party = ['pet-pup', ...st.party.filter((u) => u !== 'pet-pup')].slice(0, 3);
+    const ids = ['item_wood', 'item_stone', 'item_grass', 'item_crystal', 'item_cloth', 'item_berry', 'item_carrot', 'item_berry_roast', 'item_fish_roast', 'item_soup', 'item_net_grass', 'item_net_vine', 'item_campfire', 'item_torch', 'item_axe', 'item_pickaxe', 'item_tent'];
+    st.inventory = ids.map((id) => ({ id, count: 2 }));
+    window.__game.events.emit('party-changed');
+  });
+  const stacks0 = await page.evaluate(() => window.__game.session.state.inventory.length);
+  await page.evaluate(() => { const inv = window.__game.session.state.inventory; for (let i = 0; inv.length < 23; i++) inv.push({ id: ['item_berry', 'item_wood'][i % 2] + '', count: 1 }); });
+  await page.evaluate(() => { const st = window.__game.session.state; const uniq = []; for (const s of st.inventory) { const u = uniq.find((x) => x.id === s.id); if (u) u.count += s.count; else uniq.push({ ...s }); } st.inventory = uniq; });
+  await tapTarget('hud-pets');
+  await tapTarget('pet-card-pet-pup');
+  await tapTarget('party-leave');
+  const afterLeave = await page.evaluate(() => ({ inv: window.__game.session.state.inventory.length, storage: (window.__game.session.state.storage ?? []).length }));
+  await tapTarget('close');
+  check('冰蓝小狼离队后背包不超过 20 格', afterLeave.inv <= 20, JSON.stringify(afterLeave));
+  // storage box
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.storageSpot.x - 48, sc.storageSpot.y); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('家园仓库按互动打开', (await ui()).stack.join() === 'storage', (await ui()).stack.join());
+  await tapTarget('storage-deposit');
+  const dep = await page.evaluate(() => ({ inv: window.__game.session.state.inventory.length, storage: window.__game.session.state.storage.length }));
+  check('全部存入：仓库里有东西，背包只留工具和食物', dep.storage > 0 && dep.inv < stacks0, JSON.stringify(dep));
+  await page.screenshot({ path: join(OUT, '44-storage.png') });
+  await tapTarget('close');
+  // expedition: water needs 航海鲨, thorns need 橡果刺猬, map shows chests with 月影狐猫
+  await page.evaluate(() => { const st = window.__game.session.state; st.party = ['pet-acorn', 'pet-shadecat', 'pet-fox']; for (const x of st.pets) x.hp = null; window.__game.registry.set({ hp: 100, hunger: 100 }); });
+  await scene(() => window.__game.scene.getScene('play').travelTo(20261108));
+  await waitArea('expedition'); await page.waitForTimeout(500);
+  const waterTest = await scene(() => {
+    const sc = window.__game.scene.getScene('play'); sc.wild.forEach((w) => { w.cooldown = 1e12; });
+    let cell = null;
+    for (let y = 0; y < sc.rows && !cell; y++) for (let x = 0; x < sc.cols && !cell; x++) if (sc.water[y][x] && sc.isWalkableTile(x, y + 2, false) && sc.water[y + 1][x]) cell = { x, y };
+    if (!cell) for (let y = 0; y < sc.rows && !cell; y++) for (let x = 0; x < sc.cols && !cell; x++) if (sc.water[y][x]) cell = { x, y };
+    return { blocked: !sc.isWalkableTile(cell.x, cell.y), wading: sc.wading };
+  });
+  check('没有航海鲨：浅水走不过去', waterTest.blocked && !waterTest.wading, JSON.stringify(waterTest));
+  await tapTarget('hud-map');
+  const md = await page.evaluate(() => window.__game.scene.getScene('play').mapData());
+  check('月影狐猫在队：地图上显示宝箱（含秘密宝箱）', md.sense === 1 && md.chests.some((c) => c.bonus), JSON.stringify({ sense: md.sense, chests: md.chests.length }));
+  await page.screenshot({ path: join(OUT, '45-map-island.png') });
+  await tapTarget('close');
+  // clear a thorn and open the thorn chest
+  const bonusInfo = await scene(() => {
+    const sc = window.__game.scene.getScene('play'); const b = sc.island.chests.find((c) => c.bonus);
+    const t = sc.island.thorns.find((x) => [[0, 1], [0, -1], [1, 0], [-1, 0]].some(([dx, dy]) => sc.isWalkableTile(x.tx + dx, x.ty + dy) && Math.max(Math.abs(x.tx + dx - b.tx), Math.abs(x.ty + dy - b.ty)) === 2));
+    const [dx, dy] = [[0, 1], [0, -1], [1, 0], [-1, 0]].find(([ax, ay]) => sc.isWalkableTile(t.tx + ax, t.ty + ay) && Math.max(Math.abs(t.tx + ax - b.tx), Math.abs(t.ty + ay - b.ty)) === 2);
+    sc.teleport((t.tx + dx) * 48 + 24, (t.ty + dy) * 48 + 24);
+    return { b, t };
+  });
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(OUT, '46-thorns.png') });
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(400);
+  const cleared = await page.evaluate((id) => window.__game.session.state.expedition.changes.thorns.includes(id), bonusInfo.t.id);
+  check('橡果刺猬在队：按互动清掉荆棘', cleared, await toastText());
+  await scene((t) => { window.__game.scene.getScene('play').teleport(t.tx * 48 + 24, t.ty * 48 + 24); }, bonusInfo.t);
+  await page.waitForTimeout(250);
+  const cloth1 = await inv('item_cloth');
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(400);
+  check('走进清出的缺口，打开秘密宝箱（布 ≥3）', (await inv('item_cloth')) >= cloth1 + 3, await toastText());
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(400);
 

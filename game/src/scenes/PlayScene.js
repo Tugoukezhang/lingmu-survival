@@ -13,6 +13,7 @@ import { PETS } from '../data/pets.js';
 import * as N from '../systems/night.js';
 import { applyDamage } from '../systems/survival.js';
 import * as CP from '../systems/camp.js';
+import * as EX from '../systems/explore.js';
 import { countOf } from '../systems/inventory.js';
 import { ITEMS } from '../data/items.js';
 
@@ -37,7 +38,8 @@ export default class PlayScene extends Phaser.Scene {
     this.rand = mulberry32(SEED);
     // the scene object is reused on restart: clear what belongs to the previous map
     this.fires = []; this.monsters = []; this.warnings = []; this.lastSpawn = null; this.fogWisps = []; this.torchFx = null;
-    this.fireSprites = new Map(); this.chestSprites = new Map();
+    this.fireSprites = new Map(); this.chestSprites = new Map(); this.thornSprites = new Map(); this.water = null; this.storageSpot = null;
+    this.wading = EX.canWade(this.state);
     this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
     this.traveling = false; this.fainted = false; this.inBattle = null;
     this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
@@ -113,13 +115,15 @@ export default class PlayScene extends Phaser.Scene {
     this.cols = this.island.cols; this.rows = this.island.rows;
     this.walk = this.island.walk;
     this.blocked = blockedGrid(this.island);
+    this.water = this.island.water;
     const l = this.island.landing;
     this.spawnTile = { x: l.tx, y: l.ty };
     this.meadowTile = { x: l.tx, y: l.ty };
   }
 
-  isWalkableTile(tx, ty) {
-    return ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols && this.walk[ty][tx] && !this.blocked[ty][tx];
+  // wade: may this walker enter shallow water? (the player with 航海鲨 in the party)
+  isWalkableTile(tx, ty, wade = this.wading) {
+    return ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols && this.walk[ty][tx] && !this.blocked[ty][tx] && (wade || !this.water?.[ty][tx]);
   }
 
   isOnIsland(px, py) {
@@ -127,13 +131,13 @@ export default class PlayScene extends Phaser.Scene {
     return ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols && this.walk[ty][tx];
   }
 
-  isWalkablePx(px, py) {
-    return this.isWalkableTile(Math.floor(px / TILE), Math.floor(py / TILE));
+  isWalkablePx(px, py, wade = this.wading) {
+    return this.isWalkableTile(Math.floor(px / TILE), Math.floor(py / TILE), wade);
   }
 
-  footFits(px, py) {
-    return this.isWalkablePx(px - FOOT.hw, py - FOOT.hh) && this.isWalkablePx(px + FOOT.hw, py - FOOT.hh)
-      && this.isWalkablePx(px - FOOT.hw, py + FOOT.hh) && this.isWalkablePx(px + FOOT.hw, py + FOOT.hh);
+  footFits(px, py, wade = this.wading) {
+    return this.isWalkablePx(px - FOOT.hw, py - FOOT.hh, wade) && this.isWalkablePx(px + FOOT.hw, py - FOOT.hh, wade)
+      && this.isWalkablePx(px - FOOT.hw, py + FOOT.hh, wade) && this.isWalkablePx(px + FOOT.hw, py + FOOT.hh, wade);
   }
 
   buildBackdrop() {
@@ -187,6 +191,15 @@ export default class PlayScene extends Phaser.Scene {
       g.fillStyle = n > 0 ? `rgba(255,250,200,${(n * 0.22).toFixed(3)})` : `rgba(40,90,30,${(-n * 0.22).toFixed(3)})`;
       g.beginPath(); g.arc(x, y, r * 0.96, 0, Math.PI * 2); g.fill();
     }
+    // shallow ponds (涉水): water over the grass with a soft rim and sparkles
+    if (this.water) {
+      const wt = tiles.filter(([x, y]) => this.water[Math.floor(y / TILE)][Math.floor(x / TILE)]);
+      g.fillStyle = '#5c9a4a'; for (const [x, y] of wt) { g.beginPath(); g.arc(x, y + 3, r * 0.92, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#6fb4d8'; for (const [x, y] of wt) { g.beginPath(); g.arc(x, y, r * 0.86, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#8fd0ec'; for (const [x, y] of wt) { g.beginPath(); g.arc(x - 3, y - 3, r * 0.6, 0, Math.PI * 2); g.fill(); }
+      g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 2;
+      for (const [x, y] of wt) if (this.rand() < 0.5) { g.beginPath(); g.moveTo(x - 8, y + 4); g.quadraticCurveTo(x, y, x + 8, y + 4); g.stroke(); }
+    }
     if (this.area === 'home') {
       // meadow patch for the pets
       const m = this.meadowTile;
@@ -233,6 +246,13 @@ export default class PlayScene extends Phaser.Scene {
     const tpx = bx * TILE + TILE / 2, tpy = by * TILE + TILE - 2;
     this.add.image(tpx, tpy, 'tent').setOrigin(0.5, 0.92).setDepth(tpy);
     this.bed = { x: tpx, y: tpy + 4 };
+
+    // home storage box (仓库): extra stacks go here when the bag shrinks
+    const sx = this.spawnTile.x + 3, sy = this.spawnTile.y;
+    this.blocked[sy][sx] = true;
+    const spx = sx * TILE + TILE / 2, spy = sy * TILE + TILE - 6;
+    this.add.image(spx, spy, 'chest').setOrigin(0.5, 0.9).setDepth(spy).setScale(1.15).setTint(0xe8cfa0);
+    this.storageSpot = { x: spx, y: spy };
 
     // airship dock on the south edge below the spawn point
     let dy = this.spawnTile.y;
@@ -298,6 +318,10 @@ export default class PlayScene extends Phaser.Scene {
       this.chestSprites.set(c.id, [sh, img]);
     }
     for (const f of CP.fires(this.state)) this.addFireSprite(f);
+    for (const t of isl.thorns ?? []) {
+      const { x, y } = at(t.tx, t.ty, -4);
+      this.thornSprites.set(t.id, this.add.image(x, y, 'thorn').setOrigin(0.5, 0.9).setDepth(y));
+    }
     const lb = this.state.expedition.lostBag;
     if (lb) {
       const spr = this.add.image(lb.x, lb.y, 'lostbag').setOrigin(0.5, 0.9).setDepth(lb.y);
@@ -345,7 +369,7 @@ export default class PlayScene extends Phaser.Scene {
       const tx = ptx + dx, ty = pty + dy;
       const cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
       const overlapsFeet = Math.abs(p.x - cx) < TILE / 2 + 12 && Math.abs(p.y - cy) < TILE / 2 + 8;
-      if (!this.isWalkableTile(tx, ty) || overlapsFeet) continue;
+      if (!this.isWalkableTile(tx, ty, false) || overlapsFeet) continue;
       const r = CP.placeCampfire(this.state, tx, ty);
       if (!r.ok) { this.showToast('这里放不下营火'); return; }
       this.addFireSprite(r.fire);
@@ -378,7 +402,7 @@ export default class PlayScene extends Phaser.Scene {
 
   tryOpenChest(c) {
     this.session.pullFromRegistry();
-    const r = CP.openChest(this.state, c.id);
+    const r = CP.openChest(this.state, c.id, { bonus: !!c.bonus });
     if (!r.ok) { this.showToast(r.reason === 'full' ? '背包满了，先腾出位置再开' : '已经打开过了'); return; }
     this.session.pushToRegistry();
     this.island.chests = this.island.chests.filter((x) => x.id !== c.id);
@@ -388,6 +412,38 @@ export default class PlayScene extends Phaser.Scene {
     this.session.save('chest');
     const names = Object.entries(r.loot.items).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join('、');
     this.showToast(`打开了宝箱：${names}，四叶草 +${r.loot.clover}`);
+  }
+
+  // 开路: 橡果刺猬 in the party clears a thorn bush (recorded on this island).
+  tryClearThorn(t) {
+    const r = EX.clearThorn(this.state, t.id);
+    if (!r.ok) { this.showToast(r.reason === 'need-clear' ? '荆棘太密了……队伍里有橡果刺猬就能开路' : '已经清掉了'); return; }
+    this.island.thorns = this.island.thorns.filter((x) => x.id !== t.id);
+    this.blocked[t.ty][t.tx] = false;
+    const spr = this.thornSprites.get(t.id);
+    this.thornSprites.delete(t.id);
+    if (spr) this.tweens.add({ targets: spr, alpha: 0, scaleY: 0.3, duration: 300, onComplete: () => spr.destroy() });
+    this.session.save('thorn');
+    this.showToast('橡果刺猬滚成刺球，清出了一条路！');
+  }
+
+  // Everything the map panel needs (UIScene asks for it).
+  mapData() {
+    const isl = this.island;
+    return {
+      area: this.area, cols: this.cols, rows: this.rows, walk: this.walk, water: this.water,
+      player: { x: this.player.x / TILE, y: this.player.y / TILE },
+      airship: isl ? isl.airship : null, landing: isl ? isl.landing : null,
+      dock: this.dock ? { x: this.dock.x / TILE, y: this.dock.y / TILE } : null,
+      bed: this.bed ? { x: this.bed.x / TILE, y: this.bed.y / TILE } : null,
+      fires: (isl ? [...this.fireSprites.values()].map((s) => ({ x: s.x / TILE, y: s.y / TILE, lit: CP.fireLeft(this.state, s.f) > 0 })) : this.fires.map((f) => ({ x: f.x / TILE, y: f.y / TILE, lit: true }))),
+      lostBag: this.lostBag ? { x: this.lostBag.x / TILE, y: this.lostBag.y / TILE } : null,
+      chests: isl ? isl.chests.map((c) => ({ tx: c.tx, ty: c.ty, bonus: !!c.bonus })) : [],
+      thorns: isl ? (isl.thorns ?? []).map((t) => ({ tx: t.tx, ty: t.ty })) : [],
+      rare: isl ? isl.resources.filter((r) => r.rare).map((r) => ({ tx: r.tx, ty: r.ty })) : [],
+      sense: EX.treasureSense(this.state),
+      skills: Object.keys(EX.SKILL_NAMES).filter((k) => EX.partySkill(this.state, k).has).map((k) => ({ k, boosted: EX.partySkill(this.state, k).boosted })),
+    };
   }
 
   // Wild pets wander near where the generator put them. Touching one starts
@@ -415,7 +471,7 @@ export default class PlayScene extends Phaser.Scene {
         // pick a nearby walkable spot to stroll to
         for (let k = 0; k < 6; k++) {
           const tx = w.home.x + (this.rand() - 0.5) * 140, ty = w.home.y + (this.rand() - 0.5) * 100;
-          if (this.footFits(tx, ty)) { w.target = { x: tx, y: ty }; break; }
+          if (this.footFits(tx, ty, false)) { w.target = { x: tx, y: ty }; break; }
         }
         w.wanderAt = time + 2500 + this.rand() * 3500;
       }
@@ -423,7 +479,7 @@ export default class PlayScene extends Phaser.Scene {
       if (dist > 3) {
         const k = Math.min(1, (36 * dt) / dist);
         const nx = s.x + dx * k, ny = s.y + dy * k;
-        if (this.footFits(nx, ny)) { s.x = nx; s.y = ny; } else w.wanderAt = 0;
+        if (this.footFits(nx, ny, false)) { s.x = nx; s.y = ny; } else w.wanderAt = 0;
         if (Math.abs(dx) > 2) s.setFlipX(dx < 0);
       }
       w.phase += dt * (dist > 3 ? 9 : 2.5);
@@ -441,7 +497,7 @@ export default class PlayScene extends Phaser.Scene {
     const s = w.sprite, p = this.player;
     const ax = s.x - p.x, ay = s.y - p.y, len = Math.hypot(ax, ay) || 1;
     w.target = { x: s.x + ax / len * 70, y: s.y + ay / len * 70 };
-    if (!this.footFits(w.target.x, w.target.y)) w.target = { ...w.home };
+    if (!this.footFits(w.target.x, w.target.y, false)) w.target = { ...w.home };
     w.wanderAt = time + 3000;
   }
 
@@ -591,9 +647,10 @@ export default class PlayScene extends Phaser.Scene {
 
   // Test helper: stand next to the first resource of `type`; returns its id.
   standByResource(type) {
-    const r = this.island?.resources.find((x) => x.type === type && [[0, 1], [0, -1], [1, 0], [-1, 0]].some(([dx, dy]) => this.isWalkableTile(x.tx + dx, x.ty + dy)));
+    const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+    const r = this.island?.resources.find((x) => x.type === type && !x.rare && dirs.some(([dx, dy]) => this.isWalkableTile(x.tx + dx, x.ty + dy, false)));
     if (!r) return null;
-    const [dx, dy] = [[0, 1], [0, -1], [1, 0], [-1, 0]].find(([ax, ay]) => this.isWalkableTile(r.tx + ax, r.ty + ay));
+    const [dx, dy] = dirs.find(([ax, ay]) => this.isWalkableTile(r.tx + ax, r.ty + ay, false));
     this.teleport((r.tx + dx) * TILE + TILE / 2, (r.ty + dy) * TILE + TILE / 2);
     return r.id;
   }
@@ -900,6 +957,7 @@ export default class PlayScene extends Phaser.Scene {
     if (!busy) this.movePlayer(dt);
     this.updatePets(time, dt);
     this.updateWild(time, dt);
+    this.wading = EX.canWade(this.state);
     this.updateFires(time);
     this.updateNight(time, delta);
     this.drawLighting();
@@ -1009,8 +1067,12 @@ export default class PlayScene extends Phaser.Scene {
         act: () => this.game.events.emit('camp-request', this.campInfo(s.f.id)) });
     }
     for (const c of this.island?.chests ?? []) {
-      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, label: '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
+      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, label: c.bonus ? '秘密宝箱 · 点互动打开' : '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
     }
+    for (const t of this.island?.thorns ?? []) {
+      spots.push({ at: { x: t.tx * TILE + TILE / 2, y: t.ty * TILE + TILE / 2 }, label: EX.canClear(this.state) ? '荆棘丛 · 让橡果刺猬开路' : '荆棘丛 · 要橡果刺猬才能开路', tagY: 52, act: () => this.tryClearThorn(t) });
+    }
+    if (this.storageSpot) spots.push({ at: this.storageSpot, label: '仓库 · 点互动打开', tagY: 60, act: () => this.game.events.emit('storage-request') });
     let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
     if (!spot && this.island) spot = this.nearestResourceSpot();
     if (spot) {
