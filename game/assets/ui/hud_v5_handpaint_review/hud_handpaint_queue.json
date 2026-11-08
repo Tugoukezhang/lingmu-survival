@@ -248,10 +248,35 @@
       "title": "右上 P 入口",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "top_P.png",
-      "state": "pending",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "与原截图保持几何造型",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "gpt_image_attempts": 1,
+      "last_failure_reason": "One GPT Image output rendered unrelated highly decorated backpack despite single P avatar crop; rejected; no GPT Image final handpaint candidate.",
+      "source_crop": {
+        "source": "05_gameplay_hud.jpg",
+        "image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1804,
+          49,
+          1884,
+          122
+        ],
+        "artifact": "Reviews/P_original_single_crop_80x73.png",
+        "key_label_separate": "P",
+        "notes": "Source image contains the icon composited over striped game scene; transparent original is unavailable."
+      },
+      "fidelity_candidate": "PNG_Transparent/00_gameplay/P_avatar_single_manual_fidelity_v1_512.png",
+      "fidelity_candidate_kind": "independently path-retraced SVG rendered into 96-color transparent PNG, not GPT Image output",
+      "fidelity_candidate_sha256": "f58cbd9e7b4a0416396e5a6f0e567198e054d30adfbc5ca2777aa04963255e10",
+      "review_comparison": "Reviews/P_original_vs_manual_fidelity_review.jpg",
+      "candidate_qa": "pending",
+      "gpt_image_qa_passed": false,
+      "production_promoted": false
     },
     {
       "queue_number": "HUD-08",
@@ -1755,9 +1780,19 @@
       "gpt_image_qa_passed": false,
       "production_replaced": false,
       "next": "main_top_P"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_P",
+      "result": "1 GPT Image output rejected (unrelated backpack), independent source crop and manually redrawn transparent shape-locked avatar plus original-size QA review uploaded",
+      "candidate_kind": "manual geometry-locked PNG fallback, NOT a GPT Image success",
+      "qa_approved": false,
+      "production_replaced": false,
+      "sha256": "f58cbd9e7b4a0416396e5a6f0e567198e054d30adfbc5ca2777aa04963255e10",
+      "next": "main_bottom_Q"
     }
   ],
-  "current_focus": "main_top_P",
+  "current_focus": "main_bottom_Q",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",

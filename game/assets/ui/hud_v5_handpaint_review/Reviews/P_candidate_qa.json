@@ -1,0 +1,44 @@
+{
+  "id": "main_top_P",
+  "status": "candidate_pending_review",
+  "type": "independent SVG path redraw / manual geometry, NOT GPT Image successful output",
+  "source_reference": "05_gameplay_hud.jpg",
+  "source_image_size": [
+    1920,
+    1080
+  ],
+  "source_crop_bbox_xyxy": [
+    1804,
+    49,
+    1884,
+    122
+  ],
+  "source_crop_filename": "P_original_single_crop_80x73.png",
+  "candidate_filename": "P_avatar_single_manual_fidelity_v1_512.png",
+  "candidate_size": [
+    512,
+    512
+  ],
+  "candidate_mode": "RGBA",
+  "sha256": "f58cbd9e7b4a0416396e5a6f0e567198e054d30adfbc5ca2777aa04963255e10",
+  "key_label_embedded": false,
+  "qa": "pending",
+  "production_replaced": false,
+  "review_comparison": "P_original_vs_manual_fidelity_review_compact.jpg",
+  "image_generation": "1 attempt rejected: wrong identity (ornate backpack instead of plain white avatar). Source crop was provided but generation ignored it.",
+  "known_limitations": [
+    "Manual retrace candidate is not GPT Image independently handpainted.",
+    "Screenshot source is flattened into scene and slightly blurred; eye alpha and edge subtleties are estimated.",
+    "Inpainted background in QA mock-up is illustrative, not a production backdrop."
+  ],
+  "candidate_binary_note": "96-color PNG-8 palette with transparency, visually compared at 80x73; file is genuine RGBA-rendered artwork stored in optimized indexed PNG; no P shortcut glyph embedded.",
+  "candidate_image_generation_failed": true,
+  "not_gpt_image_success": true,
+  "review_state": "manual geometry-locked trial: pending QA and GPT Image final",
+  "alpha_present": true,
+  "sha256_references": {
+    "P_original_single_crop_80x73.png": "d128efd28e5cd2b48cec2814e8f3d65c5091c98a3751dac761e72d3d71ea4f7e",
+    "P_original_vs_manual_fidelity_review_compact.jpg": "a30b3b2b8c25f095f848ca385d4d76ef8aeb73ef9debf4b8e01c26d72715d1f7",
+    "P_avatar_manual_shape_locked.svg": "fac7a7a6fb483da1da0f322d7275a3a8841531dcc64355c81fa263e31e1fe788"
+  }
+}

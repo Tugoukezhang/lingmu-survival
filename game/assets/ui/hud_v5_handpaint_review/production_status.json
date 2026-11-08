@@ -982,5 +982,16 @@
       "qa": "pending",
       "notes": ""
     }
-  ]
+  ],
+  "latest_main_hud_review": {
+    "date": "2026-11-08",
+    "id": "main_top_P",
+    "manual_review_png": "PNG_Transparent/00_gameplay/P_avatar_single_manual_fidelity_v1_512.png",
+    "source_crop": "Reviews/P_original_single_crop_80x73.png",
+    "qa": "pending",
+    "production_replaced": false,
+    "gpt_image_accepted": false,
+    "next": "main_bottom_Q"
+  },
+  "main_hud_review_note": "Main HUD manual fidelity candidate is not part of the 97 non-HUD individual GPT Image queue; do not change other-96 counts until a genuine approved asset exists."
 }
