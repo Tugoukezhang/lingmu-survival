@@ -1,0 +1,53 @@
+{
+  "task_id": "other96/inventory/tab_clothing",
+  "date": "2026-11-08",
+  "state": "deferred_two_wrong_generations",
+  "source_expected": "04_背包(5).jpg",
+  "original_source_cropped": false,
+  "original_source_bbox": null,
+  "fallback_reference": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_clothing.svg",
+  "reference_type": "V3 isolated single button reconstructed via repo SVG, NOT screenshot",
+  "reference_visual_identity": "One rounded blue-gray (#98b1c3) button with medium warm brown border (#a88772), dark-gray brown (#695d58) single T-shirt outline; clothing glyph unfilled and without collar/belt/lacing.",
+  "reference_sha256": "generated isolated reference SHA recorded in local QA zip",
+  "generated_attempts": [
+    {
+      "number": 1,
+      "sha256": "b75809e2751030cce97ac592c87d2d946e4844b416c55997165414e0d835dde5",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_bbox_xyxy": [
+        0,
+        0,
+        1514,
+        1008
+      ],
+      "result": "rejected: cream tunic with lacing/belt, purple ground, ornate wood frame; identity and palette mismatch"
+    },
+    {
+      "number": 2,
+      "sha256": "81987e9d649ce1749a07ef6c74af53c0474ed982db16562c1518c9ee6fba796b",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_bbox_xyxy": [
+        41,
+        45,
+        1402,
+        1024
+      ],
+      "result": "rejected: repeats prior incorrect purple ornate tunic; second wrong generation"
+    }
+  ],
+  "generator_quality_note": "Artistic finish acceptable but not matching target functional geometry, major palette and no-decoration requirement; do NOT approve just for polish.",
+  "reference_binding": "single V3 image displayed before each generation; image-edit reference binding not independently verified",
+  "created_candidates": 0,
+  "approved": 0,
+  "production_replaced": false,
+  "github_formal_png_uploaded": false,
+  "qa_status": "fail identity/silhouette/palette; alpha measured only; game QA not performed",
+  "next_task": "other96/inventory/tab_documents",
+  "local_rejected_QA_zip": "lingmu_tab_clothing_20261108_rejected_QA.zip"
+}
