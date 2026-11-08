@@ -355,9 +355,14 @@
       "target_png": "PNG_Transparent/04_inventory/detail_wood_panel.png",
       "target_resolution": "1260x1640",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "deferred_two_wrong_generations",
+      "qa": "identity_and_aspect_failed",
+      "notes": "",
+      "candidate_count": 0,
+      "generator_attempts": 2,
+      "last_review_report": "Reviews/inventory_detail_wood_panel_failed_20261108/QA.json",
+      "last_review_notes": "Both image generations rendered a decorated wide panel, not the tall detail frame; reference was V4 isolated only because original screenshot Library folder was absent. No asset accepted. Skip until better portrait source binding.",
+      "approved": false
     },
     {
       "index": 35,
