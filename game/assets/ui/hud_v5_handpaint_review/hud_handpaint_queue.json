@@ -646,12 +646,34 @@
       "source_reference": "shared across multiple screens",
       "target_png": "PNG_Transparent/00_common/close_wood.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "deferred_after_two_wrong_identity_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Wood-and-cream close icon with small leaves/flower."
+      "notes": "Wood-and-cream close icon with small leaves/flower.",
+      "existing_candidate": null,
+      "last_failed_reason": "Two independent GPT Image invocations while working on shared/close_wood instead returned age-rating 12+ green-gold badges. Both wrong identity, rejected; none was counted.",
+      "source_crop": {
+        "source": "04_inventory.jpg",
+        "image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1756,
+          35,
+          1898,
+          168
+        ],
+        "size": [
+          142,
+          133
+        ],
+        "sha256": "f97e0c6f32e71ac60111c1e26d59f6dc101f94cb4a9652acd0f6389ca379e95a",
+        "reference_only": "/Lingmu_HUD_Exports/Single_Control_References/shared_close_wood_reference_crop_142x133.png"
+      },
+      "next_attempt_restriction": "One single small uneven warm brown wood disk with a rounded ivory X, three green leaves upper-left, small five-petal white flower and leaves lower-right. No lettering, no age rating, no shield or decorative medal, no background; one transparent RGBA sprite only. Use the tight crop as the ONLY image input."
     },
     {
       "queue_number": 11,
@@ -2038,9 +2060,19 @@
       "action": "user requested skip",
       "result": "Chinese logo is out of scope and will not be generated; next shared/close_wood",
       "counts_changed": false
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/shared/close_wood",
+      "action": "2 single-icon GPT Image attempts after cropping actual close button from inventory source",
+      "result": "both returned unrelated 12+ age badges, rejected; exact 142x133 wood-close source crop saved to Library for later retry",
+      "attempts": 2,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/shared/back_wood"
     }
   ],
-  "current_focus": "other96/shared/close_wood",
+  "current_focus": "other96/shared/back_wood",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
