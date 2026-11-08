@@ -1543,12 +1543,46 @@
       "source_reference": "03_活动大厅(4).jpg",
       "target_png": "PNG_Transparent/03_activity/reward_card_tall.png",
       "target_resolution": "760x1260",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "source_guided_painterly_review_candidate_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text."
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text.",
+      "existing_candidate": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/reward_card_tall_760x1260.png",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/reward_card_tall_760x1260.png",
+      "candidate_size": [
+        760,
+        1260
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_sha256": "381faf7c8121e0d6478b9f9de119b2768bc49c6a76a61029d7cceba023b15d32",
+      "candidate_kind": "Independently authored source-locked tall parchment SVG with subdued painterly texture; previous normal card custom shell and pearl geometry adapted to long panel, NOT a successfully direct GPT Image final.",
+      "source_crop": {
+        "source": "03_activity.jpg",
+        "source_image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1680,
+          636,
+          1890,
+          1020
+        ],
+        "crop_size": [
+          210,
+          384
+        ],
+        "library": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/reward_card_tall_original_crop_210x384.png"
+      },
+      "qa_status": "Single tall pale-ivory irregular paper card, one upper pink scallop shell/lavender pearl, thin slanted dark-green cord with five small warm gold bindings and green lower-right dot; no baked '07' or 'x5'. RGBA verified (transparent outside card); 96/128/170px high preview. Original-game sizing and final user-art QA pending.",
+      "review_comparison_library": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/reward_card_tall_QA_preview.jpg",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/reward_card_tall_review_bundle.zip",
+      "source_svg_library": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/reward_card_tall_source.svg",
+      "manifest_library": "/Lingmu_HUD_Exports/Activity_Reward_Card_Tall_Single_Review/manifest.json",
+      "production_promoted": false,
+      "last_generation_note": "One direct GPT Image attempt produced unrelated ornate gilt-bordered tall parchment with leaf crest/laurel and no shell/rope, rejected. Created separate source-guided controlled painterly SVG, not GPT Image final."
     },
     {
       "queue_number": 29,
@@ -2902,9 +2936,20 @@
       "counted_as_complete": false,
       "candidate_sha256": "9536a4d0c7bbab45931f37ce663129ce9aa4250b9a562693a316cb0314182132",
       "next": "other96/activity/reward_card_tall"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/activity/reward_card_tall",
+      "action": "single original tall reward card crop, rejected overly ornate AI version, independently rendered source-matched tall pearl-shell + diagonal cord review sprite",
+      "result": "One 760x1260 RGBA candidate made; reference 210x384 crop, standalone sprite, editable SVG, manifest, QA display heights 96/128/170, SHA256 archived to Library. User art and game-engine QA pending; official production not overwritten.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "candidate_sha256": "381faf7c8121e0d6478b9f9de119b2768bc49c6a76a61029d7cceba023b15d32",
+      "next": "other96/activity/activity_card_rope"
     }
   ],
-  "current_focus": "other96/activity/reward_card_tall",
+  "current_focus": "other96/activity/activity_card_rope",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
