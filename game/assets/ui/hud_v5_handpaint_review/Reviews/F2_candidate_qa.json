@@ -1,0 +1,32 @@
+{
+  "id": "main_top_F2",
+  "source": "single isolated crop of 05_gameplay_hud.jpg",
+  "source_pixel_size": [
+    1920,
+    1080
+  ],
+  "crop_bbox_xyxy": [
+    1398,
+    55,
+    1484,
+    126
+  ],
+  "target_filename": "F2_backpack_fidelity_512.png",
+  "target_pixel_size": [
+    512,
+    512
+  ],
+  "mode": "RGBA",
+  "sha256": "f4e49c479fdd4461893840d2ea68ef2d31d6f5cc2f503f2c0e6d2837ef201117",
+  "source_guide_kind": "source matching engineering fidelity draft, not GPT Image generation",
+  "gpt_image_attempts_this_turn": 2,
+  "rejected_attempt_reasons": [
+    "Pink ornate hearts, not a backpack",
+    "Ornate blue backpack with scroll, potion, leaf and flower, not original pale HUD backpack"
+  ],
+  "qa_state": "pending",
+  "production_promoted": false,
+  "dynamic_key_label": "F2 separate from graphic",
+  "comparison": "Reviews/F2_reference_vs_fidelity_review.jpg",
+  "crop": "Reviews/F2_original_single_crop_enlarged.png"
+}

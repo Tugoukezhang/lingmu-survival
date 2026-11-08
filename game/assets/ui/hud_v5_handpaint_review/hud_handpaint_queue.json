@@ -127,11 +127,11 @@
       "title": "右上 F2 入口",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "top_F2.png",
-      "state": "needs_target_controlled_image_edit",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "与原截图保持几何造型",
       "existing_candidate": null,
-      "gpt_image_attempts": 2,
+      "gpt_image_attempts": 4,
       "failure_reason": "Two GPT Image calls with a source screenshot cropped to just one 77x75 backpack still generated ornate F1 parchment map plaques with F1 text, not the F2 backpack. Failed visual identity and reference binding; rejected. Do not count as approved or upload as final.",
       "original_reference_size": [
         1920,
@@ -152,7 +152,29 @@
       "local_comparison": "/mnt/data/lingmu_F2_single/F2_original_vs_geometry_review.jpg",
       "local_comparison_sha256": "6a914ef53f90e6168ede3a66a70fafcd5b7a24c6a0161548f9016216c40c5524",
       "review_note": "V2 RGB warm palette nudge and exact alpha preserved; not a GPT Image handpaint, not promoted. Original screenshot is 1920x1080; displayed screenshot preview 1649x928 was not native pixel coordinates.",
-      "retry_policy": "Do not repeat F1 map via generic text-to-image; use exact source crop image-edit binding or local masked image transformation and only then QA."
+      "retry_policy": "Do not repeat F1 map via generic text-to-image; use exact source crop image-edit binding or local masked image transformation and only then QA.",
+      "last_failure_reason": "Single F2 screenshot crop was prepared and inspected. GPT Image output #1 was an unrelated ornate pair of pink hearts; #2 was an ornate blue flap backpack with leaves, flower, bottle and scroll, not the original pale HUD backpack. Neither approved.",
+      "source_crop": {
+        "source": "05_gameplay_hud.jpg",
+        "actual_source_image_size": [
+          1920,
+          1080
+        ],
+        "original_bbox_xyxy": [
+          1398,
+          55,
+          1484,
+          126
+        ],
+        "original_crop_content": "pale compact backpack icon, no F2 text, no colored backing",
+        "notes": "Previous approximate 1649x928 coordinate system was scaled; crop was recalibrated to real 1920x1080 source"
+      },
+      "fidelity_candidate": "game/assets/ui/hud_v5_handpaint_review/PNG_Transparent/00_gameplay/F2_backpack_fidelity_512.png",
+      "fidelity_candidate_kind": "geometry reconstructed against original screenshot crop, slight painterly finish; NOT GPT Image final",
+      "fidelity_candidate_sha256": "f4e49c479fdd4461893840d2ea68ef2d31d6f5cc2f503f2c0e6d2837ef201117",
+      "review_comparison": "game/assets/ui/hud_v5_handpaint_review/Reviews/F2_reference_vs_fidelity_review.jpg",
+      "reference_crop": "game/assets/ui/hud_v5_handpaint_review/Reviews/F2_original_single_crop_enlarged.png",
+      "promotion_approved": false
     },
     {
       "queue_number": "HUD-05",
@@ -1662,6 +1684,16 @@
       "candidate_approved": false,
       "github_binary_upload": "blocked_files_library_access_deny",
       "counts_unchanged": true,
+      "next": "main_top_F3"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_F2",
+      "result": "two_GPT_Image_rejected_saved_single_reference_crop_and_fidelity_draft",
+      "independent_source_crop": true,
+      "actual_GPT_Image_approved": false,
+      "qa_approved": false,
+      "formally_completed": false,
       "next": "main_top_F3"
     }
   ],
