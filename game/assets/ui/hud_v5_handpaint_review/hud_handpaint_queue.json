@@ -40,19 +40,22 @@
       "title": "主界面左上日历 HUD",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "calendar_icon.png",
-      "state": "needs_regeneration",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "单件为日历符号；22 DAY文字单独渲染，原图无厚实底板",
       "existing_candidate": null,
-      "failed_attempts": 3,
+      "failed_attempts": 5,
       "last_attempt": "2026-11-08",
-      "failure_reason": "Latest GPT Image produced a false dashboard/status image (including an invented 15-minute schedule) instead of a single transparent calendar glyph; rejected, no approved output.",
+      "failure_reason": "Two fresh GPT Image calls produced ornate pink 3D flip calendars, not the screenshot's thin white six-cell symbol; rejected.",
       "reference_images": [
         "/Lingmu_HUD_Exports/Original_References/05_gameplay_hud.jpg",
         "/Lingmu_HUD_Exports/Original_References/calendar_v2_icon_lock.png",
         "/Lingmu_HUD_Exports/Original_References/calendar_v2_full_component_lock.png"
       ],
-      "next_attempt_restriction": "Generate only the 3×2 grid white translucent calendar glyph, on transparent background. No 22 DAY text, no queue/status/dashboard text, no panels, progress or user interface beyond the calendar icon."
+      "next_attempt_restriction": "Generate only the 3×2 grid white translucent calendar glyph, on transparent background. No 22 DAY text, no queue/status/dashboard text, no panels, progress or user interface beyond the calendar icon.",
+      "fidelity_reference": "PNG_Transparent/00_gameplay/calendar_icon_v2_geometry_locked_painterly_reference.png",
+      "fidelity_reference_sha256": "ded614277f011fa9fb11b1095d23afbf23310a93878f265b996d10d559b9c226",
+      "fidelity_reference_kind": "programmatic V2 geometry/alpha-preserving pixel treatment, NOT independently GPT Image generated; unapproved"
     },
     {
       "queue_number": "HUD-02",
@@ -1537,6 +1540,16 @@
       "trigger": "automation_run_now_inline",
       "result": "failed_validation",
       "reason": "Generated a full fake production dashboard instead of a single standalone calendar icon; falsely stated 15-minute schedule within image",
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_calendar",
+      "attempts": 2,
+      "result": "failed_visual_fidelity",
+      "wrong_outputs": "pink 3D calendar with decorations, not the target lightweight six-cell icon",
+      "candidate_not_approved": true,
+      "locked_reference_saved": "PNG_Transparent/00_gameplay/calendar_icon_v2_geometry_locked_painterly_reference.png",
       "counted_as_complete": false
     }
   ]
