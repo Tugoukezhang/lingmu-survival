@@ -284,11 +284,35 @@
       "title": "右下相机",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "bottom_Q.png",
-      "state": "brief_prepared_crop_needed",
+      "state": "independent_raster_candidate_review_pending",
       "approval": "pending",
-      "notes": "圆形半拟物相机按钮（米白机身、蓝灰顶部、棕色同心镜头、右下金黄星星、半透明圆环），Q键位文字独立。用户不要求100%复刻，允许精致手绘优化。原图源可查但此轮暂未能将真实单件裁图传入图像生成工具；不可冒称已经出图。",
-      "existing_candidate": null,
-      "review_brief": "Reviews/Q_camera_single_asset_brief.md"
+      "notes": "圆形半拟物相机按钮（米白机身、蓝灰顶部、棕色同心镜头、右下金黄星星、半透明圆环），Q键位文字独立。用户不要求100%复刻，允许精致手绘优化。原图源可查但此轮暂未能将真实单件裁图传入图像生成工具；不可冒称已经出图。 本轮独立备选图已经实际创建并保存Library；用户允许精致化而非100%复刻。自动图像工具连续两次错误输出整套Q/M/I图集，已拒绝；此候选属独立几何绘制，并非AI独立手绘成品。",
+      "existing_candidate": "/Lingmu_HUD_Exports/HUD_QEF_Review/bottom_Q_handpaint_review_512.png",
+      "review_brief": "Reviews/Q_camera_single_asset_brief.md",
+      "candidate_sha256": "dd8c5c08a5a0b9c9f93a227dec3d6b0654450253d349ce36a8320a717bfefda1",
+      "candidate_size": [
+        512,
+        512
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "independent vector-geometry hand-drawn/reconstructed candidate rendered to PNG; NOT GPT Image output",
+      "source_region_approx": {
+        "file": "05_gameplay_hud.jpg",
+        "image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1420,
+          913,
+          1540,
+          1028
+        ],
+        "source_pixels_cropped_this_run": false
+      },
+      "qa_status": "alpha_verified_and_small_scale_review_created; original crop side-by-side and in-game integration QA still pending",
+      "production_promoted": false,
+      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png"
     },
     {
       "queue_number": "HUD-09",
@@ -296,10 +320,34 @@
       "title": "右下伙伴图鉴",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "bottom_E.png",
-      "state": "pending",
+      "state": "independent_raster_candidate_review_pending",
       "approval": "pending",
-      "notes": "圆形半拟物按钮，键位E独立",
-      "existing_candidate": null
+      "notes": "圆形半拟物按钮，键位E独立 本轮独立备选图已经实际创建并保存Library；用户允许精致化而非100%复刻。自动图像工具连续两次错误输出整套Q/M/I图集，已拒绝；此候选属独立几何绘制，并非AI独立手绘成品。",
+      "existing_candidate": "/Lingmu_HUD_Exports/HUD_QEF_Review/bottom_E_handpaint_review_512.png",
+      "candidate_sha256": "85b53e6e4f8f319987c768122dc32ebee4e1ec7bd4edb46cc6e24f3a5cb6de6b",
+      "candidate_size": [
+        512,
+        512
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "independent vector-geometry hand-drawn/reconstructed candidate rendered to PNG; NOT GPT Image output",
+      "source_region_approx": {
+        "file": "05_gameplay_hud.jpg",
+        "image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1570,
+          908,
+          1694,
+          1033
+        ],
+        "source_pixels_cropped_this_run": false
+      },
+      "qa_status": "alpha_verified_and_small_scale_review_created; original crop side-by-side and in-game integration QA still pending",
+      "production_promoted": false,
+      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png"
     },
     {
       "queue_number": "HUD-10",
@@ -307,10 +355,34 @@
       "title": "右下工具箱",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "bottom_F.png",
-      "state": "pending",
+      "state": "independent_raster_candidate_review_pending",
       "approval": "pending",
-      "notes": "圆形半拟物按钮，键位F独立",
-      "existing_candidate": null
+      "notes": "圆形半拟物按钮，键位F独立 本轮独立备选图已经实际创建并保存Library；用户允许精致化而非100%复刻。自动图像工具连续两次错误输出整套Q/M/I图集，已拒绝；此候选属独立几何绘制，并非AI独立手绘成品。",
+      "existing_candidate": "/Lingmu_HUD_Exports/HUD_QEF_Review/bottom_F_handpaint_review_512.png",
+      "candidate_sha256": "febf8d71cb4ee1f44c63b89dc6d1847d1b75d2e8d9ba1f98943a646a2d2e9f19",
+      "candidate_size": [
+        512,
+        512
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "independent vector-geometry hand-drawn/reconstructed candidate rendered to PNG; NOT GPT Image output",
+      "source_region_approx": {
+        "file": "05_gameplay_hud.jpg",
+        "image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1745,
+          907,
+          1871,
+          1034
+        ],
+        "source_pixels_cropped_this_run": false
+      },
+      "qa_status": "alpha_verified_and_small_scale_review_created; original crop side-by-side and in-game integration QA still pending",
+      "production_promoted": false,
+      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png"
     },
     {
       "queue_number": "HUD-11",
@@ -1806,9 +1878,24 @@
       "action": "prepared_single_camera_brief; artistic_fidelity_qa_updated",
       "result": "source original reviewed; single-item brief committed; crop-to-generator transfer pending, no new Q PNG/QA yet",
       "counts_changed": false
+    },
+    {
+      "date": "2026-11-08",
+      "batch": "HUD-08/HUD-09/HUD-10",
+      "task_ids": [
+        "main_bottom_Q",
+        "main_bottom_E",
+        "main_bottom_F"
+      ],
+      "action": "independent_geometry-locked candidate drawing and Library handoff; rejected 2 unrelated GPT Image combination sheets",
+      "result": "three 512x512 RGBA isolated review candidates created, sha256 recorded; screenshot visually inspected, actual source subcrops not attached; QA pending, production not replaced",
+      "created_candidates": 3,
+      "approved": 0,
+      "counts_changed": false,
+      "next": "main_interact"
     }
   ],
-  "current_focus": "main_bottom_Q",
+  "current_focus": "main_interact",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
@@ -1830,5 +1917,22 @@
     ],
     "generate_sole_target_not_template": true
   },
-  "draw_protocol_version": "user_quality_fidelity_2026_11_08"
+  "draw_protocol_version": "user_quality_fidelity_2026_11_08",
+  "production_batch_size_goal": {
+    "min": 2,
+    "max": 3,
+    "rule": "Each work cycle handle up to 3 distinct icons, each separate PNG/source crop/QA, never an atlas; count approvals only after QA",
+    "updated_on": "2026-11-08"
+  },
+  "deferred_retry_task_ids": [
+    "main_calendar",
+    "main_quest",
+    "main_top_F1",
+    "main_top_F2",
+    "main_top_F3",
+    "main_top_J",
+    "main_top_P",
+    "activity/reward_shell_only"
+  ],
+  "deferred_retry_policy": "Skip prior failed icon image-generation attempts until all never-attempted HUD/other remaining queue items receive first candidates; preserve their failed status and revisit at end. Do not count them as approved."
 }
