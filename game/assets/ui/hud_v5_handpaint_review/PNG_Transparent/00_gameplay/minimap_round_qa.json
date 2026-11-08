@@ -1,0 +1,20 @@
+{
+  "asset": "minimap_round_faithful_1024.png",
+  "pixels": [
+    1024,
+    1024
+  ],
+  "alpha": true,
+  "shape": "circular",
+  "original_v2_icon": "icons/icon_17.png",
+  "source": "faithfulness locked V2 upscale, NOT separately GPT Image drawn",
+  "fidelity_checks": {
+    "round": true,
+    "top_N": true,
+    "upper_right_alert": true,
+    "inside_player_pointer": true,
+    "shape_not_postcard": true
+  },
+  "qa": "structure verified; hand-painted final pending",
+  "sha256": "7395188a5189f0a8575464b5117538b2c542a6ae5d12a0cba168eae69fa67a25"
+}
