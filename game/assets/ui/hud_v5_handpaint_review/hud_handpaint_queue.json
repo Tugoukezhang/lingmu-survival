@@ -390,10 +390,35 @@
       "title": "中央交互提示",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "interaction.png",
-      "state": "pending",
+      "state": "independent_raster_candidate_review_pending",
       "approval": "pending",
       "notes": "半透明人形交互图案和圆环",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "review_candidate_library": "/Lingmu_HUD_Exports/HUD11_12_TITLE05_Review/HUD11_interaction_review_512.png",
+      "candidate_sha256": "61b14cc02f0749f1dce2b4555878b6adf1e8598cd08197d6f7175d854c628dc8",
+      "candidate_size": [
+        512,
+        512
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "original independent SVG geometry reconstruction with subtle painterly texture, rendered to PNG; NOT GPT Image output",
+      "source_crop_reference": {
+        "source": "05_gameplay_hud.jpg",
+        "actual_source_image_size": [
+          1920,
+          1080
+        ],
+        "approx_bbox_xyxy": [
+          767,
+          348,
+          862,
+          450
+        ],
+        "exact_pixel_crop_available": false
+      },
+      "qa_status": "alpha and 96px readability check done, original single crop QA and in-engine QA pending",
+      "qa_preview_library": "/Lingmu_HUD_Exports/HUD11_12_TITLE05_Review/batch_11_12_title05_QA_preview.jpg",
+      "production_promoted": false
     },
     {
       "queue_number": "HUD-12",
@@ -401,10 +426,35 @@
       "title": "左上圆形小地图最终手绘",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "minimap_round_final.png",
-      "state": "pending",
+      "state": "independent_raster_candidate_review_pending",
       "approval": "pending",
       "notes": "已有圆形 V2 上采样保真修正，尚非单独 GPT Image 手绘版；需要真正手绘重做",
-      "existing_candidate": "minimap_round_faithful_1024.png (reference-fidelity upscale, not hand-painted)"
+      "existing_candidate": "minimap_round_faithful_1024.png (reference-fidelity upscale, not hand-painted)",
+      "review_candidate_library": "/Lingmu_HUD_Exports/HUD11_12_TITLE05_Review/HUD12_minimap_round_review_512.png",
+      "candidate_sha256": "99606f805a698477d092cc5a239ac8e70e0f76bbd12052dad1d330283f945bb7",
+      "candidate_size": [
+        512,
+        512
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "original independent SVG geometry reconstruction with subtle painterly texture, rendered to PNG; NOT GPT Image output",
+      "source_crop_reference": {
+        "source": "05_gameplay_hud.jpg",
+        "actual_source_image_size": [
+          1920,
+          1080
+        ],
+        "approx_bbox_xyxy": [
+          45,
+          36,
+          266,
+          265
+        ],
+        "exact_pixel_crop_available": false
+      },
+      "qa_status": "alpha and 96px readability check done, original single crop QA and in-engine QA pending",
+      "qa_preview_library": "/Lingmu_HUD_Exports/HUD11_12_TITLE05_Review/batch_11_12_title05_QA_preview.jpg",
+      "production_promoted": false
     }
   ],
   "other_96": [
@@ -471,12 +521,37 @@
       "source_reference": "01_标题页(1).jpg",
       "target_png": "PNG_Transparent/01_title/left_chevrons.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "independent_raster_candidate_review_pending",
       "approval": "pending",
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "title adventure button flanking chevrons"
+      "notes": "title adventure button flanking chevrons",
+      "review_candidate_library": "/Lingmu_HUD_Exports/HUD11_12_TITLE05_Review/TITLE05_left_chevrons_review_512.png",
+      "candidate_sha256": "ed7f6f5689633996d7b691994cf35055d9fafa2a6515210009f35df3656ed79d",
+      "candidate_size": [
+        512,
+        512
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "original independent SVG geometry reconstruction with subtle painterly texture, rendered to PNG; NOT GPT Image output",
+      "source_crop_reference": {
+        "source": "01_title.jpg",
+        "actual_source_image_size": [
+          1920,
+          1080
+        ],
+        "approx_bbox_xyxy": [
+          731,
+          801,
+          800,
+          879
+        ],
+        "exact_pixel_crop_available": false
+      },
+      "qa_status": "alpha and 96px readability check done, original single crop QA and in-engine QA pending",
+      "qa_preview_library": "/Lingmu_HUD_Exports/HUD11_12_TITLE05_Review/batch_11_12_title05_QA_preview.jpg",
+      "production_promoted": false
     },
     {
       "queue_number": 6,
@@ -1893,9 +1968,24 @@
       "approved": 0,
       "counts_changed": false,
       "next": "main_interact"
+    },
+    {
+      "date": "2026-11-08",
+      "batch": "HUD-11 HUD-12 other96/title/left_chevrons",
+      "task_ids": [
+        "main_interact",
+        "main_minimap",
+        "other96/title/left_chevrons"
+      ],
+      "action": "three independent hand-authored alpha PNGs saved to Library with preview, individual checksums; GPT Image output H/J/K atlas rejected",
+      "result": "three distinct 512x512 PNG review candidates created, small-scale/alpha checked; not AI generated; reference screenshots visually inspected, exact crop transfer unavailable; no final approvals or production replacement",
+      "created_candidates": 3,
+      "approved": 0,
+      "counts_changed": false,
+      "next": "other96/title/right_chevrons"
     }
   ],
-  "current_focus": "main_interact",
+  "current_focus": "other96/title/right_chevrons",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
