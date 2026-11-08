@@ -182,10 +182,32 @@
       "title": "右上 F3 入口",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "top_F3.png",
-      "state": "pending",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "与原截图保持几何造型",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "gpt_image_attempts": 2,
+      "last_failure_reason": "Single isolated screenshot F3 crop shown. GPT Image attempt #1 returned an unrelated ornamental backpack; attempt #2 returned an open book and quill. Neither depicts the storefront awning + receipt of source.",
+      "source_crop": {
+        "source": "05_gameplay_hud.jpg",
+        "source_image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1538,
+          54,
+          1623,
+          122
+        ],
+        "artifact": "Reviews/F3_original_single_crop_85x68.png",
+        "key_label_separate": "F3"
+      },
+      "fidelity_candidate": "PNG_Transparent/00_gameplay/F3_shop_awn_receipt_fidelity_512.png",
+      "fidelity_candidate_kind": "V2 geometry-locked gentle painterly hue treatment. NOT independently handpainted GPT Image.",
+      "fidelity_sha256": "7936a78a856fcc80b51be0207ab89078a185a95ac10c89bfab3aac73a122ce79",
+      "review_comparison": "Reviews/F3_reference_and_fidelity_comparison.jpg",
+      "production_promoted": false
     },
     {
       "queue_number": "HUD-06",
@@ -1695,9 +1717,17 @@
       "qa_approved": false,
       "formally_completed": false,
       "next": "main_top_F3"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_F3",
+      "result": "2 GPT Image outputs rejected (backpack, book); 1 shape-locked faithful draft + single cropped source uploaded",
+      "counted_as_complete": false,
+      "qa_approved": false,
+      "next": "main_top_J"
     }
   ],
-  "current_focus": "main_top_F3",
+  "current_focus": "main_top_J",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",

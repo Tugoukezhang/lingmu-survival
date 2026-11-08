@@ -1,0 +1,34 @@
+{
+  "asset_id": "main_top_F3",
+  "original_reference": "05_gameplay_hud.jpg",
+  "reference_dimensions": [
+    1920,
+    1080
+  ],
+  "one_to_one_crop_xyxy": [
+    1538,
+    54,
+    1623,
+    122
+  ],
+  "fidelity_png": "F3_shop_awn_receipt_fidelity_512.png",
+  "output_dimensions": [
+    512,
+    512
+  ],
+  "rgba": true,
+  "style": "soft ivory translucent lightweight white overlay",
+  "icon_structure": "simple shop awning, arched doorway, receipt at lower right",
+  "text_layer": "F3 keyboard hint separate",
+  "source_geometry": "existing V2 F3 white awning icon, not original game export",
+  "is_independently_gpt_image_redrawn": false,
+  "gpt_image_generations_attempted": 2,
+  "gpt_image_failures": [
+    "Generated a decorated backpack",
+    "Generated an open book and quill"
+  ],
+  "candidate_kind": "screenshot/V2 structure-locked visual fallback, no formal visual approval",
+  "qa_state": "pending_handdrawn",
+  "production_replaced": false,
+  "sha256": "7936a78a856fcc80b51be0207ab89078a185a95ac10c89bfab3aac73a122ce79"
+}
