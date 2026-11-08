@@ -16,6 +16,7 @@ import * as V from '../game/src/systems/survival.js';
 import * as I from '../game/src/systems/inventory.js';
 import { ITEMS } from '../game/src/data/items.js';
 import * as G from '../game/src/systems/islandGen.js';
+import * as TR from '../game/src/systems/travel.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -379,6 +380,41 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('没动过的资源位置不变', JSON.stringify(again.resources) === JSON.stringify(isl.resources.slice(3)));
   check('采集后格子不再挡路', !G.blockedGrid(again)[isl.resources[0].ty][isl.resources[0].tx] || isl.resources[0].type === 'grass');
   check('存档：在远征岛上但没有岛屿记录 → 不合法', S.validate({ ...S.newGameState(), player: { ...S.newGameState().player, area: 'expedition' } }).includes('player.area'));
+}
+
+// ---------- airship travel (T25; docs/06 第 5 节) ----------
+{
+  const st = S.newGameState();
+  st.clock = 9 * 60; st.player.hunger = 80;
+  check('没去过别的岛时不能选「回到上次的岛」', TR.depart(st, 'last').reason === 'no-last' && st.player.area === 'home');
+  const seedA = TR.newIslandSeed(st);
+  const r = TR.depart(st, 'new');
+  check('出发去新岛：耗时 1 小时、路上饱食 −6、到远征岛着陆点', r.ok && st.clock === 10 * 60 && st.player.hunger === 74 && st.player.area === 'expedition' && st.player.x === null && st.expedition.seed === seedA,
+    `${T.formatClock(st.clock)} 饱食 ${st.player.hunger}`);
+  check('出发后存档合法', S.validate(st).length === 0, S.validate(st).join());
+  check('在远征岛上不能再出发', TR.depart(st, 'new').reason === 'not-home');
+  st.expedition.changes.collected.push('r0', 'r1');
+  const h = TR.returnHome(st);
+  check('坐飞艇回家：耗时 1 小时、回到家园码头', h.ok && st.clock === 11 * 60 && st.player.area === 'home' && st.flags.arriveAt === 'dock');
+  const seedLast = st.expedition.seed;
+  TR.depart(st, 'last');
+  check('回到上次的岛：种子不变、采集记录还在', st.expedition.seed === seedLast && st.expedition.changes.collected.join() === 'r0,r1');
+  TR.returnHome(st);
+  TR.depart(st, 'new');
+  check('再选新岛：换了新种子、变化记录清空', st.expedition.seed !== seedLast && st.expedition.changes.collected.length === 0);
+  check('新岛种子由存档决定（同样的存档得到同样的种子）', TR.newIslandSeed({ seed: 5, day: 3, flags: { trips: 2 } }) === TR.newIslandSeed({ seed: 5, day: 3, flags: { trips: 2 } }));
+  const s2 = { clock: 6 * 60 + 5, player: { hp: 100, hpMax: 100, hunger: 100, hungerMax: 100 } };
+  eq('6:05 起飞 1 小时 → 经过 6 跳（6:10…7:00）', TR.passTime(s2, 60), 6);
+  const s3 = { clock: 6 * 60, player: { hp: 2, hpMax: 100, hunger: 0, hungerMax: 100 } };
+  TR.passTime(s3, 60);
+  check('飞艇上是安全的：饿着也不会倒下（生命最低 1）', s3.player.hp === 1);
+  // interim faint
+  const f = S.newGameState();
+  f.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() };
+  f.player.area = 'expedition'; f.player.hp = 0; f.player.hunger = 0; f.day = 4; f.clock = 26 * 60;
+  TR.recoverFromFaint(f);
+  check('远征中倒下（临时规则）：第二天 8:00 在家醒来，生命 50、饱食 50', f.day === 5 && f.clock === 8 * 60 && f.player.hp === 50 && f.player.hunger === 50 && f.player.area === 'home' && f.flags.arriveAt === 'bed');
+  check('倒下后存档合法', S.validate(f).length === 0);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

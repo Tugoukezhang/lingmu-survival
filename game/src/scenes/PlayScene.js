@@ -6,6 +6,7 @@ import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock
 import { survivalTick } from '../systems/survival.js';
 import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../systems/islandGen.js';
 import { wildLevel } from '../systems/petMath.js';
+import { depart, returnHome, recoverFromFaint } from '../systems/travel.js';
 
 // The world: either the home island (placeholder layout) or a generated
 // expedition island (systems/islandGen.js), chosen by state.player.area.
@@ -27,7 +28,8 @@ export default class PlayScene extends Phaser.Scene {
     this.state = this.session.state;
     this.rand = mulberry32(SEED);
     // the scene object is reused on restart: clear what belongs to the previous map
-    this.bed = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
+    this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
+    this.traveling = false; this.fainted = false;
     this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
     if (this.area === 'expedition') this.buildExpedition(); else this.buildIsland();
     this.buildBackdrop();
@@ -44,6 +46,7 @@ export default class PlayScene extends Phaser.Scene {
     // registry by GameSession; this scene writes the player position back.
     this.registry.set('uiModal', false);
     const off = this.session.onBeforeSave((s) => {
+      if (s.player.area !== this.area) return; // mid-travel: the position belongs to the old map
       s.player.x = Math.round(this.player.x);
       s.player.y = Math.round(this.player.y);
     });
@@ -53,14 +56,19 @@ export default class PlayScene extends Phaser.Scene {
     this.actions = new InputActions(this, () => this.scene.get('ui')?.joystick?.vector);
     const onAction = () => this.actions.queueInteract();
     const onSleep = () => this.startSleep(true);
-    this.game.events.on('action-pressed', onAction);
-    this.game.events.on('sleep-confirm', onSleep);
-    this.events.once('shutdown', () => { this.game.events.off('action-pressed', onAction); this.game.events.off('sleep-confirm', onSleep); });
+    const onDepart = (mode) => this.travel(() => depart(this.state, mode), mode === 'new' ? '到达新的雾林浮岛，天黑前记得回来' : '回到了上次的浮岛');
+    const onReturn = () => this.travel(() => returnHome(this.state), '回到家园了');
+    const onFaint = () => this.faint();
+    const ev = this.game.events;
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint]];
+    for (const [name, fn] of handlers) ev.on(name, fn);
+    this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
     const cam = this.cameras.main;
     cam.setBounds(0, 0, this.cols * TILE, this.rows * TILE + CLIFF + TILE);
     cam.startFollow(this.player, true, 0.12, 0.12);
     cam.setRoundPixels(true);
+    cam.fadeIn(400, 0, 0, 0);
   }
 
   // ---------- world ----------
@@ -205,8 +213,23 @@ export default class PlayScene extends Phaser.Scene {
     this.add.image(tpx, tpy, 'tent').setOrigin(0.5, 0.92).setDepth(tpy);
     this.bed = { x: tpx, y: tpy + 4 };
 
+    // airship dock on the south edge below the spawn point
+    let dy = this.spawnTile.y;
+    while (this.walk[dy + 1]?.[this.spawnTile.x]) dy++;
+    const dkx = this.spawnTile.x * TILE + TILE / 2, dky = dy * TILE + TILE;
+    const pier = this.add.graphics().setDepth(dky - 40);
+    pier.fillStyle(0x8a5a36).fillRect(dkx - 22, dky - 30, 44, 70);
+    pier.fillStyle(0x6e4529);
+    for (let i = 0; i < 5; i++) pier.fillRect(dkx - 22, dky - 28 + i * 14, 44, 3);
+    pier.fillRect(dkx - 24, dky + 36, 6, 22).fillRect(dkx + 18, dky + 36, 6, 22);
+    const ship = this.add.image(dkx + 92, dky + 40, 'airship').setOrigin(0.5, 0.7).setDepth(dky + 60);
+    this.tweens.add({ targets: ship, y: ship.y - 6, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.dock = { x: dkx, y: dky - 30 };
+    this.dockTile = { x: this.spawnTile.x, y: dy };
+
     const reserved = (x, y) => Math.hypot(x - this.spawnTile.x, y - this.spawnTile.y) < 3.5
-      || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2;
+      || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2
+      || Math.hypot(x - this.dockTile.x, y - this.dockTile.y) < 2.5;
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
     const forest = valueNoise2D(SEED + 23, 5);
     for (let y = 1; y < this.rows - 1; y++) {
@@ -257,7 +280,7 @@ export default class PlayScene extends Phaser.Scene {
     const ax = a.tx * TILE + TILE / 2, ay = a.ty * TILE + TILE / 2 + 18;
     const ship = this.add.image(ax, ay, 'airship').setOrigin(0.5, 0.7).setDepth(ay - 30);
     this.tweens.add({ targets: ship, y: ay - 6, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
-    this.airship = { x: ax, y: ay - 44, sprite: ship };
+    this.airship = { x: ax, y: (a.ty - 1) * TILE + TILE / 2, sprite: ship }; // interact from the edge cell next to the landing
   }
 
   // Wild pets wander near where the generator put them. Touching one starts
@@ -312,7 +335,39 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  // ---------- travel (test hooks now; the airship UI is T25) ----------
+  // ---------- travel ----------
+  // fade out → change the state (area, time) → save → rebuild the scene
+  travel(change, notice) {
+    if (this.traveling || this.sleeping) return;
+    this.traveling = true;
+    this.session.pullFromRegistry();
+    const cam = this.cameras.main;
+    cam.fadeOut(450, 0, 0, 0);
+    cam.once('camerafadeoutcomplete', () => {
+      const r = change();
+      if (r && r.ok === false) { this.traveling = false; cam.fadeIn(300); return; }
+      if (notice) this.session.notice = notice;
+      this.session.pushToRegistry();
+      this.session.save('travel');
+      this.scene.restart();
+    });
+  }
+
+  // Interim until T23: wake up at home the next morning, nothing is lost yet.
+  faint() {
+    if (this.fainted) return;
+    this.fainted = true;
+    this.clock.pause('faint');
+    this.session.store.block('faint');
+    this.showToast('你倒下了……');
+    this.time.delayedCall(900, () => {
+      this.session.store.unblock('faint');
+      this.fainted = false;
+      this.travel(() => { recoverFromFaint(this.state); return { ok: true }; }, '在家里醒来了，生命 50、饱食 50（失物包功能开发中）');
+    });
+  }
+
+  // test hooks
   travelTo(seed) {
     this.state.expedition = { seed, biome: 'mistwood', changes: emptyChanges() };
     this.state.player.area = 'expedition';
@@ -321,12 +376,7 @@ export default class PlayScene extends Phaser.Scene {
     this.scene.restart();
   }
 
-  goHome() {
-    this.state.player.area = 'home';
-    this.state.player.x = null; this.state.player.y = null;
-    this.session.save('travel');
-    this.scene.restart();
-  }
+  goHome() { this.travel(() => returnHome(this.state)); }
 
   // ---------- actors ----------
 
@@ -334,6 +384,11 @@ export default class PlayScene extends Phaser.Scene {
     let x = this.spawnTile.x * TILE + TILE / 2, y = this.spawnTile.y * TILE + TILE / 2;
     const saved = this.state.player;
     if (saved.area === this.area && saved.x != null && this.footFits(saved.x, saved.y)) { x = saved.x; y = saved.y; }
+    else if (this.area === 'home' && this.state.flags.arriveAt) {
+      const spot = this.state.flags.arriveAt === 'dock' ? this.dock : this.bed;
+      if (spot && this.footFits(spot.x, spot.y + 20)) { x = spot.x; y = spot.y + 20; }
+      delete this.state.flags.arriveAt;
+    }
     this.playerShadow = this.add.image(x, y + 2, 'shadow').setScale(0.7);
     this.player = this.add.image(x, y, 'player').setOrigin(0.5, 0.97);
     this.facing = new Phaser.Math.Vector2(0, 1);
@@ -563,11 +618,17 @@ export default class PlayScene extends Phaser.Scene {
   updateInteraction() {
     if (this.sleeping) return;
     const p = this.player;
-    const atBed = this.bed && Phaser.Math.Distance.Between(p.x, p.y, this.bed.x, this.bed.y) < INTERACT_RANGE;
-    if (atBed) {
+    // fixed spots first (bed, dock, airship), then pets
+    const spots = [
+      this.bed && { at: this.bed, label: '帐篷 · 点互动睡觉', tagY: 92, act: () => this.game.events.emit('sleep-request', this.state.clock) },
+      this.dock && { at: this.dock, label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null }) },
+      this.airship && { at: this.airship, label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
+    ].filter(Boolean);
+    const spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
+    if (spot) {
       if (!this.lastCanAct) { this.lastCanAct = true; this.game.events.emit('interact-available', true); }
-      this.nameTag.setText('帐篷 · 点互动睡觉').setBackgroundColor('#5b3d26').setPosition(this.bed.x, this.bed.y - 92).setVisible(true);
-      if (this.actions.consumeInteract()) this.game.events.emit('sleep-request', this.state.clock);
+      this.nameTag.setText(spot.label).setBackgroundColor('#5b3d26').setPosition(spot.at.x, spot.at.y - spot.tagY).setVisible(true);
+      if (this.actions.consumeInteract()) spot.act();
       return;
     }
     const pet = this.nearestPet();
@@ -635,7 +696,8 @@ export default class PlayScene extends Phaser.Scene {
       followerHuman: this.follower.inst.form === 'human',
       onWalkable: this.footFits(this.player.x, this.player.y),
       day: this.state.day, clock: this.state.clock, phase: phaseAt(this.state.clock), tint: this.tintDark,
-      sleeping: this.sleeping, bed: this.bed, area: this.area,
+      sleeping: this.sleeping, bed: this.bed, dock: this.dock, airshipSpot: this.airship ? { x: this.airship.x, y: this.airship.y } : null, area: this.area,
+      hunger: this.state.player.hunger, hp: this.state.player.hp,
       island: this.island ? { seed: this.island.seed, resources: this.island.resources.length, pets: this.island.pets.length, chests: this.island.chests.length, landing: this.island.landing } : null,
     };
   }

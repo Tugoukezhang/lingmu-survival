@@ -122,6 +122,22 @@ export function settingsPanel(scene, stack) {
   return c;
 }
 
+// Airship dock: new island or the last one (docs/06 第 5 节).
+export function departPanel(scene, stack, { clock, last }) {
+  const w = 480, h = 320;
+  const c = woodPanel(scene, w, h);
+  const hh = Math.floor(clock / 60) % 24, mm = String(clock % 60).padStart(2, '0');
+  c.add(text(scene, 0, -h / 2 + 40, '飞艇码头', 26, { ox: 0.5, oy: 0.5 }));
+  c.add(text(scene, 0, -62, `去雾林浮岛探险，路上要 1 小时（现在 ${String(hh).padStart(2, '0')}:${mm}）。\n天黑后岛上会起雾，记得早点回来。`, 15,
+    { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6 }));
+  const go = (mode) => { stack.clear(); scene.game.events.emit('depart', mode); };
+  c.add(capsuleButton(scene, 0, 8, '新的浮岛', { w: 220, onClick: () => go('new'), name: 'depart-new' }));
+  if (last != null) c.add(capsuleButton(scene, 0, 74, '回到上次的岛', { w: 220, style: 'yellow', onClick: () => go('last'), name: 'depart-last' }));
+  else c.add(text(scene, 0, 74, '（还没去过别的岛）', 15, { ox: 0.5, oy: 0.5, bold: false, color: '#9a8468' }));
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
 export function summaryPanel(scene, stack, report) {
   const w = 460, h = 300;
   const c = woodPanel(scene, w, h);

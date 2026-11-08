@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 
 export const SAFE = 24; // keep HUD at least this far from screen edges (notches, rounded corners)
@@ -31,14 +31,18 @@ export default class UIScene extends Phaser.Scene {
     ev.on('interact-available', this.setActionReady, this);
     ev.on('sleep-request', this.askSleep, this);
     ev.on('day-summary', this.showSummary, this);
+    ev.on('dock-request', this.openDock, this);
+    ev.on('airship-request', this.askReturn, this);
     this.events.once('shutdown', () => {
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
+      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this);
     });
     this.refreshAll();
     const session = this.game.session;
-    this.showToast(session.notice ?? '摇杆 / WASD 移动，靠近宠物按「互动」');
-    session.notice = null;
+    const msg = session.notice ?? (session.tipShown ? null : '摇杆 / WASD 移动，靠近宠物按「互动」');
+    if (msg) this.showToast(msg);
+    session.notice = null; session.tipShown = true;
   }
 
   uiLocked() { return this.stack.locked(); }
@@ -49,6 +53,17 @@ export default class UIScene extends Phaser.Scene {
     const msg = early ? `现在才 ${formatClock(clock)}，天还亮着。\n确定要直接睡到明天吗？` : `现在 ${formatClock(clock)}，要睡觉吗？\n睡到明天早上 6:00。`;
     this.stack.push('sleep', (s, st) => confirmDialog(s, st, msg,
       () => this.game.events.emit('sleep-confirm')));
+  }
+
+  openDock(info) {
+    if (this.stack.size) return;
+    this.stack.push('dock', (s, st) => departPanel(s, st, info));
+  }
+
+  askReturn(clock) {
+    if (this.stack.size) return;
+    this.stack.push('return', (s, st) => confirmDialog(s, st, `要坐飞艇回家吗？\n路上要 1 小时（现在 ${formatClock(clock)}）。`,
+      () => this.game.events.emit('return-home')));
   }
 
   showSummary(report) {

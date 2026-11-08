@@ -272,6 +272,7 @@ try {
 
   // ---------- expedition island (T05) ----------
   const waitArea = (area) => page.waitForFunction((a) => window.__game.scene.getScene('play')?.area === a && window.__game.scene.isActive('play') && window.__game.scene.isActive('ui'), area, { timeout: 10000 });
+  await page.evaluate(() => window.__game.registry.set({ hp: 100, hunger: 100 })); // earlier checks left the player starving
   await scene(() => window.__game.scene.getScene('play').travelTo(20261108));
   await waitArea('expedition'); await page.waitForTimeout(800);
   const ex1 = await state();
@@ -294,6 +295,38 @@ try {
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(500);
   check('回到家园岛', (await state()).area === 'home' && (await state()).onWalkable);
+
+  // ---------- airship travel (T25) ----------
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.dock.x, sc.dock.y + 20); });
+  await page.waitForTimeout(200);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('在码头按互动 → 打开出发面板（有「回到上次的岛」）', (await ui()).stack.join() === 'dock' && !!(await page.evaluate(() => window.__game.scene.getScene('ui').findTarget('depart-last'))), (await ui()).stack.join());
+  await page.screenshot({ path: join(OUT, '21-dock.png') });
+  const beforeTrip = await state();
+  await tapTarget('depart-new');
+  await waitArea('expedition'); await page.waitForTimeout(600);
+  const trip = await state();
+  const landTile = await scene(() => { const sc = window.__game.scene.getScene('play'); const l = sc.island.landing; return Math.hypot(sc.player.x - (l.tx * 48 + 24), sc.player.y - (l.ty * 48 + 24)); });
+  check('到达新岛时站在飞艇着陆点', landTile < 4, `离着陆点 ${landTile}px`);
+  check('选新的浮岛：到了另一座岛，过了 1 小时', trip.island.seed !== 20261108 && trip.clock - beforeTrip.clock >= 60 && trip.clock - beforeTrip.clock <= 62, `seed ${trip.island.seed} ${beforeTrip.clock} → ${trip.clock}`);
+  await page.screenshot({ path: join(OUT, '22-new-island.png') });
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('着陆点旁边就能和飞艇互动 → 问要不要回家', (await ui()).stack.join() === 'return', (await ui()).stack.join());
+  await tapTarget('ok');
+  await waitArea('home'); await page.waitForTimeout(600);
+  const back = await state();
+  check('坐飞艇回家：出现在码头旁', back.area === 'home' && Math.hypot(back.player.x - back.dock.x, back.player.y - back.dock.y) < 40, JSON.stringify(back.player));
+  // fainting on an expedition (interim rule until T23)
+  await scene(() => window.__game.scene.getScene('play').travelTo(424242));
+  await waitArea('expedition'); await page.waitForTimeout(500);
+  const dayBefore = (await state()).day;
+  await page.evaluate(() => { window.__game.registry.set({ hp: 3, hunger: 0 }); window.__game.scene.getScene('play').debugAdvance(20); });
+  await page.waitForTimeout(400);
+  await waitArea('home'); await page.waitForTimeout(800);
+  const woke = await state();
+  check('远征中饿倒 → 第二天 8:00 在家醒来，生命 50', woke.day === dayBefore + 1 && woke.clock >= 480 && woke.clock < 483 && woke.hp === 50 && (await toastText()).includes('醒来'),
+    `day ${dayBefore}→${woke.day} clock ${woke.clock} hp ${woke.hp} / ${await toastText()}`);
+  await page.screenshot({ path: join(OUT, '23-woke.png') });
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
