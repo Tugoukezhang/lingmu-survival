@@ -15,6 +15,7 @@ import * as T from '../game/src/systems/time.js';
 import * as V from '../game/src/systems/survival.js';
 import * as I from '../game/src/systems/inventory.js';
 import { ITEMS } from '../game/src/data/items.js';
+import * as G from '../game/src/systems/islandGen.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -335,6 +336,49 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('同种物品叠加在一格', inv.length === 1 && inv[0].count === 5);
   const full = Array.from({ length: I.BAG_SLOTS }, (_, i) => ({ id: `x${i}`, count: 1 }));
   check('背包 20 格满了放不下新物品', !I.addItem(full, 'item_berry', 1) && full.length === I.BAG_SLOTS);
+}
+
+// ---------- expedition island generation (T05; docs/06 第 5 节) ----------
+{
+  const a = G.generateIsland(20261108), b = G.generateIsland(20261108);
+  check('E01 同一种子生成两次，两座岛完全一样', JSON.stringify(a) === JSON.stringify(b));
+  check('不同种子生成不同的岛', JSON.stringify(G.generateIsland(1)) !== JSON.stringify(G.generateIsland(2)));
+  let bad = [], fallback = 0, minArea = 1e9;
+  const counts = { tree: 0, rock: 0, bush: 0, grass: 0, crystal: 0 };
+  for (let i = 1; i <= 100; i++) {
+    const isl = G.generateIsland(i * 7919);
+    const why = G.validate(isl);
+    if (why) bad.push(`${i}:${why}`);
+    if (isl.fallback) fallback++;
+    minArea = Math.min(minArea, isl.area);
+    if (isl.pets.length < 4 || isl.pets.length > 6 || isl.chests.length < 1 || isl.chests.length > 2 || isl.camps.length < 1 || isl.camps.length > 2) bad.push(`${i}:数量`);
+    for (const r of isl.resources) counts[r.type]++;
+  }
+  check('E02 连续 100 个种子：资源、宝箱、宠物、营地都能从着陆点走到；数量在规定范围', bad.length === 0, bad.slice(0, 3).join(' '));
+  check('100 座岛可行走面积都 ≥ 600 格', minArea >= G.MIN_AREA, `最小 ${minArea}`);
+  check('100 座岛都不需要兜底岛', fallback === 0, `兜底 ${fallback}`);
+  check('五种资源都会出现', Object.values(counts).every((n) => n > 0), JSON.stringify(counts));
+  const isl = G.generateIsland(20261108);
+  check('着陆点在岛上、飞艇在岛外', isl.walk[isl.landing.ty][isl.landing.tx] && !isl.walk[isl.airship.ty][isl.airship.tx]);
+  const blocked = G.blockedGrid(isl);
+  check('着陆点周围没有挡路的东西', [-1, 0, 1].every((dy) => [-1, 0, 1].every((dx) => !blocked[isl.landing.ty + dy][isl.landing.tx + dx])));
+  const far = Math.min(...isl.chests.map((c) => Math.abs(c.tx - isl.landing.tx) + Math.abs(c.ty - isl.landing.ty)));
+  check('宝箱离着陆点远（直线格数 ≥ 12）', far >= 12, `最近 ${far}`);
+
+  // E05: collected spots stay empty when coming back to the same island
+  const taken = isl.resources.slice(0, 3).map((r) => r.id);
+  const st = S.newGameState();
+  st.expedition = { seed: 20261108, biome: 'mistwood', changes: { collected: taken, chests: [isl.chests[0].id], pets: [isl.pets[0].id] } };
+  st.player.area = 'expedition';
+  const mem = new S.MemoryStorage(), store = new S.SaveStore(mem);
+  store.save(st);
+  const back = store.load().state;
+  const again = G.applyChanges(G.generateIsland(back.expedition.seed), back.expedition.changes);
+  check('E05 采集过的资源回来时仍然是空的（存档 → 读档 → 重新生成）', taken.every((id) => !again.resources.some((r) => r.id === id)) && again.resources.length === isl.resources.length - 3);
+  check('打开过的宝箱、捕捉过的宠物不再出现', again.chests.length === isl.chests.length - 1 && again.pets.length === isl.pets.length - 1);
+  check('没动过的资源位置不变', JSON.stringify(again.resources) === JSON.stringify(isl.resources.slice(3)));
+  check('采集后格子不再挡路', !G.blockedGrid(again)[isl.resources[0].ty][isl.resources[0].tx] || isl.resources[0].type === 'grass');
+  check('存档：在远征岛上但没有岛屿记录 → 不合法', S.validate({ ...S.newGameState(), player: { ...S.newGameState().player, area: 'expedition' } }).includes('player.area'));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

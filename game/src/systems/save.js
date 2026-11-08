@@ -63,6 +63,9 @@ export function validate(s) {
   if (!Array.isArray(s.inventory) || !s.inventory.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0)) err.push('inventory');
   if (!Array.isArray(s.pets) || !s.pets.every((pet) => PET_BY_ID[pet?.species] && typeof pet.uid === 'string' && isInt(pet.level) && pet.level >= 1)) err.push('pets');
   else if (new Set(s.pets.map((pet) => pet.uid)).size !== s.pets.length) err.push('pets.重复');
+  const ex = s.expedition;
+  if (ex != null && !(Number.isInteger(ex.seed) && ex.changes && ['collected', 'chests', 'pets'].every((k) => Array.isArray(ex.changes[k])))) err.push('expedition');
+  if (p && p.area === 'expedition' && ex == null) err.push('player.area');
   if (!Array.isArray(s.party) || s.party.length > PARTY_MAX || !s.party.every((uid) => s.pets?.some?.((pet) => pet.uid === uid))) err.push('party');
   return err;
 }

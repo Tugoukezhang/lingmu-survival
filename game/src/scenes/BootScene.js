@@ -33,6 +33,11 @@ export default class BootScene extends Phaser.Scene {
     });
     this.makeCanvas('cloud', 220, 90, drawCloud);
     this.makeCanvas('tent', 104, 92, drawTent);
+    this.makeCanvas('bush', 64, 52, drawBush);
+    this.makeCanvas('grass_tuft', 48, 34, drawGrassTuft);
+    this.makeCanvas('crystal', 44, 60, drawCrystal);
+    this.makeCanvas('chest', 60, 50, drawChest);
+    this.makeCanvas('airship', 190, 150, drawAirship);
     for (const [k, fn] of Object.entries(FOOD_ICONS)) this.makeCanvas(k, 128, 128, fn);
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
@@ -135,6 +140,65 @@ function berries(g, color) {
     g.beginPath(); g.arc(x, y, 17, 0, Math.PI * 2); g.fill(); g.stroke();
     g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.arc(x - 6, y - 6, 4, 0, Math.PI * 2); g.fill();
   }
+}
+
+function drawBush(g, w, h) {
+  for (const [x, y, r] of [[w / 2 - 14, h - 22, 15], [w / 2 + 14, h - 22, 15], [w / 2, h - 32, 17], [w / 2, h - 16, 16]]) {
+    const grd = g.createRadialGradient(x - r / 3, y - r / 3, 3, x, y, r);
+    grd.addColorStop(0, '#7fbf5a'); grd.addColorStop(1, '#3f7a3a');
+    g.fillStyle = grd; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  g.fillStyle = '#d9406a';
+  for (const [x, y] of [[w / 2 - 12, h - 30], [w / 2 + 8, h - 38], [w / 2 + 16, h - 20], [w / 2 - 4, h - 16], [w / 2 - 18, h - 18]]) { g.beginPath(); g.arc(x, y, 4, 0, Math.PI * 2); g.fill(); }
+}
+
+function drawGrassTuft(g, w, h) {
+  g.strokeStyle = '#4f8a3a'; g.lineWidth = 3; g.lineCap = 'round';
+  for (let i = 0; i < 9; i++) {
+    const x = 6 + i * 4.5, lean = (i - 4) * 2.2;
+    g.beginPath(); g.moveTo(x, h - 2); g.quadraticCurveTo(x + lean * 0.4, h - 16, x + lean, h - 22 - (i % 3) * 5); g.stroke();
+  }
+  g.strokeStyle = '#8fcf5a'; g.lineWidth = 2;
+  for (let i = 0; i < 5; i++) { const x = 10 + i * 7; g.beginPath(); g.moveTo(x, h - 2); g.lineTo(x + 2, h - 18); g.stroke(); }
+}
+
+function drawCrystal(g, w, h) {
+  const shard = (x, top, half, c1, c2) => {
+    const grd = g.createLinearGradient(x - half, top, x + half, h);
+    grd.addColorStop(0, c1); grd.addColorStop(1, c2);
+    g.fillStyle = grd; g.strokeStyle = '#4a7aa8'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(x, top); g.lineTo(x + half, top + 14); g.lineTo(x + half * 0.7, h - 4); g.lineTo(x - half * 0.7, h - 4); g.lineTo(x - half, top + 14); g.closePath(); g.fill(); g.stroke();
+  };
+  shard(12, 24, 8, '#e6fbff', '#7cc4f0');
+  shard(32, 22, 8, '#e6fbff', '#7cc4f0');
+  shard(22, 4, 10, '#ffffff', '#9ad6ff');
+}
+
+function drawChest(g, w, h) {
+  g.fillStyle = '#8a5a36'; g.strokeStyle = '#5b3d26'; g.lineWidth = 3;
+  roundRect(g, 6, 20, w - 12, h - 24, 6); g.fill(); g.stroke();
+  roundRect(g, 4, 8, w - 8, 18, 8); g.fillStyle = '#a8703f'; g.fill(); g.stroke();
+  g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 6, 18, 12, 14); g.strokeRect(w / 2 - 6, 18, 12, 14);
+  g.fillStyle = '#f5c84b'; g.fillRect(10, 22, 4, h - 28); g.fillRect(w - 14, 22, 4, h - 28);
+}
+
+function drawAirship(g, w, h) {
+  g.lineWidth = 3; g.strokeStyle = '#5b3d26';
+  // balloon
+  const grd = g.createLinearGradient(0, 8, 0, 80);
+  grd.addColorStop(0, '#fbf3dc'); grd.addColorStop(1, '#efd9a8');
+  g.fillStyle = grd; g.beginPath(); g.ellipse(w / 2, 46, 78, 38, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+  g.strokeStyle = '#f0a9a0'; g.lineWidth = 6;
+  for (const dx of [-40, 0, 40]) { g.beginPath(); g.ellipse(w / 2 + dx * 0.2, 46, Math.abs(dx) * 0.9 + 8, 37, 0, -Math.PI / 2, Math.PI / 2, dx < 0); g.stroke(); }
+  // ropes
+  g.strokeStyle = '#8a5a36'; g.lineWidth = 2;
+  for (const dx of [-40, -14, 14, 40]) { g.beginPath(); g.moveTo(w / 2 + dx, 80); g.lineTo(w / 2 + dx * 0.8, 110); g.stroke(); }
+  // boat
+  g.fillStyle = '#8a5a36'; g.strokeStyle = '#5b3d26'; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(w / 2 - 58, 108); g.lineTo(w / 2 + 58, 108); g.quadraticCurveTo(w / 2 + 50, 138, w / 2 + 30, 140); g.lineTo(w / 2 - 30, 140); g.quadraticCurveTo(w / 2 - 50, 138, w / 2 - 58, 108); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 48, 114, 96, 5);
+  // propeller
+  g.fillStyle = '#5b3d26'; g.beginPath(); g.ellipse(w / 2 + 70, 122, 4, 14, 0, 0, Math.PI * 2); g.fill();
 }
 
 function drawTent(g, w, h) {

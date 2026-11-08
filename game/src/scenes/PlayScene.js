@@ -4,13 +4,15 @@ import { mulberry32, valueNoise2D } from '../systems/rng.js';
 import InputActions from '../systems/input.js';
 import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock } from '../systems/time.js';
 import { survivalTick } from '../systems/survival.js';
+import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../systems/islandGen.js';
+import { wildLevel } from '../systems/petMath.js';
 
-// T02 technical baseline: a placeholder floating island where the player
-// walks with the joystick or keyboard, one pet follows, the others idle on a
-// meadow, and the action button swaps the follower. No gameplay systems yet.
+// The world: either the home island (placeholder layout) or a generated
+// expedition island (systems/islandGen.js), chosen by state.player.area.
+// Changing area = update the state and restart this scene.
 
-const COLS = 50;
-const ROWS = 34;
+const HOME_COLS = 50;
+const HOME_ROWS = 34;
 const CLIFF = 30;            // px of cliff face drawn below the island edge
 const SPEED = 170;           // player px/s
 const PET_HEIGHT = 74;       // on-screen pet height in px
@@ -24,12 +26,16 @@ export default class PlayScene extends Phaser.Scene {
     this.session = this.game.session;
     this.state = this.session.state;
     this.rand = mulberry32(SEED);
-    this.buildIsland();
+    // the scene object is reused on restart: clear what belongs to the previous map
+    this.bed = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
+    this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
+    if (this.area === 'expedition') this.buildExpedition(); else this.buildIsland();
     this.buildBackdrop();
     this.drawGround();
-    this.placeObstacles();
+    if (this.area === 'expedition') this.placeExpeditionProps(); else this.placeObstacles();
     this.createPlayer();
     this.createPets();
+    if (this.area === 'expedition') this.createWildPets();
 
     this.createWorldUi();
     this.createDayNight();
@@ -52,7 +58,7 @@ export default class PlayScene extends Phaser.Scene {
     this.events.once('shutdown', () => { this.game.events.off('action-pressed', onAction); this.game.events.off('sleep-confirm', onSleep); });
 
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, COLS * TILE, ROWS * TILE + CLIFF + TILE);
+    cam.setBounds(0, 0, this.cols * TILE, this.rows * TILE + CLIFF + TILE);
     cam.startFollow(this.player, true, 0.12, 0.12);
     cam.setRoundPixels(true);
   }
@@ -60,12 +66,13 @@ export default class PlayScene extends Phaser.Scene {
   // ---------- world ----------
 
   buildIsland() {
+    this.cols = HOME_COLS; this.rows = HOME_ROWS;
     const noise = valueNoise2D(SEED + 7, 6);
-    const cx = COLS / 2, cy = ROWS / 2, rx = 21, ry = 13;
+    const cx = this.cols / 2, cy = this.rows / 2, rx = 21, ry = 13;
     this.walk = [];
-    for (let y = 0; y < ROWS; y++) {
+    for (let y = 0; y < this.rows; y++) {
       const row = [];
-      for (let x = 0; x < COLS; x++) {
+      for (let x = 0; x < this.cols; x++) {
         const d = ((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2;
         row.push(d + (noise(x, y) - 0.5) * 0.7 < 1);
       }
@@ -76,8 +83,20 @@ export default class PlayScene extends Phaser.Scene {
     this.meadowTile = { x: Math.floor(cx) - 7, y: Math.floor(cy) + 2 };
   }
 
+  // Expedition island from the saved seed, minus what was already taken.
+  buildExpedition() {
+    const exp = this.state.expedition;
+    this.island = applyChanges(generateIsland(exp.seed), exp.changes);
+    this.cols = this.island.cols; this.rows = this.island.rows;
+    this.walk = this.island.walk;
+    this.blocked = blockedGrid(this.island);
+    const l = this.island.landing;
+    this.spawnTile = { x: l.tx, y: l.ty };
+    this.meadowTile = { x: l.tx, y: l.ty };
+  }
+
   isWalkableTile(tx, ty) {
-    return ty >= 0 && ty < ROWS && tx >= 0 && tx < COLS && this.walk[ty][tx] && !this.blocked[ty][tx];
+    return ty >= 0 && ty < this.rows && tx >= 0 && tx < this.cols && this.walk[ty][tx] && !this.blocked[ty][tx];
   }
 
   isWalkablePx(px, py) {
@@ -101,7 +120,7 @@ export default class PlayScene extends Phaser.Scene {
 
     this.clouds = [];
     for (let i = 0; i < 9; i++) {
-      const c = this.add.image(this.rand() * COLS * TILE * 0.5, this.rand() * ROWS * TILE * 0.5, 'cloud')
+      const c = this.add.image(this.rand() * this.cols * TILE * 0.5, this.rand() * this.rows * TILE * 0.5, 'cloud')
         .setScrollFactor(0.3).setDepth(-20).setAlpha(0.7 + this.rand() * 0.3).setScale(0.8 + this.rand() * 0.8);
       c.speed = 6 + this.rand() * 10;
       this.clouds.push(c);
@@ -109,12 +128,12 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   drawGround() {
-    const W = COLS * TILE, H = ROWS * TILE + CLIFF + 8;
+    const W = this.cols * TILE, H = this.rows * TILE + CLIFF + 8;
     const tex = this.textures.createCanvas('ground', W, H);
     const g = tex.getContext();
     const r = TILE * 0.74;
     const tiles = [];
-    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (this.walk[y][x]) tiles.push([x * TILE + TILE / 2, y * TILE + TILE / 2]);
+    for (let y = 0; y < this.rows; y++) for (let x = 0; x < this.cols; x++) if (this.walk[y][x]) tiles.push([x * TILE + TILE / 2, y * TILE + TILE / 2]);
 
     // cliff / earth layer: blobs shifted down, visible only below the grass edge
     for (const [x, y] of tiles) {
@@ -140,10 +159,23 @@ export default class PlayScene extends Phaser.Scene {
       g.fillStyle = n > 0 ? `rgba(255,250,200,${(n * 0.22).toFixed(3)})` : `rgba(40,90,30,${(-n * 0.22).toFixed(3)})`;
       g.beginPath(); g.arc(x, y, r * 0.96, 0, Math.PI * 2); g.fill();
     }
-    // meadow patch for the pets
-    const m = this.meadowTile;
-    g.fillStyle = 'rgba(200,232,140,0.55)';
-    g.beginPath(); g.ellipse(m.x * TILE + TILE / 2, m.y * TILE + TILE / 2, TILE * 3.6, TILE * 2.4, 0, 0, Math.PI * 2); g.fill();
+    if (this.area === 'home') {
+      // meadow patch for the pets
+      const m = this.meadowTile;
+      g.fillStyle = 'rgba(200,232,140,0.55)';
+      g.beginPath(); g.ellipse(m.x * TILE + TILE / 2, m.y * TILE + TILE / 2, TILE * 3.6, TILE * 2.4, 0, 0, Math.PI * 2); g.fill();
+    } else {
+      // 雾林: cooler, slightly misty green
+      g.globalCompositeOperation = 'source-atop';
+      g.fillStyle = 'rgba(40,95,105,0.3)'; g.fillRect(0, 0, W, H);
+      g.globalCompositeOperation = 'source-over';
+      for (const c of this.island.camps) {   // camp clearings: trampled earth + stone ring
+        const x = c.tx * TILE + TILE / 2, y = c.ty * TILE + TILE / 2;
+        g.fillStyle = 'rgba(190,150,100,0.45)'; g.beginPath(); g.ellipse(x, y, TILE * 1.4, TILE * 1.1, 0, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#a49c8c';
+        for (let a = 0; a < 8; a++) { g.beginPath(); g.arc(x + Math.cos(a * Math.PI / 4) * 18, y + Math.sin(a * Math.PI / 4) * 13, 5, 0, Math.PI * 2); g.fill(); }
+      }
+    }
     // a few extra flowers at random spots (the tile already has grass blades)
     for (const [x, y] of tiles) {
       if (this.rand() < 0.06) {
@@ -177,8 +209,8 @@ export default class PlayScene extends Phaser.Scene {
       || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2;
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
     const forest = valueNoise2D(SEED + 23, 5);
-    for (let y = 1; y < ROWS - 1; y++) {
-      for (let x = 1; x < COLS - 1; x++) {
+    for (let y = 1; y < this.rows - 1; y++) {
+      for (let x = 1; x < this.cols - 1; x++) {
         if (!inland(x, y) || reserved(x, y)) continue;
         const roll = this.rand();
         const px = x * TILE + TILE / 2, py = y * TILE + TILE - 6;
@@ -194,12 +226,114 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
+  placeExpeditionProps() {
+    const isl = this.island;
+    this.resourceSprites = new Map();
+    const at = (tx, ty, dy = -6) => ({ x: tx * TILE + TILE / 2, y: ty * TILE + TILE + dy });
+    const look = {
+      tree: { key: 'tree', origin: [0.5, 0.95], tint: 0xa8c8b8, shadow: 1.1 },
+      rock: { key: 'rock', origin: [0.5, 0.9] },
+      bush: { key: 'bush', origin: [0.5, 0.9], shadow: 0.8 },
+      grass: { key: 'grass_tuft', origin: [0.5, 0.9], depthBias: -20 },
+      crystal: { key: 'crystal', origin: [0.5, 0.92], shadow: 0.6 },
+    };
+    for (const r of isl.resources) {
+      const L = look[r.type], { x, y } = at(r.tx, r.ty);
+      const parts = [];
+      if (L.shadow) parts.push(this.add.image(x, y + 4, 'shadow').setScale(L.shadow, 1).setDepth(y - 1));
+      const img = this.add.image(x, y, L.key).setOrigin(...L.origin).setDepth(y + (L.depthBias ?? 0));
+      if (L.tint) img.setTint(L.tint);
+      if (r.type === 'crystal') this.tweens.add({ targets: img, alpha: 0.75, duration: 900 + (r.tx % 5) * 80, yoyo: true, repeat: -1 });
+      parts.push(img);
+      this.resourceSprites.set(r.id, parts);
+    }
+    for (const c of isl.chests) {
+      const { x, y } = at(c.tx, c.ty, -8);
+      this.add.image(x, y + 4, 'shadow').setScale(0.8, 1).setDepth(y - 1);
+      this.add.image(x, y, 'chest').setOrigin(0.5, 0.9).setDepth(y);
+    }
+    // airship floats in the sky just off the landing edge
+    const a = isl.airship;
+    const ax = a.tx * TILE + TILE / 2, ay = a.ty * TILE + TILE / 2 + 18;
+    const ship = this.add.image(ax, ay, 'airship').setOrigin(0.5, 0.7).setDepth(ay - 30);
+    this.tweens.add({ targets: ship, y: ay - 6, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+    this.airship = { x: ax, y: ay - 44, sprite: ship };
+  }
+
+  // Wild pets wander near where the generator put them. Touching one starts
+  // an encounter (battle is T06; for now a message).
+  createWildPets() {
+    const isl = this.island;
+    this.wild = isl.pets.map((w, i) => {
+      const data = species(w.species);
+      const home = { x: w.tx * TILE + TILE / 2, y: w.ty * TILE + TILE / 2 };
+      const level = wildLevel(this.state.day, mulberry32(isl.seed * 31 + i));
+      const shadow = this.add.image(home.x, home.y + 2, 'shadow').setScale(0.7);
+      const sprite = this.add.image(home.x, home.y, petTextureKey(data.id)).setOrigin(0.5, 0.92);
+      sprite.setScale(PET_HEIGHT * 0.9 / sprite.height);
+      return { ...w, data, level, sprite, shadow, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: 0 };
+    });
+  }
+
+  updateWild(time, dt) {
+    if (!this.wild) return;
+    const p = this.player;
+    for (const w of this.wild) {
+      const s = w.sprite;
+      if (time > w.wanderAt) {
+        // pick a nearby walkable spot to stroll to
+        for (let k = 0; k < 6; k++) {
+          const tx = w.home.x + (this.rand() - 0.5) * 140, ty = w.home.y + (this.rand() - 0.5) * 100;
+          if (this.footFits(tx, ty)) { w.target = { x: tx, y: ty }; break; }
+        }
+        w.wanderAt = time + 2500 + this.rand() * 3500;
+      }
+      const dx = w.target.x - s.x, dy = w.target.y - s.y, dist = Math.hypot(dx, dy);
+      if (dist > 3) {
+        const k = Math.min(1, (36 * dt) / dist);
+        const nx = s.x + dx * k, ny = s.y + dy * k;
+        if (this.footFits(nx, ny)) { s.x = nx; s.y = ny; } else w.wanderAt = 0;
+        if (Math.abs(dx) > 2) s.setFlipX(dx < 0);
+      }
+      w.phase += dt * (dist > 3 ? 9 : 2.5);
+      s.setDisplayOrigin(s.width / 2, s.height * 0.92 + Math.abs(Math.sin(w.phase)) * (dist > 3 ? 4 : 1.5) / s.scaleY);
+      s.setDepth(s.y);
+      w.shadow.setPosition(s.x, s.y + 2).setDepth(s.y - 1);
+      if (!this.sleeping && time > w.cooldown && Phaser.Math.Distance.Between(p.x, p.y, s.x, s.y) < 34) {
+        w.cooldown = time + 4000;
+        this.game.events.emit('wild-encounter', { id: w.id, species: w.species, level: w.level });
+        this.showToast(`遇到了野生的${w.data.name}（Lv.${w.level}）！宠物对战开发中`);
+        // hop away a little so the player can walk on
+        const ax = s.x - p.x, ay = s.y - p.y, len = Math.hypot(ax, ay) || 1;
+        w.target = { x: s.x + ax / len * 60, y: s.y + ay / len * 60 };
+        if (!this.footFits(w.target.x, w.target.y)) w.target = { ...w.home };
+        w.wanderAt = time + 3000;
+      }
+    }
+  }
+
+  // ---------- travel (test hooks now; the airship UI is T25) ----------
+  travelTo(seed) {
+    this.state.expedition = { seed, biome: 'mistwood', changes: emptyChanges() };
+    this.state.player.area = 'expedition';
+    this.state.player.x = null; this.state.player.y = null;
+    this.session.save('travel');
+    this.scene.restart();
+  }
+
+  goHome() {
+    this.state.player.area = 'home';
+    this.state.player.x = null; this.state.player.y = null;
+    this.session.save('travel');
+    this.scene.restart();
+  }
+
   // ---------- actors ----------
 
   createPlayer() {
     let x = this.spawnTile.x * TILE + TILE / 2, y = this.spawnTile.y * TILE + TILE / 2;
     const saved = this.state.player;
-    if (saved.area === 'home' && saved.x != null && this.footFits(saved.x, saved.y)) { x = saved.x; y = saved.y; }
+    if (saved.area === this.area && saved.x != null && this.footFits(saved.x, saved.y)) { x = saved.x; y = saved.y; }
     this.playerShadow = this.add.image(x, y + 2, 'shadow').setScale(0.7);
     this.player = this.add.image(x, y, 'player').setOrigin(0.5, 0.97);
     this.facing = new Phaser.Math.Vector2(0, 1);
@@ -211,8 +345,9 @@ export default class PlayScene extends Phaser.Scene {
     const m = this.meadowTile;
     const center = { x: m.x * TILE + TILE / 2, y: m.y * TILE + TILE / 2 };
     const slots = [[-110, -40], [-40, -70], [40, -55], [110, -30], [-70, 40], [60, 45]];
-    // every owned pet lives on the home island for now; party[0] follows
-    this.pets = this.state.pets.map((inst, i) => {
+    // home: every owned pet lives here; expedition: only the party comes along. party[0] follows.
+    const owned = this.area === 'home' ? this.state.pets : this.state.pets.filter((x) => this.state.party.includes(x.uid));
+    this.pets = owned.map((inst, i) => {
       const data = species(inst.species);
       const slot = slots[i % slots.length];
       const home = { x: center.x + slot[0] + Math.floor(i / slots.length) * 24, y: center.y + slot[1] };
@@ -345,10 +480,11 @@ export default class PlayScene extends Phaser.Scene {
     this.updateTime(Math.min(delta, 250));
     if (!this.sleeping) this.movePlayer(dt);
     this.updatePets(time, dt);
+    this.updateWild(time, dt);
     this.updateInteraction();
     for (const c of this.clouds) {
       c.x += c.speed * dt;
-      if (c.x > COLS * TILE * 0.5 + 200) c.x = -200;
+      if (c.x > this.cols * TILE * 0.5 + 200) c.x = -200;
     }
     if (this.debugText) {
       const p = this.player;
@@ -499,7 +635,8 @@ export default class PlayScene extends Phaser.Scene {
       followerHuman: this.follower.inst.form === 'human',
       onWalkable: this.footFits(this.player.x, this.player.y),
       day: this.state.day, clock: this.state.clock, phase: phaseAt(this.state.clock), tint: this.tintDark,
-      sleeping: this.sleeping, bed: this.bed,
+      sleeping: this.sleeping, bed: this.bed, area: this.area,
+      island: this.island ? { seed: this.island.seed, resources: this.island.resources.length, pets: this.island.pets.length, chests: this.island.chests.length, landing: this.island.landing } : null,
     };
   }
 }

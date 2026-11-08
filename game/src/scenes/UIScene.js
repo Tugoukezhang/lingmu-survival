@@ -15,6 +15,7 @@ export default class UIScene extends Phaser.Scene {
 
   create() {
     this.hud = [];
+    this.dayPhase = null; this.dayIcon = null; // scene object is reused on restart
     this.stack = new PanelStack(this, { onChange: (open) => this.onModal(open) });
     this.joystick = new VirtualJoystick(this, { isBlocked: (over) => this.stack.size > 0 || over.length > 0 });
     this.createStatus();

@@ -270,6 +270,31 @@ try {
   check('家园饿到底：生命停在 1 不倒下，有提示，生命条闪烁', lowHud.hp === 1 && lowHud.low && (await toastText()).includes('吃'), `${JSON.stringify(lowHud)} / ${await toastText()}`);
   await page.screenshot({ path: join(OUT, '18-starving.png') });
 
+  // ---------- expedition island (T05) ----------
+  const waitArea = (area) => page.waitForFunction((a) => window.__game.scene.getScene('play')?.area === a && window.__game.scene.isActive('play') && window.__game.scene.isActive('ui'), area, { timeout: 10000 });
+  await scene(() => window.__game.scene.getScene('play').travelTo(20261108));
+  await waitArea('expedition'); await page.waitForTimeout(800);
+  const ex1 = await state();
+  const partyOnly = await page.evaluate(() => window.__game.scene.getScene('play').pets.length === window.__game.session.state.party.length);
+  check('换地图后 HUD 的昼夜图标还在', await page.evaluate(() => !!window.__game.scene.getScene('ui').dayIcon?.active));
+  check('去远征岛：站在着陆点的可走区域，只带队伍里的宠物', ex1.area === 'expedition' && ex1.onWalkable && partyOnly && ex1.island.pets >= 4, JSON.stringify(ex1.island));
+  await page.screenshot({ path: join(OUT, '19-expedition.png') });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); const w = sc.wild[0]; sc.teleport(w.sprite.x + 20, w.sprite.y); });
+  await page.waitForTimeout(400);
+  check('碰到野生宠物 → 出现遭遇提示', (await toastText()).includes('野生'), await toastText());
+  await page.screenshot({ path: join(OUT, '20-encounter.png') });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); const l = sc.island.landing; sc.teleport(l.tx * 48 + 24, l.ty * 48 + 24); });
+  for (const k of ['ArrowUp', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown']) await keyHold(page, k, 1200);
+  check('在远征岛上乱走不会卡进树里或掉出岛', (await state()).onWalkable, JSON.stringify((await state()).player));
+  const exPos = await state();
+  await reload(); await waitArea('expedition');
+  const ex2 = await state();
+  check('刷新后还在同一座远征岛的同一位置', ex2.area === 'expedition' && ex2.island.seed === ex1.island.seed && Math.abs(ex2.player.x - exPos.player.x) < 4 && Math.abs(ex2.player.y - exPos.player.y) < 4,
+    `${JSON.stringify(exPos.player)} → ${JSON.stringify(ex2.player)}`);
+  await scene(() => window.__game.scene.getScene('play').goHome());
+  await waitArea('home'); await page.waitForTimeout(500);
+  check('回到家园岛', (await state()).area === 'home' && (await state()).onWalkable);
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);
