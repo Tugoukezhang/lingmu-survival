@@ -12,13 +12,13 @@
 - 负责人授权（2026-11-08）：玩法细节和数值由 AI 判断，写进文档标【建议】并在汇报里说明；只有方向性问题（美术风格、商业化、范围取舍、花钱的事）才停下来问。
 
 ## 当前状态（2026-11-08）
-- 阶段：M1。**M1 开发任务全部实现（T02–T08、T10、T19、T20、T25），待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）；宠物/技能/性格数据和属性、伤害、经验、捕捉、进化公式（`systems/petMath.js`）；存档（`systems/save.js` + `GameSession.js`：校验码、备份回退、版本迁移、自动存档）；时间昼夜与每日结算（`systems/time.js`，占位帐篷睡觉）；生命与饱食、吃东西（`systems/survival.js`、`inventory.js`）。远征岛随机生成（`systems/islandGen.js`）；飞艇出发与返回、倒下临时处理（`systems/travel.js`）；采集与制作（`systems/crafting.js`、`data/recipes.js`）；回合制宠物对战与捕捉（`systems/battle.js`、`scenes/BattleScene.js`）、队伍面板（`systems/party.js`）。界面自动检查 75/75、逻辑检查 203/203 通过。
+- 阶段：M1。**M1 开发任务全部实现（T02–T08、T10、T19、T20、T25），M2 已完成 T23，待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）；宠物/技能/性格数据和属性、伤害、经验、捕捉、进化公式（`systems/petMath.js`）；存档（`systems/save.js` + `GameSession.js`：校验码、备份回退、版本迁移、自动存档）；时间昼夜与每日结算（`systems/time.js`，占位帐篷睡觉）；生命与饱食、吃东西（`systems/survival.js`、`inventory.js`）。远征岛随机生成（`systems/islandGen.js`）；飞艇出发与返回、倒下临时处理（`systems/travel.js`）；采集与制作（`systems/crafting.js`、`data/recipes.js`）；回合制宠物对战与捕捉（`systems/battle.js`、`scenes/BattleScene.js`）、队伍面板（`systems/party.js`）；倒下与失物包（`systems/travel.js`）。界面自动检查 80/80、逻辑检查 214/214 通过。
 - 界面零件：负责人正在逐个手绘（T41），到了再换进 `widgets.js`；main 分支上的矢量重绘包只作参考和备用，不直接接入。
 - 已完成：方向确认；知识库搭建；引入游戏开发 skills；冒险探索、捕捉、宠物养成、商业化设计（开工图 v0.4、`docs/06`–`09`）；参考视频笔记；风格示例图入库。
 - 宠物名单（2026-11-08）：橡果刺猬（森）、航海鲨（水）、冰蓝小狼（水）、月影狐猫（暗）、星星熊仔（光）、焰尾狐（火）及其人形态（化形）全部定稿并抠图（`game/assets/pets/`，7 张待机图）。素材处理脚本和用法见 `tools/art/README.md`（抠图 `cutout.py`、无缝地块 `seamless.py`）。草地地块 `game/assets/tiles/tile_grass.png` 和 3 个物品图标 `game/assets/items/` 已入库，草地已用在游戏里。属性 5 种：森水火光暗。
 - 美术原创要求：出图不上传他人角色图；新图要和负责人提供的原截图并排对比原创度。抠图用 rembg（isnet-general-use 模型），已装在负责人电脑的 Python 里。
 - 等负责人：手机实测 T02；看一眼游戏里的新草地确认 T17；通读 07、08。
-- 下一步：T09 M1 白天远征试玩（负责人找 3 人不讲解试玩，AI 准备试玩包和观察表）；之后 M2：T23 倒下与失物包、T21 夜晚雾怪与光照 → T06 宠物对战（M1 主线）。
+- 下一步：M2 —— T21 夜晚雾怪与光照 → T22 扎营（营火、燃料、帐篷）→ T24 宠物探索技能。T09 试玩暂缓（负责人 2026-11-08：没做完不中途测）。 → T06 宠物对战（M1 主线）。
 - 工作副本：负责人电脑 `C:\Users\1\Desktop\lingmu-survival`（Windows，VS Code 本地会话）；云端会话也用同一个 GitHub 仓库。
 
 ## 文档索引（有效规则以这里为准）

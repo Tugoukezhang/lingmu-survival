@@ -248,7 +248,7 @@ export function craftPanel(scene, stack) {
 }
 
 // Airship dock: new island or the last one (docs/06 第 5 节).
-export function departPanel(scene, stack, { clock, last }) {
+export function departPanel(scene, stack, { clock, last, lostBag = 0 }) {
   const w = 480, h = 320;
   const c = woodPanel(scene, w, h);
   const hh = Math.floor(clock / 60) % 24, mm = String(clock % 60).padStart(2, '0');
@@ -256,8 +256,14 @@ export function departPanel(scene, stack, { clock, last }) {
   c.add(text(scene, 0, -62, `去雾林浮岛探险，路上要 1 小时（现在 ${String(hh).padStart(2, '0')}:${mm}）。\n天黑后岛上会起雾，记得早点回来。`, 15,
     { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6 }));
   const go = (mode) => { stack.clear(); scene.game.events.emit('depart', mode); };
-  c.add(capsuleButton(scene, 0, 8, '新的浮岛', { w: 220, onClick: () => go('new'), name: 'depart-new' }));
+  // E09: going somewhere new abandons the lost bag on the last island — ask first
+  const goNew = () => {
+    if (!lostBag) return go('new');
+    stack.push('lost-warn', (s, st) => confirmDialog(s, st, `上次的岛上还有失物包（${lostBag} 件东西）。\n去新的浮岛就再也找不回来了，确定吗？`, () => go('new')));
+  };
+  c.add(capsuleButton(scene, 0, 8, '新的浮岛', { w: 220, onClick: goNew, name: 'depart-new' }));
   if (last != null) c.add(capsuleButton(scene, 0, 74, '回到上次的岛', { w: 220, style: 'yellow', onClick: () => go('last'), name: 'depart-last' }));
+  if (last != null && lostBag) c.add(text(scene, 0, 112, `（失物包在那里：${lostBag} 件东西）`, 14, { ox: 0.5, oy: 0.5, bold: false, color: '#d9572b' }));
   else c.add(text(scene, 0, 74, '（还没去过别的岛）', 15, { ox: 0.5, oy: 0.5, bold: false, color: '#9a8468' }));
   c.add(closeBtn(scene, stack, w, h));
   return c;

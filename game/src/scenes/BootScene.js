@@ -38,6 +38,7 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('crystal', 44, 60, drawCrystal);
     this.makeCanvas('chest', 60, 50, drawChest);
     this.makeCanvas('airship', 190, 150, drawAirship);
+    this.makeCanvas('lostbag', 56, 56, drawLostBag);
     for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS })) this.makeCanvas(k, 128, 128, fn);
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
@@ -233,6 +234,16 @@ function drawChest(g, w, h) {
   roundRect(g, 4, 8, w - 8, 18, 8); g.fillStyle = '#a8703f'; g.fill(); g.stroke();
   g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 6, 18, 12, 14); g.strokeRect(w / 2 - 6, 18, 12, 14);
   g.fillStyle = '#f5c84b'; g.fillRect(10, 22, 4, h - 28); g.fillRect(w - 14, 22, 4, h - 28);
+}
+
+function drawLostBag(g, w, h) {
+  g.fillStyle = 'rgba(40,60,30,0.25)'; g.beginPath(); g.ellipse(w / 2, h - 5, 20, 5, 0, 0, Math.PI * 2); g.fill();
+  g.lineWidth = 3; g.strokeStyle = '#5b3d26';
+  g.fillStyle = '#c99a5a';
+  g.beginPath(); g.moveTo(w / 2 - 8, 16); g.quadraticCurveTo(6, 26, 10, 44); g.quadraticCurveTo(w / 2, h - 2, w - 10, 44); g.quadraticCurveTo(w - 6, 26, w / 2 + 8, 16); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = '#e0b878'; g.beginPath(); g.moveTo(w / 2 - 10, 16); g.lineTo(w / 2 - 14, 4); g.lineTo(w / 2, 10); g.lineTo(w / 2 + 14, 4); g.lineTo(w / 2 + 10, 16); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = '#f0a9a0'; g.fillRect(w / 2 - 11, 14, 22, 5);
+  g.fillStyle = '#ffffff'; g.font = 'bold 16px sans-serif'; g.textAlign = 'center'; g.fillText('!', w / 2, 40);
 }
 
 function drawAirship(g, w, h) {

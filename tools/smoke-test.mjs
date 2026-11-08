@@ -429,10 +429,14 @@ try {
   await waitArea('home'); await page.waitForTimeout(600);
   const back = await state();
   check('坐飞艇回家：出现在码头旁', back.area === 'home' && Math.hypot(back.player.x - back.dock.x, back.player.y - back.dock.y) < 40, JSON.stringify(back.player));
-  // fainting on an expedition (interim rule until T23)
+  // ---------- fainting & lost bag (T23) ----------
   await scene(() => window.__game.scene.getScene('play').travelTo(424242));
   await waitArea('expedition'); await page.waitForTimeout(500);
   const dayBefore = (await state()).day;
+  const invBefore = await page.evaluate(() => JSON.parse(JSON.stringify(window.__game.session.state.inventory)));
+  const totalOf = (inv) => inv.reduce((n, s) => n + s.count, 0);
+  await scene(() => window.__game.scene.getScene('play').standByResource('tree')); // faint away from the landing point
+  await page.waitForTimeout(200);
   await page.evaluate(() => { window.__game.registry.set({ hp: 3, hunger: 0 }); window.__game.scene.getScene('play').debugAdvance(20); });
   await page.waitForTimeout(400);
   await waitArea('home'); await page.waitForTimeout(800);
@@ -440,6 +444,34 @@ try {
   check('远征中饿倒 → 第二天 8:00 在家醒来，生命 50', woke.day === dayBefore + 1 && woke.clock >= 480 && woke.clock < 483 && woke.hp === 50 && (await toastText()).includes('醒来'),
     `day ${dayBefore}→${woke.day} clock ${woke.clock} hp ${woke.hp} / ${await toastText()}`);
   await page.screenshot({ path: join(OUT, '23-woke.png') });
+  const afterFaint = await page.evaluate(() => ({ inv: window.__game.session.state.inventory, bag: window.__game.session.state.expedition.lostBag }));
+  check('E08 倒下：只留工具，其余进失物包，总数不变', afterFaint.inv.every((s) => ['item_axe', 'item_pickaxe'].includes(s.id)) && !!afterFaint.bag
+    && totalOf(afterFaint.inv) + totalOf(afterFaint.bag.items) === totalOf(invBefore), `${totalOf(invBefore)} → ${totalOf(afterFaint.inv)} + ${totalOf(afterFaint.bag?.items ?? [])}`);
+  // E09: warning before abandoning the lost bag
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.dock.x, sc.dock.y + 20); });
+  await page.waitForTimeout(200);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  await page.screenshot({ path: join(OUT, '32-dock-lostbag.png') });
+  await tapTarget('depart-new');
+  check('E09 有失物包时选新的浮岛 → 先弹出提醒', (await ui()).stack.join() === 'dock,lost-warn', (await ui()).stack.join());
+  await page.screenshot({ path: join(OUT, '33-lostbag-warning.png') });
+  await tapTarget('cancel');
+  await tapTarget('depart-last');
+  await waitArea('expedition'); await page.waitForTimeout(600);
+  const lbPos = (await state()).lostBag;
+  check('回到上次的岛：失物包在倒下的地方', !!lbPos && Math.abs(lbPos.x - afterFaint.bag.x) < 1, JSON.stringify(lbPos));
+  await page.screenshot({ path: join(OUT, '34-lostbag-island.png') });
+  await scene((p) => window.__game.scene.getScene('play').teleport(p.x, p.y + 10), lbPos);
+  await page.waitForTimeout(400);
+  const picked = await page.evaluate(() => ({ inv: window.__game.session.state.inventory, bag: window.__game.session.state.expedition.lostBag }));
+  check('E08 走到失物包上：东西全部捡回，数量和倒下前一样', !picked.bag && totalOf(picked.inv) === totalOf(invBefore) && (await toastText()).includes('捡回'), `${totalOf(picked.inv)} / ${await toastText()}`);
+  // E10: refresh in the middle of the faint animation
+  await page.evaluate(() => { const g = window.__game; g.registry.set({ hp: 3, hunger: 0 }); g.scene.getScene('play').debugAdvance(20); });
+  await page.waitForTimeout(150);
+  await reload(); await page.waitForTimeout(300);
+  const e10 = await page.evaluate(() => { const st = window.__game.session.state; return { area: st.player.area, inv: st.inventory, bag: st.expedition.lostBag }; });
+  check('E10 倒下过程中刷新：只有一个失物包，东西不多不少', e10.area === 'home' && !!e10.bag && totalOf(e10.inv) + totalOf(e10.bag.items) === totalOf(invBefore),
+    `${e10.area} ${totalOf(e10.inv)} + ${totalOf(e10.bag?.items ?? [])} vs ${totalOf(invBefore)}`);
 
   // ---------- gathering & crafting (T19) ----------
   const inv = (id) => page.evaluate((k) => window.__game.session.state.inventory.find((x) => x.id === k)?.count ?? 0, id);

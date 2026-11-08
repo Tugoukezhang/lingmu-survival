@@ -6,7 +6,7 @@ import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock
 import { survivalTick } from '../systems/survival.js';
 import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../systems/islandGen.js';
 import { wildLevel } from '../systems/petMath.js';
-import { depart, returnHome, recoverFromFaint } from '../systems/travel.js';
+import { depart, returnHome, faint as faintState, pickUpLostBag, lostBagCount } from '../systems/travel.js';
 import { gather, gatherPreview, GATHER } from '../systems/crafting.js';
 import { createBattle, makeWildGroup, canStartBattle } from '../systems/battle.js';
 import { PETS } from '../data/pets.js';
@@ -32,7 +32,7 @@ export default class PlayScene extends Phaser.Scene {
     this.state = this.session.state;
     this.rand = mulberry32(SEED);
     // the scene object is reused on restart: clear what belongs to the previous map
-    this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
+    this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
     this.traveling = false; this.fainted = false; this.inBattle = null;
     this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
     if (this.area === 'expedition') this.buildExpedition(); else this.buildIsland();
@@ -281,6 +281,12 @@ export default class PlayScene extends Phaser.Scene {
       this.add.image(x, y + 4, 'shadow').setScale(0.8, 1).setDepth(y - 1);
       this.add.image(x, y, 'chest').setOrigin(0.5, 0.9).setDepth(y);
     }
+    const lb = this.state.expedition.lostBag;
+    if (lb) {
+      const spr = this.add.image(lb.x, lb.y, 'lostbag').setOrigin(0.5, 0.9).setDepth(lb.y);
+      this.tweens.add({ targets: spr, y: lb.y - 4, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      this.lostBag = { x: lb.x, y: lb.y, sprite: spr };
+    }
     // airship floats in the sky just off the landing edge
     const a = isl.airship;
     const ax = a.tx * TILE + TILE / 2, ay = a.ty * TILE + TILE / 2 + 18;
@@ -415,17 +421,40 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   // Interim until T23: wake up at home the next morning, nothing is lost yet.
+  // Fainting (docs/06 第 2 节): the whole result is applied and saved at once,
+  // then the animation plays (refreshing mid-animation is safe, E10).
   faint() {
-    if (this.fainted) return;
+    if (this.fainted || this.area !== 'expedition') return;
     this.fainted = true;
     this.clock.pause('faint');
-    this.session.store.block('faint');
+    this.session.pullFromRegistry();
+    const r = faintState(this.state, { x: this.player.x, y: this.player.y });
+    this.session.pushToRegistry();
+    this.session.save('faint');
+    const n = r.dropped.reduce((s, x) => s + x.count, 0);
+    const notice = n
+      ? `在家里醒来了。${n} 件东西掉在了那座岛上，坐飞艇「回到上次的岛」可以捡回来。${r.replaced ? '（之前的失物包找不回来了）' : ''}`
+      : '在家里醒来了，生命 50、饱食 50';
     this.showToast('你倒下了……');
-    this.time.delayedCall(900, () => {
-      this.session.store.unblock('faint');
-      this.fainted = false;
-      this.travel(() => { recoverFromFaint(this.state); return { ok: true }; }, '在家里醒来了，生命 50、饱食 50（失物包功能开发中）');
-    });
+    this.tweens.add({ targets: this.player, angle: 90, duration: 400 });
+    this.time.delayedCall(900, () => { this.fainted = false; this.travel(() => ({ ok: true }), notice); });
+  }
+
+  // Lost bag on this island: walk onto it to get everything back (what fits).
+  checkLostBag(time) {
+    const bag = this.lostBag;
+    if (!bag || time < (bag.cooldown ?? 0)) return;
+    if (Phaser.Math.Distance.Between(this.player.x, this.player.y, bag.x, bag.y) > 36) return;
+    const { took, left } = pickUpLostBag(this.state);
+    if (took.length) {
+      const names = took.map((s) => `${ITEMS[s.id]?.name ?? s.id} ×${s.count}`).join('、');
+      this.showToast(left.length ? `捡回了 ${names}；背包满了，还有 ${left.length} 种留在包里` : `捡回了失物包：${names}`);
+      this.session.save('lostbag');
+    } else this.showToast('背包满了，先腾出位置再来捡');
+    if (!this.state.expedition.lostBag) {
+      this.tweens.add({ targets: bag.sprite, alpha: 0, y: bag.sprite.y - 20, duration: 300, onComplete: () => bag.sprite.destroy() });
+      this.lostBag = null;
+    } else bag.cooldown = time + 3000;
   }
 
   // ---------- gathering (T19) ----------
@@ -657,6 +686,7 @@ export default class PlayScene extends Phaser.Scene {
     if (!this.sleeping) this.movePlayer(dt);
     this.updatePets(time, dt);
     this.updateWild(time, dt);
+    if (!this.sleeping && !this.fainted) this.checkLostBag(time);
     this.updateInteraction();
     for (const c of this.clouds) {
       c.x += c.speed * dt;
@@ -752,7 +782,7 @@ export default class PlayScene extends Phaser.Scene {
     // fixed spots first (bed, dock, airship), then pets
     const spots = [
       this.bed && { at: this.bed, label: '帐篷 · 点互动睡觉', tagY: 92, act: () => this.game.events.emit('sleep-request', this.state.clock) },
-      this.dock && { at: this.dock, label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null }) },
+      this.dock && { at: this.dock, label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null, lostBag: lostBagCount(this.state) }) },
       this.airship && { at: this.airship, label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
     ].filter(Boolean);
     let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
@@ -830,7 +860,7 @@ export default class PlayScene extends Phaser.Scene {
       onWalkable: this.footFits(this.player.x, this.player.y),
       day: this.state.day, clock: this.state.clock, phase: phaseAt(this.state.clock), tint: this.tintDark,
       sleeping: this.sleeping, bed: this.bed, dock: this.dock, airshipSpot: this.airship ? { x: this.airship.x, y: this.airship.y } : null, area: this.area,
-      hunger: this.state.player.hunger, hp: this.state.player.hp, inBattle: !!this.inBattle, party: [...this.state.party],
+      hunger: this.state.player.hunger, hp: this.state.player.hp, inBattle: !!this.inBattle, party: [...this.state.party], lostBag: this.lostBag ? { x: this.lostBag.x, y: this.lostBag.y } : null,
       island: this.island ? { seed: this.island.seed, resources: this.island.resources.length, pets: this.island.pets.length, chests: this.island.chests.length, landing: this.island.landing } : null,
     };
   }

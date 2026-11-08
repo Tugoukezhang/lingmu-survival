@@ -416,7 +416,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const f = S.newGameState();
   f.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() };
   f.player.area = 'expedition'; f.player.hp = 0; f.player.hunger = 0; f.day = 4; f.clock = 26 * 60;
-  TR.recoverFromFaint(f);
+  TR.faint(f, { x: 100, y: 100 });
   check('远征中倒下（临时规则）：第二天 8:00 在家醒来，生命 50、饱食 50', f.day === 5 && f.clock === 8 * 60 && f.player.hp === 50 && f.player.hunger === 50 && f.player.area === 'home' && f.flags.arriveAt === 'bed');
   check('倒下后存档合法', S.validate(f).length === 0);
 }
@@ -622,6 +622,51 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   ps.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; ps.player.area = 'expedition';
   check('远征中不能从家里叫伙伴、也不能让伙伴回家', PT.joinParty(ps, 'pet-fox').reason === 'away');
   check('远征中可以调整领头', (PT.joinParty({ ...ps, player: { ...ps.player, area: 'home' } }, 'pet-fox'), true) && PT.setLead(ps, ps.party[0]).ok);
+}
+
+// ---------- fainting & lost bag (T23; docs/06 第 2 节) ----------
+{
+  const mk = () => {
+    const s = S.newGameState();
+    s.expedition = { seed: 3, biome: 'mistwood', changes: G.emptyChanges(), lostBag: null }; s.player.area = 'expedition';
+    s.inventory = [{ id: 'item_axe', count: 1 }, { id: 'item_wood', count: 12 }, { id: 'item_berry', count: 5 }, { id: 'item_crystal', count: 1 }];
+    s.day = 2; s.clock = 23 * 60;
+    return s;
+  };
+  let s = mk();
+  const r = TR.faint(s, { x: 640, y: 512 });
+  check('E08 倒下：保留石斧；失物包 = 木材 ×12、浆果 ×5、雾晶 ×1（在倒下的位置）', s.inventory.map((x) => x.id).join() === 'item_axe'
+    && JSON.stringify(s.expedition.lostBag) === JSON.stringify({ x: 640, y: 512, items: [{ id: 'item_wood', count: 12 }, { id: 'item_berry', count: 5 }, { id: 'item_crystal', count: 1 }] }));
+  check('倒下后：第二天 8:00 在家醒来，生命 50、饱食 50，宠物恢复', s.day === 3 && s.clock === 480 && s.player.hp === 50 && s.player.hunger === 50 && s.player.area === 'home' && s.pets.every((p) => p.hp == null));
+  check('倒下后的存档合法', S.validate(s).length === 0, S.validate(s).join());
+  const mem = new S.MemoryStorage(), store = new S.SaveStore(mem);
+  store.save(s);
+  const back = store.load().state;
+  check('E10 倒下结果一次写进存档：读回来只有一个失物包，物品不多不少', back.expedition.lostBag.items.reduce((n, x) => n + x.count, 0) === 18 && back.inventory.length === 1);
+  TR.depart(s, 'last');
+  const p = TR.pickUpLostBag(s);
+  check('E08 回到原岛捡失物包：木材 ×12、浆果 ×5、雾晶 ×1 全部回到背包，失物包消失', p.left.length === 0 && I.countOf(s.inventory, 'item_wood') === 12 && I.countOf(s.inventory, 'item_berry') === 5 && I.countOf(s.inventory, 'item_crystal') === 1 && s.expedition.lostBag === null);
+  check('已经捡过的失物包不会再给东西', TR.pickUpLostBag(s).took.length === 0 && I.countOf(s.inventory, 'item_wood') === 12);
+  // second faint replaces the old bag
+  s = mk(); TR.faint(s, { x: 1, y: 1 });
+  TR.depart(s, 'last');
+  s.inventory.push({ id: 'item_stone', count: 7 });
+  const r2 = TR.faint(s, { x: 2, y: 2 });
+  check('还没捡回又倒下：新失物包替换旧的（旧的丢失）', r2.replaced && s.expedition.lostBag.items.map((x) => x.id).join() === 'item_stone' && s.expedition.lostBag.x === 2);
+  // E09
+  TR.depart(s, 'new');
+  check('E09 去新的浮岛：旧岛和失物包一起消失', s.expedition.lostBag === null && s.expedition.changes.collected.length === 0);
+  // only tools → nothing dropped, an older bag stays
+  s = mk(); TR.faint(s, { x: 5, y: 5 }); TR.depart(s, 'last');
+  const r3 = TR.faint(s, { x: 9, y: 9 });
+  check('身上只有工具时倒下：不产生新失物包，旧失物包还在原处', r3.dropped.length === 0 && s.expedition.lostBag.x === 5);
+  // pick up with a nearly full bag
+  s = mk(); TR.faint(s, { x: 5, y: 5 }); TR.depart(s, 'last');
+  s.party = [];
+  while (s.inventory.length < 19) s.inventory.push({ id: Object.keys(ITEMS).filter((k) => !['item_wood', 'item_berry', 'item_crystal', 'item_axe'].includes(k))[s.inventory.length], count: 1 });
+  const p2 = TR.pickUpLostBag(s);
+  check('背包只剩 1 格：能放的先拿，放不下的留在失物包里', p2.took.length === 1 && p2.left.length === 2 && s.expedition.lostBag.items.length === 2);
+  check('失物包坐标不合法的存档会被拒绝', S.validate({ ...S.newGameState(), expedition: { seed: 1, changes: G.emptyChanges(), lostBag: { x: 'a', y: 1, items: [] } } }).includes('expedition.lostBag'));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

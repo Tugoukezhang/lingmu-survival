@@ -65,6 +65,8 @@ export function validate(s) {
   else if (new Set(s.pets.map((pet) => pet.uid)).size !== s.pets.length) err.push('pets.重复');
   const ex = s.expedition;
   if (ex != null && !(Number.isInteger(ex.seed) && ex.changes && ['collected', 'chests', 'pets'].every((k) => Array.isArray(ex.changes[k])))) err.push('expedition');
+  const lb = ex?.lostBag;
+  if (lb != null && !(Number.isFinite(lb.x) && Number.isFinite(lb.y) && Array.isArray(lb.items) && lb.items.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0))) err.push('expedition.lostBag');
   if (p && p.area === 'expedition' && ex == null) err.push('player.area');
   if (!Array.isArray(s.party) || s.party.length > PARTY_MAX || !s.party.every((uid) => s.pets?.some?.((pet) => pet.uid === uid))) err.push('party');
   return err;
