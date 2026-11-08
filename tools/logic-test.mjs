@@ -17,6 +17,8 @@ import * as I from '../game/src/systems/inventory.js';
 import { ITEMS } from '../game/src/data/items.js';
 import * as G from '../game/src/systems/islandGen.js';
 import * as TR from '../game/src/systems/travel.js';
+import * as CR from '../game/src/systems/crafting.js';
+import { RECIPES } from '../game/src/data/recipes.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -415,6 +417,58 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   TR.recoverFromFaint(f);
   check('远征中倒下（临时规则）：第二天 8:00 在家醒来，生命 50、饱食 50', f.day === 5 && f.clock === 8 * 60 && f.player.hp === 50 && f.player.hunger === 50 && f.player.area === 'home' && f.flags.arriveAt === 'bed');
   check('倒下后存档合法', S.validate(f).length === 0);
+}
+
+// ---------- gathering & crafting (T19; docs/06 第 3 节) ----------
+{
+  check('配方的材料和产出都是已定义的物品', RECIPES.every((r) => ITEMS[r.out] && Object.keys(r.cost).every((id) => ITEMS[id])));
+  check('配方数值与文档一致（石斧 木3石2、石镐 木3石3、火把 木2草2、营火 木4石4、草编网 草3木2、藤编网 布1草3雾晶1）',
+    JSON.stringify(RECIPES.map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
+      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }]]));
+  check('只有斧和镐算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).join() === 'item_axe,item_pickaxe');
+
+  const mk = (inv) => { const s = S.newGameState(); s.inventory = inv; s.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; s.player.area = 'expedition'; return s; };
+  let s = mk([]);
+  let r = CR.gather(s, { id: 'r1', type: 'tree' });
+  check('徒手砍树得 1 木材，记入采集记录', r.ok && I.countOf(s.inventory, 'item_wood') === 1 && s.expedition.changes.collected.includes('r1'));
+  check('同一个资源不能采两次', CR.gather(s, { id: 'r1', type: 'tree' }).reason === 'gone' && I.countOf(s.inventory, 'item_wood') === 1);
+  I.addItem(s.inventory, 'item_axe', 1);
+  CR.gather(s, { id: 'r2', type: 'tree' });
+  eq('有石斧砍树得 3 木材', I.countOf(s.inventory, 'item_wood'), 4);
+  r = CR.gather(s, { id: 'r3', type: 'crystal' });
+  check('没有石镐敲不了雾晶，也不记入采集', !r.ok && r.reason === 'need-tool' && r.tool === 'item_pickaxe' && !s.expedition.changes.collected.includes('r3'));
+  CR.gather(s, { id: 'r4', type: 'bush' }); CR.gather(s, { id: 'r5', type: 'grass' });
+  check('浆果丛得 2 浆果、草丛得 2 草', I.countOf(s.inventory, 'item_berry') === 2 && I.countOf(s.inventory, 'item_grass') === 2);
+
+  // bag full
+  const full = mk([{ id: 'item_wood', count: 1 }, ...Array.from({ length: 19 }, (_, i) => ({ id: `f${i}`, count: 1 }))]);
+  full.party = []; // no 冰蓝小狼 → 20 slots
+  const before = JSON.stringify(full.inventory);
+  r = CR.gather(full, { id: 'r9', type: 'rock' });
+  check('背包 20 格满了：采不到新物品，资源留在原地', !r.ok && r.reason === 'full' && JSON.stringify(full.inventory) === before && !full.expedition.changes.collected.includes('r9'));
+  check('背包满了但已有同种物品 → 可以继续叠加', CR.gather(full, { id: 'r10', type: 'tree' }).ok && I.countOf(full.inventory, 'item_wood') === 2);
+  const pupState = S.newGameState();
+  eq('冰蓝小狼在队伍里：背包 24 格', CR.bagSlots(pupState), 24);
+  pupState.party = ['pet-fox'];
+  eq('冰蓝小狼不在队伍里：背包 20 格', CR.bagSlots(pupState), 20);
+
+  // E04: exactly enough for a campfire, press twice
+  const e04 = mk([{ id: 'item_wood', count: 4 }, { id: 'item_stone', count: 4 }]);
+  const first = CR.craft(e04, 'campfire'), second = CR.craft(e04, 'campfire');
+  check('E04 材料刚好够营火，连点两次：只做出 1 个，材料只扣 1 次', first.ok && !second.ok && second.reason === 'missing' && I.countOf(e04.inventory, 'item_campfire') === 1
+    && I.countOf(e04.inventory, 'item_wood') === 0 && I.countOf(e04.inventory, 'item_stone') === 0, JSON.stringify(e04.inventory));
+  check('材料用完的格子会消失', e04.inventory.length === 1);
+  const miss = CR.canCraft(mk([{ id: 'item_wood', count: 1 }]), 'axe');
+  check('材料不够时列出缺什么（木材差 2、石头差 2）', !miss.ok && miss.missing.map((m) => `${m.id}:${m.need - m.have}`).join() === 'item_wood:2,item_stone:2');
+  // crafting with a full bag: allowed if a material stack empties, refused otherwise (nothing consumed)
+  const fb = mk([{ id: 'item_wood', count: 10 }, { id: 'item_stone', count: 10 }, ...Array.from({ length: 18 }, (_, i) => ({ id: `f${i}`, count: 1 }))]);
+  fb.party = [];
+  const fbBefore = JSON.stringify(fb.inventory);
+  const rf = CR.craft(fb, 'axe');
+  check('背包满且没有空出格子 → 不能制作，材料不扣', !rf.ok && rf.reason === 'full' && JSON.stringify(fb.inventory) === fbBefore);
+  const fe = mk([{ id: 'item_wood', count: 3 }, { id: 'item_stone', count: 5 }, ...Array.from({ length: 18 }, (_, i) => ({ id: `f${i}`, count: 1 }))]);
+  fe.party = [];
+  check('背包满但材料用完空出一格 → 可以制作', CR.craft(fe, 'axe').ok && I.countOf(fe.inventory, 'item_axe') === 1);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

@@ -38,7 +38,7 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('crystal', 44, 60, drawCrystal);
     this.makeCanvas('chest', 60, 50, drawChest);
     this.makeCanvas('airship', 190, 150, drawAirship);
-    for (const [k, fn] of Object.entries(FOOD_ICONS)) this.makeCanvas(k, 128, 128, fn);
+    for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS })) this.makeCanvas(k, 128, 128, fn);
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
     this.game.session.load();
@@ -130,6 +130,59 @@ const FOOD_ICONS = {
     g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(14, 70); g.quadraticCurveTo(64, 140, 114, 70); g.closePath(); g.fill(); g.stroke();
     g.strokeStyle = 'rgba(255,255,255,0.8)'; g.lineWidth = 3;
     for (const x of [48, 64, 80]) { g.beginPath(); g.moveTo(x, 46); g.quadraticCurveTo(x + 8, 34, x, 22); g.stroke(); }
+  },
+};
+
+// material / tool placeholders, 128×128
+const ink = (g, w = 4) => { g.strokeStyle = '#5b3d26'; g.lineWidth = w; g.lineJoin = 'round'; g.lineCap = 'round'; };
+const MATERIAL_ICONS = {
+  item_wood: (g) => {
+    ink(g);
+    for (const [y, x0] of [[78, 18], [52, 30]]) {
+      g.fillStyle = '#b07a48'; g.beginPath(); g.moveTo(x0, y - 14); g.lineTo(x0 + 80, y - 14); g.lineTo(x0 + 80, y + 14); g.lineTo(x0, y + 14); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = '#e8c48e'; g.beginPath(); g.ellipse(x0 + 80, y, 9, 14, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.strokeStyle = '#b07a48'; g.lineWidth = 2; g.beginPath(); g.ellipse(x0 + 80, y, 4, 7, 0, 0, Math.PI * 2); g.stroke(); ink(g);
+    }
+  },
+  item_stone: (g) => {
+    ink(g);
+    for (const [x, y, rx, ry, c] of [[48, 76, 30, 22, '#b8b2a4'], [80, 70, 26, 20, '#cfc9bb'], [64, 52, 22, 17, '#e0dacd']]) {
+      g.fillStyle = c; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    }
+  },
+  item_grass: (g) => {
+    g.lineCap = 'round';
+    for (let i = 0; i < 9; i++) { g.strokeStyle = i % 2 ? '#7fb85a' : '#4f8a3a'; g.lineWidth = 6; g.beginPath(); g.moveTo(64, 104); g.quadraticCurveTo(40 + i * 6, 60, 22 + i * 10, 18 + (i % 3) * 8); g.stroke(); }
+    g.fillStyle = '#c99a5a'; g.fillRect(50, 86, 28, 10);
+  },
+  item_crystal: (g) => {
+    ink(g, 3);
+    const shard = (x, top, half) => { const grd = g.createLinearGradient(x - half, top, x + half, 112); grd.addColorStop(0, '#ffffff'); grd.addColorStop(1, '#7cc4f0');
+      g.fillStyle = grd; g.beginPath(); g.moveTo(x, top); g.lineTo(x + half, top + 22); g.lineTo(x + half * 0.7, 112); g.lineTo(x - half * 0.7, 112); g.lineTo(x - half, top + 22); g.closePath(); g.fill(); g.stroke(); };
+    shard(38, 46, 16); shard(90, 42, 16); shard(64, 14, 20);
+  },
+  item_cloth: (g) => {
+    ink(g);
+    g.fillStyle = '#f0a9a0'; g.beginPath(); g.moveTo(24, 40); g.lineTo(104, 30); g.lineTo(100, 96); g.lineTo(28, 104); g.closePath(); g.fill(); g.stroke();
+    g.strokeStyle = '#fbf3dc'; g.lineWidth = 3; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(32, 50); g.lineTo(94, 42); g.lineTo(92, 88); g.lineTo(36, 94); g.closePath(); g.stroke(); g.setLineDash([]);
+  },
+  item_axe: (g) => {
+    ink(g);
+    g.fillStyle = '#b07a48'; g.save(); g.translate(64, 64); g.rotate(-0.7); g.fillRect(-6, -50, 12, 100); g.strokeRect(-6, -50, 12, 100); g.restore();
+    g.fillStyle = '#c8c2b4'; g.beginPath(); g.moveTo(52, 22); g.quadraticCurveTo(98, 8, 108, 46); g.lineTo(76, 54); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#8a5a36'; g.fillRect(58, 34, 14, 10);
+  },
+  item_pickaxe: (g) => {
+    ink(g);
+    g.fillStyle = '#b07a48'; g.save(); g.translate(64, 70); g.rotate(-0.7); g.fillRect(-6, -46, 12, 92); g.strokeRect(-6, -46, 12, 92); g.restore();
+    g.fillStyle = '#c8c2b4'; g.beginPath(); g.moveTo(26, 30); g.quadraticCurveTo(70, 4, 112, 44); g.quadraticCurveTo(72, 26, 30, 40); g.closePath(); g.fill(); g.stroke();
+  },
+  item_torch: (g) => {
+    ink(g);
+    g.fillStyle = '#b07a48'; g.save(); g.translate(64, 80); g.rotate(0.35); g.fillRect(-7, -30, 14, 64); g.strokeRect(-7, -30, 14, 64); g.restore();
+    g.fillStyle = '#c99a5a'; g.fillRect(48, 42, 26, 16);
+    g.fillStyle = '#f08a3a'; g.beginPath(); g.moveTo(60, 6); g.quadraticCurveTo(86, 30, 74, 46); g.lineTo(48, 46); g.quadraticCurveTo(38, 28, 60, 6); g.fill();
+    g.fillStyle = '#f5c84b'; g.beginPath(); g.moveTo(61, 20); g.quadraticCurveTo(74, 34, 68, 44); g.lineTo(54, 44); g.quadraticCurveTo(50, 32, 61, 20); g.fill();
   },
 };
 

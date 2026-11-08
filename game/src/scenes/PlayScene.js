@@ -7,6 +7,8 @@ import { survivalTick } from '../systems/survival.js';
 import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../systems/islandGen.js';
 import { wildLevel } from '../systems/petMath.js';
 import { depart, returnHome, recoverFromFaint } from '../systems/travel.js';
+import { gather, gatherPreview, GATHER } from '../systems/crafting.js';
+import { ITEMS } from '../data/items.js';
 
 // The world: either the home island (placeholder layout) or a generated
 // expedition island (systems/islandGen.js), chosen by state.player.area.
@@ -367,6 +369,53 @@ export default class PlayScene extends Phaser.Scene {
     });
   }
 
+  // ---------- gathering (T19) ----------
+  resourceCenter(r) { return { x: r.tx * TILE + TILE / 2, y: r.ty * TILE + TILE / 2 }; }
+
+  nearestResourceSpot() {
+    const p = this.player;
+    let best = null, bestD = 62;
+    for (const r of this.island.resources) {
+      const c = this.resourceCenter(r);
+      const d = Phaser.Math.Distance.Between(p.x, p.y, c.x, c.y);
+      if (d < bestD) { best = r; bestD = d; }
+    }
+    if (!best) return null;
+    const pv = gatherPreview(this.state, best.type), g = GATHER[best.type];
+    const gainText = pv.need ? `需要${ITEMS[pv.need].name}` : Object.entries(pv.gains).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join(' ');
+    const c = this.resourceCenter(best);
+    return { at: c, label: `${g.name} · ${pv.need ? gainText : `采集（${gainText}）`}`, tagY: best.type === 'tree' ? 108 : 52, act: () => this.gatherResource(best) };
+  }
+
+  gatherResource(r) {
+    const res = gather(this.state, r);
+    if (!res.ok) {
+      this.showToast(res.reason === 'need-tool' ? `要用${ITEMS[res.tool].name}才能采集` : res.reason === 'full' ? '背包满了，先腾出一格' : '已经采过了');
+      return;
+    }
+    this.session.markDirty();
+    this.island.resources = this.island.resources.filter((x) => x.id !== r.id);
+    this.blocked[r.ty][r.tx] = false;
+    const parts = this.resourceSprites.get(r.id) ?? [];
+    this.resourceSprites.delete(r.id);
+    this.tweens.add({ targets: parts, alpha: 0, y: '-=10', duration: 260, onComplete: () => parts.forEach((o) => o.destroy()) });
+    this.tweens.add({ targets: this.player, scaleX: 1.12, scaleY: 0.88, duration: 90, yoyo: true });
+    const c = this.resourceCenter(r);
+    const label = Object.entries(res.gains).map(([id, n]) => `+${n} ${ITEMS[id].name}`).join('  ');
+    const pop = this.add.text(c.x, c.y - 40, label, { fontFamily: FONT, fontSize: '18px', fontStyle: 'bold', color: '#ffffff', stroke: '#5b3d26', strokeThickness: 4 })
+      .setOrigin(0.5).setDepth(9100);
+    this.tweens.add({ targets: pop, y: pop.y - 36, alpha: 0, delay: 350, duration: 700, onComplete: () => pop.destroy() });
+  }
+
+  // Test helper: stand next to the first resource of `type`; returns its id.
+  standByResource(type) {
+    const r = this.island?.resources.find((x) => x.type === type && [[0, 1], [0, -1], [1, 0], [-1, 0]].some(([dx, dy]) => this.isWalkableTile(x.tx + dx, x.ty + dy)));
+    if (!r) return null;
+    const [dx, dy] = [[0, 1], [0, -1], [1, 0], [-1, 0]].find(([ax, ay]) => this.isWalkableTile(r.tx + ax, r.ty + ay));
+    this.teleport((r.tx + dx) * TILE + TILE / 2, (r.ty + dy) * TILE + TILE / 2);
+    return r.id;
+  }
+
   // test hooks
   travelTo(seed) {
     this.state.expedition = { seed, biome: 'mistwood', changes: emptyChanges() };
@@ -624,7 +673,8 @@ export default class PlayScene extends Phaser.Scene {
       this.dock && { at: this.dock, label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null }) },
       this.airship && { at: this.airship, label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
     ].filter(Boolean);
-    const spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
+    let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
+    if (!spot && this.island) spot = this.nearestResourceSpot();
     if (spot) {
       if (!this.lastCanAct) { this.lastCanAct = true; this.game.events.emit('interact-available', true); }
       this.nameTag.setText(spot.label).setBackgroundColor('#5b3d26').setPosition(spot.at.x, spot.at.y - spot.tagY).setVisible(true);

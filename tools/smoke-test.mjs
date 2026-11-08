@@ -328,6 +328,48 @@ try {
     `day ${dayBefore}→${woke.day} clock ${woke.clock} hp ${woke.hp} / ${await toastText()}`);
   await page.screenshot({ path: join(OUT, '23-woke.png') });
 
+  // ---------- gathering & crafting (T19) ----------
+  const inv = (id) => page.evaluate((k) => window.__game.session.state.inventory.find((x) => x.id === k)?.count ?? 0, id);
+  await page.evaluate(() => window.__game.registry.set({ hp: 100, hunger: 100 }));
+  await scene(() => window.__game.scene.getScene('play').travelTo(20261108));
+  await waitArea('expedition'); await page.waitForTimeout(600);
+  const wood0 = await inv('item_wood');
+  const treeId = await scene(() => window.__game.scene.getScene('play').standByResource('tree'));
+  await page.waitForTimeout(200);
+  await page.screenshot({ path: join(OUT, '24-gather-tag.png') });
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  const gone = await page.evaluate((id) => ({ inIsland: window.__game.scene.getScene('play').island.resources.some((r) => r.id === id), recorded: window.__game.session.state.expedition.changes.collected.includes(id) }), treeId);
+  check('站在树旁按互动：徒手得 1 木材，树消失并记入采集记录', (await inv('item_wood')) === wood0 + 1 && !gone.inIsland && gone.recorded, `木材 ${wood0}→${await inv('item_wood')} ${JSON.stringify(gone)}`);
+  await page.screenshot({ path: join(OUT, '25-gathered.png') });
+  await scene(() => window.__game.scene.getScene('play').standByResource('crystal'));
+  await page.waitForTimeout(200);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  check('没有石镐敲雾晶 → 提示需要石镐', (await toastText()).includes('石镐'), await toastText());
+  // give materials and craft an axe from the HUD
+  await page.evaluate(() => { const inv = window.__game.session.state.inventory; const add = (id, n) => { const s = inv.find((x) => x.id === id); if (s) s.count += n; else inv.push({ id, count: n }); }; add('item_wood', 2); add('item_stone', 2); });
+  await tapTarget('hud-craft');
+  check('HUD「制作」打开制作面板', (await ui()).stack.join() === 'craft');
+  await tapTarget('recipe-pickaxe');
+  check('材料不够的配方没有制作按钮（显示还缺什么）', !(await page.evaluate(() => window.__game.scene.getScene('ui').findTarget('craft-do'))));
+  await page.screenshot({ path: join(OUT, '26-craft-missing.png') });
+  await tapTarget('recipe-axe');
+  await page.screenshot({ path: join(OUT, '27-craft-axe.png') });
+  const w1 = await inv('item_wood');
+  await tapTarget('craft-do');
+  check('做出石斧：石斧 +1，木材 −3、石头 −2', (await inv('item_axe')) === 1 && (await inv('item_wood')) === w1 - 3, `斧 ${await inv('item_axe')} 木 ${w1}→${await inv('item_wood')}`);
+  check('制作面板触控尺寸 ≥ 44', smallTargets(await ui()).length === 0, JSON.stringify(smallTargets(await ui())));
+  await tapTarget('close');
+  const w2 = await inv('item_wood');
+  await scene(() => window.__game.scene.getScene('play').standByResource('tree'));
+  await page.waitForTimeout(200);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  check('有石斧砍树得 3 木材', (await inv('item_wood')) === w2 + 3, `${w2}→${await inv('item_wood')}`);
+  await reload(); await waitArea('expedition');
+  const still = await page.evaluate((id) => !window.__game.scene.getScene('play').island.resources.some((r) => r.id === id), treeId);
+  check('刷新后砍掉的树还是没有', still);
+  await scene(() => window.__game.scene.getScene('play').goHome());
+  await waitArea('home'); await page.waitForTimeout(400);
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);

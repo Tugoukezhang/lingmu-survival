@@ -202,6 +202,11 @@ export function drawIcon(scene, kind, s) {
       for (const [px, py] of [[0, -5], [5, 0], [0, 5], [-5, 0]]) g.fillCircle(px * k, py * k, 5 * k);
       g.fillStyle(0x3f7d2a).fillRect(-1 * k, 4 * k, 2 * k, 8 * k);
       break;
+    case 'hammer':
+      g.fillStyle(0xd9b07a).fillRoundedRect(-2 * k, -4 * k, 4 * k, 16 * k, 1.5 * k);
+      g.fillStyle(W).fillRoundedRect(-10 * k, -11 * k, 20 * k, 8 * k, 2.5 * k);
+      g.fillStyle(0xb57a4a).fillRect(-10 * k, -5 * k, 20 * k, 2 * k);
+      break;
     case 'moon':
       g.fillStyle(COLORS.yellow).fillCircle(0, 0, 9 * k);
       g.fillStyle(COLORS.cream).fillCircle(4.5 * k, -3.5 * k, 8 * k);

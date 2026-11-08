@@ -2,12 +2,24 @@
 // crafting (T09) and farming. icon = texture key (loaded or drawn in BootScene).
 // food = fullness restored, heal = health restored (docs/06 第 1 节).
 export const ITEMS = {
-  item_net_grass: { name: '草编网', tag: '工具', icon: 'item_net_grass', netMult: 1.0,
+  item_net_grass: { name: '草编网', tag: '捕捉', icon: 'item_net_grass', netMult: 1.0,
     desc: '用干草和木棍编的捕宠网。\n倍率 ×1.0', quip: '轻轻一兜，交个朋友！' },
-  item_net_vine: { name: '藤编网', tag: '工具', icon: 'item_net_vine', netMult: 1.5,
+  item_net_vine: { name: '藤编网', tag: '捕捉', icon: 'item_net_vine', netMult: 1.5,
     desc: '藤蔓和布条编成，网口缠着发光的雾晶。\n倍率 ×1.5', quip: '稀有伙伴也跑不掉～' },
   item_campfire: { name: '营火', tag: '装置', icon: 'item_campfire',
     desc: '放在地上照亮半径 4 格，\n雾怪不敢靠近。', quip: '夜晚的安心小角落。' },
+
+  // materials (code-drawn placeholder icons)
+  item_wood: { name: '木材', tag: '材料', icon: 'item_wood', desc: '砍树得到的木头。\n徒手 1 个，用石斧 3 个。', quip: '做什么都用得上。' },
+  item_stone: { name: '石头', tag: '材料', icon: 'item_stone', desc: '敲石块得到的石头。\n徒手 1 个，用石镐 3 个。', quip: '沉甸甸的。' },
+  item_grass: { name: '草', tag: '材料', icon: 'item_grass', desc: '一把结实的干草，\n能编网、扎火把。', quip: '软软的。' },
+  item_crystal: { name: '雾晶', tag: '材料', icon: 'item_crystal', desc: '雾林里发光的晶石，\n要用石镐才能敲下来。', quip: '里面好像有雾在转。' },
+  item_cloth: { name: '布', tag: '材料', icon: 'item_cloth', desc: '结实的布料。\n（以后在小镇和宝箱里获得）', quip: '缝缝补补。' },
+
+  // tools are kept when fainting (docs/06 第 2 节)
+  item_axe: { name: '石斧', tag: '工具', tool: true, icon: 'item_axe', desc: '砍树一次得到 3 个木材。', quip: '咚、咚、咚！' },
+  item_pickaxe: { name: '石镐', tag: '工具', tool: true, icon: 'item_pickaxe', desc: '敲石头一次得到 3 个石头，\n还能敲下雾晶。', quip: '叮！' },
+  item_torch: { name: '火把', tag: '照明', icon: 'item_torch', desc: '拿在手上照亮半径 2 格，\n持续 3 小时。（夜晚功能开发中）', quip: '小小的光。' },
 
   // food (icons are code-drawn placeholders until the art arrives)
   item_berry: { name: '浆果', tag: '食物', icon: 'item_berry', food: 10,

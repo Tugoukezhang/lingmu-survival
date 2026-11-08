@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 
 export const SAFE = 24; // keep HUD at least this far from screen edges (notches, rounded corners)
@@ -110,6 +110,7 @@ export default class UIScene extends Phaser.Scene {
       ['map', 'map', '地图', () => this.showToast('地图以后开放')],
       ['pets', 'paw', '宠物', () => this.stack.push('pets', petsPanel)],
       ['bag', 'bag', '背包', () => this.stack.push('bag', bagPanel)],
+      ['craft', 'hammer', '制作', () => this.stack.push('craft', craftPanel)],
     ];
     defs.forEach(([name, icon, label, fn], i) => {
       const x = GAME_W - SAFE - 26 - i * 64, y = SAFE + 78;

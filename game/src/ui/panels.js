@@ -2,6 +2,8 @@ import { COLORS } from '../config.js';
 import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { calcStats, displayName } from '../systems/petMath.js';
+import { RECIPES } from '../data/recipes.js';
+import { canCraft, craft, bagSlots } from '../systems/crafting.js';
 import { woodPanel, plaqueButton, capsuleButton, slot, tag, text } from './widgets.js';
 
 // Panels read the saved game state (scene.game.session.state).
@@ -55,14 +57,16 @@ export function bagPanel(scene, stack) {
   // right: 5x4 grid, rebuilt from the saved inventory (after eating etc.)
   const grid = scene.add.container(0, 0);
   c.add(grid);
-  const gx = -w / 2 + 330, gy = -h / 2 + 96, size = 66, gap = 80;
   const render = (keepKey) => {
     items = stateOf(scene).inventory.map((it) => ({ ...ITEMS[it.id], key: it.id, count: it.count }));
     grid.removeAll(true);
     slots = [];
-    for (let i = 0; i < 20; i++) {
+    const total = Math.max(bagSlots(stateOf(scene)), items.length);   // 20, or 24 with 冰蓝小狼
+    const cols = total > 20 ? 6 : 5, gap = cols === 6 ? 68 : 80, size = cols === 6 ? 58 : 66;
+    const gx = -w / 2 + 330 - (cols === 6 ? 6 : 0), gy = -h / 2 + 96 - (cols === 6 ? 4 : 0);
+    for (let i = 0; i < total; i++) {
       const item = items[i];
-      const s = slot(scene, gx + (i % 5) * gap, gy + Math.floor(i / 5) * gap, {
+      const s = slot(scene, gx + (i % cols) * gap, gy + Math.floor(i / cols) * gap, {
         size, iconKey: item?.icon, count: item?.count, onClick: item ? () => select(i) : undefined, name: item ? `slot-${item.key}` : undefined,
       });
       slots.push(s);
@@ -118,6 +122,74 @@ export function settingsPanel(scene, stack) {
       scene.scene.get('play').scene.restart();
     })),
   }));
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// Field crafting (docs/06 第 3 节): recipes on the left, materials + button on the right.
+export function craftPanel(scene, stack) {
+  const w = 760, h = 420;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '制作', 26));
+  const recipes = RECIPES.filter((r) => r.station === 'anywhere');
+  let sel = 0, slots = [];
+  const list = scene.add.container(0, 0), detail = scene.add.container(0, 0);
+  c.add([list, detail]);
+
+  const card = woodPanel(scene, 330, 320, { radius: 20, border: 5 });
+  card.setPosition(w / 2 - 200, 22);
+  c.add(card);
+  c.bringToTop(detail);
+
+  const draw = () => {
+    const st = stateOf(scene);
+    list.removeAll(true); slots = [];
+    recipes.forEach((r, i) => {
+      const ok = canCraft(st, r.id).ok;
+      const s = slot(scene, -w / 2 + 80 + (i % 3) * 96, -h / 2 + 120 + Math.floor(i / 3) * 110, {
+        size: 76, iconKey: ITEMS[r.out].icon, selected: i === sel, onClick: () => { sel = i; draw(); }, name: `recipe-${r.id}`,
+      });
+      if (!ok) s.list.find((o) => o.type === 'Image')?.setAlpha(0.45);
+      slots.push(s);
+      list.add(s);
+      list.add(text(scene, -w / 2 + 80 + (i % 3) * 96, -h / 2 + 168 + Math.floor(i / 3) * 110, ITEMS[r.out].name, 14, { ox: 0.5, oy: 0, bold: !ok ? false : true, color: ok ? '#5a4030' : '#9a8468' }));
+    });
+
+    detail.removeAll(true);
+    const r = recipes[sel], out = ITEMS[r.out], chk = canCraft(st, r.id);
+    const cx = w / 2 - 200, top = -h / 2 + 80;
+    const icon = scene.add.image(cx - 100, top + 30, out.icon); icon.setScale(80 / Math.max(icon.width, icon.height));
+    detail.add(icon);
+    detail.add(text(scene, cx - 40, top + 6, out.name, 22));
+    detail.add(text(scene, cx - 40, top + 38, out.desc.split('\n')[0], 13, { bold: false, wrap: 190, color: '#7a6450' }));
+    detail.add(text(scene, cx - 140, top + 86, '需要材料', 15));
+    Object.entries(r.cost).forEach(([id, need], k) => {
+      const have = Math.min(999, st.inventory.find((s) => s.id === id)?.count ?? 0);
+      const y = top + 122 + k * 34;
+      const mi = scene.add.image(cx - 124, y, ITEMS[id].icon); mi.setScale(30 / Math.max(mi.width, mi.height));
+      detail.add(mi);
+      detail.add(text(scene, cx - 100, y, ITEMS[id].name, 15, { oy: 0.5, bold: false }));
+      detail.add(text(scene, cx + 120, y, `${have} / ${need}`, 16, { ox: 1, oy: 0.5, color: have >= need ? '#4f7d3a' : '#d9572b' }));
+    });
+    if (chk.ok) {
+      detail.add(capsuleButton(scene, cx, h / 2 - 54, '制作', { w: 170, onClick: doCraft, name: 'craft-do' }));
+    } else {
+      const miss = chk.missing.map((m) => `${ITEMS[m.id].name} ×${m.need - m.have}`).join('、');
+      detail.add(text(scene, cx, h / 2 - 54, `还缺：${miss}`, 15, { ox: 0.5, oy: 0.5, color: '#d9572b', wrap: 290, align: 'center' }));
+    }
+  };
+  let busy = false;
+  function doCraft() {
+    if (busy) return;               // one press = one craft, even when tapped twice quickly
+    busy = true;
+    const r = recipes[sel];
+    const res = craft(stateOf(scene), r.id);
+    if (res.ok) { scene.game.session.markDirty(); scene.showToast(`做好了：${ITEMS[r.out].name}！`); }
+    else scene.showToast(res.reason === 'full' ? '背包满了，先腾出一格' : '材料不够');
+    draw();
+    scene.time.delayedCall(250, () => { busy = false; });
+  }
+  draw();
   c.add(closeBtn(scene, stack, w, h));
   return c;
 }
