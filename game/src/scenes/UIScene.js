@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 
 export const SAFE = 24; // keep HUD at least this far from screen edges (notches, rounded corners)
@@ -33,10 +33,11 @@ export default class UIScene extends Phaser.Scene {
     ev.on('day-summary', this.showSummary, this);
     ev.on('dock-request', this.openDock, this);
     ev.on('airship-request', this.askReturn, this);
+    ev.on('camp-request', this.openCamp, this);
     this.events.once('shutdown', () => {
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
-      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this);
+      ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this);
     });
     this.refreshAll();
     const session = this.game.session;
@@ -58,6 +59,11 @@ export default class UIScene extends Phaser.Scene {
   openDock(info) {
     if (this.stack.size) return;
     this.stack.push('dock', (s, st) => departPanel(s, st, info));
+  }
+
+  openCamp(info) {
+    if (this.stack.size) return;
+    this.stack.push('camp', (s, st) => campPanel(s, st, info));
   }
 
   askReturn(clock) {

@@ -7,7 +7,7 @@ import { joinParty, leaveParty, setLead } from '../systems/party.js';
 import { lightTorch } from '../systems/night.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
-import { canCraft, craft, bagSlots } from '../systems/crafting.js';
+import { canCraft, craft, bagSlots, stationOk } from '../systems/crafting.js';
 import { woodPanel, plaqueButton, capsuleButton, slot, tag, text, makeClickable } from './widgets.js';
 
 // Panels read the saved game state (scene.game.session.state).
@@ -48,6 +48,12 @@ export function bagPanel(scene, stack) {
       scene.game.session.markDirty();
       scene.showToast('点亮了火把：身边 2 格有光，能烧 3 小时');
       render();
+    } else if (current.key === 'item_campfire') {
+      if (stateOf(scene).player.area !== 'expedition') { scene.showToast('家园很安全，不需要营火'); return; }
+      stack.clear();
+      scene.game.events.emit('place-campfire');
+    } else if (current.key === 'item_tent') {
+      scene.showToast('在点着的营火旁按「互动」，就能用帐篷睡觉');
     } else if (current.netMult) scene.showToast('捕宠网要在宠物对战中使用');
     else scene.showToast('放置功能以后开放');
   };
@@ -193,7 +199,7 @@ export function craftPanel(scene, stack) {
   const w = 760, h = 420;
   const c = woodPanel(scene, w, h);
   c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '制作', 26));
-  const recipes = RECIPES.filter((r) => r.station === 'anywhere');
+  const recipes = RECIPES.filter((r) => r.station === 'anywhere' || r.station === 'workbench');
   let sel = 0, slots = [];
   const list = scene.add.container(0, 0), detail = scene.add.container(0, 0);
   c.add([list, detail]);
@@ -233,7 +239,9 @@ export function craftPanel(scene, stack) {
       detail.add(text(scene, cx - 100, y, ITEMS[id].name, 15, { oy: 0.5, bold: false }));
       detail.add(text(scene, cx + 120, y, `${have} / ${need}`, 16, { ox: 1, oy: 0.5, color: have >= need ? '#4f7d3a' : '#d9572b' }));
     });
-    if (chk.ok) {
+    if (!stationOk(st, r.id)) {
+      detail.add(text(scene, cx, h / 2 - 54, '要在家园工作台做（回家园岛再来）', 15, { ox: 0.5, oy: 0.5, color: '#d9572b' }));
+    } else if (chk.ok) {
       detail.add(capsuleButton(scene, cx, h / 2 - 54, '制作', { w: 170, onClick: doCraft, name: 'craft-do' }));
     } else {
       const miss = chk.missing.map((m) => `${ITEMS[m.id].name} ×${m.need - m.have}`).join('、');
@@ -247,11 +255,27 @@ export function craftPanel(scene, stack) {
     const r = recipes[sel];
     const res = craft(stateOf(scene), r.id);
     if (res.ok) { scene.game.session.markDirty(); scene.showToast(`做好了：${ITEMS[r.out].name}！`); }
-    else scene.showToast(res.reason === 'full' ? '背包满了，先腾出一格' : '材料不够');
+    else scene.showToast({ full: '背包满了，先腾出一格', station: '要在家园工作台做' }[res.reason] ?? '材料不够');
     draw();
     scene.time.delayedCall(250, () => { busy = false; });
   }
   draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// Camp panel (T22): fuel and sleeping in the tent next to a campfire.
+export function campPanel(scene, stack, info) {
+  const w = 460, h = 300;
+  const c = woodPanel(scene, w, h);
+  const hm = (m) => `${Math.floor(m / 60)} 小时 ${m % 60} 分`;
+  c.add(text(scene, 0, -h / 2 + 40, '营地', 26, { ox: 0.5, oy: 0.5 }));
+  c.add(text(scene, 0, -72, info.left > 0 ? `营火还能烧 ${hm(info.left)}` : '营火已经熄灭了', 17, { ox: 0.5, oy: 0.5, bold: false }));
+  c.add(text(scene, 0, -44, info.wood > 0 ? `撑到天亮还要添 ${info.wood} 根柴（背包里有 ${info.have} 根）` : '火够烧到天亮了', 15, { ox: 0.5, oy: 0.5, bold: false, color: info.wood > 0 ? '#d9572b' : '#4f7d3a' }));
+  c.add(capsuleButton(scene, 0, 12, `添柴（木材 −1，+2 小时）`, { w: 300, style: 'yellow', name: 'camp-wood', onClick: () => { stack.clear(); scene.game.events.emit('camp-add-wood', info.fireId); } }));
+  const reason = !info.tent ? '要有帐篷才能在野外睡觉（家园工作台制作）' : info.wood > 0 ? '火撑不到天亮，先添柴' : null;
+  if (reason) c.add(text(scene, 0, 78, reason, 14, { ox: 0.5, oy: 0.5, color: '#9a8468' }));
+  else c.add(capsuleButton(scene, 0, 78, '在帐篷里睡到天亮', { w: 260, name: 'camp-sleep', onClick: () => { stack.clear(); scene.game.events.emit('camp-sleep', info.fireId); } }));
   c.add(closeBtn(scene, stack, w, h));
   return c;
 }

@@ -539,13 +539,17 @@ try {
   await page.waitForTimeout(1400);
   check('走出预警圈就躲开（不扣血）', (await reg('hp')) >= hp2, `${hp2} → ${await reg('hp')}`);
   // E06: inside a campfire's light monsters stop at the edge
-  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.dissolveMonsters(); sc.fires.push({ x: sc.player.x, y: sc.player.y }); sc.debugSpawnMonster(sc.player.x + 300, sc.player.y); });
+  await scene(() => {
+    const sc = window.__game.scene.getScene('play'); sc.dissolveMonsters();
+    sc.state.inventory.push({ id: 'item_campfire', count: 1 }); sc.placeCampfireNear();
+    const f = [...sc.fireSprites.values()].at(-1); sc.teleport(f.x + 40, f.y + 30); sc.debugSpawnMonster(f.x + 320, f.y);
+  });
   await page.waitForTimeout(4500);
-  const e06 = await scene(() => { const sc = window.__game.scene.getScene('play'); const f = sc.fires.at(-1); return { d: Math.min(...sc.monsters.map((m) => Math.hypot(m.x - f.x, m.y - f.y))), warns: sc.warnings.length }; });
+  const e06 = await scene(() => { const sc = window.__game.scene.getScene('play'); const f = [...sc.fireSprites.values()].at(-1); return { d: Math.min(...sc.monsters.map((m) => Math.hypot(m.x - f.x, m.y - f.y))), warns: sc.warnings.length }; });
   check('E06 营火光圈里：雾怪停在 4 格光圈外，不进来', e06.d >= 4 * 48 - 2, JSON.stringify(e06));
   await page.screenshot({ path: join(OUT, '37-campfire-safe.png') });
   // torch from the bag
-  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.fires.pop(); const inv = sc.state.inventory; const t = inv.find((s) => s.id === 'item_torch'); if (t) t.count += 1; else inv.push({ id: 'item_torch', count: 1 }); });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); const inv = sc.state.inventory; const t = inv.find((s) => s.id === 'item_torch'); if (t) t.count += 1; else inv.push({ id: 'item_torch', count: 1 }); });
   await tapTarget('hud-bag');
   await tapTarget('slot-item_torch');
   await tapTarget('use');
@@ -559,6 +563,50 @@ try {
   await page.waitForTimeout(2600);
   const dawn = await page.evaluate(() => ({ area: window.__game.scene.getScene('play').area, m: window.__game.scene.getScene('play').monsters.length }));
   check('天亮（6:00）雾怪消散', dawn.m === 0, JSON.stringify(dawn));
+
+  // ---------- camping (T22) ----------
+  await page.evaluate(() => { const st = window.__game.session.state; window.__game.registry.set({ hp: 100, hunger: 100 }); for (const x of st.pets) x.hp = null; });
+  await scene(() => window.__game.scene.getScene('play').travelTo(555123));
+  await waitArea('expedition'); await page.waitForTimeout(500);
+  // chest
+  const chestRes = await scene(() => { const sc = window.__game.scene.getScene('play'); const c = sc.island.chests[0]; for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) if (sc.isWalkableTile(c.tx + dx, c.ty + dy)) { sc.teleport((c.tx + dx) * 48 + 24, (c.ty + dy) * 48 + 24); return c.id; } return null; });
+  await page.waitForTimeout(250);
+  const cloth0 = await inv('item_cloth');
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(400);
+  check('走到宝箱旁按互动：打开宝箱得到布', (await inv('item_cloth')) >= cloth0 + 2 && (await page.evaluate((id) => window.__game.session.state.expedition.changes.chests.includes(id), chestRes)), await toastText());
+  await page.screenshot({ path: join(OUT, '39-chest.png') });
+  // campfire at 20:00
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.wild.forEach((w) => { w.cooldown = 1e12; }); const inv = sc.state.inventory; const add = (id, n) => { const s = inv.find((x) => x.id === id); if (s) s.count += n; else inv.push({ id, count: n }); }; add('item_campfire', 1); add('item_wood', 6); add('item_tent', 1); sc.teleport(sc.island.landing.tx * 48 + 24, (sc.island.landing.ty - 2) * 48 + 24); sc.debugAdvance(20 * 60 - sc.state.clock); });
+  await tapTarget('hud-bag');
+  await tapTarget('slot-item_campfire');
+  await tapTarget('use');
+  await page.waitForTimeout(300);
+  const fireNow = await page.evaluate(() => ({ fires: window.__game.session.state.expedition.fires?.length ?? 0, lights: window.__game.scene.getScene('play').debugNight().lights.filter((l) => l.kind === 'campfire').length, onWalk: window.__game.scene.getScene('play').debugState().onWalkable }));
+  check('背包里使用营火：放在身边，夜里亮起 4 格光，玩家没被卡住', fireNow.fires === 1 && fireNow.lights === 1 && fireNow.onWalk, JSON.stringify(fireNow));
+  await page.screenshot({ path: join(OUT, '40-campfire.png') });
+  // camp panel: not enough fuel yet
+  await scene(() => { const sc = window.__game.scene.getScene('play'); const f = [...sc.fireSprites.values()][0]; sc.teleport(f.x + 50, f.y + 20); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('营火旁按互动 → 营地面板（火撑不到天亮，没有睡觉按钮）', (await ui()).stack.join() === 'camp' && !(await page.evaluate(() => window.__game.scene.getScene('ui').findTarget('camp-sleep'))), (await ui()).stack.join());
+  await page.screenshot({ path: join(OUT, '41-camp-panel.png') });
+  for (let i = 0; i < 4; i++) {
+    if ((await ui()).stack.join() !== 'camp') { await page.keyboard.press('KeyE'); await page.waitForTimeout(350); }
+    await tapTarget('camp-wood');
+  }
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('添 4 根柴后火够烧到天亮，出现「睡到天亮」', !!(await page.evaluate(() => window.__game.scene.getScene('ui').findTarget('camp-sleep'))));
+  await page.screenshot({ path: join(OUT, '42-camp-ready.png') });
+  const dayCamp = (await state()).day;
+  await page.evaluate(() => window.__game.registry.set({ hp: 40 }));
+  await tapTarget('camp-sleep');
+  await page.waitForFunction((dd) => window.__game.session.state.day > dd, dayCamp, { timeout: 6000 });
+  await page.waitForTimeout(600);
+  const woke2 = await state();
+  check('帐篷里睡到天亮：第二天 6:00、生命回满、还在岛上', woke2.day === dayCamp + 1 && woke2.clock >= 360 && woke2.clock < 365 && woke2.hp === 100 && woke2.area === 'expedition', JSON.stringify({ d: woke2.day, c: woke2.clock, hp: woke2.hp, a: woke2.area }));
+  await page.evaluate(() => window.__game.scene.getScene('ui').stack.clear());
+  await scene(() => window.__game.scene.getScene('play').goHome());
+  await waitArea('home'); await page.waitForTimeout(400);
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });

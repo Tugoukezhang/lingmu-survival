@@ -56,10 +56,14 @@ export function canCraft(state, recipeId) {
   return { ok: missing.length === 0, missing };
 }
 
+// Workbench recipes can only be made at home (the home workbench) 【建议】.
+export const stationOk = (state, recipeId) => RECIPE_BY_ID[recipeId].station !== 'workbench' || state.player.area === 'home';
+
 // Crafting is all-or-nothing: materials are only taken when the result fits.
-// Returns { ok } or { ok: false, reason: 'missing' | 'full', missing? }.
+// Returns { ok } or { ok: false, reason: 'missing' | 'full' | 'station', missing? }.
 export function craft(state, recipeId) {
   const r = RECIPE_BY_ID[recipeId];
+  if (!stationOk(state, recipeId)) return { ok: false, reason: 'station' };
   const check = canCraft(state, recipeId);
   if (!check.ok) return { ok: false, reason: 'missing', missing: check.missing };
   // the result needs a slot unless a material stack empties or the item is already stacked

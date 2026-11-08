@@ -22,6 +22,7 @@ import { RECIPES } from '../game/src/data/recipes.js';
 import * as B from '../game/src/systems/battle.js';
 import * as PT from '../game/src/systems/party.js';
 import * as NI from '../game/src/systems/night.js';
+import * as CP from '../game/src/systems/camp.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -427,8 +428,8 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('配方的材料和产出都是已定义的物品', RECIPES.every((r) => ITEMS[r.out] && Object.keys(r.cost).every((id) => ITEMS[id])));
   check('配方数值与文档一致（石斧 木3石2、石镐 木3石3、火把 木2草2、营火 木4石4、草编网 草3木2、藤编网 布1草3雾晶1）',
     JSON.stringify(RECIPES.map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
-      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }]]));
-  check('只有斧和镐算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).join() === 'item_axe,item_pickaxe');
+      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }]]));
+  check('只有斧、镐、帐篷算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).join() === 'item_axe,item_pickaxe,item_tent');
 
   const mk = (inv) => { const s = S.newGameState(); s.inventory = inv; s.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; s.player.area = 'expedition'; return s; };
   let s = mk([]);
@@ -717,6 +718,65 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const sp = NI.pickSpawn(mulberry32(3), { x: 1000, y: 1000 }, ls, () => true);
   check('雾怪只在光外出现', !!sp && !NI.litBy(ls, sp.x, sp.y));
   check('火把时间存档合法', S.validate({ ...S.newGameState(), player: { ...S.newGameState().player, torchUntil: 5000 } }).length === 0);
+}
+
+// ---------- camping (T22; docs/06 第 3–4 节) ----------
+{
+  const mk = () => {
+    const s = S.newGameState(); s.day = 3; s.clock = 20 * 60;
+    s.expedition = { seed: 4242, biome: 'mistwood', changes: G.emptyChanges(), lostBag: null }; s.player.area = 'expedition';
+    s.inventory = [{ id: 'item_wood', count: 4 }, { id: 'item_stone', count: 4 }];
+    return s;
+  };
+  // 8 wood: 4 for the campfire + 4 fuel = exactly 20:00 → 6:00
+  let s = mk();
+  check('做营火：木材 4 + 石头 4', CR.craft(s, 'campfire').ok && I.countOf(s.inventory, 'item_campfire') === 1 && I.countOf(s.inventory, 'item_wood') === 0);
+  s.inventory.push({ id: 'item_wood', count: 4 });
+  const pl = CP.placeCampfire(s, 10, 10);
+  check('20:00 点燃营火：能烧 2 小时（到 22:00）', pl.ok && CP.fireLeft(s, pl.fire) === 120 && I.countOf(s.inventory, 'item_campfire') === 0);
+  eq('撑到 6:00 还要 4 根柴', CP.woodToDawn(s, pl.fire), 4);
+  for (let i = 0; i < 4; i++) CP.addWood(s, pl.fire.id);
+  check('8 份木材刚好撑过 20:00–6:00', CP.fireLeft(s, pl.fire) === 10 * 60 && CP.woodToDawn(s, pl.fire) === 0 && I.countOf(s.inventory, 'item_wood') === 0);
+  check('没有木材不能添柴', CP.addWood(s, pl.fire.id).reason === 'no-wood');
+  check('同一格不能放两个营火', (s.inventory.push({ id: 'item_campfire', count: 1 }), CP.placeCampfire(s, 10, 10).reason === 'occupied'));
+  // burning across midnight & burning out
+  s.clock = 25 * 60; check('午夜后营火还在烧（按绝对时间）', CP.burning(s).length === 1 && CP.fireLeft(s, pl.fire) === 300);
+  s.clock = 30 * 60; check('6:00 燃料用完熄灭', CP.burning(s).length === 0);
+  s.inventory.push({ id: 'item_wood', count: 1 });
+  CP.addWood(s, pl.fire.id);
+  check('熄灭的营火添柴会重新点燃（从现在算 2 小时）', CP.fireLeft(s, pl.fire) === 120);
+  // tent sleep
+  s = mk(); s.inventory = [{ id: 'item_campfire', count: 1 }, { id: 'item_wood', count: 2 }];
+  const f2 = CP.placeCampfire(s, 5, 5).fire;
+  check('没有帐篷不能在野外睡', CP.canCampSleep(s, f2.id).reason === 'no-tent');
+  s.inventory.push({ id: 'item_tent', count: 1 });
+  const c1 = CP.canCampSleep(s, f2.id);
+  check('火撑不到天亮不能睡，并告诉差几根柴', !c1.ok && c1.reason === 'fuel' && c1.wood === 4);
+  s.clock = 26 * 60;   // 2:00 — the fire (lit at 20:00 for 2h) is out; dawn in 4h → 2 wood
+  CP.addWood(s, f2.id); CP.addWood(s, f2.id);
+  check('凌晨 2:00 添 2 根柴就够撑到天亮，可以睡', CP.canCampSleep(s, f2.id).ok);
+  s.player.hp = 30; s.player.hunger = 70; s.pets[0].hp = 3;
+  T.runSettlement(s, { slept: true });
+  check('帐篷睡醒：生命回满、饱食 −20、宠物恢复，还在远征岛上', s.player.hp === 100 && s.player.hunger === 50 && s.pets.every((x) => x.hp == null) && s.player.area === 'expedition' && s.clock === 360);
+  check('营地存档合法', S.validate(s).length === 0, S.validate(s).join());
+  check('家园岛不能放营火', (() => { const h = S.newGameState(); return CP.placeCampfire(h, 1, 1).reason === 'home'; })());
+  // chests & tent recipe
+  const c = mk(); c.inventory = [];
+  const loot = CP.chestLoot(4242, 'c0');
+  check('宝箱里有 2–3 块布，结果由种子决定', loot.items.item_cloth >= 2 && loot.items.item_cloth <= 3 && JSON.stringify(loot) === JSON.stringify(CP.chestLoot(4242, 'c0')));
+  const clover0 = c.clover;
+  const o = CP.openChest(c, 'c0');
+  check('打开宝箱：物品进背包、四叶草 +20、记入岛屿记录', o.ok && I.countOf(c.inventory, 'item_cloth') === loot.items.item_cloth && c.clover === clover0 + 20 && c.expedition.changes.chests.includes('c0'));
+  check('同一个宝箱不能开两次', CP.openChest(c, 'c0').reason === 'opened');
+  const full = mk(); full.party = []; full.inventory = Array.from({ length: 20 }, (_, i) => ({ id: `f${i}`, count: 1 }));
+  check('背包满了打不开宝箱（宝箱留着）', CP.openChest(full, 'c1').reason === 'full' && !full.expedition.changes.chests.includes('c1'));
+  const t1 = mk(); t1.inventory = [{ id: 'item_cloth', count: 4 }, { id: 'item_wood', count: 6 }];
+  check('帐篷只能在家园做（远征中拒绝，材料不扣）', CR.craft(t1, 'tent').reason === 'station' && I.countOf(t1.inventory, 'item_cloth') === 4);
+  t1.player.area = 'home';
+  check('回家园可以做帐篷：布 4 + 木材 6', CR.craft(t1, 'tent').ok && I.countOf(t1.inventory, 'item_tent') === 1 && t1.inventory.length === 1);
+  const ft = mk(); ft.inventory = [{ id: 'item_tent', count: 1 }, { id: 'item_wood', count: 3 }];
+  TR.faint(ft, { x: 1, y: 1 });
+  check('倒下时帐篷保留', I.countOf(ft.inventory, 'item_tent') === 1);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

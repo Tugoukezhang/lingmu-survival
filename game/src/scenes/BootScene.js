@@ -39,6 +39,7 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('chest', 60, 50, drawChest);
     this.makeCanvas('airship', 190, 150, drawAirship);
     this.makeCanvas('lostbag', 56, 56, drawLostBag);
+    this.makeCanvas('item_tent', 128, 128, (g, w, h) => { g.save(); g.scale(1.2, 1.2); g.translate(2, 8); drawTent(g, 104, 92); g.restore(); });
     this.makeCanvas('fogmonster', 84, 84, drawFogMonster);
     this.makeCanvas('lightbrush', 256, 256, (g, w) => {   // soft round light: opaque core, fading edge
       const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);

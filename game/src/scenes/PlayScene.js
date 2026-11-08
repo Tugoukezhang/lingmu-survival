@@ -12,6 +12,8 @@ import { createBattle, makeWildGroup, canStartBattle } from '../systems/battle.j
 import { PETS } from '../data/pets.js';
 import * as N from '../systems/night.js';
 import { applyDamage } from '../systems/survival.js';
+import * as CP from '../systems/camp.js';
+import { countOf } from '../systems/inventory.js';
 import { ITEMS } from '../data/items.js';
 
 // The world: either the home island (placeholder layout) or a generated
@@ -35,6 +37,7 @@ export default class PlayScene extends Phaser.Scene {
     this.rand = mulberry32(SEED);
     // the scene object is reused on restart: clear what belongs to the previous map
     this.fires = []; this.monsters = []; this.warnings = []; this.lastSpawn = null; this.fogWisps = []; this.torchFx = null;
+    this.fireSprites = new Map(); this.chestSprites = new Map();
     this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
     this.traveling = false; this.fainted = false; this.inBattle = null;
     this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
@@ -68,8 +71,11 @@ export default class PlayScene extends Phaser.Scene {
     const onFaint = () => this.faint();
     const onBattleEnd = (r) => this.onBattleEnd(r);
     const onParty = () => this.syncParty();
+    const onPlaceFire = () => this.placeCampfireNear();
+    const onWood = (id) => this.onAddWood(id);
+    const onCampSleep = (id) => this.onCampSleep(id);
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
@@ -287,9 +293,11 @@ export default class PlayScene extends Phaser.Scene {
     }
     for (const c of isl.chests) {
       const { x, y } = at(c.tx, c.ty, -8);
-      this.add.image(x, y + 4, 'shadow').setScale(0.8, 1).setDepth(y - 1);
-      this.add.image(x, y, 'chest').setOrigin(0.5, 0.9).setDepth(y);
+      const sh = this.add.image(x, y + 4, 'shadow').setScale(0.8, 1).setDepth(y - 1);
+      const img = this.add.image(x, y, 'chest').setOrigin(0.5, 0.9).setDepth(y);
+      this.chestSprites.set(c.id, [sh, img]);
     }
+    for (const f of CP.fires(this.state)) this.addFireSprite(f);
     const lb = this.state.expedition.lostBag;
     if (lb) {
       const spr = this.add.image(lb.x, lb.y, 'lostbag').setOrigin(0.5, 0.9).setDepth(lb.y);
@@ -302,6 +310,84 @@ export default class PlayScene extends Phaser.Scene {
     const ship = this.add.image(ax, ay, 'airship').setOrigin(0.5, 0.7).setDepth(ay - 30);
     this.tweens.add({ targets: ship, y: ay - 6, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     this.airship = { x: ax, y: (a.ty - 1) * TILE + TILE / 2, sprite: ship }; // interact from the edge cell next to the landing
+  }
+
+  // ---------- camping (T22) ----------
+  addFireSprite(f) {
+    const x = f.tx * TILE + TILE / 2, y = f.ty * TILE + TILE - 4;
+    const img = this.add.image(x, y, 'item_campfire').setOrigin(0.5, 0.85).setDepth(y);
+    img.setScale(64 / img.width);
+    img.base = img.scaleY;
+    this.blocked[f.ty][f.tx] = true;
+    this.fireSprites.set(f.id, { img, x, y: y - 12, f });
+  }
+
+  // Burning campfires light the night; burnt-out ones turn grey.
+  updateFires(time) {
+    if (this.area !== 'expedition') return;
+    this.fires = [];
+    for (const s of this.fireSprites.values()) {
+      const lit = CP.fireLeft(this.state, s.f) > 0;
+      if (lit) {
+        this.fires.push({ x: s.x, y: s.y });
+        s.img.clearTint().setScale(s.img.scaleX, s.img.base * (1 + Math.sin(time / 140) * 0.04));
+      } else s.img.setTint(0x777777);
+    }
+  }
+
+  // Put a campfire from the bag on a free tile next to the player.
+  placeCampfireNear() {
+    const p = this.player, ptx = Math.floor(p.x / TILE), pty = Math.floor(p.y / TILE);
+    const fx = Math.round(this.facing.x), fy = Math.round(this.facing.y);
+    const cands = [[fx, fy], [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1], [2, 0], [-2, 0], [0, 2], [0, -2]];
+    for (const [dx, dy] of cands) {
+      if (!dx && !dy) continue;
+      const tx = ptx + dx, ty = pty + dy;
+      const cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
+      const overlapsFeet = Math.abs(p.x - cx) < TILE / 2 + 12 && Math.abs(p.y - cy) < TILE / 2 + 8;
+      if (!this.isWalkableTile(tx, ty) || overlapsFeet) continue;
+      const r = CP.placeCampfire(this.state, tx, ty);
+      if (!r.ok) { this.showToast('这里放不下营火'); return; }
+      this.addFireSprite(r.fire);
+      this.session.save('camp');
+      this.showToast('营火点起来了：能烧 2 小时，靠近按「互动」可以添柴');
+      return;
+    }
+    this.showToast('附近没有空地放营火');
+  }
+
+  campInfo(fireId) {
+    const f = CP.fires(this.state).find((x) => x.id === fireId);
+    return { fireId, left: CP.fireLeft(this.state, f), wood: CP.woodToDawn(this.state, f), have: countOf(this.state.inventory, 'item_wood'), tent: countOf(this.state.inventory, 'item_tent') > 0 };
+  }
+
+  onAddWood(fireId) {
+    const r = CP.addWood(this.state, fireId);
+    if (!r.ok) { this.showToast('背包里没有木材了'); return; }
+    const info = this.campInfo(fireId);
+    this.session.save('camp');
+    this.showToast(`添了一根柴：还能烧 ${Math.floor(info.left / 60)} 小时 ${info.left % 60} 分${info.wood ? `，撑到天亮还差 ${info.wood} 根` : '，够烧到天亮了'}`);
+  }
+
+  onCampSleep(fireId) {
+    const r = CP.canCampSleep(this.state, fireId);
+    if (!r.ok) { this.showToast(r.reason === 'no-tent' ? '要有帐篷才能在野外睡觉' : `火撑不到天亮，还差 ${r.wood} 根柴`); return; }
+    this.session.save('camp');
+    this.startSleep(true);
+  }
+
+  tryOpenChest(c) {
+    this.session.pullFromRegistry();
+    const r = CP.openChest(this.state, c.id);
+    if (!r.ok) { this.showToast(r.reason === 'full' ? '背包满了，先腾出位置再开' : '已经打开过了'); return; }
+    this.session.pushToRegistry();
+    this.island.chests = this.island.chests.filter((x) => x.id !== c.id);
+    this.blocked[c.ty][c.tx] = false;
+    const parts = this.chestSprites.get(c.id) ?? [];
+    this.tweens.add({ targets: parts, alpha: 0, y: '-=12', duration: 350, onComplete: () => parts.forEach((o) => o.destroy()) });
+    this.session.save('chest');
+    const names = Object.entries(r.loot.items).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join('、');
+    this.showToast(`打开了宝箱：${names}，四叶草 +${r.loot.clover}`);
   }
 
   // Wild pets wander near where the generator put them. Touching one starts
@@ -814,6 +900,7 @@ export default class PlayScene extends Phaser.Scene {
     if (!busy) this.movePlayer(dt);
     this.updatePets(time, dt);
     this.updateWild(time, dt);
+    this.updateFires(time);
     this.updateNight(time, delta);
     this.drawLighting();
     if (!this.sleeping && !this.fainted) this.checkLostBag(time);
@@ -915,6 +1002,15 @@ export default class PlayScene extends Phaser.Scene {
       this.dock && { at: this.dock, label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null, lostBag: lostBagCount(this.state) }) },
       this.airship && { at: this.airship, label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
     ].filter(Boolean);
+    // campfires and chests on expedition islands
+    for (const s of this.fireSprites.values()) {
+      const left = CP.fireLeft(this.state, s.f);
+      spots.push({ at: { x: s.x, y: s.y + 8 }, label: left > 0 ? `营火 · 还能烧 ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}（点互动）` : '营火 · 已熄灭（点互动添柴）', tagY: 60,
+        act: () => this.game.events.emit('camp-request', this.campInfo(s.f.id)) });
+    }
+    for (const c of this.island?.chests ?? []) {
+      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, label: '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
+    }
     let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
     if (!spot && this.island) spot = this.nearestResourceSpot();
     if (spot) {

@@ -7,6 +7,8 @@ export const RECIPES = [
   { id: 'campfire', out: 'item_campfire', n: 1, station: 'anywhere', cost: { item_wood: 4, item_stone: 4 } },
   { id: 'net_grass', out: 'item_net_grass', n: 1, station: 'anywhere', cost: { item_grass: 3, item_wood: 2 } },
   { id: 'net_vine', out: 'item_net_vine', n: 1, station: 'anywhere', cost: { item_cloth: 1, item_grass: 3, item_crystal: 1 } },
+  // home workbench (for now: anywhere on the home island)
+  { id: 'tent', out: 'item_tent', n: 1, station: 'workbench', cost: { item_cloth: 4, item_wood: 6 } },
 ];
 
 export const RECIPE_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
