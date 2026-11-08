@@ -759,13 +759,13 @@
       "source_reference": "shared across multiple screens",
       "target_png": "PNG_Transparent/00_common/close_wood.png",
       "target_resolution": "1024x1024",
-      "state": "deferred_after_two_wrong_identity_generations",
-      "approval": "pending",
+      "state": "gpt_image_candidate_review_pending",
+      "approval": "pending_user_and_engine_qa",
       "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Wood-and-cream close icon with small leaves/flower. Wrong-target image reassigned to title/age_12_badge, not discarded.",
-      "existing_candidate": null,
+      "notes": "Wood-and-cream close icon with small leaves/flower. Wrong-target image reassigned to title/age_12_badge, not discarded. Recovered one standalone close-X button candidate from later back-button generation drift; not failed or thrown away, not yet production-approved.",
+      "existing_candidate": "/Lingmu_HUD_Exports/Close_Wood_Single_Review/shared_close_wood_painterly_candidate_1024.png",
       "last_failed_reason": "Generation-reference mismatch: two attempts intended for shared/close_wood instead returned a usable 12+ age badge. That output has now been recovered and assigned to title/age_12_badge. shared/close_wood remains without a candidate.",
       "source_crop": {
         "source": "04_inventory.jpg",
@@ -786,7 +786,18 @@
         "sha256": "f97e0c6f32e71ac60111c1e26d59f6dc101f94cb4a9652acd0f6389ca379e95a",
         "reference_only": "/Lingmu_HUD_Exports/Single_Control_References/shared_close_wood_reference_crop_142x133.png"
       },
-      "next_attempt_restriction": "One single small uneven warm brown wood disk with a rounded ivory X, three green leaves upper-left, small five-petal white flower and leaves lower-right. No lettering, no age rating, no shield or decorative medal, no background; one transparent RGBA sprite only. Use the tight crop as the ONLY image input."
+      "next_attempt_restriction": "One single small uneven warm brown wood disk with a rounded ivory X, three green leaves upper-left, small five-petal white flower and leaves lower-right. No lettering, no age rating, no shield or decorative medal, no background; one transparent RGBA sprite only. Use the tight crop as the ONLY image input.",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Close_Wood_Single_Review/shared_close_wood_painterly_candidate_1024.png",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_sha256": "fba1f31d77d4a08d81949807eefeffdb65335a1d12249ab95eb0b0c90dd1de18",
+      "candidate_kind": "GPT Image wooden X close button generated off-target while shared/back_wood requested, later isolated via alpha matte cleanup; user/engine QA pending.",
+      "qa_comparison": "/Lingmu_HUD_Exports/Close_Wood_Single_Review/shared_close_wood_reference_vs_review.jpg",
+      "qa_status": "Close/X identity correct; wood and botanical detail present; alpha-mask check and 72/96/128 px previews done; visually more ornate than original; user art approval and engine integration pending.",
+      "production_promoted": false
     },
     {
       "queue_number": 11,
@@ -795,12 +806,34 @@
       "source_reference": "shared across multiple screens",
       "target_png": "PNG_Transparent/00_common/back_wood.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "deferred_after_two_wrong_identity_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Back arrow circular wood/cream and leaves."
+      "notes": "Back arrow circular wood/cream and leaves.",
+      "existing_candidate": null,
+      "last_failed_reason": "On 2026-11-08 two image-generation attempts for curved white LEFT return arrow on circular wooden base with leaves/flower both returned close-button X. First result salvaged for shared/close_wood; second discarded. Back control still not created.",
+      "source_reference_verified": {
+        "source_files": [
+          "06_home.jpg",
+          "07_world_map.jpg"
+        ],
+        "source_image_size": [
+          1920,
+          1080
+        ],
+        "approx_bbox_xyxy": [
+          37,
+          31,
+          171,
+          157
+        ],
+        "location": "top-left",
+        "element": "curved cream left return arrow on a tan round wooden disk, leaves upper-left, white small flower lower-right",
+        "exact_crop_attached_to_generator": false
+      },
+      "next_attempt_restriction": "Rebind source pixels ONLY to single curved white LEFT-POINTING BACK ARROW reference, no X, no close cross, no 12+, no other UI. Do not use prior generated close icons as source. If source cannot be image-attached, record blocker rather than claim target identity."
     },
     {
       "queue_number": 12,
@@ -2210,9 +2243,28 @@
       "date": "2026-11-08",
       "action": "diagnose target/reference mismatch",
       "result": "Multiple generations return previous subject even after current focus changes. Added per-invocation target identity gate and recovery of misassigned but usable images. Keep one-image per run."
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/shared/back_wood",
+      "action": "two single-generation attempts while focusing on curved left return arrow",
+      "result": "both generated a wooden close X rather than curved return arrow; back failed identity QA; first separate usable X candidate reassigned to close_wood, user approval pending",
+      "attempts": 2,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/shared/question_dark"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/shared/close_wood",
+      "action": "salvaged previous-target delayed artwork from wrong current generation",
+      "result": "independent 1024 RGBA PNG and side-by-side reference/72/96/128 px previews saved to Library, user+engine QA pending",
+      "candidate_sha256": "fba1f31d77d4a08d81949807eefeffdb65335a1d12249ab95eb0b0c90dd1de18",
+      "approved": 0,
+      "counted_as_complete": false
     }
   ],
-  "current_focus": "other96/shared/back_wood",
+  "current_focus": "other96/shared/question_dark",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
