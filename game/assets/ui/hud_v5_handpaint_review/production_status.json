@@ -419,9 +419,13 @@
       "target_png": "PNG_Transparent/04_inventory/tab_clothing.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "deferred_two_wrong_generations",
+      "qa": "identity_palette_silhouette_failed_deferred",
+      "notes": "Two GPT Image outputs rejected (purple background, ornate cream tunic with lacing and belt vs V3 blue-gray outlined T-shirt); original screenshot unavailable; no accepted candidate. GitHub QA record at Reviews/inventory_tab_clothing_failed_20261108/QA.json.",
+      "candidate_count": 0,
+      "attempts": 2,
+      "original_screenshot_bbox_verified": false,
+      "production_replaced": false
     },
     {
       "index": 38,
