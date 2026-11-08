@@ -1077,12 +1077,45 @@
       "source_reference": "03_活动大厅(4).jpg",
       "target_png": "PNG_Transparent/03_activity/nav_book_white.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "source_geometry_painterly_review_candidate_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "White compact nav glyph, no background."
+      "notes": "White compact nav glyph, no background.",
+      "existing_candidate": "/Lingmu_HUD_Exports/Activity_Nav_Book_Single_Review/nav_book_white_review_1024.png",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Activity_Nav_Book_Single_Review/nav_book_white_review_1024.png",
+      "candidate_sha256": "24b5369f8f9b903b67189576c54fee71d015ca355ddda2d3af5165e3e6662329",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "independent source-locked SVG geometry painted with subtle white/mint texture and exported to RGBA; NOT direct GPT Image handpaint result",
+      "source_crop": {
+        "source": "03_activity.jpg",
+        "source_image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          229,
+          197,
+          296,
+          267
+        ],
+        "crop_dimensions": [
+          67,
+          70
+        ],
+        "library": "/Lingmu_HUD_Exports/Activity_Nav_Book_Single_Review/nav_book_original_crop_67x70.png"
+      },
+      "qa_status": "two open pages, center page crease, thin cream/white lines, slight bottom page curves and short bookmark upper right retained; alpha verified; 40/48/64/96/128px previews created; user art and game engine integration QA pending",
+      "review_comparison_library": "/Lingmu_HUD_Exports/Activity_Nav_Book_Single_Review/nav_book_white_QA_preview.jpg",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Activity_Nav_Book_Single_Review/nav_book_white_review_bundle.zip",
+      "manifest_library": "/Lingmu_HUD_Exports/Activity_Nav_Book_Single_Review/manifest.json",
+      "last_generation_note": "One GPT Image generation returned an ornate gold, leaves, gems and flowers hardback fantasy book; rejected. Produced source-matched independent SVG painterly raster fallback. Original source crop was not bound into image generator; no false fidelity claim.",
+      "production_promoted": false
     },
     {
       "queue_number": 18,
@@ -2480,9 +2513,20 @@
       "counted_as_complete": false,
       "candidate_sha256": "279b0296b72bb1a4392a58e67fd40ede2d244c12912bfecee331614c07d1f4e1",
       "next": "other96/activity/nav_book_white"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/activity/nav_book_white",
+      "action": "isolated single book icon source reference and controlled painterly redraw",
+      "result": "One standalone 1024 RGBA book glyph draft created, 40–128px native-size QA image and exact screenshot crop archived in Library. AI ornate output rejected. Final art/game QA pending; not promoted.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "candidate_sha256": "24b5369f8f9b903b67189576c54fee71d015ca355ddda2d3af5165e3e6662329",
+      "next": "other96/activity/nav_board_white"
     }
   ],
-  "current_focus": "other96/activity/nav_book_white",
+  "current_focus": "other96/activity/nav_board_white",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
