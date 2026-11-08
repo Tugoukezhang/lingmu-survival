@@ -1694,12 +1694,33 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/detail_wood_panel.png",
       "target_resolution": "1260x1640",
-      "state": "not_generated",
+      "state": "deferred_failed_two_image_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "last_attempt": "2026-11-08",
+      "failure_reason": "Both GPT Image attempts produced landscape leaf-embellished parchment frames instead of plain vertical wood-framed detail panel. Wrong aspect ratio and unrequested crest/leaves; no accepted candidate.",
+      "review_report": "Reviews/inventory_detail_wood_panel_failed_20261108/QA.json",
+      "reference_kind": "V4 single-element reconstruction; original 04_背包(5).jpg source crop unavailable",
+      "engineering_layout_bbox_xywh": [
+        213,
+        174,
+        450,
+        579
+      ],
+      "engineering_layout_size": [
+        1649,
+        928
+      ],
+      "output_resolution": [
+        1260,
+        1640
+      ],
+      "candidate_count": 0,
+      "qa": "failed_identity_aspect",
+      "deferred_retry_policy": "Do not repeat generation without verified portrait-only source reference binding; skip to next unfinished asset."
     },
     {
       "queue_number": 34,
@@ -3034,9 +3055,22 @@
       "fullcolor_sha256": "7f84a109fa84def9b8db3147fa67f452b865f327b0122101db46b4f6d1e021a3",
       "github_preview_sha256": "081d5bfccf81aa7b78f841ebf585ef5a890e6ed3dafc0a2e15ab7ffc1d8167a7",
       "next": "other96/inventory/detail_wood_panel"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/inventory/detail_wood_panel",
+      "action": "2 image-generation attempts with V4 single-element reference available, original screenshot Library absent; generated landscape decorated panels rather than portrait blank details",
+      "result": "Both image outputs rejected for wrong identity/aspect and extra leaves/crest. Local 3-way QA comparison and sha256 recorded; text QA committed to GitHub. No candidate accepted, no production overwrite. Moved to deferred retries.",
+      "created_candidates": 0,
+      "rejected_generations": 2,
+      "approved": 0,
+      "counted_as_complete": false,
+      "original_screenshot_crop_verified": false,
+      "review_report": "Reviews/inventory_detail_wood_panel_failed_20261108/QA.json",
+      "next": "other96/inventory/tab_general"
     }
   ],
-  "current_focus": "other96/inventory/detail_wood_panel",
+  "current_focus": "other96/inventory/tab_general",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
@@ -3074,7 +3108,8 @@
     "main_top_J",
     "main_top_P",
     "activity/reward_shell_only",
-    "other96/activity/activity_card_rope"
+    "other96/activity/activity_card_rope",
+    "other96/inventory/detail_wood_panel"
   ],
   "deferred_retry_policy": "Skip prior failed icon image-generation attempts until all never-attempted HUD/other remaining queue items receive first candidates; preserve their failed status and revisit at end. Do not count them as approved.",
   "generation_target_integrity_protocol": {
