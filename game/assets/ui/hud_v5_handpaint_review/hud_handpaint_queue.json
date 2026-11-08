@@ -23,9 +23,10 @@
     "shell_excluded_from_96_but_needs_review": true,
     "shell_qa": "pending",
     "other_96_existing_candidates_unapproved": 9,
-    "other_96_untouched": 87,
+    "other_96_untouched": 85,
     "main_hud_queue_total": 12,
-    "final_approved": 0
+    "final_approved": 0,
+    "other_96_single_review_candidates_count": 2
   },
   "separate_qa": {
     "task_id": "activity/reward_shell_only",
@@ -560,12 +561,38 @@
       "source_reference": "01_标题页(1).jpg",
       "target_png": "PNG_Transparent/01_title/right_chevrons.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "gpt_image_candidate_review_pending",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "title adventure button flanking chevrons"
+      "notes": "title adventure button flanking chevrons",
+      "review_candidate_library": "/Lingmu_HUD_Exports/TITLE06_Single_Review/TITLE06_right_chevrons_handpaint_candidate_1024.png",
+      "review_image_library": "/Lingmu_HUD_Exports/TITLE06_Single_Review/TITLE06_display_size_review.jpg",
+      "review_manifest_library": "/Lingmu_HUD_Exports/TITLE06_Single_Review/TITLE06_review_manifest.json",
+      "candidate_sha256": "e7d7a7db99e8d2a44c94726b0939190e86f21af1274e2055d8c75730f5702352",
+      "candidate_format": "RGBA PNG",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_kind": "GPT Image solo right double-chevron generated in previous user turn, standardized/resized to 1024 RGBA in current turn",
+      "source_crop_reference": {
+        "file": "01_title.jpg",
+        "image_size": [
+          1920,
+          1080
+        ],
+        "approx_bbox_xyxy": [
+          1114,
+          798,
+          1194,
+          896
+        ],
+        "source_pixels_cropped": false
+      },
+      "qa_status": "single icon, alpha verified, native 78px and 128px preview reviewed; original pixel crop and game integration QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 7,
@@ -588,12 +615,15 @@
       "source_reference": "01_标题页(1).jpg",
       "target_png": "PNG_Transparent/01_title/age_12_badge.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "deferred_after_two_wrong_identity_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Age rating. If text should remain dynamic, use text-free version."
+      "notes": "Age rating. If text should remain dynamic, use text-free version.",
+      "last_failed_reason": "Two 2026-11-08 GPT Image calls requested the 12+ age suitability square badge but returned decorated double-chevron arrow emblems instead. Both rejected, no age badge created. Defer until other never-created items attempted.",
+      "existing_candidate": null,
+      "next_attempt_restriction": "Only one 12+ square suitability badge: golden/amber warm square border, thick white 12+ digits, tiny blossom at top-right and compact bottom text strip; no right arrows, no round floral medallion, no other UI."
     },
     {
       "queue_number": 9,
@@ -1983,9 +2013,27 @@
       "approved": 0,
       "counts_changed": false,
       "next": "other96/title/right_chevrons"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/title/right_chevrons",
+      "result": "Previous-turn solo GPT Image double-chevrons normalized to independent 1024 RGBA PNG; alpha and 78/128px review checked; saved to Library; final art/game QA pending",
+      "source_crop_exact": false,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/title/age_12_badge",
+      "action": "attempted new individual generation twice",
+      "result": "both outputs unrelated decorated right-double-chevrons, rejected; no age badge produced; deferred until after fresh items",
+      "attempts": 2,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/title/logo_chinese_fallback"
     }
   ],
-  "current_focus": "other96/title/right_chevrons",
+  "current_focus": "other96/title/logo_chinese_fallback",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
@@ -2009,9 +2057,9 @@
   },
   "draw_protocol_version": "user_quality_fidelity_2026_11_08",
   "production_batch_size_goal": {
-    "min": 2,
-    "max": 3,
-    "rule": "Each work cycle handle up to 3 distinct icons, each separate PNG/source crop/QA, never an atlas; count approvals only after QA",
+    "min": 1,
+    "max": 1,
+    "rule": "Latest user explicitly requests one at a time; inspect each before the next. No multi-control generation, quality above speed.",
     "updated_on": "2026-11-08"
   },
   "deferred_retry_task_ids": [
