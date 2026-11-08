@@ -1,0 +1,48 @@
+{
+  "task_id": "other96/inventory/tab_general",
+  "generated_at_utc": "2026-11-08",
+  "version": "v1",
+  "generator": "GPT Image",
+  "candidate_filename": "tab_general_GPTImage_V4_textguided_candidate_v1_1024.png",
+  "candidate_sha256": "fbeef89bb04febe7300771668da49f4de6d11890396638293325213f276feffc",
+  "candidate_size": [
+    1024,
+    1024
+  ],
+  "candidate_format": "transparent RGBA PNG",
+  "candidate_alpha_content_bbox_xyxy": [
+    74,
+    77,
+    949,
+    949
+  ],
+  "single_object": true,
+  "transparent_corners": true,
+  "identity": "rounded green square inventory category tab, dark brown border, centered pink heart",
+  "identity_qa": "pass against isolated V4 visual reference; original screenshot not accessed",
+  "small_sizes_checked_px": [
+    96,
+    64,
+    48,
+    32
+  ],
+  "aesthetic_qa": "painterly visually coherent with Lingmu palette; 32 px still identifiable; awaiting user art review",
+  "reference_kind": "V4 isolated PNG viewed from existing production; reference file was not bound as verified image-edit input",
+  "reference_repo_path": "game/assets/ui/hud_v4/production/PNG_Transparent/04_inventory/tab_general.png",
+  "reference_git_blob_sha": "a7b1e1d17ec497905537e975bdd9c9504fdb09b7",
+  "original_screenshot_name": "04_背包(5).jpg",
+  "original_screenshot_bbox_xyxy": null,
+  "original_screenshot_bbox_verified": false,
+  "original_screenshot_access": "blocked: specified Library folder /Lingmu_HUD_Exports/Original_References not found, original JPG not in repo",
+  "review_artifacts_local": [
+    "/mnt/data/lingmu_tab_general_20261108/tab_general_GPTImage_V4_textguided_candidate_v1_1024.png",
+    "/mnt/data/lingmu_tab_general_20261108/tab_general_native_sizes_QA.jpg",
+    "/mnt/data/lingmu_tab_general_20261108/tab_general_v1_QA.json"
+  ],
+  "github_binary_png_status": "blocked: no supported container-file-to-GitHub binary transfer; this GitHub QA record does NOT imply PNG uploaded",
+  "library_status": "blocked: access denied creating /Lingmu_HUD_Exports/HUD_V5_Review/inventory_tab_general_20261108 and uploading files",
+  "final_approved": false,
+  "production_replaced": false,
+  "next_task": "other96/inventory/tab_food",
+  "qa_state": "candidate_local_only_review_pending_original_and_engine_QA"
+}
