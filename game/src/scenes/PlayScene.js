@@ -1,5 +1,5 @@
 import { GAME_W, GAME_H, TILE, COLORS, FONT, DEBUG, SEED } from '../config.js';
-import { PETS, ELEMENT_COLORS, petTextureKey } from '../data/pets.js';
+import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
 import { mulberry32, valueNoise2D } from '../systems/rng.js';
 import InputActions from '../systems/input.js';
 
@@ -19,6 +19,8 @@ export default class PlayScene extends Phaser.Scene {
   constructor() { super('play'); }
 
   create() {
+    this.session = this.game.session;
+    this.state = this.session.state;
     this.rand = mulberry32(SEED);
     this.buildIsland();
     this.buildBackdrop();
@@ -29,9 +31,14 @@ export default class PlayScene extends Phaser.Scene {
 
     this.createWorldUi();
 
-    // Shared state shown by the HUD (UIScene listens for changes).
-    // Placeholder values until time (T10) and survival (T20) drive them.
-    this.registry.set({ day: 1, clock: 6 * 60, hp: 100, hpMax: 100, hunger: 100, hungerMax: 100, clover: 120, uiModal: false });
+    // HUD values (day, clock, hp, hunger, clover) are mirrored into the
+    // registry by GameSession; this scene writes the player position back.
+    this.registry.set('uiModal', false);
+    const off = this.session.onBeforeSave((s) => {
+      s.player.x = Math.round(this.player.x);
+      s.player.y = Math.round(this.player.y);
+    });
+    this.events.once('shutdown', off);
 
     this.scene.launch('ui');
     this.actions = new InputActions(this, () => this.scene.get('ui')?.joystick?.vector);
@@ -78,6 +85,7 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   buildBackdrop() {
+    for (const k of ['sky', 'ground']) if (this.textures.exists(k)) this.textures.remove(k); // scene restart (new game)
     const sky = this.textures.createCanvas('sky', GAME_W, GAME_H);
     const g = sky.getContext();
     const grd = g.createLinearGradient(0, 0, 0, GAME_H);
@@ -177,7 +185,9 @@ export default class PlayScene extends Phaser.Scene {
   // ---------- actors ----------
 
   createPlayer() {
-    const x = this.spawnTile.x * TILE + TILE / 2, y = this.spawnTile.y * TILE + TILE / 2;
+    let x = this.spawnTile.x * TILE + TILE / 2, y = this.spawnTile.y * TILE + TILE / 2;
+    const saved = this.state.player;
+    if (saved.area === 'home' && saved.x != null && this.footFits(saved.x, saved.y)) { x = saved.x; y = saved.y; }
     this.playerShadow = this.add.image(x, y + 2, 'shadow').setScale(0.7);
     this.player = this.add.image(x, y, 'player').setOrigin(0.5, 0.97);
     this.facing = new Phaser.Math.Vector2(0, 1);
@@ -189,15 +199,18 @@ export default class PlayScene extends Phaser.Scene {
     const m = this.meadowTile;
     const center = { x: m.x * TILE + TILE / 2, y: m.y * TILE + TILE / 2 };
     const slots = [[-110, -40], [-40, -70], [40, -55], [110, -30], [-70, 40], [60, 45]];
-    this.pets = PETS.map((data, i) => {
-      const home = { x: center.x + slots[i][0], y: center.y + slots[i][1] };
+    // every owned pet lives on the home island for now; party[0] follows
+    this.pets = this.state.pets.map((inst, i) => {
+      const data = species(inst.species);
+      const slot = slots[i % slots.length];
+      const home = { x: center.x + slot[0] + Math.floor(i / slots.length) * 24, y: center.y + slot[1] };
       const shadow = this.add.image(home.x, home.y + 2, 'shadow').setScale(0.75);
       const sprite = this.add.image(home.x, home.y, petTextureKey(data.id)).setOrigin(0.5, 0.92);
-      const pet = { data, sprite, shadow, home, target: { ...home }, phase: this.rand() * Math.PI * 2, wanderAt: 0, human: false };
+      const pet = { data, inst, sprite, shadow, home, target: { ...home }, phase: this.rand() * Math.PI * 2, wanderAt: 0 };
       this.applyPetTexture(pet);
       return pet;
     });
-    this.follower = this.pets.find((p) => p.data.id === 'pup');
+    this.follower = this.pets.find((p) => p.inst.uid === this.state.party[0]) ?? this.pets[0];
     const p = this.player;
     this.follower.sprite.setPosition(p.x - 46, p.y + 6);
   }
@@ -211,9 +224,9 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   applyPetTexture(pet) {
-    const key = pet.human ? petTextureKey(pet.data.humanForm) : petTextureKey(pet.data.id);
-    pet.sprite.setTexture(key);
-    const h = pet.human ? PET_HEIGHT * 1.15 : PET_HEIGHT;
+    const human = pet.inst.form === 'human' && !!pet.data.humanForm;
+    pet.sprite.setTexture(petTextureKey(human ? pet.data.humanForm : pet.data.id));
+    const h = human ? PET_HEIGHT * 1.15 : PET_HEIGHT;
     pet.sprite.setScale(h / pet.sprite.height);
   }
 
@@ -259,6 +272,7 @@ export default class PlayScene extends Phaser.Scene {
       this.walkClock += dt * 12 * mv.length();
       p.setScale(1 + Math.sin(this.walkClock) * 0.04, 1 - Math.sin(this.walkClock) * 0.04);
       const last = this.trail[this.trail.length - 1];
+      this.session.markDirty();
       if (Math.hypot(p.x - last.x, p.y - last.y) > 6) {
         this.trail.push({ x: p.x, y: p.y });
         if (this.trail.length > 60) this.trail.shift();
@@ -322,7 +336,7 @@ export default class PlayScene extends Phaser.Scene {
     }
     if (pet) {
       const label = pet === this.follower
-        ? (pet.data.humanForm ? `${pet.data.name} · 点互动${pet.human ? '变回原形' : '化形'}（演示）` : `${pet.data.name} · 跟着你`)
+        ? (pet.data.humanForm ? `${pet.data.name} · 点互动${pet.inst.form === 'human' ? '变回原形' : '化形'}（演示）` : `${pet.data.name} · 跟着你`)
         : `${pet.data.name} · ${pet.data.element}`;
       this.nameTag.setText(label).setBackgroundColor(ELEMENT_COLORS[pet.data.element])
         .setPosition(pet.sprite.x, pet.sprite.y - pet.sprite.displayHeight - 6).setVisible(true);
@@ -332,17 +346,20 @@ export default class PlayScene extends Phaser.Scene {
 
     if (!this.actions.consumeInteract() || !canAct) return;
     if (pet === this.follower) {
-      pet.human = !pet.human;
+      pet.inst.form = pet.inst.form === 'human' ? 'animal' : 'human';
       this.applyPetTexture(pet);
-      this.showToast(pet.human ? `${pet.data.name} 化形了！` : `${pet.data.name} 变回了原形`);
+      this.showToast(pet.inst.form === 'human' ? `${pet.data.name} 化形了！` : `${pet.data.name} 变回了原形`);
+      this.session.markDirty();
       return;
     }
     const old = this.follower;
     old.home = { ...pet.home };
     old.target = { ...pet.home };
     old.wanderAt = 0;
-    if (old.human) { old.human = false; this.applyPetTexture(old); }
+    if (old.inst.form === 'human') { old.inst.form = 'animal'; this.applyPetTexture(old); }
     this.follower = pet;
+    this.state.party = [pet.inst.uid];
+    this.session.save('party');
     this.showToast(`${pet.data.name} 跟着你啦！`);
     this.tweens.add({ targets: pet.sprite, scaleX: pet.sprite.scaleX * 1.15, scaleY: pet.sprite.scaleY * 0.85, duration: 90, yoyo: true });
   }
@@ -373,7 +390,7 @@ export default class PlayScene extends Phaser.Scene {
     return {
       player: { x: Math.round(this.player.x), y: Math.round(this.player.y) },
       follower: this.follower.data.id,
-      followerHuman: this.follower.human,
+      followerHuman: this.follower.inst.form === 'human',
       onWalkable: this.footFits(this.player.x, this.player.y),
     };
   }

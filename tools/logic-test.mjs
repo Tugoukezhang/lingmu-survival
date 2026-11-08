@@ -10,6 +10,7 @@ import { NATURES, NATURE_IDS } from '../game/src/data/natures.js';
 import { ELEMENTS, NORMAL, elementMultiplier } from '../game/src/data/elements.js';
 import { mulberry32 } from '../game/src/systems/rng.js';
 import * as M from '../game/src/systems/petMath.js';
+import * as S from '../game/src/systems/save.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -118,6 +119,93 @@ check('P05 好感 29 不能进化，提示缺好感', !r05.ok && r05.missing.joi
 p05.affection = 30;
 check('好感 30、等级 12、有石头 → 可以进化', M.canEvolve(p05, { hasStone: true }).ok);
 check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok && M.evolve(evo) === false);
+
+// ---------- save (T08; CLAUDE.md 存档约定, docs/06 第 5 节) ----------
+{
+  const mem = new S.MemoryStorage();
+  let clock = 1000;
+  const store = new S.SaveStore(mem, { now: () => clock });
+  const fresh = store.load();
+  check('没有存档时开新档', fresh.source === 'new' && !fresh.problem && S.validate(fresh.state).length === 0, S.validate(fresh.state).join());
+  const st = fresh.state;
+  eq('新档版本号', st.version, S.SAVE_VERSION);
+  check('新档：6 只宠物，冰蓝小狼同行，背包 3 种物品', st.pets.length === 6 && st.party[0] === 'pet-pup' && st.inventory.length === 3);
+  check('存档里不存属性值（永远现算）', !('stats' in st.pets[0]) && !('atk' in st.pets[0]));
+
+  st.clover = 345; st.day = 3; st.player.x = 500; st.player.y = 420;
+  M.gainExp(st.pets[0], 20);
+  check('第一次存档成功', store.save(st));
+  check('第一次存档时没有旧档，不产生备份', mem.getItem(S.KEYS.backup) === null);
+  const back = store.load();
+  check('读回来和存进去的一样', back.source === 'main' && JSON.stringify(back.state) === JSON.stringify(st));
+  check('读回来的宠物属性一致', JSON.stringify(M.calcStats(back.state.pets[0])) === JSON.stringify(M.calcStats(st.pets[0])));
+
+  clock = 2000; st.clover = 400;
+  store.save(st);
+  check('第二次存档后，备份是上一份（四叶草 345）', S.decode(mem.getItem(S.KEYS.backup)).state?.clover === 345);
+
+  // damage the main save in several ways → falls back to the backup
+  const good = mem.getItem(S.KEYS.main);
+  const cases = {
+    '截断': good.slice(0, good.length - 20),
+    '篡改四叶草': good.replace('"clover":400', '"clover":99999'),
+    '乱码': 'abc{{{',
+    '空字符串': '',
+  };
+  for (const [name, bad] of Object.entries(cases)) {
+    mem.setItem(S.KEYS.main, bad);
+    const r = store.load();
+    check(`主存档${name} → 读备份`, r.source === 'backup' && r.state.clover === 345 && !!r.problem, `${r.source} ${r.problem}`);
+  }
+  // checksum OK but the content is broken (e.g. a bug wrote nonsense)
+  const broken = { ...st, clover: -5 };
+  mem.setItem(S.KEYS.main, S.encode(broken));
+  const rb = store.load();
+  check('内容不合法（四叶草为负）→ 读备份', rb.source === 'backup' && rb.problem === 'invalid', `${rb.source} ${rb.problem}`);
+  check('不合法的状态拒绝写入', store.save(broken) === false && store.lastError.startsWith('invalid'));
+
+  mem.setItem(S.KEYS.main, 'x'); mem.setItem(S.KEYS.backup, 'y');
+  const rn = store.load();
+  check('主存档和备份都坏 → 开新档并提示', rn.source === 'new' && !!rn.problem);
+
+  // a broken main must never overwrite the good backup
+  mem.setItem(S.KEYS.main, good); store.save(st);              // backup = good (400)
+  mem.setItem(S.KEYS.main, 'garbage');
+  st.clover = 500; store.save(st);
+  check('主存档坏时再存档，不会用坏档覆盖备份', S.decode(mem.getItem(S.KEYS.backup)).state?.clover === 400);
+
+  // blocked during battle / fainting
+  store.block('battle');
+  st.clover = 600;
+  check('对战中不存档', store.save(st) === false && store.lastError === 'blocked');
+  store.unblock('battle');
+  check('对战结束后恢复存档', store.save(st) && store.load().state.clover === 600);
+
+  // storage full / private mode
+  mem.failWrites = true;
+  let threw = false; let ok;
+  try { ok = store.save(st); } catch { threw = true; }
+  check('存储写满时不报错、返回失败', !threw && ok === false && store.lastError === 'QuotaExceededError');
+  mem.failWrites = false;
+
+  // newer game version: kept aside, not used, not overwritten
+  const futureRaw = S.encode({ ...st, version: S.SAVE_VERSION + 1 });
+  mem.setItem(S.KEYS.main, futureRaw);
+  const rf = store.load();
+  check('更新版本的存档 → 另外保留，不读取', rf.problem === 'future' && mem.getItem(S.KEYS.future) === futureRaw);
+
+  // migrations: a fake v0 → v1 step
+  const v0 = { ...S.newGameState({ now: 1 }), version: 0, coins: 77 };
+  delete v0.clover;
+  const migrations = { 0: (d) => { const { coins, ...rest } = d; return { ...rest, clover: coins }; } };
+  const rm = S.decode(S.encode(v0), { migrations, target: 1 });
+  check('旧版本存档按迁移函数升级（coins → clover）', rm.ok && rm.state.version === 1 && rm.state.clover === 77, JSON.stringify(rm.reason ?? ''));
+  const rmiss = S.decode(S.encode(v0), { migrations: {}, target: 1 });
+  check('缺少迁移函数 → 读取失败而不是读出错数据', !rmiss.ok && rmiss.reason === 'migrate');
+
+  store.wipe();
+  check('重新开始会清掉主存档和备份', mem.getItem(S.KEYS.main) === null && mem.getItem(S.KEYS.backup) === null);
+}
 
 console.log(`\n${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);

@@ -163,6 +163,54 @@ try {
   check('Esc 键关闭面板', (await ui()).stack.length === 0);
   await page.screenshot({ path: join(OUT, '09-hud.png') });
 
+  // ---------- save (T08) ----------
+  const reload = async () => {
+    await page.reload();
+    await page.waitForFunction(() => window.__game?.scene?.isActive('ui'), null, { timeout: 15000 });
+    await page.waitForTimeout(600);
+  };
+  const toastText = () => page.evaluate(() => window.__game.scene.getScene('ui').toast.text);
+  const savedOk = await scene(() => {
+    const g = window.__game, sc = g.scene.getScene('play');
+    g.registry.set('clover', 777);
+    const p = sc.findClearRun(0, 1, 2); sc.teleport(p.x, p.y);
+    return g.session.save('test');
+  });
+  const beforeReload = await state();
+  await reload();
+  const afterReload = await state();
+  check('存档写入成功', savedOk);
+  check('刷新后四叶草保留', (await ui()).clover === '777', (await ui()).clover);
+  check('刷新后位置和同行宠物保留', afterReload.player.x === beforeReload.player.x && afterReload.player.y === beforeReload.player.y
+    && afterReload.follower === beforeReload.follower, `${JSON.stringify(beforeReload)} → ${JSON.stringify(afterReload)}`);
+
+  await page.evaluate(() => { window.__game.registry.set('clover', 999); window.dispatchEvent(new Event('pagehide')); });
+  check('关闭页面时自动存档', await page.evaluate(() => window.__game.session.lastSave?.reason === 'hidden' && window.__game.session.lastSave.ok));
+
+  // edit the save by hand → checksum fails → backup (the previous save) is used
+  await page.evaluate(() => {
+    const g = window.__game;
+    g.registry.set('clover', 888); g.session.save('test');
+    g.session.store.block('test'); // so the reload's own autosave can't overwrite the damage
+    const raw = localStorage.getItem('lingmu.save.main');
+    localStorage.setItem('lingmu.save.main', raw.replace('"clover":888', '"clover":99999'));
+  });
+  await reload();
+  const restored = (await ui()).clover, notice = await toastText();
+  check('存档被改坏 → 自动从备份恢复并提示', restored === '999' && notice.includes('备份'), `${restored} / ${notice}`);
+  await page.screenshot({ path: join(OUT, '10-restored.png') });
+
+  await tapTarget('hud-settings');
+  await page.screenshot({ path: join(OUT, '11-settings.png') });
+  await tapTarget('restart');
+  await tapTarget('ok');
+  await page.waitForFunction(() => window.__game.scene.isActive('ui') && window.__game.scene.getScene('ui').cloverText?.text === '120', null, { timeout: 5000 }).catch(() => {});
+  await page.waitForTimeout(400);
+  const fresh = await page.evaluate(() => ({ clover: window.__game.scene.getScene('ui').cloverText.text, follower: window.__game.scene.getScene('play').debugState().follower,
+    stored: localStorage.getItem('lingmu.save.main')?.includes('"clover":120'), backup: localStorage.getItem('lingmu.save.backup') }));
+  check('设置 → 重新开始：进度清空、存档重置', fresh.clover === '120' && fresh.follower === 'pup' && fresh.stored && fresh.backup === null, JSON.stringify(fresh).slice(0, 160));
+  await page.screenshot({ path: join(OUT, '12-new-game.png') });
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);

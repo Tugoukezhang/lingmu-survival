@@ -1,5 +1,6 @@
 import { GAME_W, GAME_H, FONT, COLORS } from '../config.js';
 import { PETS, petTextureKey } from '../data/pets.js';
+import GameSession from '../systems/GameSession.js';
 
 // Loads real art (pet sprites) and draws code-made placeholder textures for
 // everything that has no art yet (player, trees, rocks, clouds, shadows).
@@ -31,6 +32,9 @@ export default class BootScene extends Phaser.Scene {
       g.fillStyle = grd; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); g.fill();
     });
     this.makeCanvas('cloud', 220, 90, drawCloud);
+    // load the save once; scenes read game.session.state from here on
+    this.game.session = new GameSession(this.game);
+    this.game.session.load();
     this.scene.start('play');
   }
 

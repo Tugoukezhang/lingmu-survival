@@ -29,7 +29,9 @@ export default class UIScene extends Phaser.Scene {
     ev.on('interact-available', this.setActionReady, this);
     this.events.once('shutdown', () => { ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this); });
     this.refreshAll();
-    this.showToast('摇杆 / WASD 移动，靠近宠物按「互动」');
+    const session = this.game.session;
+    this.showToast(session.notice ?? '摇杆 / WASD 移动，靠近宠物按「互动」');
+    session.notice = null;
   }
 
   uiLocked() { return this.stack.locked(); }
