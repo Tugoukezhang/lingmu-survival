@@ -1,0 +1,60 @@
+{
+  "schema": "lingmu_hud_v5_one_asset_QA_v1",
+  "date": "2026-11-08",
+  "task_id": "other96/inventory/tab_food",
+  "asset_id": "inventory/tab_food",
+  "reference_screenshot": "04_背包(5).jpg",
+  "original_reference_status": "NOT ACCESSIBLE: /Lingmu_HUD_Exports/Original_References absent; original screenshot source bbox NOT VERIFIED",
+  "reference_fallback": {
+    "kind": "single-item V3 reconstructed SVG; NOT screenshot and NOT V4",
+    "path": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_food.svg",
+    "sha": "e8bf64a1d3d864406e49d936bff05e614b6c7b02",
+    "output_reference_512_png": "local"
+  },
+  "generation": {
+    "type": "GPT Image single transparent icon",
+    "candidate_size": [
+      1024,
+      1024
+    ],
+    "candidate_format": "PNG RGBA",
+    "candidate_filename": "tab_food_GPTImage_V3_isolated_guided_candidate_v1_1024.png",
+    "sha256": "fdf22c3e525aebf714eea4d6d3dcfecec4f342fad4150cc3d54765ad35a25d25",
+    "local_file_only": true,
+    "github_fullresolution_uploaded": false,
+    "github_preview": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_tab_food_V3_fallback_20261108/tab_food_review_preview_128.png",
+    "preview_size": [
+      128,
+      128
+    ],
+    "preview_sha256": "7b8496a3d47a0f4c1431797337ec9002a9ae516f700bb5f7bc6c7f4fdd6a1695"
+  },
+  "identity": {
+    "function": "backpack food category tab",
+    "parts": "single rounded blue-gray tile with brown border, one red apple, one stem, one green leaf",
+    "style": "painterly warm soft fantasy UI",
+    "forbidden": "other badges, unrelated icons, extra foliage, captions or buttons"
+  },
+  "alpha_bbox_xyxy": [
+    61,
+    64,
+    963,
+    960
+  ],
+  "qa": {
+    "single_icon": "pass",
+    "transparent_rgba": "pass (alpha below 5 cleaned)",
+    "small_size_32_48_64_96_128": "visually legible",
+    "match_V3_fallback": "pass",
+    "match_authentic_screenshot": "BLOCKED",
+    "visual_user_approval": "pending",
+    "engine_integration": "pending",
+    "final_status": "unapproved_review_candidate"
+  },
+  "promotion_to_production": false,
+  "storage": {
+    "full_png": "sandbox:/mnt/data/lingmu_tab_food_20261108/tab_food_GPTImage_V3_isolated_guided_candidate_v1_1024.png",
+    "github_png_preview_only": true,
+    "library": "AccessDeny"
+  }
+}

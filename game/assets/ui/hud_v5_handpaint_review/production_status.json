@@ -398,9 +398,20 @@
       "target_png": "PNG_Transparent/04_inventory/tab_food.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "local_gpt_image_candidate_review_pending_original_source",
+      "qa": "identity_alpha_and_small_scale_pass_against_V3_only; original_screenshot_and_engine_art_QA_pending",
+      "notes": "",
+      "candidate_fullcolor_sha256": "fdf22c3e525aebf714eea4d6d3dcfecec4f342fad4150cc3d54765ad35a25d25",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "original_screenshot_bbox_verified": false,
+      "github_preview": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_tab_food_V3_fallback_20261108/tab_food_review_preview_128.png",
+      "github_review_qa": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_tab_food_V3_fallback_20261108/tab_food_v1_QA.json",
+      "fullsize_git_uploaded": false,
+      "library_upload_status": "AccessDeny",
+      "production_replaced": false
     },
     {
       "index": 37,

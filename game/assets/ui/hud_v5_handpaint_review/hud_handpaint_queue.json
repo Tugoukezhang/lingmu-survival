@@ -1757,12 +1757,24 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/tab_food.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "local_independent_gpt_image_candidate_original_reference_pending",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": "V3 reconstructed single-element fallback matches core identity; original screenshot inaccessible",
+      "notes": "",
+      "candidate_fullcolor_sha256": "fdf22c3e525aebf714eea4d6d3dcfecec4f342fad4150cc3d54765ad35a25d25",
+      "candidate_alpha_bbox": [
+        61,
+        64,
+        963,
+        960
+      ],
+      "candidate_local": "/mnt/data/lingmu_tab_food_20261108/tab_food_GPTImage_V3_isolated_guided_candidate_v1_1024.png",
+      "github_review_preview": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_tab_food_V3_fallback_20261108/tab_food_review_preview_128.png",
+      "github_review_qa": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_tab_food_V3_fallback_20261108/tab_food_v1_QA.json",
+      "original_screenshot_bbox_verified": false,
+      "production_promoted": false
     },
     {
       "queue_number": 36,
@@ -3094,9 +3106,21 @@
       "sha256": "fbeef89bb04febe7300771668da49f4de6d11890396638293325213f276feffc",
       "review_report": "Reviews/inventory_tab_general_V4_fallback_20261108/tab_general_v1_QA.json",
       "next": "other96/inventory/tab_food"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/inventory/tab_food",
+      "action": "Generated one high-quality independent painterly food/apple tab PNG from sole isolated repository V3 reconstructed SVG fallback; processed to 1024 RGBA, checked 32-128px",
+      "result": "Identity/alpha/single-item checks pass vs V3. Original screenshot Library path missing; user/art/source/engine QA pending. 128px binary preview and QA are on GitHub; full 1024 PNG only downloadable from sandbox. Library upload AccessDeny, no production change.",
+      "created_candidates_local": 1,
+      "approved": 0,
+      "production_replaced": false,
+      "full_png_sha256": "fdf22c3e525aebf714eea4d6d3dcfecec4f342fad4150cc3d54765ad35a25d25",
+      "github_review": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_tab_food_V3_fallback_20261108/tab_food_v1_QA.json",
+      "next": "other96/inventory/tab_clothing"
     }
   ],
-  "current_focus": "other96/inventory/tab_food",
+  "current_focus": "other96/inventory/tab_clothing",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
