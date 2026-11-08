@@ -1,0 +1,168 @@
+{
+  "total_original": 97,
+  "remaining_requested": 96,
+  "candidate_count": 10,
+  "qa_passed": 0,
+  "candidate_files": [
+    {
+      "slug": "music",
+      "group": "title",
+      "path": "PNG_Transparent/01_title/music.png",
+      "source": "浅绿色童话森林音乐图标.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "a6faf739292132c24ab876a71def6ba93fa570575efd6b940db0c469b69e4682",
+      "alpha_bbox": [
+        230,
+        199,
+        794,
+        825
+      ]
+    },
+    {
+      "slug": "settings",
+      "group": "title",
+      "path": "PNG_Transparent/01_title/settings.png",
+      "source": "手绘童话森林设置齿轮图标.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "21bbab39ebabc41c0bdfa91dff9f8f1e2732500c8ab6422d4c9e577eaaa060ea",
+      "alpha_bbox": [
+        113,
+        108,
+        911,
+        915
+      ]
+    },
+    {
+      "slug": "announcement",
+      "group": "title",
+      "path": "PNG_Transparent/01_title/announcement.png",
+      "source": "童话森林风格扩音器图标.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "401e16275f99f2fd1277fdf01f5a8a26c643385d80449f157762a77421628d09",
+      "alpha_bbox": [
+        162,
+        230,
+        862,
+        795
+      ]
+    },
+    {
+      "slug": "support",
+      "group": "title",
+      "path": "PNG_Transparent/01_title/support.png",
+      "source": "童话森林风耳机支持图标.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "6edf10247856a5645de6d0168c882ebbb12f2a0fef5391e044ef577dc1547491",
+      "alpha_bbox": [
+        125,
+        113,
+        900,
+        911
+      ]
+    },
+    {
+      "slug": "start_pill",
+      "group": "title",
+      "path": "PNG_Transparent/01_title/start_pill.png",
+      "source": "奶油白圆角胶囊按钮底板.png",
+      "size": "1640x400",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "bc1559ee1daa369d8ff910bcea226cef66cfb7e98d89404d264908d115ed9258",
+      "alpha_bbox": [
+        78,
+        78,
+        1562,
+        321
+      ]
+    },
+    {
+      "slug": "help_bubble",
+      "group": "activity",
+      "path": "PNG_Transparent/03_activity/help_bubble.png",
+      "source": "手绘风可爱帮助问号徽章.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "e158dc51d04565428901433ccac72ad8a066fa419b4011da3960f284d85d342e",
+      "alpha_bbox": [
+        178,
+        168,
+        846,
+        856
+      ]
+    },
+    {
+      "slug": "nav_active_tile",
+      "group": "activity",
+      "path": "PNG_Transparent/03_activity/nav_active_tile.png",
+      "source": "暖色奶油圆角活动图标.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "not the exact original map/item shape; still requires pixel-scale manual review",
+      "sha256": "0ca509fabd9c7f2d8dbb00ea4a736abff4cc5e846f4ae000208c21da363ff932",
+      "alpha_bbox": [
+        122,
+        118,
+        902,
+        905
+      ]
+    },
+    {
+      "slug": "activity_recommendation_badge",
+      "group": "activity",
+      "path": "PNG_Transparent/03_activity/activity_recommendation_badge.png",
+      "source": "童话森林推荐徽章.png",
+      "size": "1400x720",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "not the exact original map/item shape; still requires pixel-scale manual review",
+      "sha256": "8baee506bfedf39058af980ed39c6ee8f4a707f6934d98064031606b096b45cb",
+      "alpha_bbox": [
+        333,
+        179,
+        1067,
+        540
+      ]
+    },
+    {
+      "slug": "selected_location_marker",
+      "group": "map",
+      "path": "PNG_Transparent/07_world_map/selected_location_marker.png",
+      "source": "童话森林发光定位图标.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "3717cd3f6ba5a9415370431b8e530facd943fc1df66e39c9f8ef95250676614c",
+      "alpha_bbox": [
+        227,
+        86,
+        797,
+        938
+      ]
+    },
+    {
+      "slug": "reward_shell_only",
+      "group": "activity",
+      "path": "PNG_Transparent/03_activity/reward_shell_only.png",
+      "source": "handpaint_reward_shell_v3_candidate.png",
+      "size": "1024x1024",
+      "status": "GPT Image single-asset candidate; not yet screenshot-fidelity approved",
+      "visual_caveat": "review at original displayed pixel size",
+      "sha256": "62949f71a2fed1b5ef96da54666201493db3eba69a219fcc3b9042789bf14024",
+      "alpha_bbox": [
+        298,
+        292,
+        725,
+        732
+      ]
+    }
+  ]
+}
