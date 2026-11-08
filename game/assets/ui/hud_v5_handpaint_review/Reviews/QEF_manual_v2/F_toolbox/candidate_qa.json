@@ -1,0 +1,49 @@
+{
+  "asset_id": "main_bottom_F",
+  "version": "manual-v2",
+  "date": "2026-11-08",
+  "origin": {
+    "screenshot": "05_gameplay_hud.jpg",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "bbox_xyxy": [
+      1752,
+      907,
+      1872,
+      1021
+    ],
+    "tight_crop_size": [
+      120,
+      114
+    ],
+    "source_crop_sha256": "6a9036c20fa935c01c808cbed583d23614004ab705f446fe297cf9925feb2ba2",
+    "reference_description": "red-and-ivory tool case, screwdriver left, wrench right, yellow latch and two small green leaves"
+  },
+  "output": {
+    "relative_path": "PNG_Transparent/00_gameplay/F_toolbox_manual_independent_v2_512.png",
+    "pixels": [
+      512,
+      512
+    ],
+    "format": "PNG",
+    "mode": "RGBA",
+    "sha256": "2d7863f8a1e3279eb59575bb132339a384a3c397d2e2e75fb2b4ec24f97c38c3",
+    "alpha_transparent_background": true,
+    "transparent_canvas_edges": true
+  },
+  "qa": {
+    "single_element": true,
+    "source_geometry_preserved_at_category_level": true,
+    "broad_palette_matches": true,
+    "text_shortcuts_separate": true,
+    "reviewed_at_original_crop_size": true,
+    "in_game_interactive_qa": false,
+    "artistic_approval": "pending",
+    "production_promoted": false
+  },
+  "method": "Independent manually drawn SVG geometry rasterized; NOT image-generation output; previous geometrically reconstructed V1 remains unapproved.",
+  "gpt_image_this_run": "Two requests both generated multi-icon Q/E/F atlases despite single-crop requests; rejected, never used as submitted assets.",
+  "candidate_status": "new_v2_review_only_not_final"
+}

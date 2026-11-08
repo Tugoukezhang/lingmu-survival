@@ -313,7 +313,36 @@
       },
       "qa_status": "alpha_verified_and_small_scale_review_created; original crop side-by-side and in-game integration QA still pending",
       "production_promoted": false,
-      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png"
+      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png",
+      "new_manual_review_version": "v2",
+      "source_crop_verified": {
+        "screenshot": "05_gameplay_hud.jpg",
+        "resolution": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1423,
+          914,
+          1533,
+          1016
+        ],
+        "crop_sha256": "5981a2695cf6cee91f5513f1634129d483c806461e73276d0d8b6102ee40dace",
+        "review_path": "Reviews/QEF_manual_v2/Q_camera/source_crop.png",
+        "previous_approx_box_superseded": true
+      },
+      "manual_v2_candidate": {
+        "path": "PNG_Transparent/00_gameplay/Q_camera_manual_independent_v2_512.png",
+        "sha256": "9105246e874c239a94d9f300208f0a690aa60e2dbcbe35dcd0de6849d7849254",
+        "size": [
+          512,
+          512
+        ],
+        "kind": "manually drawn independent SVG path raster, NOT GPT Image",
+        "qa": "alpha_and_small_size_verified; artwork_pending",
+        "production_promoted": false,
+        "review_path": "Reviews/QEF_manual_v2/Q_camera/original_vs_candidate.jpg"
+      }
     },
     {
       "queue_number": "HUD-09",
@@ -348,7 +377,36 @@
       },
       "qa_status": "alpha_verified_and_small_scale_review_created; original crop side-by-side and in-game integration QA still pending",
       "production_promoted": false,
-      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png"
+      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png",
+      "new_manual_review_version": "v2",
+      "source_crop_verified": {
+        "screenshot": "05_gameplay_hud.jpg",
+        "resolution": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1588,
+          903,
+          1693,
+          1022
+        ],
+        "crop_sha256": "5eb6ad0e19f148e92a7c62663f9b5da756fda1860975f29ea85e4135f42d0692",
+        "review_path": "Reviews/QEF_manual_v2/E_companion/source_crop.png",
+        "previous_approx_box_superseded": true
+      },
+      "manual_v2_candidate": {
+        "path": "PNG_Transparent/00_gameplay/E_companion_manual_independent_v2_512.png",
+        "sha256": "f35e90ca5dffed93064c5a9e9d88bf14675f363cc0abf83a039bce65ecd2581e",
+        "size": [
+          512,
+          512
+        ],
+        "kind": "manually drawn independent SVG path raster, NOT GPT Image",
+        "qa": "alpha_and_small_size_verified; artwork_pending",
+        "production_promoted": false,
+        "review_path": "Reviews/QEF_manual_v2/E_companion/original_vs_candidate.jpg"
+      }
     },
     {
       "queue_number": "HUD-10",
@@ -383,7 +441,36 @@
       },
       "qa_status": "alpha_verified_and_small_scale_review_created; original crop side-by-side and in-game integration QA still pending",
       "production_promoted": false,
-      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png"
+      "review_image": "/Lingmu_HUD_Exports/HUD_QEF_Review/QEF_game_display_scale_review.png",
+      "new_manual_review_version": "v2",
+      "source_crop_verified": {
+        "screenshot": "05_gameplay_hud.jpg",
+        "resolution": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1752,
+          907,
+          1872,
+          1021
+        ],
+        "crop_sha256": "6a9036c20fa935c01c808cbed583d23614004ab705f446fe297cf9925feb2ba2",
+        "review_path": "Reviews/QEF_manual_v2/F_toolbox/source_crop.png",
+        "previous_approx_box_superseded": true
+      },
+      "manual_v2_candidate": {
+        "path": "PNG_Transparent/00_gameplay/F_toolbox_manual_independent_v2_512.png",
+        "sha256": "2d7863f8a1e3279eb59575bb132339a384a3c397d2e2e75fb2b4ec24f97c38c3",
+        "size": [
+          512,
+          512
+        ],
+        "kind": "manually drawn independent SVG path raster, NOT GPT Image",
+        "qa": "alpha_and_small_size_verified; artwork_pending",
+        "production_promoted": false,
+        "review_path": "Reviews/QEF_manual_v2/F_toolbox/original_vs_candidate.jpg"
+      }
     },
     {
       "queue_number": "HUD-11",
@@ -2069,6 +2156,20 @@
       "attempts": 2,
       "approved": 0,
       "counted_as_complete": false,
+      "next": "other96/shared/back_wood"
+    },
+    {
+      "date": "2026-11-08",
+      "type": "QEF source-crop verified manual-v2 review",
+      "assets": [
+        "main_bottom_Q",
+        "main_bottom_E",
+        "main_bottom_F"
+      ],
+      "new_review_candidates": 3,
+      "new_gpt_image_candidates_passed": 0,
+      "gpt_image_failed_requests": 2,
+      "reason": "Both generated atlases; handmade separate RGBA originals accepted only as unapproved technical review candidates.",
       "next": "other96/shared/back_wood"
     }
   ],

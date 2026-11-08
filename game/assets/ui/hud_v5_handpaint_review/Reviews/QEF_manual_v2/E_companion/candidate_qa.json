@@ -1,0 +1,49 @@
+{
+  "asset_id": "main_bottom_E",
+  "version": "manual-v2",
+  "date": "2026-11-08",
+  "origin": {
+    "screenshot": "05_gameplay_hud.jpg",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "bbox_xyxy": [
+      1588,
+      903,
+      1693,
+      1022
+    ],
+    "tight_crop_size": [
+      105,
+      119
+    ],
+    "source_crop_sha256": "5eb6ad0e19f148e92a7c62663f9b5da756fda1860975f29ea85e4135f42d0692",
+    "reference_description": "two overlapped cream polaroid portraits, smiling white mascot face, coral heart"
+  },
+  "output": {
+    "relative_path": "PNG_Transparent/00_gameplay/E_companion_manual_independent_v2_512.png",
+    "pixels": [
+      512,
+      512
+    ],
+    "format": "PNG",
+    "mode": "RGBA",
+    "sha256": "f35e90ca5dffed93064c5a9e9d88bf14675f363cc0abf83a039bce65ecd2581e",
+    "alpha_transparent_background": true,
+    "transparent_canvas_edges": true
+  },
+  "qa": {
+    "single_element": true,
+    "source_geometry_preserved_at_category_level": true,
+    "broad_palette_matches": true,
+    "text_shortcuts_separate": true,
+    "reviewed_at_original_crop_size": true,
+    "in_game_interactive_qa": false,
+    "artistic_approval": "pending",
+    "production_promoted": false
+  },
+  "method": "Independent manually drawn SVG geometry rasterized; NOT image-generation output; previous geometrically reconstructed V1 remains unapproved.",
+  "gpt_image_this_run": "Two requests both generated multi-icon Q/E/F atlases despite single-crop requests; rejected, never used as submitted assets.",
+  "candidate_status": "new_v2_review_only_not_final"
+}
