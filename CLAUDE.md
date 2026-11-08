@@ -18,7 +18,7 @@
 - 宠物名单（2026-11-08）：橡果刺猬（森）、航海鲨（水）、冰蓝小狼（水）、月影狐猫（暗）、星星熊仔（光）、焰尾狐（火）及其人形态（化形）全部定稿并抠图（`game/assets/pets/`，7 张待机图）。素材处理脚本和用法见 `tools/art/README.md`（抠图 `cutout.py`、无缝地块 `seamless.py`）。草地地块 `game/assets/tiles/tile_grass.png` 和 3 个物品图标 `game/assets/items/` 已入库，草地已用在游戏里。属性 5 种：森水火光暗。
 - 美术原创要求：出图不上传他人角色图；新图要和负责人提供的原截图并排对比原创度。抠图用 rembg（isnet-general-use 模型），已装在负责人电脑的 Python 里。
 - 等负责人：手机实测 T02；看一眼游戏里的新草地确认 T17；通读 07、08。
-- 下一步：负责人看 `docs/10` 的手游评估并真机实测；之后 M3（开始前先拆分 PlayScene）（种田 T11、宠物照顾 T12、养成 T27/T28 等）。T09、T26 试玩等负责人安排。T09 试玩暂缓（负责人 2026-11-08：没做完不中途测）。 → T06 宠物对战（M1 主线）。
+- 下一步：M3 —— T11 种田与出货 → T12 宠物打工与喂食 → 每日小任务 → T27/T28/T29 养成。真机实测和美术替换负责人之后安排。（种田 T11、宠物照顾 T12、养成 T27/T28 等）。T09、T26 试玩等负责人安排。T09 试玩暂缓（负责人 2026-11-08：没做完不中途测）。 → T06 宠物对战（M1 主线）。
 - 工作副本：负责人电脑 `C:\Users\1\Desktop\lingmu-survival`（Windows，VS Code 本地会话）；云端会话也用同一个 GitHub 仓库。
 
 ## 文档索引（有效规则以这里为准）
@@ -47,7 +47,7 @@
 - 逻辑分辨率 960×540 横屏，FIT 缩放；触屏为主（左下虚拟摇杆、右下动作按钮），键盘为辅。
 - 内容（宠物、技能、作物、物品、NPC、任务）写成数据文件，不硬编码在逻辑里。
 - 存档：localStorage，带 `version` 字段和迁移函数，保留上一份备份。进度唯一来源是 `game.session.state`（纯 JSON，不存属性等可现算的值）；HUD 数值镜像在 registry；场景用 `session.onBeforeSave()` 写回自己管的部分（如玩家位置），改了状态调 `markDirty()` 或重要时刻 `save()`。改存档格式时：`SAVE_VERSION` +1 并在 `MIGRATIONS` 加一步，旧步骤不改。对战、倒下动画期间 `session.store.block(原因)`。
-- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 世界、UIScene 屏幕界面、BattleScene 宠物对战）、`game/src/systems/`（input 动作映射、rng 种子随机、petMath 宠物属性与战斗公式、save 存档读写与校验、GameSession 当前进度与自动存档、time 时钟昼夜与每日结算、survival 生命饱食与进食、inventory 背包增减、islandGen 远征岛生成与变化记录、travel 飞艇往返与倒下临时处理、crafting 采集制作与背包容量、battle 回合制对战与捕捉、party 队伍管理、night 雾怪与光源、camp 营火帐篷宝箱、explore 探索技能与仓库、guide 新手目标与提示）、`game/src/ui/`（widgets 木框奶油色组件与矢量图标、PanelStack 面板栈、panels 演示面板、VirtualJoystick）、`game/src/data/`（pets、skills、natures、elements、items；物品 ID 统一 `item_xxx`，宠物喜好食物也用它）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
+- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 世界（本体只有 create/update 调度，具体方法按主题放在 `scenes/play/`：world 建图碰撞、actors 角色宠物、night 时间夜晚、expedition 采集营火宝箱、flow 对战转场倒下引导、interaction 互动按钮，用 Object.assign 挂到 PlayScene 上）、UIScene 屏幕界面、BattleScene 宠物对战）、`game/src/systems/`（input 动作映射、rng 种子随机、petMath 宠物属性与战斗公式、save 存档读写与校验、GameSession 当前进度与自动存档、time 时钟昼夜与每日结算、survival 生命饱食与进食、inventory 背包增减、islandGen 远征岛生成与变化记录、travel 飞艇往返与倒下临时处理、crafting 采集制作与背包容量、battle 回合制对战与捕捉、party 队伍管理、night 雾怪与光源、camp 营火帐篷宝箱、explore 探索技能与仓库、guide 新手目标与提示）、`game/src/ui/`（widgets 木框奶油色组件与矢量图标、PanelStack 面板栈、panels 演示面板、VirtualJoystick）、`game/src/data/`（pets、skills、natures、elements、items；物品 ID 统一 `item_xxx`，宠物喜好食物也用它）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
 - 占位图都在 BootScene 里用 canvas 画（主角、树、石头、云、影子），正式素材到位后换成图片，键名不变。
 - 两层场景：PlayScene 只管世界；UIScene 叠在上面，放 HUD、摇杆、互动按钮、提示条、面板。两层不互相调用，只通过 registry（共享状态：day、clock、hp、hunger、clover、uiModal 等，HUD 监听变化自动刷新）和 game.events（`toast`、`interact-available`、`action-pressed`）通信。
 - 文字一律用 `widgets.js` 的 `text()`（最小字号 14，手机上约 10 像素；新界面正文尽量 16+）。新系统里玩家完成的关键动作要 `guide.bump(state, 计数名)`，引导和以后的每日任务都读这些计数。

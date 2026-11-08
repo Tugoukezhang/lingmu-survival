@@ -1,0 +1,108 @@
+// PlayScene methods — Name tags, toasts and the context action button.
+// Mixed into PlayScene.prototype (see ../PlayScene.js); `this` is the scene.
+/* eslint-disable no-unused-vars */
+import { GAME_W, GAME_H, TILE, COLORS, FONT, DEBUG, SEED, TIMESCALE } from '../../config.js';
+import { ELEMENT_COLORS, petTextureKey, species } from '../../data/pets.js';
+import { mulberry32, valueNoise2D } from '../../systems/rng.js';
+import InputActions from '../../systems/input.js';
+import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock } from '../../systems/time.js';
+import { survivalTick } from '../../systems/survival.js';
+import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../../systems/islandGen.js';
+import { wildLevel } from '../../systems/petMath.js';
+import { depart, returnHome, faint as faintState, pickUpLostBag, lostBagCount } from '../../systems/travel.js';
+import { gather, gatherPreview, GATHER } from '../../systems/crafting.js';
+import { createBattle, makeWildGroup, canStartBattle } from '../../systems/battle.js';
+import { PETS } from '../../data/pets.js';
+import * as N from '../../systems/night.js';
+import { applyDamage } from '../../systems/survival.js';
+import * as CP from '../../systems/camp.js';
+import * as EX from '../../systems/explore.js';
+import * as GD from '../../systems/guide.js';
+import { countOf } from '../../systems/inventory.js';
+import { ITEMS } from '../../data/items.js';
+import { HOME_COLS, HOME_ROWS, CLIFF, SPEED, PET_HEIGHT, INTERACT_RANGE, FOOT } from './constants.js';
+
+export default {
+  // ---------- world-space labels; screen UI lives in UIScene ----------
+
+  createWorldUi() {
+    this.nameTag = this.add.text(0, 0, '', {
+      fontFamily: FONT, fontSize: '14px', color: '#ffffff', backgroundColor: '#5b3d26', padding: { x: 8, y: 4 },
+    }).setOrigin(0.5, 1).setDepth(9000).setVisible(false);
+    if (DEBUG) this.debugText = this.add.text(GAME_W - 10, GAME_H - 40, '', { fontFamily: 'monospace', fontSize: '12px', color: '#000' }).setOrigin(1, 0).setScrollFactor(0).setDepth(10003);
+  },
+
+  showToast(msg) { this.game.events.emit('toast', msg); },
+
+  // The action button shows what pressing it will do (null = nothing nearby).
+  setActionVerb(verb) {
+    if (verb === this.lastCanAct) return;    // tell the UI only when it changes
+    this.lastCanAct = verb;
+    this.game.events.emit('interact-available', !!verb, verb);
+  },
+
+  updateInteraction() {
+    if (this.sleeping || this.fainted || this.traveling) { this.nameTag.setVisible(false); this.setActionVerb(null); return; }
+    const p = this.player;
+    // fixed spots first (bed, dock, airship), then pets
+    const spots = [
+      this.bed && { at: this.bed, verb: '睡觉', label: '帐篷 · 点互动睡觉', tagY: 92, act: () => this.game.events.emit('sleep-request', this.state.clock) },
+      this.dock && { at: this.dock, verb: '出发', label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null, lostBag: lostBagCount(this.state) }) },
+      this.airship && { at: this.airship, verb: '回家', label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
+    ].filter(Boolean);
+    // campfires and chests on expedition islands
+    for (const s of this.fireSprites.values()) {
+      const left = CP.fireLeft(this.state, s.f);
+      spots.push({ at: { x: s.x, y: s.y + 8 }, verb: '营地', label: left > 0 ? `营火 · 还能烧 ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}（点互动）` : '营火 · 已熄灭（点互动添柴）', tagY: 60,
+        act: () => this.game.events.emit('camp-request', this.campInfo(s.f.id)) });
+    }
+    for (const c of this.island?.chests ?? []) {
+      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, verb: '打开', label: c.bonus ? '秘密宝箱 · 点互动打开' : '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
+    }
+    for (const t of this.island?.thorns ?? []) {
+      spots.push({ at: { x: t.tx * TILE + TILE / 2, y: t.ty * TILE + TILE / 2 }, verb: '开路', label: EX.canClear(this.state) ? '荆棘丛 · 让橡果刺猬开路' : '荆棘丛 · 要橡果刺猬才能开路', tagY: 52, act: () => this.tryClearThorn(t) });
+    }
+    if (this.storageSpot) spots.push({ at: this.storageSpot, verb: '仓库', label: '仓库 · 点互动打开', tagY: 60, act: () => this.game.events.emit('storage-request') });
+    let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
+    if (!spot && this.island) spot = this.nearestResourceSpot();
+    if (spot) {
+      this.setActionVerb(spot.verb ?? '互动');
+      this.nameTag.setText(spot.label).setBackgroundColor('#5b3d26').setPosition(spot.at.x, spot.at.y - spot.tagY).setVisible(true);
+      if (this.actions.consumeInteract()) spot.act();
+      return;
+    }
+    const pet = this.nearestPet();
+    const canAct = !!(pet && (pet !== this.follower || pet.data.humanForm));
+    this.setActionVerb(!canAct ? null : pet === this.follower ? (pet.inst.form === 'human' ? '变回' : '化形') : '领头');
+    if (pet) {
+      const label = pet === this.follower
+        ? (pet.data.humanForm ? `${pet.data.name} · 点互动${pet.inst.form === 'human' ? '变回原形' : '化形'}（演示）` : `${pet.data.name} · 跟着你`)
+        : `${pet.data.name} · ${pet.data.element}`;
+      this.nameTag.setText(label).setBackgroundColor(ELEMENT_COLORS[pet.data.element])
+        .setPosition(pet.sprite.x, pet.sprite.y - pet.sprite.displayHeight - 6).setVisible(true);
+    } else {
+      this.nameTag.setVisible(false);
+    }
+
+    if (!this.actions.consumeInteract() || !canAct) return;
+    if (pet === this.follower) {
+      pet.inst.form = pet.inst.form === 'human' ? 'animal' : 'human';
+      this.applyPetTexture(pet);
+      this.showToast(pet.inst.form === 'human' ? `${pet.data.name} 化形了！` : `${pet.data.name} 变回了原形`);
+      this.session.markDirty();
+      return;
+    }
+    const old = this.follower;
+    old.home = { ...pet.home };
+    old.target = { ...pet.home };
+    old.wanderAt = 0;
+    if (old.inst.form === 'human') { old.inst.form = 'animal'; this.applyPetTexture(old); }
+    this.follower = pet;
+    // the new follower leads the party (max 3); interim until the party panel (T07)
+    this.state.party = [pet.inst.uid, ...this.state.party.filter((u) => u !== pet.inst.uid)].slice(0, 3);
+    this.session.save('party');
+    this.showToast(`${pet.data.name} 跟着你啦！`);
+    this.tweens.add({ targets: pet.sprite, scaleX: pet.sprite.scaleX * 1.15, scaleY: pet.sprite.scaleY * 0.85, duration: 90, yoyo: true });
+  },
+
+};
