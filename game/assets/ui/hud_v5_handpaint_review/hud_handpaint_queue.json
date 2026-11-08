@@ -127,10 +127,32 @@
       "title": "右上 F2 入口",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "top_F2.png",
-      "state": "pending",
+      "state": "needs_target_controlled_image_edit",
       "approval": "pending",
       "notes": "与原截图保持几何造型",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "gpt_image_attempts": 2,
+      "failure_reason": "Two GPT Image calls with a source screenshot cropped to just one 77x75 backpack still generated ornate F1 parchment map plaques with F1 text, not the F2 backpack. Failed visual identity and reference binding; rejected. Do not count as approved or upload as final.",
+      "original_reference_size": [
+        1920,
+        1080
+      ],
+      "source_crop_xyxy": [
+        1419,
+        47,
+        1496,
+        122
+      ],
+      "source_crop_sha256": "e87862a03e06ab2560f696abfcf2107d45a34a304305f680f7146c11a508fc8a",
+      "source_crop_preview": "/mnt/data/lingmu_F2_single/F2_original_single_crop_77x75.png",
+      "source_crop_status": "cropped_and_locally_verified; GitHub binary transfer unavailable in this run",
+      "candidate_status": "unapproved_v2_geometry_reference_only",
+      "local_geometry_locked_reference": "/mnt/data/lingmu_F2_single/F2_backpack_geometry_locked_reference_512.png",
+      "local_reference_sha256": "403f3657b569ab883f8a7410de08b0d157929773c3043d4170b2437a2b56ab83",
+      "local_comparison": "/mnt/data/lingmu_F2_single/F2_original_vs_geometry_review.jpg",
+      "local_comparison_sha256": "6a914ef53f90e6168ede3a66a70fafcd5b7a24c6a0161548f9016216c40c5524",
+      "review_note": "V2 RGB warm palette nudge and exact alpha preserved; not a GPT Image handpaint, not promoted. Original screenshot is 1920x1080; displayed screenshot preview 1649x928 was not native pixel coordinates.",
+      "retry_policy": "Do not repeat F1 map via generic text-to-image; use exact source crop image-edit binding or local masked image transformation and only then QA."
     },
     {
       "queue_number": "HUD-05",
@@ -1625,9 +1647,25 @@
       "qa_passed": false,
       "production_replaced": false,
       "next": "main_top_F2"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_F2",
+      "attempts": 2,
+      "result": "failed_generated_wrong_identity_F1_instead_of_F2",
+      "source_crop": "1920x1080 pixel source / 77x75 isolated F2 icon",
+      "locally_created": [
+        "F2_original_single_crop_77x75.png",
+        "F2_backpack_geometry_locked_reference_512.png",
+        "F2_original_vs_geometry_review.jpg"
+      ],
+      "candidate_approved": false,
+      "github_binary_upload": "blocked_files_library_access_deny",
+      "counts_unchanged": true,
+      "next": "main_top_F3"
     }
   ],
-  "current_focus": "main_top_F2",
+  "current_focus": "main_top_F3",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
