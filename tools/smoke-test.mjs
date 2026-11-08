@@ -434,6 +434,7 @@ try {
   // ---------- fainting & lost bag (T23) ----------
   await scene(() => window.__game.scene.getScene('play').travelTo(424242));
   await waitArea('expedition'); await page.waitForTimeout(500);
+  await page.evaluate(() => window.__game.registry.set('day', 5));   // past the new-player protection (days 1–3)
   const dayBefore = (await state()).day;
   const invBefore = await page.evaluate(() => JSON.parse(JSON.stringify(window.__game.session.state.inventory)));
   const totalOf = (inv) => inv.reduce((n, s) => n + s.count, 0);

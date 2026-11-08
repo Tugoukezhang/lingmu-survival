@@ -588,7 +588,7 @@ export default class PlayScene extends Phaser.Scene {
     const n = r.dropped.reduce((s, x) => s + x.count, 0);
     const notice = n
       ? `在家里醒来了。${n} 件东西掉在了那座岛上，坐飞艇「回到上次的岛」可以捡回来。${r.replaced ? '（之前的失物包找不回来了）' : ''}`
-      : '在家里醒来了，生命 50、饱食 50';
+      : r.protected ? '在家里醒来了。新手保护期（前 3 天）倒下不掉东西，东西都还在身上' : '在家里醒来了，生命 50、饱食 50';
     this.showToast('你倒下了……');
     this.tweens.add({ targets: this.player, angle: 90, duration: 400 });
     this.time.delayedCall(900, () => { this.fainted = false; this.travel(() => ({ ok: true }), notice); });

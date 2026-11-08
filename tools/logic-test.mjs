@@ -634,14 +634,14 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
     const s = S.newGameState();
     s.expedition = { seed: 3, biome: 'mistwood', changes: G.emptyChanges(), lostBag: null }; s.player.area = 'expedition';
     s.inventory = [{ id: 'item_axe', count: 1 }, { id: 'item_wood', count: 12 }, { id: 'item_berry', count: 5 }, { id: 'item_crystal', count: 1 }];
-    s.day = 2; s.clock = 23 * 60;
+    s.day = 5; s.clock = 23 * 60;   // after the new-player protection (days 1–3)
     return s;
   };
   let s = mk();
   const r = TR.faint(s, { x: 640, y: 512 });
   check('E08 倒下：保留石斧；失物包 = 木材 ×12、浆果 ×5、雾晶 ×1（在倒下的位置）', s.inventory.map((x) => x.id).join() === 'item_axe'
     && JSON.stringify(s.expedition.lostBag) === JSON.stringify({ x: 640, y: 512, items: [{ id: 'item_wood', count: 12 }, { id: 'item_berry', count: 5 }, { id: 'item_crystal', count: 1 }] }));
-  check('倒下后：第二天 8:00 在家醒来，生命 50、饱食 50，宠物恢复', s.day === 3 && s.clock === 480 && s.player.hp === 50 && s.player.hunger === 50 && s.player.area === 'home' && s.pets.every((p) => p.hp == null));
+  check('倒下后：第二天 8:00 在家醒来，生命 50、饱食 50，宠物恢复', s.day === 6 && s.clock === 480 && s.player.hp === 50 && s.player.hunger === 50 && s.player.area === 'home' && s.pets.every((p) => p.hp == null));
   check('倒下后的存档合法', S.validate(s).length === 0, S.validate(s).join());
   const mem = new S.MemoryStorage(), store = new S.SaveStore(mem);
   store.save(s);
@@ -776,7 +776,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('帐篷只能在家园做（远征中拒绝，材料不扣）', CR.craft(t1, 'tent').reason === 'station' && I.countOf(t1.inventory, 'item_cloth') === 4);
   t1.player.area = 'home';
   check('回家园可以做帐篷：布 4 + 木材 6', CR.craft(t1, 'tent').ok && I.countOf(t1.inventory, 'item_tent') === 1 && t1.inventory.length === 1);
-  const ft = mk(); ft.inventory = [{ id: 'item_tent', count: 1 }, { id: 'item_wood', count: 3 }];
+  const ft = mk(); ft.day = 5; ft.inventory = [{ id: 'item_tent', count: 1 }, { id: 'item_wood', count: 3 }];
   TR.faint(ft, { x: 1, y: 1 });
   check('倒下时帐篷保留', I.countOf(ft.inventory, 'item_tent') === 1);
 }
@@ -873,6 +873,16 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   // tips once
   const tp = S.newGameState(); tp.player.hunger = 20;
   check('饿了的提示只出现一次', GD.nextTip(tp)?.includes('吃') && GD.nextTip(tp) === null);
+}
+
+// ---------- new-player protection (负责人 2026-11-08) ----------
+{
+  const mk = (day) => { const s = S.newGameState(); s.day = day; s.expedition = { seed: 3, biome: 'mistwood', changes: G.emptyChanges(), lostBag: null }; s.player.area = 'expedition'; s.inventory = [{ id: 'item_axe', count: 1 }, { id: 'item_wood', count: 12 }]; return s; };
+  const a = mk(3); const ra = TR.faint(a, { x: 1, y: 1 });
+  check('第 3 天倒下（新手保护）：东西全部留在身上，没有失物包', ra.protected && ra.dropped.length === 0 && I.countOf(a.inventory, 'item_wood') === 12 && !a.expedition.lostBag);
+  check('保护期倒下照常第二天 8:00 醒来、生命 50', a.day === 4 && a.clock === 480 && a.player.hp === 50);
+  const b = mk(4); TR.faint(b, { x: 1, y: 1 });
+  check('第 4 天起倒下恢复正常掉落', I.countOf(b.inventory, 'item_wood') === 0 && b.expedition.lostBag.items[0].count === 12);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

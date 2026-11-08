@@ -12,6 +12,8 @@ import { bump } from './guide.js';
 
 export const TRAVEL_MIN = 60;    // departure and return each take 1 game hour
 export const WAKE_CLOCK = 8 * 60;
+// New-player protection (负责人 2026-11-08 确认): fainting on days 1–3 drops nothing.
+export const PROTECT_DAYS = 3;
 
 // Let game time pass outside the normal clock (flight). Survival ticks still
 // happen; the airship is safe, so health never drops below 1 on the way.
@@ -62,7 +64,8 @@ export function returnHome(state) {
 // morning at 8:00 with health 50 and fullness 50; pets rest too.
 export function faint(state, { x, y }) {
   const keep = [], drop = [];
-  for (const s of state.inventory) (ITEMS[s.id]?.tool ? keep : drop).push({ ...s });
+  const protectedDay = state.day <= PROTECT_DAYS;
+  for (const s of state.inventory) (ITEMS[s.id]?.tool || protectedDay ? keep : drop).push({ ...s });
   const replaced = lostBagCount(state) > 0;
   state.inventory = keep;
   if (state.expedition) state.expedition.lostBag = drop.length ? { x: Math.round(x), y: Math.round(y), items: drop } : (state.expedition.lostBag ?? null);
@@ -74,7 +77,7 @@ export function faint(state, { x, y }) {
   state.player.area = 'home';
   state.player.x = null; state.player.y = null;
   state.flags.arriveAt = 'bed';
-  return { report, dropped: drop, kept: keep, replaced: replaced && drop.length > 0 };
+  return { report, dropped: drop, kept: keep, replaced: replaced && drop.length > 0, protected: protectedDay };
 }
 
 // Picking up the lost bag: everything that fits goes back into the bag;
