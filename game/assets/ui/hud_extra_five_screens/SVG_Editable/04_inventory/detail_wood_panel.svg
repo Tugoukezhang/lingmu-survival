@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="630" height="820" viewBox="0 0 630 820"><defs>
+<linearGradient id="cream" x1="0" y1="0" x2="0.3" y2="1"><stop stop-color="#fffef5"/><stop offset=".6" stop-color="#fcf2d5"/><stop offset="1" stop-color="#f0dec0"/></linearGradient>
+<linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8b684f"/><stop offset=".48" stop-color="#71523f"/><stop offset="1" stop-color="#543b31"/></linearGradient>
+<linearGradient id="woodlight" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#cda27c"/><stop offset="1" stop-color="#a77755"/></linearGradient>
+<linearGradient id="leaf" x1="0" y1="0" x2=".6" y2="1"><stop stop-color="#a4cc71"/><stop offset="1" stop-color="#4e8353"/></linearGradient>
+<linearGradient id="sage" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b2bfa3" stop-opacity=".86"/><stop offset="1" stop-color="#6b8975" stop-opacity=".8"/></linearGradient>
+<linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#3c3635"/><stop offset="1" stop-color="#262525"/></linearGradient>
+<linearGradient id="yellow" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="#fff1aa"/><stop offset=".5" stop-color="#ffe278"/><stop offset="1" stop-color="#f6c956"/></linearGradient>
+<linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#95d0d9"/><stop offset="1" stop-color="#6ca0c8"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#fff4ab" stop-opacity=".8"/><stop offset="1" stop-color="#ffe99e" stop-opacity="0"/></radialGradient>
+<filter id="shadow" x="-25%" y="-25%" width="160%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
+</defs><path d="M52 26 Q310 -1 567 25 Q605 40 601 93 L596 725 Q582 790 513 795 L79 791 Q20 768 20 719 L20 92 Q23 42 52 26Z" fill="url(#wood)" stroke="#463b30" stroke-width="10"/><path d="M68 65 Q312 39 557 67 L553 738 Q314 765 62 743Z" fill="url(#cream)"/></svg>

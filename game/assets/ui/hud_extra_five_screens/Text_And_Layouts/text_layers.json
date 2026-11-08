@@ -1,0 +1,522 @@
+[
+  {
+    "screen": "title",
+    "key": "start_adventure",
+    "text": "开始冒险",
+    "color": "dark",
+    "box": [
+      710,
+      708,
+      235,
+      60
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/01_title/start_adventure.png"
+  },
+  {
+    "screen": "title",
+    "key": "logo_english",
+    "text": "A little love",
+    "color": "white",
+    "box": [
+      660,
+      405,
+      345,
+      50
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/01_title/logo_english.png"
+  },
+  {
+    "screen": "activity",
+    "key": "activity_recommend",
+    "text": "活动大厅推荐",
+    "color": "white",
+    "box": [
+      98,
+      69,
+      160,
+      56
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/activity_recommend.png"
+  },
+  {
+    "screen": "activity",
+    "key": "task_1",
+    "text": "橡果丰收祭",
+    "color": "white",
+    "box": [
+      69,
+      275,
+      265,
+      48
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/task_1.png"
+  },
+  {
+    "screen": "activity",
+    "key": "task_2",
+    "text": "打开！森林惊喜盒",
+    "color": "white",
+    "box": [
+      69,
+      369,
+      265,
+      48
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/task_2.png"
+  },
+  {
+    "screen": "activity",
+    "key": "task_3",
+    "text": "月光下的茶话会",
+    "color": "white",
+    "box": [
+      69,
+      459,
+      265,
+      48
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/task_3.png"
+  },
+  {
+    "screen": "activity",
+    "key": "task_4",
+    "text": "星星的七个小伙伴",
+    "color": "dark",
+    "box": [
+      69,
+      553,
+      265,
+      48
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/task_4.png"
+  },
+  {
+    "screen": "activity",
+    "key": "task_5",
+    "text": "寻梦之旅",
+    "color": "white",
+    "box": [
+      69,
+      648,
+      265,
+      48
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/task_5.png"
+  },
+  {
+    "screen": "activity",
+    "key": "task_6",
+    "text": "来自树洞的悄悄话",
+    "color": "white",
+    "box": [
+      69,
+      742,
+      265,
+      48
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/task_6.png"
+  },
+  {
+    "screen": "activity",
+    "key": "event_heading",
+    "text": "星星的七个小伙伴",
+    "color": "white",
+    "box": [
+      1120,
+      155,
+      470,
+      75
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/event_heading.png"
+  },
+  {
+    "screen": "activity",
+    "key": "event_timer",
+    "text": "20天13小时",
+    "color": "yellow",
+    "box": [
+      1330,
+      238,
+      225,
+      45
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/event_timer.png"
+  },
+  {
+    "screen": "activity",
+    "key": "card_count_x1",
+    "text": "×1",
+    "color": "dark",
+    "box": [
+      1182,
+      675,
+      80,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/card_count_x1.png"
+  },
+  {
+    "screen": "activity",
+    "key": "card_count_x3",
+    "text": "×3",
+    "color": "dark",
+    "box": [
+      1330,
+      675,
+      70,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/card_count_x3.png"
+  },
+  {
+    "screen": "activity",
+    "key": "card_count_x4",
+    "text": "×4",
+    "color": "dark",
+    "box": [
+      1174,
+      848,
+      70,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/card_count_x4.png"
+  },
+  {
+    "screen": "activity",
+    "key": "card_count_x5",
+    "text": "×5",
+    "color": "dark",
+    "box": [
+      1465,
+      833,
+      100,
+      50
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/03_activity/card_count_x5.png"
+  },
+  {
+    "screen": "inventory",
+    "key": "apple_title",
+    "text": "苹果",
+    "color": "dark",
+    "box": [
+      450,
+      251,
+      130,
+      60
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/04_inventory/apple_title.png"
+  },
+  {
+    "screen": "inventory",
+    "key": "item_category",
+    "text": "食物",
+    "color": "white",
+    "box": [
+      461,
+      303,
+      104,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/04_inventory/item_category.png"
+  },
+  {
+    "screen": "inventory",
+    "key": "use",
+    "text": "使用",
+    "color": "white",
+    "box": [
+      402,
+      634,
+      104,
+      43
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/04_inventory/use.png"
+  },
+  {
+    "screen": "inventory",
+    "key": "item_hint",
+    "text": "吃下吧，\n离竞争不远的苹果",
+    "color": "muted",
+    "box": [
+      322,
+      514,
+      265,
+      70
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/04_inventory/item_hint.png"
+  },
+  {
+    "screen": "home",
+    "key": "move",
+    "text": "移动",
+    "color": "dark",
+    "box": [
+      75,
+      458,
+      85,
+      30
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/move.png"
+  },
+  {
+    "screen": "home",
+    "key": "rotate",
+    "text": "旋转",
+    "color": "dark",
+    "box": [
+      74,
+      545,
+      85,
+      31
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/rotate.png"
+  },
+  {
+    "screen": "home",
+    "key": "copy",
+    "text": "复制",
+    "color": "dark",
+    "box": [
+      73,
+      633,
+      85,
+      29
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/copy.png"
+  },
+  {
+    "screen": "home",
+    "key": "remove",
+    "text": "移除",
+    "color": "dark",
+    "box": [
+      74,
+      717,
+      85,
+      33
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/remove.png"
+  },
+  {
+    "screen": "home",
+    "key": "category_furniture",
+    "text": "家具",
+    "color": "dark",
+    "box": [
+      272,
+      797,
+      99,
+      47
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/category_furniture.png"
+  },
+  {
+    "screen": "home",
+    "key": "category_rug",
+    "text": "地毯",
+    "color": "dark",
+    "box": [
+      461,
+      797,
+      105,
+      47
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/category_rug.png"
+  },
+  {
+    "screen": "home",
+    "key": "category_hanging",
+    "text": "挂饰",
+    "color": "dark",
+    "box": [
+      662,
+      797,
+      100,
+      45
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/category_hanging.png"
+  },
+  {
+    "screen": "home",
+    "key": "category_wall",
+    "text": "墙饰",
+    "color": "dark",
+    "box": [
+      858,
+      797,
+      100,
+      45
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/category_wall.png"
+  },
+  {
+    "screen": "home",
+    "key": "category_special",
+    "text": "特殊",
+    "color": "dark",
+    "box": [
+      1036,
+      797,
+      103,
+      45
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/category_special.png"
+  },
+  {
+    "screen": "home",
+    "key": "inventory_count",
+    "text": "9999",
+    "color": "white",
+    "box": [
+      1468,
+      76,
+      97,
+      35
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/inventory_count.png"
+  },
+  {
+    "screen": "home",
+    "key": "place",
+    "text": "放置",
+    "color": "dark",
+    "box": [
+      1412,
+      810,
+      96,
+      41
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/06_home/place.png"
+  },
+  {
+    "screen": "map",
+    "key": "status_stars",
+    "text": "20/100",
+    "color": "white",
+    "box": [
+      1423,
+      53,
+      142,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/status_stars.png"
+  },
+  {
+    "screen": "map",
+    "key": "status_leaf",
+    "text": "99",
+    "color": "white",
+    "box": [
+      1491,
+      127,
+      58,
+      42
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/status_leaf.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_1",
+    "text": "吾爱庄",
+    "color": "dark",
+    "box": [
+      416,
+      452,
+      115,
+      41
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_1.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_2",
+    "text": "爱他小道",
+    "color": "dark",
+    "box": [
+      734,
+      149,
+      130,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_2.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_3",
+    "text": "红帽子塔",
+    "color": "dark",
+    "box": [
+      1083,
+      239,
+      134,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_3.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_4",
+    "text": "爱仓小镇",
+    "color": "dark",
+    "box": [
+      847,
+      428,
+      128,
+      43
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_4.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_5",
+    "text": "光系海滩",
+    "color": "dark",
+    "box": [
+      1397,
+      474,
+      112,
+      42
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_5.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_6",
+    "text": "陨石山",
+    "color": "dark",
+    "box": [
+      502,
+      646,
+      99,
+      42
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_6.png"
+  },
+  {
+    "screen": "map",
+    "key": "location_7",
+    "text": "深渊小巷",
+    "color": "dark",
+    "box": [
+      804,
+      745,
+      116,
+      42
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/location_7.png"
+  },
+  {
+    "screen": "map",
+    "key": "exploration",
+    "text": "探索度 55%",
+    "color": "muted",
+    "box": [
+      78,
+      816,
+      187,
+      40
+    ],
+    "asset": "Text_And_Layouts/Text_PNG/07_world_map/exploration.png"
+  }
+]

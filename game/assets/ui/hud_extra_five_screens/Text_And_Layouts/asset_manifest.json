@@ -1,0 +1,1399 @@
+{
+  "overview": "Five source screenshots -> 97 reconstructed HUD/UI assets as transparent PNG with editable SVG. Screenshot dimensions are intended 1649x928.",
+  "quality_notice": "Visual reconstruction from the five screenshot references. Original pixels were not available in this runtime for exact segmentation; SVG/PNG are not claimed to be unmodified extracted source assets.",
+  "coordinate_system": "Top-left origin, screenshot width=1649 height=928; rectangle values are approximate placements in screenshots. Some repeated assets are shown in several locations.",
+  "assets": [
+    {
+      "group": "title",
+      "slug": "music",
+      "svg": "SVG_Editable/01_title/music.svg",
+      "png": "PNG_Transparent/01_title/music.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Title right-side overlay icon; translucent white/cream outline.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "settings",
+      "svg": "SVG_Editable/01_title/settings.svg",
+      "png": "PNG_Transparent/01_title/settings.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Title right-side overlay icon; translucent white/cream outline.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "announcement",
+      "svg": "SVG_Editable/01_title/announcement.svg",
+      "png": "PNG_Transparent/01_title/announcement.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Title right-side overlay icon; translucent white/cream outline.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "support",
+      "svg": "SVG_Editable/01_title/support.svg",
+      "png": "PNG_Transparent/01_title/support.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Title right-side overlay icon; translucent white/cream outline.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "left_chevrons",
+      "svg": "SVG_Editable/01_title/left_chevrons.svg",
+      "png": "PNG_Transparent/01_title/left_chevrons.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "title adventure button flanking chevrons",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "right_chevrons",
+      "svg": "SVG_Editable/01_title/right_chevrons.svg",
+      "png": "PNG_Transparent/01_title/right_chevrons.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "title adventure button flanking chevrons",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "start_pill",
+      "svg": "SVG_Editable/01_title/start_pill.svg",
+      "png": "PNG_Transparent/01_title/start_pill.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Blank start button; add editable text in engine.",
+      "generated_resolution": "1640x400",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "age_12_badge",
+      "svg": "SVG_Editable/01_title/age_12_badge.svg",
+      "png": "PNG_Transparent/01_title/age_12_badge.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Age rating. If text should remain dynamic, use text-free version.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "title",
+      "slug": "logo_chinese_fallback",
+      "svg": "SVG_Editable/01_title/logo_chinese_fallback.svg",
+      "png": "PNG_Transparent/01_title/logo_chinese_fallback.png",
+      "source_box": null,
+      "type": "text_art",
+      "notes": "Approximate editable wordmark; original stylized calligraphy cannot be pixel-extracted here.",
+      "generated_resolution": "2000x700",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "close_wood",
+      "svg": "SVG_Editable/00_common/close_wood.svg",
+      "png": "PNG_Transparent/00_common/close_wood.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Wood-and-cream close icon with small leaves/flower.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "back_wood",
+      "svg": "SVG_Editable/00_common/back_wood.svg",
+      "png": "PNG_Transparent/00_common/back_wood.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Back arrow circular wood/cream and leaves.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "question_dark",
+      "svg": "SVG_Editable/00_common/question_dark.svg",
+      "png": "PNG_Transparent/00_common/question_dark.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "flower_decoration",
+      "svg": "SVG_Editable/00_common/flower_decoration.svg",
+      "png": "PNG_Transparent/00_common/flower_decoration.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_bar_base",
+      "svg": "SVG_Editable/03_activity/nav_bar_base.svg",
+      "png": "PNG_Transparent/03_activity/nav_bar_base.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "2000x440",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_hourglass_white",
+      "svg": "SVG_Editable/03_activity/nav_hourglass_white.svg",
+      "png": "PNG_Transparent/03_activity/nav_hourglass_white.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "White compact nav glyph, no background.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_home_white",
+      "svg": "SVG_Editable/03_activity/nav_home_white.svg",
+      "png": "PNG_Transparent/03_activity/nav_home_white.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "White compact nav glyph, no background.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_book_white",
+      "svg": "SVG_Editable/03_activity/nav_book_white.svg",
+      "png": "PNG_Transparent/03_activity/nav_book_white.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "White compact nav glyph, no background.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_board_white",
+      "svg": "SVG_Editable/03_activity/nav_board_white.svg",
+      "png": "PNG_Transparent/03_activity/nav_board_white.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "White compact nav glyph, no background.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_active_tile",
+      "svg": "SVG_Editable/03_activity/nav_active_tile.svg",
+      "png": "PNG_Transparent/03_activity/nav_active_tile.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Cream tile used behind selected activity tab.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_list_button_normal",
+      "svg": "SVG_Editable/03_activity/activity_list_button_normal.svg",
+      "png": "PNG_Transparent/03_activity/activity_list_button_normal.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Text-free activity menu row.",
+      "generated_resolution": "1600x380",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_list_button_selected",
+      "svg": "SVG_Editable/03_activity/activity_list_button_selected.svg",
+      "png": "PNG_Transparent/03_activity/activity_list_button_selected.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Text-free activity menu row.",
+      "generated_resolution": "1600x380",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_recommendation_badge",
+      "svg": "SVG_Editable/03_activity/activity_recommendation_badge.svg",
+      "png": "PNG_Transparent/03_activity/activity_recommendation_badge.png",
+      "source_box": null,
+      "type": "badge",
+      "notes": "",
+      "generated_resolution": "1400x720",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "event_timer_black",
+      "svg": "SVG_Editable/03_activity/event_timer_black.svg",
+      "png": "PNG_Transparent/03_activity/event_timer_black.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1240x300",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "notification_orange_dot",
+      "svg": "SVG_Editable/03_activity/notification_orange_dot.svg",
+      "png": "PNG_Transparent/03_activity/notification_orange_dot.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_normal",
+      "svg": "SVG_Editable/03_activity/reward_card_normal.svg",
+      "png": "PNG_Transparent/03_activity/reward_card_normal.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text.",
+      "generated_resolution": "840x870",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_claimed",
+      "svg": "SVG_Editable/03_activity/reward_card_claimed.svg",
+      "png": "PNG_Transparent/03_activity/reward_card_claimed.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text.",
+      "generated_resolution": "840x870",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_selected",
+      "svg": "SVG_Editable/03_activity/reward_card_selected.svg",
+      "png": "PNG_Transparent/03_activity/reward_card_selected.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text.",
+      "generated_resolution": "840x870",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_tall",
+      "svg": "SVG_Editable/03_activity/reward_card_tall.svg",
+      "png": "PNG_Transparent/03_activity/reward_card_tall.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Blank reward card with shell icon and diagonal rope; counts should be independent text.",
+      "generated_resolution": "760x1260",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_shell_only",
+      "svg": "SVG_Editable/03_activity/reward_shell_only.svg",
+      "png": "PNG_Transparent/03_activity/reward_shell_only.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_card_rope",
+      "svg": "SVG_Editable/03_activity/activity_card_rope.svg",
+      "png": "PNG_Transparent/03_activity/activity_card_rope.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "help_bubble",
+      "svg": "SVG_Editable/03_activity/help_bubble.svg",
+      "png": "PNG_Transparent/03_activity/help_bubble.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "activity",
+      "slug": "event_title_chip",
+      "svg": "SVG_Editable/03_activity/event_title_chip.svg",
+      "png": "PNG_Transparent/03_activity/event_title_chip.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1900x320",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "main_wood_panel",
+      "svg": "SVG_Editable/04_inventory/main_wood_panel.svg",
+      "png": "PNG_Transparent/04_inventory/main_wood_panel.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Screenshot faithful large dark brown frame and cream inset. No items or text.",
+      "generated_resolution": "2480x2000",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "detail_wood_panel",
+      "svg": "SVG_Editable/04_inventory/detail_wood_panel.svg",
+      "png": "PNG_Transparent/04_inventory/detail_wood_panel.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1260x1640",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_general",
+      "svg": "SVG_Editable/04_inventory/tab_general.svg",
+      "png": "PNG_Transparent/04_inventory/tab_general.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_food",
+      "svg": "SVG_Editable/04_inventory/tab_food.svg",
+      "png": "PNG_Transparent/04_inventory/tab_food.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_clothing",
+      "svg": "SVG_Editable/04_inventory/tab_clothing.svg",
+      "png": "PNG_Transparent/04_inventory/tab_clothing.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_documents",
+      "svg": "SVG_Editable/04_inventory/tab_documents.svg",
+      "png": "PNG_Transparent/04_inventory/tab_documents.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_plants",
+      "svg": "SVG_Editable/04_inventory/tab_plants.svg",
+      "png": "PNG_Transparent/04_inventory/tab_plants.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "slot_empty",
+      "svg": "SVG_Editable/04_inventory/slot_empty.svg",
+      "png": "PNG_Transparent/04_inventory/slot_empty.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "slot_active",
+      "svg": "SVG_Editable/04_inventory/slot_active.svg",
+      "png": "PNG_Transparent/04_inventory/slot_active.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "use_button",
+      "svg": "SVG_Editable/04_inventory/use_button.svg",
+      "png": "PNG_Transparent/04_inventory/use_button.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1580x520",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_description_label",
+      "svg": "SVG_Editable/04_inventory/item_description_label.svg",
+      "png": "PNG_Transparent/04_inventory/item_description_label.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1120x420",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "selected_item_separator",
+      "svg": "SVG_Editable/04_inventory/selected_item_separator.svg",
+      "png": "PNG_Transparent/04_inventory/selected_item_separator.png",
+      "source_box": null,
+      "type": "decor",
+      "notes": "",
+      "generated_resolution": "1600x320",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_apple",
+      "svg": "SVG_Editable/04_inventory/item_apple.svg",
+      "png": "PNG_Transparent/04_inventory/item_apple.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_flower",
+      "svg": "SVG_Editable/04_inventory/item_flower.svg",
+      "png": "PNG_Transparent/04_inventory/item_flower.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_potion",
+      "svg": "SVG_Editable/04_inventory/item_potion.svg",
+      "png": "PNG_Transparent/04_inventory/item_potion.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_map_fragment",
+      "svg": "SVG_Editable/04_inventory/item_map_fragment.svg",
+      "png": "PNG_Transparent/04_inventory/item_map_fragment.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_mushroom",
+      "svg": "SVG_Editable/04_inventory/item_mushroom.svg",
+      "png": "PNG_Transparent/04_inventory/item_mushroom.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_bread",
+      "svg": "SVG_Editable/04_inventory/item_bread.svg",
+      "png": "PNG_Transparent/04_inventory/item_bread.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_letter",
+      "svg": "SVG_Editable/04_inventory/item_letter.svg",
+      "png": "PNG_Transparent/04_inventory/item_letter.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_forest_book",
+      "svg": "SVG_Editable/04_inventory/item_forest_book.svg",
+      "png": "PNG_Transparent/04_inventory/item_forest_book.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_leaf",
+      "svg": "SVG_Editable/04_inventory/item_leaf.svg",
+      "png": "PNG_Transparent/04_inventory/item_leaf.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "edit_tool_vertical",
+      "svg": "SVG_Editable/06_home/edit_tool_vertical.svg",
+      "png": "PNG_Transparent/06_home/edit_tool_vertical.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "636x1800",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "edit_move",
+      "svg": "SVG_Editable/06_home/edit_move.svg",
+      "png": "PNG_Transparent/06_home/edit_move.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "edit_rotate",
+      "svg": "SVG_Editable/06_home/edit_rotate.svg",
+      "png": "PNG_Transparent/06_home/edit_rotate.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "edit_duplicate",
+      "svg": "SVG_Editable/06_home/edit_duplicate.svg",
+      "png": "PNG_Transparent/06_home/edit_duplicate.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "edit_remove",
+      "svg": "SVG_Editable/06_home/edit_remove.svg",
+      "png": "PNG_Transparent/06_home/edit_remove.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "bottom_category_bar",
+      "svg": "SVG_Editable/06_home/bottom_category_bar.svg",
+      "png": "PNG_Transparent/06_home/bottom_category_bar.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "2980x420",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "category_furniture",
+      "svg": "SVG_Editable/06_home/category_furniture.svg",
+      "png": "PNG_Transparent/06_home/category_furniture.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "category_rugs",
+      "svg": "SVG_Editable/06_home/category_rugs.svg",
+      "png": "PNG_Transparent/06_home/category_rugs.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "category_hanging",
+      "svg": "SVG_Editable/06_home/category_hanging.svg",
+      "png": "PNG_Transparent/06_home/category_hanging.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "category_wall",
+      "svg": "SVG_Editable/06_home/category_wall.svg",
+      "png": "PNG_Transparent/06_home/category_wall.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "category_special",
+      "svg": "SVG_Editable/06_home/category_special.svg",
+      "png": "PNG_Transparent/06_home/category_special.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "right_furniture_panel",
+      "svg": "SVG_Editable/06_home/right_furniture_panel.svg",
+      "png": "PNG_Transparent/06_home/right_furniture_panel.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "2320x3040",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_chair",
+      "svg": "SVG_Editable/06_home/furniture_tab_chair.svg",
+      "png": "PNG_Transparent/06_home/furniture_tab_chair.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_nature",
+      "svg": "SVG_Editable/06_home/furniture_tab_nature.svg",
+      "png": "PNG_Transparent/06_home/furniture_tab_nature.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_grid",
+      "svg": "SVG_Editable/06_home/furniture_tab_grid.svg",
+      "png": "PNG_Transparent/06_home/furniture_tab_grid.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_wall",
+      "svg": "SVG_Editable/06_home/furniture_tab_wall.svg",
+      "png": "PNG_Transparent/06_home/furniture_tab_wall.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_star",
+      "svg": "SVG_Editable/06_home/furniture_tab_star.svg",
+      "png": "PNG_Transparent/06_home/furniture_tab_star.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_slot",
+      "svg": "SVG_Editable/06_home/furniture_slot.svg",
+      "png": "PNG_Transparent/06_home/furniture_slot.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_slot_selected",
+      "svg": "SVG_Editable/06_home/furniture_slot_selected.svg",
+      "png": "PNG_Transparent/06_home/furniture_slot_selected.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "place_button",
+      "svg": "SVG_Editable/06_home/place_button.svg",
+      "png": "PNG_Transparent/06_home/place_button.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1600x500",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "save",
+      "svg": "SVG_Editable/06_home/save.svg",
+      "png": "PNG_Transparent/06_home/save.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "hide",
+      "svg": "SVG_Editable/06_home/hide.svg",
+      "png": "PNG_Transparent/06_home/hide.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "currency_clover",
+      "svg": "SVG_Editable/06_home/currency_clover.svg",
+      "png": "PNG_Transparent/06_home/currency_clover.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "item_plant_pot",
+      "svg": "SVG_Editable/06_home/item_plant_pot.svg",
+      "png": "PNG_Transparent/06_home/item_plant_pot.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "item_flower_vase",
+      "svg": "SVG_Editable/06_home/item_flower_vase.svg",
+      "png": "PNG_Transparent/06_home/item_flower_vase.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "item_plant_crate",
+      "svg": "SVG_Editable/06_home/item_plant_crate.svg",
+      "png": "PNG_Transparent/06_home/item_plant_crate.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "home",
+      "slug": "item_hanging_greenery",
+      "svg": "SVG_Editable/06_home/item_hanging_greenery.svg",
+      "png": "PNG_Transparent/06_home/item_hanging_greenery.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "map_back",
+      "svg": "SVG_Editable/07_world_map/map_back.svg",
+      "png": "PNG_Transparent/07_world_map/map_back.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_plus",
+      "svg": "SVG_Editable/07_world_map/zoom_plus.svg",
+      "png": "PNG_Transparent/07_world_map/zoom_plus.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_minus",
+      "svg": "SVG_Editable/07_world_map/zoom_minus.svg",
+      "png": "PNG_Transparent/07_world_map/zoom_minus.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_rail",
+      "svg": "SVG_Editable/07_world_map/zoom_rail.svg",
+      "png": "PNG_Transparent/07_world_map/zoom_rail.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "680x1800",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_thumb",
+      "svg": "SVG_Editable/07_world_map/zoom_thumb.svg",
+      "png": "PNG_Transparent/07_world_map/zoom_thumb.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "status_bar_empty",
+      "svg": "SVG_Editable/07_world_map/status_bar_empty.svg",
+      "png": "PNG_Transparent/07_world_map/status_bar_empty.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "1600x560",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "status_star",
+      "svg": "SVG_Editable/07_world_map/status_star.svg",
+      "png": "PNG_Transparent/07_world_map/status_star.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "status_leaf",
+      "svg": "SVG_Editable/07_world_map/status_leaf.svg",
+      "png": "PNG_Transparent/07_world_map/status_leaf.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "location_label_blank",
+      "svg": "SVG_Editable/07_world_map/location_label_blank.svg",
+      "png": "PNG_Transparent/07_world_map/location_label_blank.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Location name text intentionally omitted for engine localization.",
+      "generated_resolution": "1180x390",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "selected_location_marker",
+      "svg": "SVG_Editable/07_world_map/selected_location_marker.svg",
+      "png": "PNG_Transparent/07_world_map/selected_location_marker.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "world_area_info_panel",
+      "svg": "SVG_Editable/07_world_map/world_area_info_panel.svg",
+      "png": "PNG_Transparent/07_world_map/world_area_info_panel.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "Lower-left location information panel with text separate.",
+      "generated_resolution": "2100x1300",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "progress_track",
+      "svg": "SVG_Editable/07_world_map/progress_track.svg",
+      "png": "PNG_Transparent/07_world_map/progress_track.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "2100x480",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "location_thumbnail_frame",
+      "svg": "SVG_Editable/07_world_map/location_thumbnail_frame.svg",
+      "png": "PNG_Transparent/07_world_map/location_thumbnail_frame.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "map",
+      "slug": "map_faint_leaf_corner",
+      "svg": "SVG_Editable/07_world_map/map_faint_leaf_corner.svg",
+      "png": "PNG_Transparent/07_world_map/map_faint_leaf_corner.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "blank_cream_pill",
+      "svg": "SVG_Editable/00_common/blank_cream_pill.svg",
+      "png": "PNG_Transparent/00_common/blank_cream_pill.png",
+      "source_box": null,
+      "type": "panel",
+      "notes": "",
+      "generated_resolution": "2000x440",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "badge_circle_dark",
+      "svg": "SVG_Editable/00_common/badge_circle_dark.svg",
+      "png": "PNG_Transparent/00_common/badge_circle_dark.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    },
+    {
+      "group": "shared",
+      "slug": "badge_circle_light",
+      "svg": "SVG_Editable/00_common/badge_circle_light.svg",
+      "png": "PNG_Transparent/00_common/badge_circle_light.png",
+      "source_box": null,
+      "type": "icon",
+      "notes": "",
+      "generated_resolution": "1024x1024",
+      "source": "faithful hand-reconstruction; not pixel-extracted"
+    }
+  ],
+  "layout_estimates": {
+    "01_title": {
+      "size": [
+        1649,
+        928
+      ],
+      "assets": {
+        "music": [
+          1526,
+          34,
+          62,
+          70
+        ],
+        "settings": [
+          1528,
+          112,
+          63,
+          70
+        ],
+        "announcement": [
+          1530,
+          188,
+          61,
+          70
+        ],
+        "support": [
+          1530,
+          267,
+          64,
+          68
+        ],
+        "start_pill": [
+          707,
+          693,
+          238,
+          74
+        ],
+        "age_12_badge": [
+          44,
+          813,
+          76,
+          74
+        ],
+        "logo_chinese_fallback": [
+          477,
+          106,
+          708,
+          420
+        ]
+      }
+    },
+    "03_activity": {
+      "size": [
+        1649,
+        928
+      ],
+      "assets": {
+        "activity_recommendation_badge": [
+          44,
+          37,
+          154,
+          100
+        ],
+        "nav_bar_base": [
+          44,
+          161,
+          307,
+          70
+        ],
+        "activity_list_button_normal": [
+          43,
+          255,
+          308,
+          75
+        ],
+        "activity_list_button_selected": [
+          43,
+          533,
+          313,
+          75
+        ],
+        "event_timer_black": [
+          1282,
+          232,
+          258,
+          56
+        ],
+        "reward_card_normal": [
+          1135,
+          561,
+          147,
+          158
+        ],
+        "reward_card_claimed": [
+          975,
+          560,
+          153,
+          157
+        ],
+        "reward_card_tall": [
+          1465,
+          555,
+          134,
+          322
+        ],
+        "event_title_chip": [
+          1125,
+          155,
+          475,
+          65
+        ],
+        "help_bubble": [
+          1537,
+          229,
+          60,
+          55
+        ]
+      }
+    },
+    "04_inventory": {
+      "size": [
+        1649,
+        928
+      ],
+      "assets": {
+        "main_wood_panel": [
+          624,
+          44,
+          900,
+          835
+        ],
+        "detail_wood_panel": [
+          213,
+          174,
+          450,
+          579
+        ],
+        "use_button": [
+          350,
+          621,
+          192,
+          62
+        ],
+        "slot_empty": [
+          834,
+          171,
+          96,
+          80
+        ],
+        "tab_general": [
+          826,
+          78,
+          90,
+          87
+        ],
+        "tab_food": [
+          958,
+          83,
+          78,
+          76
+        ],
+        "tab_clothing": [
+          1068,
+          82,
+          82,
+          76
+        ],
+        "tab_documents": [
+          1175,
+          83,
+          82,
+          75
+        ],
+        "tab_plants": [
+          1284,
+          82,
+          89,
+          75
+        ]
+      }
+    },
+    "06_home": {
+      "size": [
+        1649,
+        928
+      ],
+      "assets": {
+        "edit_tool_vertical": [
+          52,
+          383,
+          124,
+          374
+        ],
+        "bottom_category_bar": [
+          178,
+          759,
+          953,
+          115
+        ],
+        "right_furniture_panel": [
+          1180,
+          137,
+          436,
+          747
+        ],
+        "furniture_slot": [
+          1204,
+          255,
+          109,
+          96
+        ],
+        "place_button": [
+          1380,
+          797,
+          172,
+          49
+        ],
+        "save": [
+          1269,
+          56,
+          57,
+          56
+        ],
+        "hide": [
+          1353,
+          57,
+          60,
+          58
+        ],
+        "currency_clover": [
+          1430,
+          62,
+          164,
+          60
+        ]
+      }
+    },
+    "07_world_map": {
+      "size": [
+        1649,
+        928
+      ],
+      "assets": {
+        "map_back": [
+          34,
+          40,
+          101,
+          100
+        ],
+        "zoom_rail": [
+          1563,
+          310,
+          40,
+          278
+        ],
+        "zoom_plus": [
+          1545,
+          298,
+          66,
+          62
+        ],
+        "zoom_minus": [
+          1545,
+          546,
+          68,
+          61
+        ],
+        "status_bar_empty": [
+          1403,
+          47,
+          195,
+          65
+        ],
+        "status_star": [
+          1546,
+          55,
+          58,
+          57
+        ],
+        "status_leaf": [
+          1547,
+          121,
+          53,
+          49
+        ],
+        "location_label_blank": [
+          370,
+          439,
+          150,
+          55
+        ],
+        "selected_location_marker": [
+          858,
+          338,
+          71,
+          84
+        ],
+        "world_area_info_panel": [
+          41,
+          671,
+          355,
+          207
+        ],
+        "location_thumbnail_frame": [
+          145,
+          575,
+          185,
+          136
+        ],
+        "progress_track": [
+          80,
+          832,
+          285,
+          26
+        ]
+      }
+    }
+  },
+  "source_images": [
+    "01_标题页(1).jpg",
+    "03_活动大厅(4).jpg",
+    "04_背包(5).jpg",
+    "06_家园布置(1).jpg",
+    "07_世界地图(1).jpg"
+  ]
+}
