@@ -1,0 +1,47 @@
+name: Build HUD V4 individual PNGs (one-time)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build_hud_v4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install renderer
+        run: python -m pip install --disable-pip-version-check Pillow cairosvg
+      - name: Render 97 independent RGBA sprites
+        run: |
+          python game/assets/ui/hud_v4/build_hud_v4.py \
+            --source game/assets/ui/hud_extra_five_screens \
+            --destination game/assets/ui/hud_v4/production
+      - name: Verify and publish PNG assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, pathlib, zipfile
+          root=pathlib.Path('game/assets/ui/hud_v4/production')
+          d=json.loads((root/'Engineering/asset_manifest_v4.json').read_text())
+          files=list((root/'PNG_Transparent').rglob('*.png'))
+          assert len(d['assets'])==len(files)==97, (len(d['assets']),len(files))
+          with zipfile.ZipFile(root/'HUD_V4_97_individual_PNG.zip') as z: assert z.testzip() is None
+          print('Validated',len(files),'independent RGBA PNGs')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game/assets/ui/hud_v4/production
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Publish HUD V4 97 transparent per-asset PNG files and layouts"
+            git push origin HEAD:main
+          fi
