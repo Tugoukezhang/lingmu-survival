@@ -91,7 +91,7 @@
       "title": "右上 F1 入口",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "top_F1.png",
-      "state": "pending",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "参考原图白色图标，勿改成实体奶油按钮",
       "existing_candidate": null,
@@ -110,7 +110,16 @@
         ],
         "verify_bbox_before_generating": true,
         "notes": "Approximate region; exclude top red flower jar background and adjacent F2 entrance as much as possible, do not treat background as desired object"
-      }
+      },
+      "gpt_image_attempts": 2,
+      "failure_reason": "Two single-element GPT Image attempts replaced cream-white overlapping heart glyph with ornate rolled map and F1 plaque; rejected for wrong identity, shape, palette, unwanted text/decorations.",
+      "source_used": "V2 isolated F1 icon due original screenshot bytes unavailable in image-edit runtime; not a direct original screenshot pixel crop.",
+      "reference_path": "PNG_Transparent/00_gameplay/F1_v2_isolated.png",
+      "fidelity_candidate": "PNG_Transparent/00_gameplay/F1_hearts_fidelity_review_512.png",
+      "comparison": "PNG_Transparent/00_gameplay/F1_one_to_one_comparison.jpg",
+      "output_kind": "V2 geometry/alpha-preserving reference polish, NOT separately GPT Image re-drawn",
+      "candidate_status": "structure_only_unapproved",
+      "fidelity_sha256": "49ee4753d90bbc12f32427ed493adc0a692f89a11bea1ce99dbad527a341a957"
     },
     {
       "queue_number": "HUD-04",
@@ -1607,9 +1616,18 @@
       "result": "workflow_updated_one_target_one_crop_one_output",
       "next": "main_top_F1",
       "counts_unchanged": true
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_F1",
+      "result": "two GPT Image rolled map results failed; single F1 V2-isolated reference and fidelity raster preserved",
+      "source": "V2 single crop, original screenshot direct crop not programmatically accessible",
+      "qa_passed": false,
+      "production_replaced": false,
+      "next": "main_top_F2"
     }
   ],
-  "current_focus": "main_top_F1",
+  "current_focus": "main_top_F2",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",

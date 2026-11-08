@@ -1,0 +1,14 @@
+{
+  "asset": "main_top_F1",
+  "alpha_png": "F1_hearts_fidelity_review_512.png",
+  "source": "V2 isolated F1 asset (not direct screenshot crop)",
+  "canvas": [
+    512,
+    512
+  ],
+  "qa": "not approved",
+  "attempts": 2,
+  "generated_errors": "GPT Image repeatedly produced rolled map unrelated to target",
+  "final_approved": false,
+  "sha256": "49ee4753d90bbc12f32427ed493adc0a692f89a11bea1ce99dbad527a341a957"
+}
