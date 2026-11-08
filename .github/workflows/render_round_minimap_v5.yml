@@ -1,0 +1,27 @@
+name: Build faithful circular minimap review
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/render_round_minimap_v5.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pillow
+        run: python -m pip install Pillow
+      - name: Render and validate circular minimap
+        run: python game/assets/ui/hud_v5_handpaint_review/render_round_minimap_fidelity.py
+      - name: Commit review asset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game/assets/ui/hud_v5_handpaint_review/PNG_Transparent/00_gameplay
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish circular minimap faithful PNG review candidate"
+            git push origin HEAD:main
+          fi
