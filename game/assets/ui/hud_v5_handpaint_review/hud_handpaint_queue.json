@@ -1294,12 +1294,46 @@
       "source_reference": "03_活动大厅(4).jpg",
       "target_png": "PNG_Transparent/03_activity/event_timer_black.png",
       "target_resolution": "1240x300",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "source_geometry_painterly_review_candidate_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "existing_candidate": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/event_timer_black_1240x300.png",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/event_timer_black_1240x300.png",
+      "candidate_sha256": "90f40d199c7b988e0d4735206dc2ff04b7bf9cddc2e0910e83e0764345078651",
+      "candidate_size": [
+        1240,
+        300
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "hand-authored source-matched original SVG shape and stopwatch icon, subtle painterly microtexture, rasterized as transparent RGBA; NOT a GPT Image direct output",
+      "source_crop": {
+        "source": "03_activity.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1488,
+          267,
+          1788,
+          319
+        ],
+        "crop_size": [
+          300,
+          52
+        ],
+        "library": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/event_timer_original_crop_300x52.png"
+      },
+      "qa_status": "Deep charcoal slightly irregular capsule and fixed yellow stopwatch icon preserved; numerical time '20天13小时' intentionally dynamic runtime text, excluded from PNG. Alpha checked, 290/320/400px widths previewed with demo text overlay; art/user and in-engine integration QA pending.",
+      "review_comparison_library": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/event_timer_black_QA_preview.jpg",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/event_timer_black_review_bundle.zip",
+      "manifest_library": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/manifest.json",
+      "source_svg_library": "/Lingmu_HUD_Exports/Activity_Event_Timer_Single_Review/event_timer_source.svg",
+      "production_promoted": false,
+      "last_generation_note": "No GPT Image call this run: source is a plain text-free timer plaque plus fixed stopwatch, and controlled source-accurate SVG drawing avoids previous ornate drift. This file is not independently GPT-Image handpainted."
     },
     {
       "queue_number": 24,
@@ -2657,9 +2691,20 @@
       "counted_as_complete": false,
       "candidate_sha256": "3e4b445ca641228ad32af920ea7c36ca435704e1cfce3a066aa049bd1a1fa419",
       "next": "other96/activity/event_timer_black"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/activity/event_timer_black",
+      "action": "independent source-locked single timer plaque and stopwatch SVG painterly raster",
+      "result": "One isolated 1240×300 transparent timer bar candidate created with exact source 300×52 pixel crop and gold stopwatch; digits remain runtime text. Alpha and 290/320/400px readability preview completed; archived in Library with source SVG, manifest, SHA. Formal user/engine QA pending, production unchanged.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/activity/notification_orange_dot",
+      "candidate_sha256": "90f40d199c7b988e0d4735206dc2ff04b7bf9cddc2e0910e83e0764345078651"
     }
   ],
-  "current_focus": "other96/activity/event_timer_black",
+  "current_focus": "other96/activity/notification_orange_dot",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
