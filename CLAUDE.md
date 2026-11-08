@@ -18,7 +18,7 @@
 - 宠物名单（2026-11-08）：橡果刺猬（森）、航海鲨（水）、冰蓝小狼（水）、月影狐猫（暗）、星星熊仔（光）、焰尾狐（火）及其人形态（化形）全部定稿并抠图（`game/assets/pets/`，7 张待机图）。素材处理脚本和用法见 `tools/art/README.md`（抠图 `cutout.py`、无缝地块 `seamless.py`）。草地地块 `game/assets/tiles/tile_grass.png` 和 3 个物品图标 `game/assets/items/` 已入库，草地已用在游戏里。属性 5 种：森水火光暗。
 - 美术原创要求：出图不上传他人角色图；新图要和负责人提供的原截图并排对比原创度。抠图用 rembg（isnet-general-use 模型），已装在负责人电脑的 Python 里。
 - 等负责人：手机实测 T02；看一眼游戏里的新草地确认 T17；通读 07、08。
-- 下一步：优化梳理（负责人要求 T24 后看看哪里能优化）；之后 M3（种田 T11、宠物照顾 T12、养成 T27/T28 等）。T09、T26 试玩等负责人安排。T09 试玩暂缓（负责人 2026-11-08：没做完不中途测）。 → T06 宠物对战（M1 主线）。
+- 下一步：等负责人看优化建议（新手引导、代码拆分等，见开发日志「优化梳理」）；之后 M3（种田 T11、宠物照顾 T12、养成 T27/T28 等）。T09、T26 试玩等负责人安排。T09 试玩暂缓（负责人 2026-11-08：没做完不中途测）。 → T06 宠物对战（M1 主线）。
 - 工作副本：负责人电脑 `C:\Users\1\Desktop\lingmu-survival`（Windows，VS Code 本地会话）；云端会话也用同一个 GitHub 仓库。
 
 ## 文档索引（有效规则以这里为准）
@@ -68,6 +68,7 @@
 - 长时间游玩测试：`cd tools && node soak-test.mjs [天数]`（默认 6 天，真实游戏里连续玩，检查存档、数值、泄漏、报错；大改后跑一次）。
 - 自动检查：`cd tools && npm install && node smoke-test.mjs`。用本机 Edge（playwright-core，不下载浏览器）以 844×390 手机横屏 + 触屏打开游戏，测加载、缩放、键盘、触屏摇杆、岛边碰撞、互动、按钮、竖屏提示、报错；截图在 `tools/out/`（不提交）。**改完代码都要跑一遍，并看截图。**
 - 夜色与光：PlayScene 的 `tint` 是 MULTIPLY 混合的 RenderTexture，每帧 `clear → fill(夜色) → erase(光刷, 每个光源) → render()`（Phaser 4 的 RenderTexture 要调 `render()` 才生效）。光源来自 `night.lights()`：`this.fires`（家园是固定营火；远征岛每帧由 `updateFires` 从存档 `expedition.fires` 里还在烧的营火算出）+ 玩家身边的光。要在夜里看得见的东西（雾怪、预警圈）深度设在 8500 以上。
+- 互动按钮：PlayScene `setActionVerb(动作名)` 发 `interact-available(ready, verb)`，UIScene 把按钮文字换成动作名；新增可互动的东西时在 spots 里写 `verb`。
 - 时间：PlayScene 每帧调 `GameClock.advance()`，时钟写回 state 和 registry；每 10 游戏分钟发 `time-tick`，阶段变化发 `phase-change`，结算后发 `day-summary`。新系统要在每日结算里做事，就在 `time.js` 的 `SETTLEMENT_STEPS` 对应步骤里填，别另起结算。
 - 地图：PlayScene 按 `state.player.area`（home / expedition）建图，换地图就改存档再 `scene.restart()`。Phaser 的场景对象重启时会复用，**create()/init() 开头要把上一次留下的字段清空**（已踩过三次坑：帐篷提示、HUD 图标、对战结算面板）。存档前的位置钩子只在「存档里的区域 = 当前地图」时写位置，否则转场时会把旧地图坐标带到新地图。远征岛只存种子 + `expedition.changes`（collected / chests / pets 编号）。
 - 对战：PlayScene.startBattle 暂停自己和 UIScene、挡住存档和时钟，launch BattleScene；BattleScene 结束时调 finishBattle 一次提交，发 `battle-end`。测试里设 `window.__battleFast = true` 加快动画；BattleScene 有 `debugBattle()`、`findTarget()`。

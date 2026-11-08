@@ -151,28 +151,43 @@ export default class UIScene extends Phaser.Scene {
     this.hud.push(this.actionGroup);
   }
 
-  setActionReady(ready) {
+  // ready: something to do nearby; verb: what pressing does (shown on the button)
+  setActionReady(ready, verb) {
     const g = this.actionBg;
     g.clear();
     g.fillStyle(COLORS.woodDark).fillCircle(0, 3, 46);
     g.fillStyle(ready ? COLORS.yellow : COLORS.cream, ready ? 1 : 0.8).fillCircle(0, 0, 42);
+    this.actionLabel?.setText(ready && verb ? verb : '互动');
     this.actionReady = ready;
   }
 
   // ---------- toast ----------
+  // Two toast rows: a new message takes the main row; if the previous one was
+  // still fresh it moves to a second row below instead of vanishing.
   createToast() {
-    this.toast = text(this, GAME_W / 2, 84, '', 17, { ox: 0.5, oy: 0.5 }).setDepth(30000).setAlpha(0);
-    this.toastBg = this.add.graphics().setDepth(29999).setAlpha(0);
+    const row = (depth) => ({ t: text(this, GAME_W / 2, 84, '', 17, { ox: 0.5, oy: 0.5 }).setDepth(depth + 1).setAlpha(0), bg: this.add.graphics().setDepth(depth).setAlpha(0), shownAt: 0 });
+    this.toastRows = [row(29998), row(29996)];
+    this.toast = this.toastRows[0].t;   // the newest message (tests read this)
+  }
+
+  paintToast(r, msg, y, life) {
+    r.t.setText(msg).setY(y);
+    const w = r.t.width + 36, h = 40;
+    r.bg.clear().fillStyle(COLORS.woodDark).fillRoundedRect(GAME_W / 2 - w / 2, y - h / 2, w, h, 20)
+      .fillStyle(COLORS.cream).fillRoundedRect(GAME_W / 2 - w / 2 + 3, y - h / 2 + 3, w - 6, h - 6, 17);
+    this.tweens.killTweensOf([r.t, r.bg]);
+    r.t.setAlpha(1); r.bg.setAlpha(1);
+    this.tweens.add({ targets: [r.t, r.bg], alpha: 0, delay: life, duration: 500 });
   }
 
   showToast(msg) {
-    this.toast.setText(msg);
-    const w = this.toast.width + 36, h = 40;
-    this.toastBg.clear().fillStyle(COLORS.woodDark).fillRoundedRect(GAME_W / 2 - w / 2, 84 - h / 2, w, h, 20)
-      .fillStyle(COLORS.cream).fillRoundedRect(GAME_W / 2 - w / 2 + 3, 84 - h / 2 + 3, w - 6, h - 6, 17);
-    this.tweens.killTweensOf([this.toast, this.toastBg]);
-    this.toast.setAlpha(1); this.toastBg.setAlpha(1);
-    this.tweens.add({ targets: [this.toast, this.toastBg], alpha: 0, delay: 1600, duration: 500 });
+    const [top, second] = this.toastRows;
+    const now = this.time.now;
+    if (top.t.alpha > 0.5 && now - top.shownAt < 1500 && top.t.text !== msg) {
+      this.paintToast(second, top.t.text, 38, Math.max(600, 1600 - (now - top.shownAt)));   // above the main row: never covers panels
+    }
+    this.paintToast(top, msg, 84, 1600);
+    top.shownAt = now;
   }
 
   // ---------- state → HUD ----------

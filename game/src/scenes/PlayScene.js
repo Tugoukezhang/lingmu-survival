@@ -458,7 +458,8 @@ export default class PlayScene extends Phaser.Scene {
       const sprite = this.add.image(home.x, home.y, petTextureKey(data.id)).setOrigin(0.5, 0.92);
       sprite.setScale(PET_HEIGHT * 0.9 / sprite.height);
       // no encounter in the first 2 s after arriving / loading (the player may stand right next to one)
-      return { ...w, data, level, sprite, shadow, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: this.time.now + 2000 };
+      const tag = this.add.text(home.x, home.y, `Lv.${level}`, { fontFamily: FONT, fontSize: '13px', fontStyle: 'bold', color: '#ffffff', backgroundColor: ELEMENT_COLORS[data.element], padding: { x: 5, y: 1 } }).setOrigin(0.5, 1);
+      return { ...w, data, level, sprite, shadow, tag, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: this.time.now + 2000 };
     });
   }
 
@@ -486,6 +487,7 @@ export default class PlayScene extends Phaser.Scene {
       s.setDisplayOrigin(s.width / 2, s.height * 0.92 + Math.abs(Math.sin(w.phase)) * (dist > 3 ? 4 : 1.5) / s.scaleY);
       s.setDepth(s.y);
       w.shadow.setPosition(s.x, s.y + 2).setDepth(s.y - 1);
+      w.tag.setPosition(s.x, s.y - s.displayHeight - 2).setDepth(s.y + 1);
       if (!this.sleeping && time > w.cooldown && Phaser.Math.Distance.Between(p.x, p.y, s.x, s.y) < 34) {
         w.cooldown = time + 4000;
         if (!this.startBattle(w)) this.hopAway(w, time);
@@ -533,7 +535,7 @@ export default class PlayScene extends Phaser.Scene {
     const now = this.time.now;
     if (w) {
       if (result === 'win' || result === 'caught') {   // defeated or caught: gone for good (in the island record)
-        this.tweens.add({ targets: [w.sprite, w.shadow], alpha: 0, duration: 400, onComplete: () => { w.sprite.destroy(); w.shadow.destroy(); } });
+        this.tweens.add({ targets: [w.sprite, w.shadow, w.tag], alpha: 0, duration: 400, onComplete: () => { w.sprite.destroy(); w.shadow.destroy(); w.tag.destroy(); } });
         this.wild = this.wild.filter((x) => x !== w);
         this.island.pets = this.island.pets.filter((x) => x.id !== wildId);
       } else {
@@ -622,7 +624,7 @@ export default class PlayScene extends Phaser.Scene {
     const pv = gatherPreview(this.state, best.type), g = GATHER[best.type];
     const gainText = pv.need ? `需要${ITEMS[pv.need].name}` : Object.entries(pv.gains).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join(' ');
     const c = this.resourceCenter(best);
-    return { at: c, label: `${g.name} · ${pv.need ? gainText : `采集（${gainText}）`}`, tagY: best.type === 'tree' ? 108 : 52, act: () => this.gatherResource(best) };
+    return { at: c, verb: '采集', label: `${g.name} · ${pv.need ? gainText : `采集（${gainText}）`}`, tagY: best.type === 'tree' ? 108 : 52, act: () => this.gatherResource(best) };
   }
 
   gatherResource(r) {
@@ -1051,42 +1053,46 @@ export default class PlayScene extends Phaser.Scene {
     return best;
   }
 
+  // The action button shows what pressing it will do (null = nothing nearby).
+  setActionVerb(verb) {
+    if (verb === this.lastCanAct) return;    // tell the UI only when it changes
+    this.lastCanAct = verb;
+    this.game.events.emit('interact-available', !!verb, verb);
+  }
+
   updateInteraction() {
-    if (this.sleeping || this.fainted || this.traveling) { this.nameTag.setVisible(false); return; }
+    if (this.sleeping || this.fainted || this.traveling) { this.nameTag.setVisible(false); this.setActionVerb(null); return; }
     const p = this.player;
     // fixed spots first (bed, dock, airship), then pets
     const spots = [
-      this.bed && { at: this.bed, label: '帐篷 · 点互动睡觉', tagY: 92, act: () => this.game.events.emit('sleep-request', this.state.clock) },
-      this.dock && { at: this.dock, label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null, lostBag: lostBagCount(this.state) }) },
-      this.airship && { at: this.airship, label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
+      this.bed && { at: this.bed, verb: '睡觉', label: '帐篷 · 点互动睡觉', tagY: 92, act: () => this.game.events.emit('sleep-request', this.state.clock) },
+      this.dock && { at: this.dock, verb: '出发', label: '飞艇码头 · 点互动出发', tagY: 40, act: () => this.game.events.emit('dock-request', { clock: this.state.clock, last: this.state.expedition?.seed ?? null, lostBag: lostBagCount(this.state) }) },
+      this.airship && { at: this.airship, verb: '回家', label: '飞艇 · 点互动回家', tagY: 60, act: () => this.game.events.emit('airship-request', this.state.clock) },
     ].filter(Boolean);
     // campfires and chests on expedition islands
     for (const s of this.fireSprites.values()) {
       const left = CP.fireLeft(this.state, s.f);
-      spots.push({ at: { x: s.x, y: s.y + 8 }, label: left > 0 ? `营火 · 还能烧 ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}（点互动）` : '营火 · 已熄灭（点互动添柴）', tagY: 60,
+      spots.push({ at: { x: s.x, y: s.y + 8 }, verb: '营地', label: left > 0 ? `营火 · 还能烧 ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}（点互动）` : '营火 · 已熄灭（点互动添柴）', tagY: 60,
         act: () => this.game.events.emit('camp-request', this.campInfo(s.f.id)) });
     }
     for (const c of this.island?.chests ?? []) {
-      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, label: c.bonus ? '秘密宝箱 · 点互动打开' : '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
+      spots.push({ at: { x: c.tx * TILE + TILE / 2, y: c.ty * TILE + TILE / 2 }, verb: '打开', label: c.bonus ? '秘密宝箱 · 点互动打开' : '宝箱 · 点互动打开', tagY: 50, act: () => this.tryOpenChest(c) });
     }
     for (const t of this.island?.thorns ?? []) {
-      spots.push({ at: { x: t.tx * TILE + TILE / 2, y: t.ty * TILE + TILE / 2 }, label: EX.canClear(this.state) ? '荆棘丛 · 让橡果刺猬开路' : '荆棘丛 · 要橡果刺猬才能开路', tagY: 52, act: () => this.tryClearThorn(t) });
+      spots.push({ at: { x: t.tx * TILE + TILE / 2, y: t.ty * TILE + TILE / 2 }, verb: '开路', label: EX.canClear(this.state) ? '荆棘丛 · 让橡果刺猬开路' : '荆棘丛 · 要橡果刺猬才能开路', tagY: 52, act: () => this.tryClearThorn(t) });
     }
-    if (this.storageSpot) spots.push({ at: this.storageSpot, label: '仓库 · 点互动打开', tagY: 60, act: () => this.game.events.emit('storage-request') });
+    if (this.storageSpot) spots.push({ at: this.storageSpot, verb: '仓库', label: '仓库 · 点互动打开', tagY: 60, act: () => this.game.events.emit('storage-request') });
     let spot = spots.find((s) => Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y) < INTERACT_RANGE);
     if (!spot && this.island) spot = this.nearestResourceSpot();
     if (spot) {
-      if (!this.lastCanAct) { this.lastCanAct = true; this.game.events.emit('interact-available', true); }
+      this.setActionVerb(spot.verb ?? '互动');
       this.nameTag.setText(spot.label).setBackgroundColor('#5b3d26').setPosition(spot.at.x, spot.at.y - spot.tagY).setVisible(true);
       if (this.actions.consumeInteract()) spot.act();
       return;
     }
     const pet = this.nearestPet();
     const canAct = !!(pet && (pet !== this.follower || pet.data.humanForm));
-    if (canAct !== this.lastCanAct) {   // tell the UI only when it changes
-      this.lastCanAct = canAct;
-      this.game.events.emit('interact-available', canAct);
-    }
+    this.setActionVerb(!canAct ? null : pet === this.follower ? (pet.inst.form === 'human' ? '变回' : '化形') : '领头');
     if (pet) {
       const label = pet === this.follower
         ? (pet.data.humanForm ? `${pet.data.name} · 点互动${pet.inst.form === 'human' ? '变回原形' : '化形'}（演示）` : `${pet.data.name} · 跟着你`)
