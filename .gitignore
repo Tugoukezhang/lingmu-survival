@@ -2,3 +2,4 @@ docs/参考资料/私有/
 node_modules/
 .DS_Store
 art/raw/
+tools/out/

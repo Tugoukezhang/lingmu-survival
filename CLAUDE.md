@@ -11,12 +11,12 @@
 - 和负责人沟通用**中文**，少用术语；需要决策时给推荐项和理由。
 
 ## 当前状态（2026-11-08）
-- 阶段：M0 范围与技术基线，**还没有游戏代码**。
+- 阶段：M0 技术基线。**T02 已实现，待负责人手机实测**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；自动检查 11/11 通过。
 - 已完成：方向确认；知识库搭建；引入游戏开发 skills；冒险探索、捕捉、宠物养成、商业化设计（开工图 v0.4、`docs/06`–`09`）；参考视频笔记；风格示例图入库。
 - 宠物名单（2026-11-08）：橡果刺猬（森）、航海鲨（水）、冰蓝小狼（水）、月影狐猫（暗）、星星熊仔（光）、焰尾狐（火）及其人形态（化形）全部定稿并抠图（`game/assets/pets/`，7 张待机图）。白毛多的图抠图时要设环境变量 `CUT_UNION=1`（模型 + 描边连通两种判断取并集）。属性 5 种：森水火光暗。
 - 美术原创要求：出图不上传他人角色图；新图要和负责人提供的原截图并排对比原创度。抠图用 rembg（isnet-general-use 模型），已装在负责人电脑的 Python 里。
-- 等负责人：按 `09_AI出图提示词.md` 第 3 节出第二批（T40）；通读 07、08。
-- 下一步：T02（技术基线：Phaser 横屏占位场景在手机浏览器运行）。
+- 等负责人：手机实测 T02；通读 07、08；有空出草地地块和图标（T17 剩余）。
+- 下一步：T03（UI 框架：面板栈、HUD、提示）和 T04（宠物与技能数据）。
 - 工作副本：负责人电脑 `C:\Users\1\Desktop\lingmu-survival`（Windows，VS Code 本地会话）；云端会话也用同一个 GitHub 仓库。
 
 ## 文档索引（有效规则以这里为准）
@@ -44,7 +44,8 @@
 - 逻辑分辨率 960×540 横屏，FIT 缩放；触屏为主（左下虚拟摇杆、右下动作按钮），键盘为辅。
 - 内容（宠物、技能、作物、物品、NPC、任务）写成数据文件，不硬编码在逻辑里。
 - 存档：localStorage，带 `version` 字段和迁移函数，保留上一份备份。
-- 代码目录（计划）：`game/index.html`、`game/src/scenes/`、`game/src/systems/`、`game/src/data/`、`game/assets/`、`game/vendor/`。
+- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 场景）、`game/src/systems/`（input 动作映射、rng 种子随机）、`game/src/ui/`（VirtualJoystick）、`game/src/data/`（pets 名单）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
+- 占位图都在 BootScene 里用 canvas 画（主角、树、石头、云、影子），正式素材到位后换成图片，键名不变。
 - 美术素材未到位时用代码绘制的占位图，素材到位后替换，不改逻辑。AI 原图放 `art/raw/`（不提交），处理后放 `game/assets/`。
 - 任何付费点都要对照 `docs/08_商业化设计.md` 第 1 节原则（不卖数值、不卖惩罚豁免）。
 
@@ -57,9 +58,10 @@
 6. 规则改动要同步检查：需求、系统分案、数据、任务、存档兼容、验收。
 7. 每次会话结束前更新 `docs/05_开发日志.md` 和本文件的「当前状态」。
 
-## 运行与验证（代码就绪后补充具体命令）
-- 本地起静态服务：`python3 -m http.server 8000 --directory game`（Windows 上用 `python`）
-- 验证：Playwright 以手机横屏尺寸打开并截图；刷新检查存档。
+## 运行与验证
+- 本地运行：`python -m http.server 8000 --directory game`，浏览器打开 `http://localhost:8000`。URL 参数：`?debug=1` 显示帧率和格子坐标，`?seed=数字` 换一座占位岛。
+- 自动检查：`cd tools && npm install && node smoke-test.mjs`。用本机 Edge（playwright-core，不下载浏览器）以 844×390 手机横屏 + 触屏打开游戏，测加载、缩放、键盘、触屏摇杆、岛边碰撞、互动、按钮、竖屏提示、报错；截图在 `tools/out/`（不提交）。**改完代码都要跑一遍，并看截图。**
+- 场景里的 `debugState()`、`teleport()` 是给测试用的钩子，`window.__game` 是游戏实例。
 
 ## Git
 - 开发分支：`claude/sweet-mccarthy-tbgtnu`。仓库是**公开**的：不要提交第三方资料原件、未授权素材或任何密钥。

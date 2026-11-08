@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#9fd3e6">
+  <title>云海宠物岛（暂名）</title>
+  <link rel="icon" href="data:,">
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden;
+      background: #9fd3e6;
+      touch-action: none; -webkit-user-select: none; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #game { position: fixed; inset: 0; }
+    #rotate {
+      display: none; position: fixed; inset: 0; z-index: 10;
+      background: #fbf3dc; color: #5a4030;
+      font: 600 20px/1.6 "PingFang SC", "Microsoft YaHei", sans-serif;
+      align-items: center; justify-content: center; flex-direction: column; text-align: center;
+    }
+    #rotate .phone {
+      width: 46px; height: 76px; border: 5px solid #5b3d26; border-radius: 10px;
+      margin-bottom: 18px; animation: turn 1.8s ease-in-out infinite;
+    }
+    @keyframes turn { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
+    @media (orientation: portrait) and (max-width: 900px) {
+      #rotate { display: flex; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <div id="rotate"><div class="phone"></div>请把手机横过来玩</div>
+  <script src="vendor/phaser.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
