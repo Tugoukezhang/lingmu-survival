@@ -984,12 +984,44 @@
       "source_reference": "03_活动大厅(4).jpg",
       "target_png": "PNG_Transparent/03_activity/nav_hourglass_white.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "source_geometry_painterly_review_candidate_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "White compact nav glyph, no background."
+      "notes": "White compact nav glyph, no background.",
+      "existing_candidate": "/Lingmu_HUD_Exports/Activity_Nav_Hourglass_Single_Review/nav_hourglass_white_review_1024.png",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Activity_Nav_Hourglass_Single_Review/nav_hourglass_white_review_1024.png",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_sha256": "7367701a26c842c840043196910605253ba7bcc5497cd5d345d624115675e797",
+      "candidate_kind": "manual source-locked vector drawing with subtle painted microtexture rasterized to independent transparent PNG; NOT a successful GPT Image handpaint result",
+      "source_crop": {
+        "file": "03_activity.jpg",
+        "actual_source_image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          78,
+          205,
+          143,
+          263
+        ],
+        "size": [
+          65,
+          58
+        ],
+        "library": "/Lingmu_HUD_Exports/Activity_Nav_Hourglass_Single_Review/hourglass_tight_reference.png"
+      },
+      "qa_status": "correct hourglass silhouette AND mini-clock at top right; generated ornate standalone hourglass without clock rejected; selected-state dark original converted to cream/white unselected glyph; alpha clean, 48/64/96/128px nav display checks; original colored tile/orange indicator excluded; user art and in-engine QA pending",
+      "review_comparison_library": "/Lingmu_HUD_Exports/Activity_Nav_Hourglass_Single_Review/nav_hourglass_white_QA_preview.jpg",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Activity_Nav_Hourglass_Single_Review/nav_hourglass_white_review_bundle.zip",
+      "manifest_library": "/Lingmu_HUD_Exports/Activity_Nav_Hourglass_Single_Review/manifest.json",
+      "production_promoted": false
     },
     {
       "queue_number": 16,
@@ -2393,9 +2425,20 @@
       "approved": 0,
       "counted_as_complete": false,
       "next": "other96/activity/nav_hourglass_white"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/activity/nav_hourglass_white",
+      "action": "single-item identity-locked nav icon reference and controlled SVG/painterly reconstruction",
+      "result": "One independent 1024 RGBA hourglass+mini-clock candidate created, 48/64/96/128px QA comparison and native reference crop saved to Library. GPT Image first attempt was ornate hourglass lacking mini clock; rejected, no production promotion.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/activity/nav_home_white",
+      "candidate_sha256": "7367701a26c842c840043196910605253ba7bcc5497cd5d345d624115675e797"
     }
   ],
-  "current_focus": "other96/activity/nav_hourglass_white",
+  "current_focus": "other96/activity/nav_home_white",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
