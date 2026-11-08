@@ -1,0 +1,32 @@
+{
+  "asset_id": "main_top_J",
+  "source": "single isolated crop from original gameplay screenshot",
+  "source_reference": "05_gameplay_hud.jpg",
+  "source_image_size": [
+    1920,
+    1080
+  ],
+  "crop_bbox_xyxy": [
+    1665,
+    53,
+    1764,
+    124
+  ],
+  "content": "Open ivory two-page manual; two short strokes on left page, pale bookmark from top of right page, lower edges slightly wavy. J key label must be a separate game layer.",
+  "candidate_png": "PNG_Transparent/00_gameplay/J_open_book_fidelity_512.png",
+  "output_size": [
+    512,
+    512
+  ],
+  "format": "RGBA PNG",
+  "technique": "V2 shape-locked color/texture reference edit with added screenshot bookmark; not GPT Image successful candidate",
+  "gpt_image_attempts": 2,
+  "gpt_image_rejections": [
+    "Ornate open book with checklist and flowers",
+    "Closed blue/gold book with flowers"
+  ],
+  "qa": "pending handpaint final",
+  "approved": false,
+  "production_replaced": false,
+  "sha256": "359ee7e26e5b9290dc978e536471b7e2032ec53706e89f4312c93dd2e0b93aed"
+}

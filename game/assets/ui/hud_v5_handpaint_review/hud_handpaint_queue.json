@@ -215,10 +215,32 @@
       "title": "右上 J 入口",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "top_J.png",
-      "state": "pending",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "与原截图保持几何造型",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "gpt_image_attempts": 2,
+      "last_failure_reason": "Single isolated source crop showed a lightweight white open handbook with two short strokes on left page and a top bookmark on right; GPT Image attempts generated ornate floral checklist book and closed blue gold fantasy tome, both rejected.",
+      "source_crop": {
+        "reference": "05_gameplay_hud.jpg",
+        "source_image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          1665,
+          53,
+          1764,
+          124
+        ],
+        "artifact": "Reviews/J_source_crop_99x71.png",
+        "key_label_separate": "J"
+      },
+      "fidelity_candidate": "PNG_Transparent/00_gameplay/J_open_book_fidelity_512.png",
+      "fidelity_candidate_kind": "V2 open-book shape locked; adds right-page bookmark and subtle tonal grain; not independently hand-painted by GPT Image",
+      "fidelity_candidate_sha256": "359ee7e26e5b9290dc978e536471b7e2032ec53706e89f4312c93dd2e0b93aed",
+      "review_comparison": "Reviews/J_reference_vs_fidelity_review.jpg",
+      "production_promoted": false
     },
     {
       "queue_number": "HUD-07",
@@ -1725,9 +1747,17 @@
       "counted_as_complete": false,
       "qa_approved": false,
       "next": "main_top_J"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_top_J",
+      "result": "2 GPT Image generations rejected; single crop and faithful 512px isolated fallback archived",
+      "gpt_image_qa_passed": false,
+      "production_replaced": false,
+      "next": "main_top_P"
     }
   ],
-  "current_focus": "main_top_J",
+  "current_focus": "main_top_P",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
