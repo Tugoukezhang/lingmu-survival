@@ -50,10 +50,18 @@ try {
   const box = await page.locator('canvas').boundingBox();
   check('横屏画面按 16:9 完整缩放', Math.abs(box.width / box.height - 16 / 9) < 0.02 && box.height <= 390.5, `${Math.round(box.width)}×${Math.round(box.height)}`);
 
-  // keyboard
+  // keyboard (start from a spot with clear ground to the right, so map layout can't block the test)
+  const goClear = (dx, dy, len) => scene(([dx, dy, len]) => {
+    const sc = window.__game.scene.getScene('play');
+    const p = sc.findClearRun(dx, dy, len); sc.teleport(p.x, p.y); return p;
+  }, [dx, dy, len]);
+  await goClear(1, 0, 5); await page.waitForTimeout(100);
+  const s0b = await state();
   await page.keyboard.down('ArrowRight'); await page.waitForTimeout(800); await page.keyboard.up('ArrowRight');
   const s1 = await state();
-  check('键盘向右移动', s1.player.x - s0.player.x > 60, `x ${s0.player.x} → ${s1.player.x}`);
+  check('键盘向右移动', s1.player.x - s0b.player.x > 60, `x ${s0b.player.x} → ${s1.player.x}`);
+  await goClear(0, -1, 6); await page.waitForTimeout(100);
+  const s1b = await state();
 
   // touch joystick: press in the left zone and drag upward
   const cdp = await ctx.newCDPSession(page);
@@ -65,7 +73,7 @@ try {
   await page.screenshot({ path: join(OUT, '02-joystick.png') });
   await touch('touchEnd');
   const s2 = await state();
-  check('触屏摇杆向上移动', s1.player.y - s2.player.y > 50, `y ${s1.player.y} → ${s2.player.y}`);
+  check('触屏摇杆向上移动', s1b.player.y - s2.player.y > 50, `y ${s1b.player.y} → ${s2.player.y}`);
 
   // walk into the island edge for a long time: must stay on walkable ground
   await keyHold(page, 'ArrowDown', 4000);
@@ -87,11 +95,8 @@ try {
   check('靠近宠物按互动 → 换成它跟随', s4.follower === 'fox', `follower=${s4.follower}`);
   await page.screenshot({ path: join(OUT, '03-swap.png') });
 
-  // press E again next to the follower fox → human form (demo)
-  await scene(() => {
-    const sc = window.__game.scene.getScene('play');
-    sc.teleport(sc.follower.sprite.x + 30, sc.follower.sprite.y);
-  });
+  // press E again next to the follower fox → human form (demo); do it in open ground away from other pets
+  await goClear(1, 0, 3);
   await page.waitForTimeout(100);
   await page.keyboard.press('KeyE'); await page.waitForTimeout(400);
   const s5 = await state();

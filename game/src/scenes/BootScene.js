@@ -12,6 +12,8 @@ export default class BootScene extends Phaser.Scene {
     this.add.text(GAME_W / 2, GAME_H / 2 - 10, '加载中…', { fontFamily: FONT, fontSize: '22px', color: COLORS.text }).setOrigin(0.5);
     this.load.on('progress', (p) => { bar.width = 320 * p; });
 
+    this.load.image('tile_grass', 'assets/tiles/tile_grass.png');
+    this.load.image('item_campfire', 'assets/items/item_campfire.png');
     for (const p of PETS) {
       this.load.image(petTextureKey(p.id), `assets/pets/pet_${p.id}_idle_01.png`);
       if (p.humanForm) this.load.image(petTextureKey(p.humanForm), `assets/pets/pet_${p.humanForm}_idle_01.png`);

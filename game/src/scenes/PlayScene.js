@@ -107,26 +107,26 @@ export default class PlayScene extends Phaser.Scene {
       g.beginPath(); g.arc(x, y + CLIFF + 6, r * 0.8, 0, Math.PI); g.fill();
     }
     // grass rim (slightly lighter, peeks out at the edge)
-    for (const [x, y] of tiles) { g.fillStyle = '#9ccf6a'; g.beginPath(); g.arc(x, y - 2, r, 0, Math.PI * 2); g.fill(); }
-    // grass top with gentle colour variation
-    const noise = valueNoise2D(SEED + 11, 4);
+    for (const [x, y] of tiles) { g.fillStyle = '#b8e46a'; g.beginPath(); g.arc(x, y - 2, r, 0, Math.PI * 2); g.fill(); }
+    // grass top: seamless AI-painted grass tile (assets/tiles/tile_grass.png)
+    g.fillStyle = g.createPattern(this.textures.get('tile_grass').getSourceImage(), 'repeat');
+    g.beginPath();
+    for (const [x, y] of tiles) { g.moveTo(x + r * 0.96, y); g.arc(x, y, r * 0.96, 0, Math.PI * 2); }
+    g.fill();
+    // large soft light/dark patches break up the visible repetition of the tile
+    const noise = valueNoise2D(SEED + 11, 7);
     for (const [x, y] of tiles) {
-      const n = noise(x / TILE, y / TILE);
-      g.fillStyle = `rgb(${Math.round(118 + n * 22)},${Math.round(178 + n * 18)},${Math.round(84 + n * 10)})`;
+      const n = noise(x / TILE, y / TILE) - 0.5;
+      g.fillStyle = n > 0 ? `rgba(255,250,200,${(n * 0.22).toFixed(3)})` : `rgba(40,90,30,${(-n * 0.22).toFixed(3)})`;
       g.beginPath(); g.arc(x, y, r * 0.96, 0, Math.PI * 2); g.fill();
     }
     // meadow patch for the pets
     const m = this.meadowTile;
     g.fillStyle = 'rgba(200,232,140,0.55)';
     g.beginPath(); g.ellipse(m.x * TILE + TILE / 2, m.y * TILE + TILE / 2, TILE * 3.6, TILE * 2.4, 0, 0, Math.PI * 2); g.fill();
-    // grass blades and flowers
+    // a few extra flowers at random spots (the tile already has grass blades)
     for (const [x, y] of tiles) {
-      for (let i = 0; i < 3; i++) {
-        const bx = x + (this.rand() - 0.5) * TILE, by = y + (this.rand() - 0.5) * TILE;
-        g.strokeStyle = 'rgba(70,120,50,0.45)'; g.lineWidth = 1.5;
-        g.beginPath(); g.moveTo(bx, by); g.lineTo(bx - 2, by - 6); g.moveTo(bx, by); g.lineTo(bx + 2, by - 5); g.stroke();
-      }
-      if (this.rand() < 0.12) {
+      if (this.rand() < 0.06) {
         const fx = x + (this.rand() - 0.5) * TILE, fy = y + (this.rand() - 0.5) * TILE;
         g.fillStyle = this.rand() < 0.5 ? '#ffffff' : '#ffd36b';
         for (let a = 0; a < 5; a++) { g.beginPath(); g.arc(fx + Math.cos(a * 1.26) * 3, fy + Math.sin(a * 1.26) * 3, 2.2, 0, Math.PI * 2); g.fill(); }
@@ -138,6 +138,14 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   placeObstacles() {
+    // campfire next to the spawn point (AI icon art used as a world prop)
+    const fx = this.spawnTile.x - 2, fy = this.spawnTile.y - 2;
+    this.blocked[fy][fx] = true;
+    const cpx = fx * TILE + TILE / 2, cpy = fy * TILE + TILE - 4;
+    const fire = this.add.image(cpx, cpy, 'item_campfire').setOrigin(0.5, 0.85).setDepth(cpy);
+    fire.setScale(64 / fire.width);
+    this.tweens.add({ targets: fire, scaleY: fire.scaleY * 1.04, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+
     const reserved = (x, y) => Math.hypot(x - this.spawnTile.x, y - this.spawnTile.y) < 3.5
       || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2;
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
@@ -353,6 +361,27 @@ export default class PlayScene extends Phaser.Scene {
     this.follower = pet;
     this.showToast(`${pet.data.name} 跟着你啦！`);
     this.tweens.add({ targets: pet.sprite, scaleX: pet.sprite.scaleX * 1.15, scaleY: pet.sprite.scaleY * 0.85, duration: 90, yoyo: true });
+  }
+
+  // Test helper: centre (px) of the first tile from which `len` tiles in
+  // direction (dx, dy) are all walkable, searching outward from the spawn.
+  findClearRun(dx, dy, len) {
+    for (let r = 0; r < 20; r++) {
+      for (let oy = -r; oy <= r; oy++) {
+        for (let ox = -r; ox <= r; ox++) {
+          const tx = this.spawnTile.x + ox, ty = this.spawnTile.y + oy;
+          let ok = true;
+          for (let i = -1; i <= len && ok; i++) {
+            // also require the side columns/rows clear so the foot box never clips
+            for (let s = -1; s <= 1 && ok; s++) {
+              ok = this.isWalkableTile(tx + dx * i + dy * s, ty + dy * i + dx * s);
+            }
+          }
+          if (ok) return { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
+        }
+      }
+    }
+    return null;
   }
 
   // State snapshot for the automated smoke test (tools/smoke-test.mjs).
