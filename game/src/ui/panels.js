@@ -4,6 +4,8 @@ import { ITEMS } from '../data/items.js';
 import { calcStats, displayName, expToNext } from '../systems/petMath.js';
 import { NATURES } from '../data/natures.js';
 import { joinParty, leaveParty, setLead } from '../systems/party.js';
+import { lightTorch } from '../systems/night.js';
+import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
 import { canCraft, craft, bagSlots } from '../systems/crafting.js';
 import { woodPanel, plaqueButton, capsuleButton, slot, tag, text, makeClickable } from './widgets.js';
@@ -39,6 +41,13 @@ export function bagPanel(scene, stack) {
         scene.showToast(`吃了${current.name}：饱食 +${r.hunger}${r.hp ? `　生命 +${r.hp}` : ''}`);
         render(current.key);
       } else scene.showToast(r.reason === 'full' ? '已经吃饱了' : '没有了');
+    } else if (current.key === 'item_torch') {
+      const st = stateOf(scene);
+      if (!removeItem(st.inventory, 'item_torch', 1)) return;
+      lightTorch(st);
+      scene.game.session.markDirty();
+      scene.showToast('点亮了火把：身边 2 格有光，能烧 3 小时');
+      render();
     } else if (current.netMult) scene.showToast('捕宠网要在宠物对战中使用');
     else scene.showToast('放置功能以后开放');
   };

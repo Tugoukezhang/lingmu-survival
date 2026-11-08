@@ -39,6 +39,12 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('chest', 60, 50, drawChest);
     this.makeCanvas('airship', 190, 150, drawAirship);
     this.makeCanvas('lostbag', 56, 56, drawLostBag);
+    this.makeCanvas('fogmonster', 84, 84, drawFogMonster);
+    this.makeCanvas('lightbrush', 256, 256, (g, w) => {   // soft round light: opaque core, fading edge
+      const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
+      grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.62, 'rgba(255,255,255,1)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = grd; g.fillRect(0, 0, w, w);
+    });
     for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS })) this.makeCanvas(k, 128, 128, fn);
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
@@ -234,6 +240,18 @@ function drawChest(g, w, h) {
   roundRect(g, 4, 8, w - 8, 18, 8); g.fillStyle = '#a8703f'; g.fill(); g.stroke();
   g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 6, 18, 12, 14); g.strokeRect(w / 2 - 6, 18, 12, 14);
   g.fillStyle = '#f5c84b'; g.fillRect(10, 22, 4, h - 28); g.fillRect(w - 14, 22, 4, h - 28);
+}
+
+function drawFogMonster(g, w, h) {
+  const grd = g.createRadialGradient(w / 2, h / 2, 6, w / 2, h / 2, w / 2);
+  grd.addColorStop(0, 'rgba(120,110,160,0.95)'); grd.addColorStop(0.7, 'rgba(90,86,130,0.8)'); grd.addColorStop(1, 'rgba(90,86,130,0)');
+  g.fillStyle = grd;
+  g.beginPath(); g.moveTo(10, h - 10);
+  g.quadraticCurveTo(4, 10, w / 2, 8); g.quadraticCurveTo(w - 4, 10, w - 10, h - 10);
+  for (let i = 0; i < 4; i++) g.quadraticCurveTo(w - 18 - i * 16, h - 2, w - 26 - i * 16, h - 12);
+  g.closePath(); g.fill();
+  g.fillStyle = '#ffe9a0';
+  for (const x of [w / 2 - 12, w / 2 + 12]) { g.beginPath(); g.ellipse(x, h / 2 - 4, 5, 7, 0, 0, Math.PI * 2); g.fill(); }
 }
 
 function drawLostBag(g, w, h) {

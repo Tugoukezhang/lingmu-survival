@@ -21,6 +21,7 @@ import * as CR from '../game/src/systems/crafting.js';
 import { RECIPES } from '../game/src/data/recipes.js';
 import * as B from '../game/src/systems/battle.js';
 import * as PT from '../game/src/systems/party.js';
+import * as NI from '../game/src/systems/night.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -667,6 +668,55 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const p2 = TR.pickUpLostBag(s);
   check('背包只剩 1 格：能放的先拿，放不下的留在失物包里', p2.took.length === 1 && p2.left.length === 2 && s.expedition.lostBag.items.length === 2);
   check('失物包坐标不合法的存档会被拒绝', S.validate({ ...S.newGameState(), expedition: { seed: 1, changes: G.emptyChanges(), lostBag: { x: 'a', y: 1, items: [] } } }).includes('expedition.lostBag'));
+}
+
+// ---------- night: fog monsters & light (T21; docs/06 第 4 节) ----------
+{
+  const H = (h, m = 0) => h * 60 + m;
+  check('起雾时间：19:59 没有、20:00 起雾、凌晨 5:59（29:59）还有、6:00 散去', !NI.isFoggy(H(19, 59)) && NI.isFoggy(H(20)) && NI.isFoggy(H(29, 59)) && !NI.isFoggy(H(6)));
+  // spawn schedule through one night
+  let last = null, count = 0; const spawns = [];
+  for (let c = H(19); c <= H(30); c++) if (NI.shouldSpawn(c, last, count)) { spawns.push(NI.isFoggy(c) ? c : -1); last = c; count++; if (count === 3) break; }
+  check('刷怪节奏：20:10 第一只，之后每 60 分钟；最多 3 只', spawns.map((c) => T.formatClock(c)).join() === '20:10,21:10,22:10', spawns.map((c) => T.formatClock(c)).join());
+  check('午夜后每 30 分钟刷一只', NI.shouldSpawn(H(24, 30), H(24), 1) && !NI.shouldSpawn(H(23, 30), H(23), 1));
+  check('同时最多 3 只', !NI.shouldSpawn(H(25), H(23), 3));
+
+  // light sources
+  const st = S.newGameState(); st.day = 2; st.clock = H(21);
+  st.party = ['pet-pup', 'pet-acorn'];
+  eq('队伍里没有发光宠物、没点火把：身边没有光', NI.playerLightTiles(st), 0);
+  NI.lightTorch(st);
+  check('点亮火把：身边 2 格光，3 小时后熄灭', NI.playerLightTiles(st) === 2 && (st.clock = H(23, 59), NI.torchLit(st)) && (st.clock = H(24), !NI.torchLit(st)));
+  st.clock = H(21); st.party = ['pet-fox'];
+  check('火把和发光宠物不叠加，取最大（2 格）', NI.playerLightTiles(st) === 2);
+  st.player.torchUntil = 0;
+  eq('只有焰尾狐在队伍里：身边 1.5 格光', NI.playerLightTiles(st), 1.5);
+  check('星星熊仔也能照明', (st.party = ['pet-starbear'], NI.playerLightTiles(st) === 1.5));
+  check('火把燃烧时间跨过午夜和结算也正确（按绝对时间算）', (() => { const s = S.newGameState(); s.day = 3; s.clock = H(23); NI.lightTorch(s); s.clock = H(25, 59); const a = NI.torchLit(s); s.day = 4; s.clock = H(6); return a && !NI.torchLit(s); })());
+
+  // E06: monsters never enter a campfire's light
+  const fire = { x: 1000, y: 1000 };
+  const ls = NI.lights(S.newGameState(), { x: 1000, y: 1000 }, [fire]);
+  const r = NI.LIGHT_TILES.campfire * NI.TILE_PX;
+  let m = { x: 1000 + r + 200, y: 1000 };
+  for (let i = 0; i < 400; i++) m = NI.monsterStep(m, { x: 1000, y: 1000 }, ls, 0.05);
+  const d = Math.hypot(m.x - fire.x, m.y - fire.y);
+  check('E06 玩家站在营火光圈里：雾怪停在光圈边缘，不进来', d >= r && d <= r + NI.MONSTER.edgeMargin + 5 && m.stopped, `距离 ${d.toFixed(1)}，光圈 ${r}`);
+  let inside = { x: 1000 + 50, y: 1000 };
+  const startD = 50;
+  for (let i = 0; i < 20; i++) inside = NI.monsterStep(inside, { x: 1000, y: 1000 }, ls, 0.05);
+  check('在光里的雾怪会往外退', Math.hypot(inside.x - 1000, inside.y - 1000) > startD && inside.retreating);
+  check('站在光里的雾怪不能攻击，光外够近才攻击', !NI.canAttack({ x: 1050, y: 1000 }, { x: 1000, y: 1000 }, ls, 0) && NI.canAttack({ x: 1000 + r + 20, y: 1000 }, { x: 1000 + r - 100, y: 1000 }, ls, 0));
+  check('攻击冷却 4 秒', !NI.canAttack({ x: 0, y: 0, nextAttack: 4000 }, { x: 50, y: 0 }, [], 3999) && NI.canAttack({ x: 0, y: 0, nextAttack: 4000 }, { x: 50, y: 0 }, [], 4000));
+  const w = { x: 0, y: 0, r: NI.MONSTER.warnRadius };
+  check('预警圈：站在圈里被打中，走出 1.2 格就躲开', NI.warningHits(w, { x: 50, y: 0 }) && !NI.warningHits(w, { x: 58, y: 0 }));
+  near('1.2 秒内走出预警圈：玩家 1.2 秒能走 204 像素，圈半径 57.6', 170 * 1.2 - NI.MONSTER.warnRadius, 146.4, 0.01);
+  const hp = { hp: 100, hpMax: 100, hunger: 50, hungerMax: 100 };
+  let hits = 0; while (!V.applyDamage(hp, NI.MONSTER.damage, 'expedition').includes('faint')) hits++;
+  eq('E07 夜晚不躲，被打 7 次倒下', hits + 1, 7);
+  const sp = NI.pickSpawn(mulberry32(3), { x: 1000, y: 1000 }, ls, () => true);
+  check('雾怪只在光外出现', !!sp && !NI.litBy(ls, sp.x, sp.y));
+  check('火把时间存档合法', S.validate({ ...S.newGameState(), player: { ...S.newGameState().player, torchUntil: 5000 } }).length === 0);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

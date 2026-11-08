@@ -57,6 +57,7 @@ export function validate(s) {
   if (!p || typeof p !== 'object') err.push('player');
   else {
     for (const k of ['hp', 'hpMax', 'hunger', 'hungerMax']) if (typeof p[k] !== 'number' || p[k] < 0) err.push(`player.${k}`);
+    if (p.torchUntil != null && !Number.isFinite(p.torchUntil)) err.push('player.torchUntil');
     if (p.hp > p.hpMax || p.hunger > p.hungerMax) err.push('player.上限');
     if ((p.x !== null && typeof p.x !== 'number') || (p.y !== null && typeof p.y !== 'number')) err.push('player.位置');
   }

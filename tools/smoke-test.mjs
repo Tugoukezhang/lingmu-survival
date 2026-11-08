@@ -515,6 +515,51 @@ try {
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(400);
 
+  // ---------- night on an expedition (T21) ----------
+  await page.evaluate(() => { const st = window.__game.session.state; window.__game.registry.set({ hp: 100, hunger: 100 }); for (const x of st.pets) x.hp = null; });
+  await scene(() => window.__game.scene.getScene('play').travelTo(777001));
+  await waitArea('expedition'); await page.waitForTimeout(500);
+  const nightAt = await scene(() => { const sc = window.__game.scene.getScene('play'); sc.wild.forEach((w) => { w.cooldown = 1e12; }); sc.debugAdvance(20 * 60 + 15 - sc.state.clock); return sc.state.clock; });
+  await page.waitForTimeout(300);
+  let nd = await page.evaluate(() => window.__game.scene.getScene('play').debugNight());
+  check('20 点后远征岛起雾、出现雾怪', nd.monsters.length >= 1, `${nightAt} ${JSON.stringify(nd)}`);
+  await page.screenshot({ path: join(OUT, '35-fog-night.png') });
+  // standing still next to a monster: the warning circle lands and hurts
+  const hp0 = await reg('hp');
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.debugSpawnMonster(sc.player.x + 120, sc.player.y); });
+  await page.waitForFunction(() => window.__game.scene.getScene('play').warnings.length > 0, null, { timeout: 3000 });
+  await page.screenshot({ path: join(OUT, '36-warning.png') });
+  await page.waitForTimeout(1400);
+  const hp1 = await reg('hp');
+  check('站着不动：预警圈落下扣 15 血', hp0 - hp1 >= 15, `${hp0} → ${hp1}`);
+  // dodge: step out of the circle right after it appears
+  await page.waitForFunction(() => window.__game.scene.getScene('play').warnings.length > 0, null, { timeout: 6000 });
+  const hp2 = await reg('hp');
+  await scene(() => { const sc = window.__game.scene.getScene('play'); const w = sc.warnings[0]; for (const [dx, dy] of [[90, 0], [-90, 0], [0, 90], [0, -90]]) { if (sc.footFits(w.x + dx, w.y + dy)) { sc.teleport(w.x + dx, w.y + dy); break; } } });
+  await page.waitForTimeout(1400);
+  check('走出预警圈就躲开（不扣血）', (await reg('hp')) >= hp2, `${hp2} → ${await reg('hp')}`);
+  // E06: inside a campfire's light monsters stop at the edge
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.dissolveMonsters(); sc.fires.push({ x: sc.player.x, y: sc.player.y }); sc.debugSpawnMonster(sc.player.x + 300, sc.player.y); });
+  await page.waitForTimeout(4500);
+  const e06 = await scene(() => { const sc = window.__game.scene.getScene('play'); const f = sc.fires.at(-1); return { d: Math.min(...sc.monsters.map((m) => Math.hypot(m.x - f.x, m.y - f.y))), warns: sc.warnings.length }; });
+  check('E06 营火光圈里：雾怪停在 4 格光圈外，不进来', e06.d >= 4 * 48 - 2, JSON.stringify(e06));
+  await page.screenshot({ path: join(OUT, '37-campfire-safe.png') });
+  // torch from the bag
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.fires.pop(); const inv = sc.state.inventory; const t = inv.find((s) => s.id === 'item_torch'); if (t) t.count += 1; else inv.push({ id: 'item_torch', count: 1 }); });
+  await tapTarget('hud-bag');
+  await tapTarget('slot-item_torch');
+  await tapTarget('use');
+  await tapTarget('close');
+  const torchLights = await page.evaluate(() => window.__game.scene.getScene('play').debugNight().lights.filter((l) => l.kind === 'player').map((l) => l.r));
+  check('背包里点亮火把：身边出现 2 格光', torchLights.includes(96), JSON.stringify(torchLights));
+  await page.screenshot({ path: join(OUT, '38-torch.png') });
+  // dawn: monsters fade away
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.debugAdvance(30 * 60 - 1 - sc.state.clock); });
+  await page.waitForTimeout(200);
+  await page.waitForTimeout(2600);
+  const dawn = await page.evaluate(() => ({ area: window.__game.scene.getScene('play').area, m: window.__game.scene.getScene('play').monsters.length }));
+  check('天亮（6:00）雾怪消散', dawn.m === 0, JSON.stringify(dawn));
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);
