@@ -280,10 +280,79 @@ try {
   check('换地图后 HUD 的昼夜图标还在', await page.evaluate(() => !!window.__game.scene.getScene('ui').dayIcon?.active));
   check('去远征岛：站在着陆点的可走区域，只带队伍里的宠物', ex1.area === 'expedition' && ex1.onWalkable && partyOnly && ex1.island.pets >= 4, JSON.stringify(ex1.island));
   await page.screenshot({ path: join(OUT, '19-expedition.png') });
-  await scene(() => { const sc = window.__game.scene.getScene('play'); const w = sc.wild[0]; sc.teleport(w.sprite.x + 20, w.sprite.y); });
-  await page.waitForTimeout(400);
-  check('碰到野生宠物 → 出现遭遇提示', (await toastText()).includes('野生'), await toastText());
-  await page.screenshot({ path: join(OUT, '20-encounter.png') });
+  // ---------- pet battle (T06) ----------
+  await page.evaluate(() => { window.__battleFast = true; });
+  const bt = () => page.evaluate(() => window.__game.scene.isActive('battle') ? window.__game.scene.getScene('battle').debugBattle() : null);
+  const tapBattle = async (name) => {
+    const q = await page.evaluate((n) => window.__game.scene.getScene('battle').findTarget(n), name);
+    if (!q) throw new Error(`battle target not found: ${name}`);
+    await tapGame(q.x, q.y); await page.waitForTimeout(120);
+  };
+  const waitIdle = () => page.waitForFunction(() => { const s = window.__game.scene.getScene('battle'); return !window.__game.scene.isActive('battle') || (!s.busy && (s.menu || s.endPanel)); }, null, { timeout: 8000 });
+  const meetWild = async (i) => {
+    await scene((k) => { const sc = window.__game.scene.getScene('play'); const w = sc.wild[k]; sc.teleport(w.sprite.x + 18, w.sprite.y); }, i);
+    await page.waitForFunction(() => window.__game.scene.isActive('battle'), null, { timeout: 4000 });
+    await waitIdle();
+  };
+  const playToEnd = async () => {
+    for (let k = 0; k < 60; k++) {
+      const b = await bt();
+      if (!b || b.over) break;
+      if (b.menu === 'forced-switch') {
+        const idx = await page.evaluate(() => window.__game.scene.getScene('battle').battle.sides.me.mons.findIndex((m) => m.hp > 0));
+        await tapBattle(`switch-${idx}`);
+      } else {
+        if (b.menu !== 'skills') await tapBattle('cmd-skill');
+        const sk = await page.evaluate(() => { const bb = window.__game.scene.getScene('battle').battle; const m = bb.sides.me.mons[bb.sides.me.active]; return m.skills.find((id) => m.uses[id] > 0 && id !== 'heal' && id !== 'shell' && id !== 'puff') ?? m.skills.find((id) => m.uses[id] > 0); });
+        await tapBattle(`skill-${sk}`);
+      }
+      await waitIdle();
+    }
+  };
+  const wildCount0 = await page.evaluate(() => window.__game.scene.getScene('play').wild.length);
+  const clover0b = await reg('clover');
+  await meetWild(0);
+  const clockAtStart = (await state()).clock;
+  const bs = await bt();
+  check('碰到野生宠物 → 进入对战，世界暂停、HUD 隐藏', !!bs && bs.menu === 'main' && await page.evaluate(() => window.__game.scene.isPaused('play') && !window.__game.scene.isVisible('ui')), JSON.stringify(bs));
+  await page.screenshot({ path: join(OUT, '20-battle.png') });
+  const btnSizes = await page.evaluate(() => ['cmd-skill', 'cmd-switch', 'cmd-snack', 'cmd-catch', 'cmd-flee'].map((n) => window.__game.scene.getScene('battle').findTarget(n)));
+  check('对战按钮触控尺寸 ≥ 44', btnSizes.every((x) => x && x.w >= 44 && x.h >= 44), JSON.stringify(btnSizes.map((x) => x && [x.w, x.h])));
+  await tapBattle('cmd-skill');
+  await page.screenshot({ path: join(OUT, '20b-skills.png') });
+  await page.waitForTimeout(1200);
+  check('A07 对战期间时间暂停', (await state()).clock === clockAtStart);
+  await playToEnd();
+  const endB = await bt();
+  await page.screenshot({ path: join(OUT, '20c-result.png') });
+  check('打到分出胜负 → 出现结算面板', !!endB?.over && !!(await page.evaluate(() => window.__game.scene.getScene('battle').findTarget('battle-continue'))), JSON.stringify(endB));
+  await tapBattle('battle-continue');
+  await page.waitForTimeout(500);
+  const afterB = await state();
+  const wildCount1 = await page.evaluate(() => window.__game.scene.getScene('play').wild.length);
+  check('点继续 → 回到岛上，世界恢复，HUD 回来', !(await bt()) && !afterB.inBattle && await page.evaluate(() => !window.__game.scene.isPaused('play') && window.__game.scene.isVisible('ui')));
+  if (endB.over === 'win') check('打赢：野生宠物消失、得到四叶草', wildCount1 === wildCount0 - 1 && (await reg('clover')) > clover0b, `${wildCount0}→${wildCount1} 四叶草 ${clover0b}→${await reg('clover')}`);
+  else check('打输：野生宠物还在、提示伙伴累了', wildCount1 === wildCount0, endB.over);
+  // A05: flee keeps the wild pet
+  await page.evaluate(() => { const st = window.__game.session.state; for (const x of st.pets) x.hp = null; });
+  const wc = await page.evaluate(() => window.__game.scene.getScene('play').wild.length);
+  await meetWild(0);
+  await tapBattle('cmd-flee'); await waitIdle();
+  await tapBattle('battle-continue'); await page.waitForTimeout(400);
+  check('A05 溜走 → 回到岛上，野生宠物还在', await page.evaluate(() => window.__game.scene.getScene('play').wild.length) === wc);
+  // A03: refresh in the middle of a battle → state from before the battle, no double rewards
+  await page.waitForTimeout(4200); // encounter cooldown
+  await meetWild(0);
+  const preSave = await page.evaluate(() => localStorage.getItem('lingmu.save.main')); // last save before the battle
+  check('A03 对战开始时存档被挡住', await page.evaluate(() => window.__game.session.store.blocked && window.__game.session.save('test') === false));
+  await tapBattle('cmd-skill');
+  const sk1 = await page.evaluate(() => { const bb = window.__game.scene.getScene('battle').battle; return bb.sides.me.mons[bb.sides.me.active].skills[0]; });
+  await tapBattle(`skill-${sk1}`); await waitIdle();
+  const stored = await page.evaluate(() => localStorage.getItem('lingmu.save.main'));
+  check('A03 对战中不写存档', stored === preSave);
+  await reload(); await waitArea('expedition');
+  const noDup = await page.evaluate((pre) => { const st = window.__game.session.state; const p = JSON.parse(pre.slice(9)); return st.clover === p.clover && JSON.stringify(st.pets.map((x) => [x.level, x.exp, x.hp])) === JSON.stringify(p.pets.map((x) => [x.level, x.exp, x.hp])); }, preSave);
+  check('A03 对战中刷新 → 回到进战斗前的状态，不重复发奖', noDup && !(await bt()));
   await scene(() => { const sc = window.__game.scene.getScene('play'); const l = sc.island.landing; sc.teleport(l.tx * 48 + 24, l.ty * 48 + 24); });
   for (const k of ['ArrowUp', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown']) await keyHold(page, k, 1200);
   check('在远征岛上乱走不会卡进树里或掉出岛', (await state()).onWalkable, JSON.stringify((await state()).player));

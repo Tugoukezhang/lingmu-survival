@@ -8,6 +8,8 @@ import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../syst
 import { wildLevel } from '../systems/petMath.js';
 import { depart, returnHome, recoverFromFaint } from '../systems/travel.js';
 import { gather, gatherPreview, GATHER } from '../systems/crafting.js';
+import { createBattle, makeWildGroup, canStartBattle } from '../systems/battle.js';
+import { PETS } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 
 // The world: either the home island (placeholder layout) or a generated
@@ -31,7 +33,7 @@ export default class PlayScene extends Phaser.Scene {
     this.rand = mulberry32(SEED);
     // the scene object is reused on restart: clear what belongs to the previous map
     this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
-    this.traveling = false; this.fainted = false;
+    this.traveling = false; this.fainted = false; this.inBattle = null;
     this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
     if (this.area === 'expedition') this.buildExpedition(); else this.buildIsland();
     this.buildBackdrop();
@@ -61,8 +63,9 @@ export default class PlayScene extends Phaser.Scene {
     const onDepart = (mode) => this.travel(() => depart(this.state, mode), mode === 'new' ? '到达新的雾林浮岛，天黑前记得回来' : '回到了上次的浮岛');
     const onReturn = () => this.travel(() => returnHome(this.state), '回到家园了');
     const onFaint = () => this.faint();
+    const onBattleEnd = (r) => this.onBattleEnd(r);
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
@@ -326,15 +329,61 @@ export default class PlayScene extends Phaser.Scene {
       w.shadow.setPosition(s.x, s.y + 2).setDepth(s.y - 1);
       if (!this.sleeping && time > w.cooldown && Phaser.Math.Distance.Between(p.x, p.y, s.x, s.y) < 34) {
         w.cooldown = time + 4000;
-        this.game.events.emit('wild-encounter', { id: w.id, species: w.species, level: w.level });
-        this.showToast(`遇到了野生的${w.data.name}（Lv.${w.level}）！宠物对战开发中`);
-        // hop away a little so the player can walk on
-        const ax = s.x - p.x, ay = s.y - p.y, len = Math.hypot(ax, ay) || 1;
-        w.target = { x: s.x + ax / len * 60, y: s.y + ay / len * 60 };
-        if (!this.footFits(w.target.x, w.target.y)) w.target = { ...w.home };
-        w.wanderAt = time + 3000;
+        if (!this.startBattle(w)) this.hopAway(w, time);
       }
     }
+  }
+
+  hopAway(w, time) {
+    const s = w.sprite, p = this.player;
+    const ax = s.x - p.x, ay = s.y - p.y, len = Math.hypot(ax, ay) || 1;
+    w.target = { x: s.x + ax / len * 70, y: s.y + ay / len * 70 };
+    if (!this.footFits(w.target.x, w.target.y)) w.target = { ...w.home };
+    w.wanderAt = time + 3000;
+  }
+
+  // ---------- pet battle (T06) ----------
+  partyInsts() { return this.state.party.map((uid) => this.state.pets.find((x) => x.uid === uid)).filter(Boolean); }
+
+  // Returns false when no battle started (tired party).
+  startBattle(w) {
+    if (this.inBattle || this.traveling || this.sleeping) return false;
+    const party = this.partyInsts();
+    if (!canStartBattle(party)) { this.showToast('伙伴们累了，回家休息吧'); return false; }   // A06
+    this.session.pullFromRegistry();
+    const enemies = makeWildGroup({ species: w.species, level: w.level, islandSeed: this.island.seed, wildIndex: Number(w.id.slice(1)), day: this.state.day, pool: PETS.map((x) => x.id) });
+    const battle = createBattle({ party, enemies, inventory: this.state.inventory });
+    this.inBattle = w;
+    this.clock.pause('battle');            // A07: time stops during the battle
+    this.session.store.block('battle');    // A03: refreshing mid-battle loads the state from before it
+    this.actions.queueInteract && this.actions.consumeInteract();
+    this.scene.get('ui').joystick?.release();
+    this.scene.sleep('ui');
+    this.scene.launch('battle', { battle, wildId: w.id });
+    this.scene.pause();
+    return true;
+  }
+
+  onBattleEnd({ result, wildId }) {
+    const w = this.inBattle;
+    this.inBattle = null;
+    this.scene.resume();
+    this.scene.wake('ui');
+    this.clock.resume('battle');
+    this.session.store.unblock('battle');
+    const now = this.time.now;
+    if (w) {
+      if (result === 'win') {           // defeated: runs away for good (already in the island record)
+        this.tweens.add({ targets: [w.sprite, w.shadow], alpha: 0, duration: 400, onComplete: () => { w.sprite.destroy(); w.shadow.destroy(); } });
+        this.wild = this.wild.filter((x) => x !== w);
+        this.island.pets = this.island.pets.filter((x) => x.id !== wildId);
+      } else {
+        w.cooldown = now + (result === 'lose' ? 8000 : 4000);
+        this.hopAway(w, now);
+        if (result === 'lose') this.showToast('伙伴们玩累了，野生宠物跑开了');
+      }
+    }
+    this.session.save('battle');
   }
 
   // ---------- travel ----------
@@ -625,8 +674,9 @@ export default class PlayScene extends Phaser.Scene {
     for (const pet of this.pets) {
       const s = pet.sprite;
       let target;
-      if (pet === this.follower) {
-        target = this.trail[Math.max(0, this.trail.length - 9)];
+      const lag = this.followLag(pet);
+      if (lag) {
+        target = this.trail[Math.max(0, this.trail.length - lag)];
       } else {
         if (time > pet.wanderAt) {
           pet.target = { x: pet.home.x + (this.rand() - 0.5) * 60, y: pet.home.y + (this.rand() - 0.5) * 36 };
@@ -636,9 +686,9 @@ export default class PlayScene extends Phaser.Scene {
       }
       const dx = target.x - s.x, dy = target.y - s.y;
       const dist = Math.hypot(dx, dy);
-      const speed = pet === this.follower ? Math.min(SPEED * 1.4, dist * 4) : 30;
-      // the follower keeps a little personal space so it never covers the player
-      const tooClose = pet === this.follower
+      const speed = lag ? Math.min(SPEED * 1.4, dist * 4) : 30;
+      // followers keep a little personal space so they never cover the player
+      const tooClose = !!lag
         && Phaser.Math.Distance.Between(s.x, s.y, this.player.x, this.player.y) < 40
         && Phaser.Math.Distance.Between(target.x, target.y, this.player.x, this.player.y) < 40;
       if (dist > 4 && !tooClose) {
@@ -652,6 +702,15 @@ export default class PlayScene extends Phaser.Scene {
       s.setDepth(s.y);
       pet.shadow.setPosition(s.x, s.y + 2).setDepth(s.y - 1);
     }
+  }
+
+  // Trail delay for pets that follow the player: the follower always; on
+  // expeditions the whole party walks behind in party order.
+  followLag(pet) {
+    if (pet === this.follower) return 9;
+    if (this.area !== 'expedition') return 0;
+    const rank = this.state.party.indexOf(pet.inst.uid);
+    return rank < 0 ? 0 : 9 + 9 * Math.max(1, rank);
   }
 
   nearestPet() {
@@ -711,7 +770,8 @@ export default class PlayScene extends Phaser.Scene {
     old.wanderAt = 0;
     if (old.inst.form === 'human') { old.inst.form = 'animal'; this.applyPetTexture(old); }
     this.follower = pet;
-    this.state.party = [pet.inst.uid];
+    // the new follower leads the party (max 3); interim until the party panel (T07)
+    this.state.party = [pet.inst.uid, ...this.state.party.filter((u) => u !== pet.inst.uid)].slice(0, 3);
     this.session.save('party');
     this.showToast(`${pet.data.name} 跟着你啦！`);
     this.tweens.add({ targets: pet.sprite, scaleX: pet.sprite.scaleX * 1.15, scaleY: pet.sprite.scaleY * 0.85, duration: 90, yoyo: true });
@@ -747,7 +807,7 @@ export default class PlayScene extends Phaser.Scene {
       onWalkable: this.footFits(this.player.x, this.player.y),
       day: this.state.day, clock: this.state.clock, phase: phaseAt(this.state.clock), tint: this.tintDark,
       sleeping: this.sleeping, bed: this.bed, dock: this.dock, airshipSpot: this.airship ? { x: this.airship.x, y: this.airship.y } : null, area: this.area,
-      hunger: this.state.player.hunger, hp: this.state.player.hp,
+      hunger: this.state.player.hunger, hp: this.state.player.hp, inBattle: !!this.inBattle, party: [...this.state.party],
       island: this.island ? { seed: this.island.seed, resources: this.island.resources.length, pets: this.island.pets.length, chests: this.island.chests.length, landing: this.island.landing } : null,
     };
   }

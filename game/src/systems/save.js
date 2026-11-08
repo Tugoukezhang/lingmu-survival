@@ -38,7 +38,7 @@ export function newGameState({ now = Date.now(), seed = 20261108 } = {}) {
       { id: 'item_fish_roast', count: 1 },
     ],
     pets,
-    party: ['pet-pup'],
+    party: ['pet-pup', 'pet-fox', 'pet-acorn'],
     expedition: null, // { seed, biome, changes: {...} } while on an expedition island (T05)
     flags: {},
   };
@@ -61,7 +61,7 @@ export function validate(s) {
     if ((p.x !== null && typeof p.x !== 'number') || (p.y !== null && typeof p.y !== 'number')) err.push('player.位置');
   }
   if (!Array.isArray(s.inventory) || !s.inventory.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0)) err.push('inventory');
-  if (!Array.isArray(s.pets) || !s.pets.every((pet) => PET_BY_ID[pet?.species] && typeof pet.uid === 'string' && isInt(pet.level) && pet.level >= 1)) err.push('pets');
+  if (!Array.isArray(s.pets) || !s.pets.every((pet) => PET_BY_ID[pet?.species] && typeof pet.uid === 'string' && isInt(pet.level) && pet.level >= 1 && (pet.hp == null || (Number.isFinite(pet.hp) && pet.hp >= 0)))) err.push('pets');
   else if (new Set(s.pets.map((pet) => pet.uid)).size !== s.pets.length) err.push('pets.重复');
   const ex = s.expedition;
   if (ex != null && !(Number.isInteger(ex.seed) && ex.changes && ['collected', 'chests', 'pets'].every((k) => Array.isArray(ex.changes[k])))) err.push('expedition');

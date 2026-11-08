@@ -113,7 +113,8 @@ export const SETTLEMENT_STEPS = [
     if (!ctx.slept) return ['没睡觉，天亮了…生命没有恢复'];
     s.player.hp = s.player.hpMax;
     s.player.hunger = Math.max(0, s.player.hunger - 20);
-    return ['睡了个好觉：生命回满，饱食 −20'];
+    for (const p of s.pets ?? []) p.hp = null;   // pets rest too: full HP (null = full)
+    return ['睡了个好觉：生命回满，饱食 −20，伙伴们也恢复了精神'];
   } },
   { id: 'shipping', name: '出货结算', run: () => [] },     // T11
   { id: 'crops', name: '作物生长', run: () => [] },        // T11

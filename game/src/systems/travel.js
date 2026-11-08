@@ -52,6 +52,7 @@ export function recoverFromFaint(state) {
   state.clock = 8 * 60;
   state.player.hp = 50;
   state.player.hunger = 50;
+  for (const p of state.pets) p.hp = null;
   state.player.area = 'home';
   state.player.x = null; state.player.y = null;
   state.flags.arriveAt = 'bed';

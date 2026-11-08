@@ -2,6 +2,7 @@ import { GAME_W, GAME_H } from './config.js';
 import BootScene from './scenes/BootScene.js';
 import PlayScene from './scenes/PlayScene.js';
 import UIScene from './scenes/UIScene.js';
+import BattleScene from './scenes/BattleScene.js';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -11,7 +12,7 @@ const game = new Phaser.Game({
   backgroundColor: '#9fd3e6',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   input: { activePointers: 3 }, // joystick + action button at the same time
-  scene: [BootScene, PlayScene, UIScene], // UIScene is launched by PlayScene and draws on top
+  scene: [BootScene, PlayScene, UIScene, BattleScene], // UIScene is launched by PlayScene and draws on top
 });
 
 // Handle for automated checks (tools/ smoke test) and debugging in the console.

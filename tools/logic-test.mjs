@@ -19,6 +19,7 @@ import * as G from '../game/src/systems/islandGen.js';
 import * as TR from '../game/src/systems/travel.js';
 import * as CR from '../game/src/systems/crafting.js';
 import { RECIPES } from '../game/src/data/recipes.js';
+import * as B from '../game/src/systems/battle.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -137,7 +138,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('没有存档时开新档', fresh.source === 'new' && !fresh.problem && S.validate(fresh.state).length === 0, S.validate(fresh.state).join());
   const st = fresh.state;
   eq('新档版本号', st.version, S.SAVE_VERSION);
-  check('新档：6 只宠物，冰蓝小狼同行，背包 6 种物品（含食物）', st.pets.length === 6 && st.party[0] === 'pet-pup' && st.inventory.length === 6);
+  check('新档：6 只宠物，队伍 3 只（冰蓝小狼领头），背包 6 种物品（含食物）', st.pets.length === 6 && st.party.length === 3 && st.party[0] === 'pet-pup' && st.inventory.length === 6);
   check('存档里不存属性值（永远现算）', !('stats' in st.pets[0]) && !('atk' in st.pets[0]));
 
   st.clover = 345; st.day = 3; st.player.x = 500; st.player.y = 420;
@@ -469,6 +470,95 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const fe = mk([{ id: 'item_wood', count: 3 }, { id: 'item_stone', count: 5 }, ...Array.from({ length: 18 }, (_, i) => ({ id: `f${i}`, count: 1 }))]);
   fe.party = [];
   check('背包满但材料用完空出一格 → 可以制作', CR.craft(fe, 'axe').ok && I.countOf(fe.inventory, 'item_axe') === 1);
+}
+
+// ---------- turn-based battle (T06; docs/02 第 4–5 节) ----------
+{
+  const half = () => 0.5;   // damageRoll(0.5) = 1.0 → matches the docs' worked examples
+  const pet = (id, o = {}) => M.createPet(id, { stars: 3, nature: 'gentle', shiny: false, uid: `${id}-${o.tag ?? 'x'}`, ...o });
+  // A01 through a real battle turn
+  let b = B.createBattle({ party: [pet('fox', { tag: 'me' })], enemies: [pet('acorn', { tag: 'w' })], inventory: [], rng: half });
+  let r = B.resolveTurn(b, { type: 'skill', skill: 'ember' });
+  const dmg = r.events.find((e) => e.t === 'damage' && e.side === 'foe');
+  check('A01 对战中焰尾狐用小火苗打橡果刺猬：伤害 30、提示效果拔群', dmg?.amount === 30 && dmg.eff === 'super', JSON.stringify(dmg));
+  check('速度快的先出手（焰尾狐 12 > 橡果刺猬 9）', r.events.findIndex((e) => e.t === 'use' && e.side === 'me') < r.events.findIndex((e) => e.t === 'use' && e.side === 'foe'));
+  const slow = B.createBattle({ party: [pet('starbear', { tag: 'me' })], enemies: [pet('shadecat', { tag: 'w' })], inventory: [], rng: half });
+  const rs = B.resolveTurn(slow, { type: 'skill', skill: 'tackle' });
+  check('对方更快时对方先出手（月影狐猫 14 > 星星熊仔 5）', rs.events[0].t === 'use' && rs.events[0].side === 'foe');
+  r = B.resolveTurn(b, { type: 'skill', skill: 'ember' });
+  check('两发小火苗打倒橡果刺猬 → 胜利，得 8 经验、3 四叶草', b.over === 'win' && b.exp['fox-me'] === 8 && b.clover === 3, `${b.over} ${JSON.stringify(b.exp)} ${b.clover}`);
+  check('结束后不能再出招', B.resolveTurn(b, { type: 'skill', skill: 'ember' }).ok === false);
+
+  // commit only at the end
+  const st = S.newGameState();
+  st.expedition = { seed: 9, biome: 'mistwood', changes: G.emptyChanges() }; st.player.area = 'expedition';
+  const party = st.party.map((uid) => st.pets.find((x) => x.uid === uid));
+  const enemy = pet('acorn', { tag: 'e', level: 2 });
+  b = B.createBattle({ party, enemies: [enemy], inventory: st.inventory, rng: half });
+  const snapshot = JSON.stringify(st);
+  B.resolveTurn(b, { type: 'snack', item: 'item_carrot' });
+  check('对战过程中不改动真实存档（只改副本）', JSON.stringify(st) === snapshot);
+  check('喂喜好食物（萝卜）给橡果刺猬：诱饵 ×1.5 记下，零食算一次行动', b.bait['acorn-e'] === 1.5 && b.turn === 1);
+  B.resolveTurn(b, { type: 'snack', item: 'item_berry' });
+  check('诱饵取最高，不会被普通食物覆盖', b.bait['acorn-e'] === 1.5);
+  check('没有的零食不能喂', B.resolveTurn(b, { type: 'snack', item: 'item_soup' }).ok === false);
+  let guard = 0;
+  while (!b.over && guard++ < 50) {
+    if (b.needSwitch) B.resolveTurn(b, { type: 'switch', index: b.sides.me.mons.findIndex((m) => m.hp > 0) });
+    else B.resolveTurn(b, { type: 'skill', skill: 'tackle' });
+  }
+  const carrots0 = I.countOf(st.inventory, 'item_carrot'), clover0 = st.clover;
+  const sum = B.finishBattle(st, b, { wildId: 'w3' });
+  check('结束时一次提交：用掉的零食从背包扣掉、四叶草增加', I.countOf(st.inventory, 'item_carrot') === carrots0 - 1 && st.clover === clover0 + b.clover && sum.result === b.over);
+  check('打赢后野生宠物记入岛屿记录，不会再出现', b.over !== 'win' || st.expedition.changes.pets.includes('w3'));
+  check('受伤的宠物体力带出对战（下次对战接着用）', st.pets.some((x) => x.hp != null) || b.sides.me.mons.every((m) => m.hp === m.maxHp));
+
+  // A02: losing
+  const weak = [pet('starbear', { tag: 'a', level: 1 }), pet('pup', { tag: 'b', level: 1 })];
+  const st2 = S.newGameState(); const inv0 = JSON.stringify(st2.inventory), pl0 = JSON.stringify(st2.player);
+  st2.pets.push(...weak);
+  b = B.createBattle({ party: weak, enemies: [pet('shadecat', { tag: 'boss', level: 12 })], inventory: st2.inventory, rng: half });
+  guard = 0;
+  while (!b.over && guard++ < 60) {
+    if (b.needSwitch) { const rr = B.resolveTurn(b, { type: 'switch', index: b.sides.me.mons.findIndex((m) => m.hp > 0) }); check('倒下后换上下一只是免费的（对方不行动）', rr.events.length === 1 && rr.events[0].t === 'send'); }
+    else B.resolveTurn(b, { type: 'skill', skill: 'tackle' });
+  }
+  B.finishBattle(st2, b, { wildId: 'w0' });
+  check('A02 我方全部倒下 → 失败；背包、玩家生命和饱食都不变', b.over === 'lose' && JSON.stringify(st2.inventory) === inv0 && JSON.stringify(st2.player) === pl0);
+  check('A06 队伍全部体力为 0 → 不能进入对战', !B.canStartBattle(weak) && B.canStartBattle(st2.pets.slice(0, 1)));
+  check('倒下的宠物不能被换上场', (() => { const bb = B.createBattle({ party: [pet('fox', { tag: 'q' }), { ...pet('pup', { tag: 'z' }), hp: 0 }], enemies: [pet('acorn', { tag: 'y' })], inventory: [], rng: half }); return B.resolveTurn(bb, { type: 'switch', index: 1 }).ok === false; })());
+
+  // A05: flee
+  const st3 = S.newGameState(); st3.expedition = { seed: 9, biome: 'mistwood', changes: G.emptyChanges() };
+  b = B.createBattle({ party: [st3.pets[0]], enemies: [pet('acorn', { tag: 'f' })], inventory: [], rng: half });
+  const rf = B.resolveTurn(b, { type: 'flee' });
+  B.finishBattle(st3, b, { wildId: 'w1' });
+  check('A05 溜走：总能成功，对方不出手，野生宠物保留', rf.events.every((e) => e.t !== 'use') && b.over === 'flee' && !st3.expedition.changes.pets.includes('w1'));
+
+  // skill uses, buffs, AI, bond
+  b = B.createBattle({ party: [pet('fox', { tag: 'u' })], enemies: [pet('starbear', { tag: 'v', level: 20 })], inventory: [], rng: half });
+  for (let i = 0; i < 3; i++) B.resolveTurn(b, { type: 'skill', skill: 'blaze' });
+  check('火焰尾每场 3 次，用完不能再用', B.resolveTurn(b, { type: 'skill', skill: 'blaze' }).reason === 'no-uses' || b.over);
+  const bb = B.createBattle({ party: [pet('acorn', { tag: 's', level: 5 })], enemies: [pet('fox', { tag: 't' })], inventory: [], rng: half });
+  B.resolveTurn(bb, { type: 'skill', skill: 'shell' });
+  const me = B.active(bb, 'me');
+  check('刺球：防御 ×1.5，持续 3 回合（回合结束时倒数）', me.buffs.length === 1 && me.buffs[0].mult === 1.5 && me.buffs[0].turns === 2);
+  B.resolveTurn(bb, { type: 'skill', skill: 'shell' });
+  check('同一种加成重复使用是刷新而不是叠加', B.active(bb, 'me').buffs.length === 1 && B.active(bb, 'me').buffs[0].turns === 2);
+  const ai = B.createBattle({ party: [pet('fox', { tag: 'ai' })], enemies: [pet('shark', { tag: 'ai2', level: 5 })], inventory: [], rng: () => 0.9 });
+  check('敌方优先用克制技能（航海鲨对焰尾狐用大浪）', B.chooseEnemySkill(ai) === 'splash', B.chooseEnemySkill(ai));
+  const bondPet = pet('pup', { tag: 'bond' }); bondPet.affection = 100;
+  const bd = B.createBattle({ party: [bondPet], enemies: [pet('fox', { tag: 'big', level: 30 })], inventory: [], rng: half });
+  const r1 = B.resolveTurn(bd, { type: 'skill', skill: 'tackle' });
+  check('P09 好感 100：第一次致命伤害保留 1 体力', B.active(bd, 'me').hp === 1 && r1.events.some((e) => e.t === 'bond'), `hp ${B.active(bd, 'me').hp}`);
+  B.resolveTurn(bd, { type: 'skill', skill: 'tackle' });
+  check('P09 同一场第二次致命伤害正常倒下', bd.over === 'lose');
+  check('野生宠物组：第 1–3 天 1 只、第 4–6 天 2 只、第 7 天起 3 只', [1, 3, 4, 6, 7, 20].map(B.wildGroupSize).join() === '1,1,2,2,3,3');
+  const g1 = B.makeWildGroup({ species: 'acorn', level: 3, islandSeed: 77, wildIndex: 2, day: 8, pool: PETS.map((x) => x.id) });
+  const g2 = B.makeWildGroup({ species: 'acorn', level: 3, islandSeed: 77, wildIndex: 2, day: 8, pool: PETS.map((x) => x.id) });
+  check('野生宠物组由种子决定，领头的是碰到的那只', g1.length === 3 && g1[0].species === 'acorn' && g1[0].level === 3 && JSON.stringify(g1) === JSON.stringify(g2));
+  const sl = S.newGameState(); sl.pets[0].hp = 3; T.runSettlement(sl, { slept: true });
+  check('睡一觉后宠物体力回满', sl.pets.every((x) => x.hp == null));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);
