@@ -16,7 +16,7 @@
     "07_world_map.jpg"
   ],
   "rule": "One output = one graphic component, transparent RGBA, same content and shape as original screenshot; no full atlas, mock dashboard, unrequested ornament. Review at native on-screen dimensions. Split text. Never replace production until verified.",
-  "workflow": "Choose one pending unapproved item each run. Temporarily skip entries with state blocked_on_image_generation after repeated unrelated outputs; never call them completed. Mark the next actual pending component in priority_main_hud (currently main_quest) then move down the original 96-item queue. Generate one single sprite, not a sheet or dashboard, independently per call. Validate style and native size; upload only candidates with honest status, preserve ids and text layers. Revisit blocked calendar once tool supports tightly controlled editing.",
+  "workflow": "Strict one-to-one input: first crop ONLY ONE target item from source screenshot at source resolution, then feed that item crop alone to GPT Image. Do NOT feed full screenshot, multi-asset sheet, dashboard, unrelated images or multiple output requests. Check transparency and in-game-scale fidelity, upload review candidate only; do not modify production until QA passes. Existing notes and counts are authoritative.",
   "counts": {
     "other_total": 97,
     "other_queue_remaining": 96,
@@ -94,7 +94,23 @@
       "state": "pending",
       "approval": "pending",
       "notes": "参考原图白色图标，勿改成实体奶油按钮",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "reference_instruction": "Use ONE isolated crop of F1 white top-right entrance emblem from 05_gameplay_hud.jpg. F1 letter is separately overlaid. The small pale emblem has NO solid cream or wood background. Cropping must be verified at source pixels before generation.",
+      "source_region_approx": {
+        "reference": "05_gameplay_hud.jpg",
+        "image_size": [
+          1649,
+          928
+        ],
+        "bbox_xyxy": [
+          1099,
+          32,
+          1176,
+          104
+        ],
+        "verify_bbox_before_generating": true,
+        "notes": "Approximate region; exclude top red flower jar background and adjacent F2 entrance as much as possible, do not treat background as desired object"
+      }
     },
     {
       "queue_number": "HUD-04",
@@ -1584,7 +1600,27 @@
       "approved": false,
       "material": "single transparent collapse toggle reference",
       "path": "PNG_Transparent/00_gameplay/main_quest_collapse_toggle_fidelity_256x320.png"
+    },
+    {
+      "date": "2026-11-08",
+      "task": "all",
+      "result": "workflow_updated_one_target_one_crop_one_output",
+      "next": "main_top_F1",
+      "counts_unchanged": true
     }
   ],
-  "current_focus": "main_top_F1"
+  "current_focus": "main_top_F1",
+  "reference_protocol": {
+    "name": "One target sprite -> one tightly cropped original reference",
+    "effective_from": "2026-11-08",
+    "steps": [
+      "Locate target component inside corresponding reference screenshot, not inside the full UI sheet.",
+      "Crop closely around only that component; exclude adjacent buttons, entire page structures, text unrelated to the asset, and irrelevant scene background. Inspect crop before generation.",
+      "If original crop is very small, upscale with sharp-edge-preserving resampling for viewing only; record original pixel bounding box and avoid inventing unseen detail.",
+      "Use only this single cropped icon region as the generative visual reference. Never feed whole 16:9 screenshot, V3/V4 97-icon atlas, or a status dashboard to image generation.",
+      "Request exactly one isolated sprite, transparent background, original proportions/color/line weight; no decorations or new backing card, no text burned into icon when separate text layer exists.",
+      "Compare output to crop and actual in-game display size, reject incorrect shape/extra elements, log failure; only passed candidates may be promoted to production."
+    ],
+    "output": "individual transparent RGBA PNG + exact crop reference + comparison + checksum + honest QA metadata"
+  }
 }
