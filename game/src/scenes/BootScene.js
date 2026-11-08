@@ -13,7 +13,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.on('progress', (p) => { bar.width = 320 * p; });
 
     this.load.image('tile_grass', 'assets/tiles/tile_grass.png');
-    this.load.image('item_campfire', 'assets/items/item_campfire.png');
+    for (const k of ['item_campfire', 'item_net_grass', 'item_net_vine']) this.load.image(k, `assets/items/${k}.png`);
     for (const p of PETS) {
       this.load.image(petTextureKey(p.id), `assets/pets/pet_${p.id}_idle_01.png`);
       if (p.humanForm) this.load.image(petTextureKey(p.humanForm), `assets/pets/pet_${p.humanForm}_idle_01.png`);

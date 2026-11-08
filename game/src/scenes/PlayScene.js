@@ -2,7 +2,6 @@ import { GAME_W, GAME_H, TILE, COLORS, FONT, DEBUG, SEED } from '../config.js';
 import { PETS, ELEMENT_COLORS, petTextureKey } from '../data/pets.js';
 import { mulberry32, valueNoise2D } from '../systems/rng.js';
 import InputActions from '../systems/input.js';
-import VirtualJoystick from '../ui/VirtualJoystick.js';
 
 // T02 technical baseline: a placeholder floating island where the player
 // walks with the joystick or keyboard, one pet follows, the others idle on a
@@ -28,9 +27,17 @@ export default class PlayScene extends Phaser.Scene {
     this.createPlayer();
     this.createPets();
 
-    this.joystick = new VirtualJoystick(this);
-    this.actions = new InputActions(this, this.joystick);
-    this.createHud();
+    this.createWorldUi();
+
+    // Shared state shown by the HUD (UIScene listens for changes).
+    // Placeholder values until time (T10) and survival (T20) drive them.
+    this.registry.set({ day: 1, clock: 6 * 60, hp: 100, hpMax: 100, hunger: 100, hungerMax: 100, clover: 120, uiModal: false });
+
+    this.scene.launch('ui');
+    this.actions = new InputActions(this, () => this.scene.get('ui')?.joystick?.vector);
+    const onAction = () => this.actions.queueInteract();
+    this.game.events.on('action-pressed', onAction);
+    this.events.once('shutdown', () => this.game.events.off('action-pressed', onAction));
 
     const cam = this.cameras.main;
     cam.setBounds(0, 0, COLS * TILE, ROWS * TILE + CLIFF + TILE);
@@ -210,42 +217,16 @@ export default class PlayScene extends Phaser.Scene {
     pet.sprite.setScale(h / pet.sprite.height);
   }
 
-  // ---------- HUD ----------
+  // ---------- world-space labels; screen UI lives in UIScene ----------
 
-  createHud() {
-    const panel = this.add.container(16, 14).setScrollFactor(0).setDepth(10000);
-    const bg = this.add.rectangle(0, 0, 330, 54, COLORS.cream, 0.95).setOrigin(0).setStrokeStyle(4, COLORS.woodDark);
-    const t1 = this.add.text(14, 8, '原型 M0 · 技术基线（占位画面）', { fontFamily: FONT, fontSize: '16px', color: COLORS.text, fontStyle: 'bold' });
-    const t2 = this.add.text(14, 30, '摇杆 / WASD 移动 · 靠近宠物按「互动」', { fontFamily: FONT, fontSize: '13px', color: COLORS.text });
-    panel.add([bg, t1, t2]);
-
-    // action button (bottom-right)
-    const bx = GAME_W - 96, by = GAME_H - 96;
-    this.actionBtn = this.add.circle(bx, by, 46, COLORS.cream).setStrokeStyle(5, COLORS.woodDark)
-      .setScrollFactor(0).setDepth(10000).setInteractive({ useHandCursor: true });
-    this.actionLabel = this.add.text(bx, by, '互动', { fontFamily: FONT, fontSize: '20px', color: COLORS.text, fontStyle: 'bold' })
-      .setOrigin(0.5).setScrollFactor(0).setDepth(10001);
-    this.actionBtn.on('pointerdown', () => {
-      this.actions.queueInteract();
-      this.tweens.add({ targets: [this.actionBtn, this.actionLabel], scale: 0.9, duration: 70, yoyo: true });
-    });
-
+  createWorldUi() {
     this.nameTag = this.add.text(0, 0, '', {
       fontFamily: FONT, fontSize: '14px', color: '#ffffff', backgroundColor: '#5b3d26', padding: { x: 8, y: 4 },
     }).setOrigin(0.5, 1).setDepth(9000).setVisible(false);
-
-    this.toast = this.add.text(GAME_W / 2, 84, '', {
-      fontFamily: FONT, fontSize: '18px', color: COLORS.text, backgroundColor: '#fbf3dc', padding: { x: 14, y: 8 },
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(10002).setAlpha(0);
-
-    if (DEBUG) this.debugText = this.add.text(GAME_W - 10, 10, '', { fontFamily: 'monospace', fontSize: '12px', color: '#000' }).setOrigin(1, 0).setScrollFactor(0).setDepth(10003);
+    if (DEBUG) this.debugText = this.add.text(GAME_W - 10, GAME_H - 40, '', { fontFamily: 'monospace', fontSize: '12px', color: '#000' }).setOrigin(1, 0).setScrollFactor(0).setDepth(10003);
   }
 
-  showToast(msg) {
-    this.toast.setText(msg).setAlpha(1);
-    this.tweens.killTweensOf(this.toast);
-    this.tweens.add({ targets: this.toast, alpha: 0, delay: 1400, duration: 500 });
-  }
+  showToast(msg) { this.game.events.emit('toast', msg); }
 
   // ---------- loop ----------
 
@@ -334,8 +315,11 @@ export default class PlayScene extends Phaser.Scene {
 
   updateInteraction() {
     const pet = this.nearestPet();
-    const canAct = pet && (pet !== this.follower || pet.data.humanForm);
-    this.actionBtn.setFillStyle(canAct ? COLORS.yellow : COLORS.cream, canAct ? 1 : 0.7);
+    const canAct = !!(pet && (pet !== this.follower || pet.data.humanForm));
+    if (canAct !== this.lastCanAct) {   // tell the UI only when it changes
+      this.lastCanAct = canAct;
+      this.game.events.emit('interact-available', canAct);
+    }
     if (pet) {
       const label = pet === this.follower
         ? (pet.data.humanForm ? `${pet.data.name} · 点互动${pet.human ? '变回原形' : '化形'}（演示）` : `${pet.data.name} · 跟着你`)

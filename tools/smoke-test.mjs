@@ -115,6 +115,54 @@ try {
   const s6 = await state();
   check('点屏幕右下「互动」按钮也能换宠物', s6.follower === 'starbear', `follower=${s6.follower}`);
 
+  // ---------- UI framework (T03) ----------
+  const ui = () => page.evaluate(() => window.__game.scene.getScene('ui').debugUi());
+  const tapGame = (gx, gy) => page.touchscreen.tap(box.x + gx * box.width / 960, box.y + gy * box.height / 540);
+  const tapTarget = async (name) => {
+    const p = await page.evaluate((n) => window.__game.scene.getScene('ui').findTarget(n), name);
+    if (!p) throw new Error(`UI target not found: ${name}`);
+    await tapGame(p.x, p.y); await page.waitForTimeout(300);
+  };
+  const smallTargets = (u) => u.targets.filter((t) => t.w < u.minTouch || t.h < u.minTouch);
+
+  let u = await ui();
+  check('HUD 显示天数时间和货币', u.day.includes('第 1 天') && u.day.includes('06:00') && u.clover === '120', `${u.day} / ${u.clover}`);
+  check('HUD 离屏幕边缘 ≥ 24', u.hudEdge >= 24, `最近 ${u.hudEdge}px`);
+  await page.evaluate(() => window.__game.registry.set('clover', 345));
+  await page.waitForTimeout(50);
+  check('数值变化时 HUD 自动更新', (await ui()).clover === '345');
+
+  await tapTarget('hud-bag');
+  u = await ui();
+  check('点「背包」打开面板', u.stack.join() === 'bag', u.stack.join());
+  await page.screenshot({ path: join(OUT, '06-bag.png') });
+  check('背包面板按钮触控尺寸 ≥ 44', smallTargets(u).length === 0, JSON.stringify(smallTargets(u)));
+  const before = await state();
+  await keyHold(page, 'ArrowRight', 500);
+  check('面板打开时角色不会移动', (await state()).player.x === before.player.x);
+  await tapTarget('slot-item_campfire');
+  await page.screenshot({ path: join(OUT, '06b-bag-campfire.png') });
+  await tapTarget('close');
+  check('点关闭按钮关闭面板', (await ui()).stack.length === 0);
+
+  await tapTarget('hud-settings');
+  await tapTarget('restart');
+  u = await ui();
+  check('面板可以叠加（设置 → 确认框）', u.stack.join() === 'settings,confirm', u.stack.join());
+  await page.screenshot({ path: join(OUT, '07-confirm.png') });
+  await tapTarget('back');
+  check('返回按钮只关一层', (await ui()).stack.join() === 'settings');
+  const beforeBackdrop = await state();
+  await tapGame(60, 500); await page.waitForTimeout(400);
+  check('点面板外的暗处关闭面板', (await ui()).stack.length === 0);
+  check('关闭面板的那一下不会让角色走动', (await state()).player.x === beforeBackdrop.player.x);
+
+  await tapTarget('hud-pets');
+  await page.screenshot({ path: join(OUT, '08-pets.png') });
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  check('Esc 键关闭面板', (await ui()).stack.length === 0);
+  await page.screenshot({ path: join(OUT, '09-hud.png') });
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);
