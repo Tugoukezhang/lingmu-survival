@@ -9,6 +9,7 @@ import { SKILL_NAMES, SKILL_HELP, depositAll, withdrawAll } from '../systems/exp
 import { guideState, setGuideOff, guideDone } from '../systems/guide.js';
 import * as FM from '../systems/farm.js';
 import * as PC from '../systems/petcare.js';
+import * as DY from '../systems/daily.js';
 import { CROPS } from '../data/crops.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
@@ -354,6 +355,30 @@ export function storagePanel(scene, stack) {
     } }));
   };
   draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// ---------- daily tasks (T44) ----------
+export function dailyPanel(scene, stack) {
+  const w = 560, h = 340;
+  const c = woodPanel(scene, w, h);
+  const st = stateOf(scene);
+  const d = DY.ensureDaily(st);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, `每日任务 · 第 ${st.day} 天`, 24));
+  d.tasks.forEach((t, i) => {
+    const y = -h / 2 + 96 + i * 66;
+    const prog = DY.progressOf(st, t);
+    const g = scene.add.graphics();
+    g.fillStyle(t.done ? 0xe4f2cf : COLORS.creamDark).fillRoundedRect(-w / 2 + 30, y - 26, w - 60, 54, 14);
+    g.fillStyle(COLORS.woodDark).fillRoundedRect(-w / 2 + 50, y + 8, 260, 10, 5).fillStyle(COLORS.cream).fillRoundedRect(-w / 2 + 51, y + 9, 258, 8, 4);
+    if (prog > 0) g.fillStyle(t.done ? 0x6fbf4a : 0xf0b43a).fillRoundedRect(-w / 2 + 51, y + 9, Math.max(8, 258 * prog / t.n), 8, 4);
+    c.add(g);
+    c.add(text(scene, -w / 2 + 50, y - 20, t.text, 16));
+    c.add(text(scene, -w / 2 + 322, y + 13, `${prog}/${t.n}`, 14, { oy: 0.5, bold: false }));
+    c.add(text(scene, w / 2 - 50, y, t.done ? '✔ 已领' : `+${DY.TASK_REWARD}`, 16, { ox: 1, oy: 0.5, color: t.done ? '#4f7d3a' : '#c99a1e' }));
+  });
+  c.add(text(scene, 0, h / 2 - 40, d.bonus ? '今天的奖励都领完了，明天再来！' : `三个都完成：再得 ${DY.ALL_BONUS} 四叶草 + 一包种子（睡醒后刷新）`, 14, { ox: 0.5, oy: 0.5, bold: false, color: '#7a6450' }));
   c.add(closeBtn(scene, stack, w, h));
   return c;
 }

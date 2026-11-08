@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel, dailyPanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 import { currentGoal, GOALS, guideState } from '../systems/guide.js';
 
@@ -136,6 +136,7 @@ export default class UIScene extends Phaser.Scene {
       ['pets', 'paw', '宠物', () => this.stack.push('pets', petsPanel)],
       ['bag', 'bag', '背包', () => this.stack.push('bag', bagPanel)],
       ['craft', 'hammer', '制作', () => this.stack.push('craft', craftPanel)],
+      ['tasks', 'list', '任务', () => this.stack.push('daily', dailyPanel)],
     ];
     defs.forEach(([name, icon, label, fn], i) => {
       const x = GAME_W - SAFE - 26 - i * 64, y = SAFE + 78;

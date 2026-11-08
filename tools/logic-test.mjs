@@ -27,6 +27,7 @@ import * as EX from '../game/src/systems/explore.js';
 import * as GD from '../game/src/systems/guide.js';
 import * as FM from '../game/src/systems/farm.js';
 import * as PC from '../game/src/systems/petcare.js';
+import * as DY from '../game/src/systems/daily.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -981,6 +982,37 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   PC.bondFromTrip(b); PC.bondFromTrip(b); PC.bondFromTrip(b);
   eq('一起完成远征每次 +2，一天最多 +5', b.pets.find((p) => p.uid === 'pet-fox').affection, 10);
   check('照顾记录存档合法', S.validate(w).length === 0 && S.validate(s).length === 0);
+}
+
+// ---------- daily tasks (T44) ----------
+{
+  const s = S.newGameState();
+  const d1 = DY.ensureDaily(s);
+  check('每天 3 个不同的任务', d1.tasks.length === 3 && new Set(d1.tasks.map((x) => x.id)).size === 3);
+  check('同一天同一存档任务固定（刷新也一样）', JSON.stringify(DY.ensureDaily(JSON.parse(JSON.stringify({ ...s, daily: null }))).tasks) === JSON.stringify(d1.tasks));
+  check('第 1 天不会出「收获」「抓宠物」（还做不到）', !d1.tasks.some((x) => ['harvest', 'catches'].includes(x.id)));
+  // force a known set and complete them
+  s.daily.tasks = [{ id: 'pet', stat: 'pet', n: 3, text: '摸摸宠物 3 次', done: false }, { id: 'feed', stat: 'feed', n: 2, text: '喂宠物 2 次', done: false }, { id: 'craft', stat: 'craft', n: 1, text: '制作 1 件东西', done: false }];
+  const c0 = s.clover;
+  PC.petPet(s, 'pet-acorn'); PC.petPet(s, 'pet-fox');
+  check('进度按今天的计数算（摸了 2 次 → 2/3），还没完成', DY.progressOf(s, s.daily.tasks[0]) === 2 && DY.checkDaily(s).done.length === 0);
+  PC.petPet(s, 'pet-pup');
+  let r = DY.checkDaily(s);
+  check('完成一个任务：自动发 20 四叶草', r.done.length === 1 && s.clover === c0 + 20);
+  check('同一个任务不会重复发奖', DY.checkDaily(s).done.length === 0 && s.clover === c0 + 20);
+  s.inventory.push({ id: 'item_carrot', count: 2 });
+  PC.feed(s, 'pet-acorn', 'item_carrot'); PC.feed(s, 'pet-fox', 'item_carrot');
+  s.inventory.push({ id: 'item_wood', count: 2 }, { id: 'item_grass', count: 2 });
+  CR.craft(s, 'torch');
+  const seedsBefore = s.inventory.filter((x) => ITEMS[x.id].tag === '种子').reduce((n, x) => n + x.count, 0);
+  r = DY.checkDaily(s);
+  check('三个都完成：再得 30 四叶草和一包种子', r.done.length === 2 && r.bonus?.clover === 30 && s.clover === c0 + 20 * 3 + 30 && s.inventory.filter((x) => ITEMS[x.id].tag === '种子').reduce((n, x) => n + x.count, 0) === seedsBefore + 1);
+  check('全勤奖只发一次', DY.checkDaily(s).bonus === null);
+  T.runSettlement(s, { slept: true });
+  const d2 = DY.ensureDaily(s);
+  check('睡醒后任务刷新，进度从 0 开始', d2.day === s.day && d2.tasks.every((x) => !x.done && DY.progressOf(s, x) === 0));
+  check('每日任务存档合法', S.validate(s).length === 0, S.validate(s).join());
+  check('任务池里的计数名都有系统在累加', DY.POOL.every((x) => ['water', 'feed', 'pet', 'gather', 'plant', 'craft', 'wins', 'chests', 'shipped', 'harvest', 'catches'].includes(x.stat)));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

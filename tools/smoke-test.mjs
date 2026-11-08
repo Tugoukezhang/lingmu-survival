@@ -809,6 +809,23 @@ try {
   const storage1 = await page.evaluate(() => (window.__game.session.state.storage ?? []).reduce((n, s) => n + s.count, 0) + window.__game.session.state.clover);
   check('打工的宠物第二天早上带回东西（放进家园仓库）', storage1 > storage0, `${storage0} → ${storage1}`);
 
+  // ---------- daily tasks (T44) ----------
+  await page.evaluate(() => {
+    const st = window.__game.session.state; const s = (st.flags.stats = st.flags.stats ?? {});
+    st.daily = { day: st.day, tasks: [{ id: 'pet', stat: 'pet', n: 1, text: '摸摸宠物 1 次', done: false }, { id: 'feed', stat: 'feed', n: 5, text: '喂宠物 5 次', done: false }, { id: 'craft', stat: 'craft', n: 9, text: '制作 9 件东西', done: false }], base: { ...s }, bonus: false };
+    for (const p of st.pets) p.pettedDay = -1;
+  });
+  await tapTarget('hud-tasks');
+  check('HUD「任务」打开每日任务面板', (await ui()).stack.join() === 'daily');
+  await page.screenshot({ path: join(OUT, '56-daily.png') });
+  await tapTarget('close');
+  const cl0 = await reg('clover');
+  await page.evaluate(() => window.__game.events.emit('petcare-request', { uid: 'pet-shark' })); await page.waitForTimeout(350);
+  await tapTarget('care-pet');
+  await tapTarget('close');
+  await page.waitForTimeout(800);
+  check('完成每日任务自动发奖励（四叶草 +20）', (await reg('clover')) === cl0 + 20, `${cl0} → ${await reg('clover')} / ${await toastText()}`);
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);

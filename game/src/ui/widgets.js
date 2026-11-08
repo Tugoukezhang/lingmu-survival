@@ -205,6 +205,13 @@ export function drawIcon(scene, kind, s) {
       for (const [px, py] of [[0, -5], [5, 0], [0, 5], [-5, 0]]) g.fillCircle(px * k, py * k, 5 * k);
       g.fillStyle(0x3f7d2a).fillRect(-1 * k, 4 * k, 2 * k, 8 * k);
       break;
+    case 'list':
+      g.fillStyle(W).fillRoundedRect(-9 * k, -11 * k, 18 * k, 22 * k, 3 * k);
+      g.fillStyle(0xb57a4a);
+      for (let i = 0; i < 3; i++) g.fillRect(-3 * k, (-6 + i * 6) * k, 9 * k, 2 * k);
+      g.fillStyle(0x6fae4a);
+      for (let i = 0; i < 3; i++) g.fillCircle(-6 * k, (-5 + i * 6) * k, 1.8 * k);
+      break;
     case 'hammer':
       g.fillStyle(0xd9b07a).fillRoundedRect(-2 * k, -4 * k, 4 * k, 16 * k, 1.5 * k);
       g.fillStyle(W).fillRoundedRect(-10 * k, -11 * k, 20 * k, 8 * k, 2.5 * k);

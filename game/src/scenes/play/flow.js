@@ -18,6 +18,7 @@ import { applyDamage } from '../../systems/survival.js';
 import * as CP from '../../systems/camp.js';
 import * as EX from '../../systems/explore.js';
 import * as GD from '../../systems/guide.js';
+import * as DY from '../../systems/daily.js';
 import { countOf } from '../../systems/inventory.js';
 import { ITEMS } from '../../data/items.js';
 import { HOME_COLS, HOME_ROWS, CLIFF, SPEED, PET_HEIGHT, INTERACT_RANGE, FOOT } from './constants.js';
@@ -135,7 +136,16 @@ export default {
       return;
     }
     const tip = GD.nextTip(this.state);
-    if (tip) { this.session.markDirty(); this.showToast(tip); }
+    if (tip) { this.session.markDirty(); this.showToast(tip); return; }
+    // daily tasks: rewards are given as soon as a task is done
+    const dy = DY.checkDaily(this.state);
+    if (dy.done.length || dy.bonus) {
+      this.session.pushToRegistry();
+      this.session.markDirty();
+      this.game.events.emit('daily-changed');
+      if (dy.bonus) this.showToast(`今天的 3 个任务全部完成！四叶草 +${dy.bonus.clover}，还有一包${ITEMS[dy.bonus.seed].name}`);
+      else this.showToast(`每日任务完成：${dy.done.map((t) => t.text).join('、')}　四叶草 +${DY.TASK_REWARD * dy.done.length}`);
+    }
   },
 
 };
