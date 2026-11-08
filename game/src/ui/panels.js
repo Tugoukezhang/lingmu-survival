@@ -13,7 +13,7 @@ function closeBtn(scene, stack, w, h) {
 
 export function bagPanel(scene, stack) {
   const w = 760, h = 420;
-  const items = stateOf(scene).inventory.map((it) => ({ ...ITEMS[it.id], key: it.id, count: it.count }));
+  let items = [];
   const c = woodPanel(scene, w, h);
   c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '背包', 26));
 
@@ -21,19 +21,30 @@ export function bagPanel(scene, stack) {
   const card = woodPanel(scene, 250, 320, { radius: 20, border: 5 });
   card.setPosition(-w / 2 + 160, 22);
   c.add(card);
-  const icon = scene.add.image(-60, -95, items[0]?.icon ?? '__MISSING').setScale(0.62).setVisible(!!items[0]);
+  const icon = scene.add.image(-60, -95, '__DEFAULT').setScale(0.62);
   const nameT = text(scene, 10, -128, '', 22);
   const tagC = scene.add.container(0, 0);
   const descT = text(scene, -100, -40, '', 14, { bold: false, wrap: 200, lineSpacing: 4 });
   const quipT = text(scene, -100, 52, '', 14, { color: '#9a8468', bold: false, wrap: 200 });
   card.add([icon, nameT, tagC, descT, quipT]);
-  card.add(capsuleButton(scene, 0, 118, '使用', { w: 150, h: 46, onClick: () => current && scene.showToast(`使用了 ${current.name}（演示）`), name: 'use' }));
+  const use = () => {
+    if (!current) return;
+    if (current.food) {
+      const r = scene.game.session.eat(current.key);
+      if (r.ok) {
+        scene.showToast(`吃了${current.name}：饱食 +${r.hunger}${r.hp ? `　生命 +${r.hp}` : ''}`);
+        render(current.key);
+      } else scene.showToast(r.reason === 'full' ? '已经吃饱了' : '没有了');
+    } else if (current.netMult) scene.showToast('捕宠网要在宠物对战中使用');
+    else scene.showToast('放置功能以后开放');
+  };
+  card.add(capsuleButton(scene, 0, 118, '使用', { w: 150, h: 46, onClick: use, name: 'use' }));
 
   let current;
-  const slots = [];
+  let slots = [];
   const select = (i) => {
     current = items[i];
-    icon.setTexture(current.icon);
+    icon.setTexture(current.icon).setVisible(true);
     nameT.setText(current.name);
     tagC.removeAll(true); tagC.add(tag(scene, 10 + 30, -84, current.tag));
     descT.setText(current.desc);
@@ -41,17 +52,27 @@ export function bagPanel(scene, stack) {
     slots.forEach((s, k) => s.setSelected(k === i));
   };
 
-  // right: 5x4 grid
+  // right: 5x4 grid, rebuilt from the saved inventory (after eating etc.)
+  const grid = scene.add.container(0, 0);
+  c.add(grid);
   const gx = -w / 2 + 330, gy = -h / 2 + 96, size = 66, gap = 80;
-  for (let i = 0; i < 20; i++) {
-    const item = items[i];
-    const s = slot(scene, gx + (i % 5) * gap, gy + Math.floor(i / 5) * gap, {
-      size, iconKey: item?.icon, count: item?.count, onClick: item ? () => select(i) : undefined, name: item ? `slot-${item.key}` : undefined,
-    });
-    slots.push(s);
-    c.add(s);
-  }
-  if (items.length) select(0); else nameT.setText('背包是空的');
+  const render = (keepKey) => {
+    items = stateOf(scene).inventory.map((it) => ({ ...ITEMS[it.id], key: it.id, count: it.count }));
+    grid.removeAll(true);
+    slots = [];
+    for (let i = 0; i < 20; i++) {
+      const item = items[i];
+      const s = slot(scene, gx + (i % 5) * gap, gy + Math.floor(i / 5) * gap, {
+        size, iconKey: item?.icon, count: item?.count, onClick: item ? () => select(i) : undefined, name: item ? `slot-${item.key}` : undefined,
+      });
+      slots.push(s);
+      grid.add(s);
+    }
+    const prev = items.findIndex((it) => it.key === keepKey);
+    if (items.length) select(prev >= 0 ? prev : 0);
+    else { current = null; icon.setVisible(false); tagC.removeAll(true); nameT.setText('背包是空的'); descT.setText(''); quipT.setText(''); }
+  };
+  render();
   c.add(closeBtn(scene, stack, w, h));
   return c;
 }

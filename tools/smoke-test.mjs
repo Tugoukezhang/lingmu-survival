@@ -248,6 +248,28 @@ try {
   check('确认睡觉 → 第 3 天', (await state()).day === 3 && (await ui()).stack.join() === 'summary', `day ${(await state()).day}`);
   await tapTarget('summary-ok');
 
+  // ---------- survival (T20) ----------
+  const reg = (k) => page.evaluate((key) => window.__game.registry.get(key), k);
+  await page.evaluate(() => window.__game.registry.set({ hunger: 50, hp: 80 }));
+  const h0 = await reg('hunger');
+  await scene(() => window.__game.scene.getScene('play').debugAdvance(60));
+  const h1 = await reg('hunger');
+  check('饱食随时间下降（60 游戏分钟 −6）', h0 - h1 === 6, `${h0} → ${h1}`);
+  await tapTarget('hud-bag');
+  await tapTarget('slot-item_berry');
+  const berry0 = await page.evaluate(() => window.__game.session.state.inventory.find((x) => x.id === 'item_berry')?.count);
+  await tapTarget('use');
+  const berry1 = await page.evaluate(() => window.__game.session.state.inventory.find((x) => x.id === 'item_berry')?.count);
+  const h2 = await reg('hunger');
+  check('背包里吃浆果：饱食 +10、浆果 −1、HUD 跟着变', h2 === h1 + 10 && berry1 === berry0 - 1 && (await toastText()).includes('浆果'), `${h1} → ${h2}, 浆果 ${berry0} → ${berry1}`);
+  await page.screenshot({ path: join(OUT, '17-eat.png') });
+  await tapTarget('close');
+  await page.evaluate(() => window.__game.registry.set({ hunger: 0, hp: 5 }));
+  await scene(() => window.__game.scene.getScene('play').debugAdvance(30));
+  const lowHud = await page.evaluate(() => ({ hp: window.__game.registry.get('hp'), low: window.__game.scene.getScene('ui').hpBar.low }));
+  check('家园饿到底：生命停在 1 不倒下，有提示，生命条闪烁', lowHud.hp === 1 && lowHud.low && (await toastText()).includes('吃'), `${JSON.stringify(lowHud)} / ${await toastText()}`);
+  await page.screenshot({ path: join(OUT, '18-starving.png') });
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);

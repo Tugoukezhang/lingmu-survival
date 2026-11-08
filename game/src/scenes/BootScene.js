@@ -33,6 +33,7 @@ export default class BootScene extends Phaser.Scene {
     });
     this.makeCanvas('cloud', 220, 90, drawCloud);
     this.makeCanvas('tent', 104, 92, drawTent);
+    for (const [k, fn] of Object.entries(FOOD_ICONS)) this.makeCanvas(k, 128, 128, fn);
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
     this.game.session.load();
@@ -98,6 +99,42 @@ function drawRock(g, w, h) {
   g.beginPath();
   g.moveTo(6, h - 4); g.quadraticCurveTo(2, 14, 20, 8); g.quadraticCurveTo(34, 0, 46, 12);
   g.quadraticCurveTo(w, 22, w - 4, h - 4); g.closePath(); g.fill(); g.stroke();
+}
+
+// food placeholders, 128×128 like the real item icons
+const FOOD_ICONS = {
+  item_berry: (g) => berries(g, '#d9406a'),
+  item_berry_roast: (g) => { berries(g, '#a8452e'); g.strokeStyle = '#8a5a36'; g.lineWidth = 6; g.beginPath(); g.moveTo(14, 114); g.lineTo(110, 18); g.stroke(); },
+  item_carrot: (g) => {
+    g.fillStyle = '#6fae4a';
+    for (const a of [-0.5, 0, 0.5]) { g.save(); g.translate(78, 36); g.rotate(a); g.beginPath(); g.ellipse(0, -18, 9, 22, 0, 0, Math.PI * 2); g.fill(); g.restore(); }
+    g.fillStyle = '#f08a3a'; g.strokeStyle = '#a9532a'; g.lineWidth = 4;
+    g.beginPath(); g.moveTo(66, 34); g.quadraticCurveTo(100, 40, 88, 56); g.lineTo(28, 112); g.quadraticCurveTo(20, 104, 30, 92); g.closePath(); g.fill(); g.stroke();
+  },
+  item_fish_roast: (g) => {
+    g.fillStyle = '#d98c4a'; g.strokeStyle = '#7a4a2a'; g.lineWidth = 4;
+    g.beginPath(); g.ellipse(58, 64, 40, 24, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(94, 64); g.lineTo(120, 44); g.lineTo(120, 84); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#3b2a20'; g.beginPath(); g.arc(34, 58, 4, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#a8602e'; for (const x of [52, 66, 80]) { g.beginPath(); g.moveTo(x, 46); g.lineTo(x - 6, 82); g.stroke(); }
+  },
+  item_soup: (g) => {
+    g.fillStyle = '#ffffff'; g.strokeStyle = '#5b3d26'; g.lineWidth = 4;
+    g.beginPath(); g.ellipse(64, 70, 50, 16, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = '#f0a040'; g.beginPath(); g.ellipse(64, 68, 42, 11, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(14, 70); g.quadraticCurveTo(64, 140, 114, 70); g.closePath(); g.fill(); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,0.8)'; g.lineWidth = 3;
+    for (const x of [48, 64, 80]) { g.beginPath(); g.moveTo(x, 46); g.quadraticCurveTo(x + 8, 34, x, 22); g.stroke(); }
+  },
+};
+
+function berries(g, color) {
+  g.fillStyle = '#5a9a3c'; g.beginPath(); g.ellipse(76, 30, 20, 9, -0.5, 0, Math.PI * 2); g.fill();
+  for (const [x, y] of [[48, 62], [78, 66], [62, 90], [36, 88], [90, 92]]) {
+    g.fillStyle = color; g.strokeStyle = '#5b2a2a'; g.lineWidth = 3;
+    g.beginPath(); g.arc(x, y, 17, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,0.6)'; g.beginPath(); g.arc(x - 6, y - 6, 4, 0, Math.PI * 2); g.fill();
+  }
 }
 
 function drawTent(g, w, h) {

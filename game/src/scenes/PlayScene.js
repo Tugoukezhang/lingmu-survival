@@ -3,6 +3,7 @@ import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
 import { mulberry32, valueNoise2D } from '../systems/rng.js';
 import InputActions from '../systems/input.js';
 import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock } from '../systems/time.js';
+import { survivalTick } from '../systems/survival.js';
 
 // T02 technical baseline: a placeholder floating island where the player
 // walks with the joystick or keyboard, one pet follows, the others idle on a
@@ -279,7 +280,7 @@ export default class PlayScene extends Phaser.Scene {
 
   onTimeEvent(e) {
     const home = this.state.player.area === 'home';
-    if (e.type === 'tick') this.game.events.emit('time-tick', e.clock);
+    if (e.type === 'tick') { this.onSurvivalTick(); this.game.events.emit('time-tick', e.clock); }
     else if (e.type === 'phase') {
       this.game.events.emit('phase-change', e.to);
       const msg = { dusk: home ? '天色暗下来了' : '天色暗下来了，雾要起来了', night: home ? '夜深了，早点去睡吧' : '入夜了，小心雾怪', day: '天亮了' }[e.to];
@@ -292,6 +293,23 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
+  // Fullness −1 per tick; health −3 per tick once fullness is 0 (docs/06 第 1 节).
+  onSurvivalTick() {
+    this.session.pullFromRegistry();
+    const p = this.state.player;
+    const ev = survivalTick(p, p.area);
+    this.registry.set({ hunger: p.hunger, hp: p.hp });
+    const msg = {
+      hungry: '肚子有点饿了，记得吃东西',
+      empty: '饿坏了！生命会慢慢减少，快吃点东西',
+      floor: '快去吃点东西！再饿下去就走不动了',
+    };
+    for (const e of ev) {
+      if (msg[e]) this.showToast(msg[e]);
+      if (e === 'faint') this.game.events.emit('player-faint'); // handled by T23 (lost bag, wake at home)
+    }
+  }
+
   // Fade out → daily settlement → save → fade in → summary panel.
   startSleep(slept, delay = 0) {
     if (this.sleeping) return;
@@ -301,6 +319,7 @@ export default class PlayScene extends Phaser.Scene {
       const cam = this.cameras.main;
       cam.fadeOut(700, 0, 0, 0);
       cam.once('camerafadeoutcomplete', () => {
+        this.session.pullFromRegistry();
         const report = runSettlement(this.state, { slept });
         if (this.bed) this.teleport(this.bed.x, this.bed.y + 44);
         this.session.pushToRegistry();

@@ -5,6 +5,7 @@
 // - Autosave: every 20 s when something changed, when the page is hidden or
 //   closed, and on explicit save() calls after important events.
 import { SaveStore, MemoryStorage, newGameState } from './save.js';
+import { eat } from './survival.js';
 
 const AUTOSAVE_MS = 20000;
 const MIRRORED = ['day', 'clock', 'clover'];
@@ -72,6 +73,14 @@ export default class GameSession {
   onBeforeSave(fn) { this.hooks.add(fn); return () => this.hooks.delete(fn); }
 
   markDirty() { this.dirty = true; }
+
+  // Eat a food item from the bag (state + HUD stay in sync).
+  eat(itemId) {
+    this.pullFromRegistry();
+    const r = eat(this.state, itemId);
+    if (r.ok) { this.pushToRegistry(); this.dirty = true; }
+    return r;
+  }
 
   // Returns true when written. Skipped (false) while saving is blocked.
   save(reason = 'manual') {

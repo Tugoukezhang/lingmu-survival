@@ -12,6 +12,9 @@ import { mulberry32 } from '../game/src/systems/rng.js';
 import * as M from '../game/src/systems/petMath.js';
 import * as S from '../game/src/systems/save.js';
 import * as T from '../game/src/systems/time.js';
+import * as V from '../game/src/systems/survival.js';
+import * as I from '../game/src/systems/inventory.js';
+import { ITEMS } from '../game/src/data/items.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -90,9 +93,9 @@ check('第 0 天野生宠物等级最低 1', Array.from({ length: 100 }, (_, i) 
 const base = species('acorn').catchRate;
 near('满血草编网 15%', M.catchRate({ base, hp: 46, maxHp: 46 }), 0.15);
 near('剩 16 体力 37.8%', M.catchRate({ base, hp: 16, maxHp: 46 }), 0.3783);
-const bait = M.baitMultiplier('acorn', 'carrot');
+const bait = M.baitMultiplier('acorn', 'item_carrot');
 eq('萝卜是橡果刺猬的喜好食物 ×1.5', bait, 1.5);
-eq('其他食物 ×1.2', M.baitMultiplier('acorn', 'berry'), 1.2);
+eq('其他食物 ×1.2', M.baitMultiplier('acorn', 'item_berry'), 1.2);
 const a04 = M.catchRate({ base, hp: 16, maxHp: 46, baitMult: bait });
 near('剩 16 + 萝卜 56.7%', a04, 0.5674);
 near('再换藤编网 85.1%', M.catchRate({ base, hp: 16, maxHp: 46, baitMult: bait, netMult: 1.5 }), 0.8511);
@@ -130,7 +133,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('没有存档时开新档', fresh.source === 'new' && !fresh.problem && S.validate(fresh.state).length === 0, S.validate(fresh.state).join());
   const st = fresh.state;
   eq('新档版本号', st.version, S.SAVE_VERSION);
-  check('新档：6 只宠物，冰蓝小狼同行，背包 3 种物品', st.pets.length === 6 && st.party[0] === 'pet-pup' && st.inventory.length === 3);
+  check('新档：6 只宠物，冰蓝小狼同行，背包 6 种物品（含食物）', st.pets.length === 6 && st.party[0] === 'pet-pup' && st.inventory.length === 6);
   check('存档里不存属性值（永远现算）', !('stats' in st.pets[0]) && !('atk' in st.pets[0]));
 
   st.clover = 345; st.day = 3; st.player.x = 500; st.player.y = 420;
@@ -271,6 +274,67 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
     '1:dusk 1:night 1:bedtime →2 2:dusk 2:night 2:bedtime →3 3:dusk 3:night 3:bedtime →4');
   check('3 天后存档仍合法', S.validate({ ...S.newGameState(), day: g.day, clock: g.clock }).length === 0);
   check('远征凌晨的时钟（25:30）存档合法', S.validate({ ...S.newGameState(), clock: 25 * 60 + 30 }).length === 0);
+}
+
+// ---------- survival: health & fullness (T20; docs/06 第 1 节) ----------
+{
+  check('每种物品都有图标和描述；食物的饱食值为正', Object.values(ITEMS).every((it) => it.icon && it.desc && it.name && (it.food == null || it.food > 0)));
+  const run = (area, fromClock, toClock, player) => {
+    const s = { day: 1, clock: fromClock, player: { area, hp: 100, hpMax: 100, hunger: 100, hungerMax: 100, ...player } };
+    const c = new T.GameClock(), ev = [];
+    let firstEmpty = null, faintAt = null;
+    while (s.clock < toClock && !c.paused) {
+      for (const e of c.advance(s, T.MS_PER_GAME_MIN)) {
+        if (e.type !== 'tick') continue;
+        for (const x of V.survivalTick(s.player, area)) {
+          ev.push(x);
+          if (x === 'empty' && firstEmpty === null) firstEmpty = s.clock;
+          if (x === 'faint' && faintAt === null) faintAt = s.clock;
+        }
+      }
+    }
+    return { s, ev, firstEmpty, faintAt };
+  };
+  const e03 = run('home', 6 * 60, 18 * 60);
+  eq('E03 6:00 饱食 100 不吃东西 → 18:00 饱食 28', e03.s.player.hunger, 28);
+  check('饱食降到 20 时提醒一次', run('home', 6 * 60, 24 * 60).ev.filter((x) => x === 'hungry').length === 1);
+  const ex = run('expedition', 6 * 60, 30 * 60);
+  eq('饱食在 22:40 归零（远征）', T.formatClock(ex.firstEmpty), '22:40');
+  eq('一直不吃，次日 4:20 倒下（远征）', T.formatClock(ex.faintAt ?? 0), '04:20');
+  check('倒下时生命为 0', ex.s.player.hp === 0);
+  const e11 = run('home', 6 * 60, 24 * 60, { hunger: 0, hp: 20 });
+  check('E11 家园饱食归零很久：生命停在 1，不会倒下，有提示', e11.s.player.hp === 1 && !e11.ev.includes('faint') && e11.ev.filter((x) => x === 'floor').length === 1,
+    `hp ${e11.s.player.hp} ${[...new Set(e11.ev)].join(',')}`);
+  const fainted = { hp: 0, hpMax: 100, hunger: 0, hungerMax: 100 };
+  check('已经倒下后再受伤不重复触发', V.applyDamage(fainted, 15, 'expedition').length === 0 && fainted.hp === 0);
+  const hit = { hp: 100, hpMax: 100, hunger: 50, hungerMax: 100 };
+  let n = 0; while (!V.applyDamage(hit, 15, 'expedition').includes('faint')) n++;
+  eq('E07 规则：生命 100 被打 15 点，第 7 次倒下', n + 1, 7);
+
+  // eating
+  const st = S.newGameState();
+  st.player.hunger = 50; st.player.hp = 90;
+  const berries = I.countOf(st.inventory, 'item_berry');
+  const r1 = V.eat(st, 'item_berry');
+  check('吃浆果：饱食 +10，浆果 −1', r1.ok && st.player.hunger === 60 && I.countOf(st.inventory, 'item_berry') === berries - 1);
+  const r2 = V.eat(st, 'item_fish_roast');
+  check('吃烤鱼：饱食 +30、生命 +10，吃完格子消失', r2.ok && st.player.hunger === 90 && st.player.hp === 100 && I.countOf(st.inventory, 'item_fish_roast') === 0
+    && !st.inventory.some((x) => x.id === 'item_fish_roast'));
+  const r3 = V.eat(st, 'item_carrot');
+  check('饱食不会超过上限', r3.ok && st.player.hunger === 100 && r3.hunger === 10);
+  const before = JSON.stringify(st.inventory);
+  const r4 = V.eat(st, 'item_berry');
+  check('吃饱了再吃 → 拒绝，不消耗', !r4.ok && r4.reason === 'full' && JSON.stringify(st.inventory) === before);
+  check('没有的食物不能吃', V.eat(st, 'item_fish_roast').reason === 'none');
+  check('捕宠网不能吃', V.eat(st, 'item_net_grass').reason === 'not-food');
+
+  // inventory helpers
+  const inv = [{ id: 'item_berry', count: 2 }];
+  check('物品不够时扣除失败且不改动', !I.removeItem(inv, 'item_berry', 3) && inv[0].count === 2);
+  I.addItem(inv, 'item_berry', 3);
+  check('同种物品叠加在一格', inv.length === 1 && inv[0].count === 5);
+  const full = Array.from({ length: I.BAG_SLOTS }, (_, i) => ({ id: `x${i}`, count: 1 }));
+  check('背包 20 格满了放不下新物品', !I.addItem(full, 'item_berry', 1) && full.length === I.BAG_SLOTS);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

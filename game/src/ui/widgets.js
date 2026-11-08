@@ -145,6 +145,11 @@ export function statBar(scene, x, y, { w = 150, icon = 'heart', color = 0xe8564a
     fill.clear();
     if (k > 0) fill.fillStyle(color).fillRoundedRect(3, -8, Math.max(16, (w - 6) * k), 16, 8);
     label.setText(`${Math.round(v)}/${max}`);
+    // blink when low (≤ 20%)
+    const low = k <= 0.2;
+    if (low && !c.lowTween) c.lowTween = scene.tweens.add({ targets: [fill, ic], alpha: 0.35, duration: 420, yoyo: true, repeat: -1 });
+    if (!low && c.lowTween) { c.lowTween.remove(); c.lowTween = null; fill.setAlpha(1); ic.setAlpha(1); }
+    c.low = low;
   };
   return c;
 }
