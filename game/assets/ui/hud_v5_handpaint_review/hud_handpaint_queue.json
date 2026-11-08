@@ -1646,12 +1646,22 @@
       "source_reference": "03_活动大厅(4).jpg",
       "target_png": "PNG_Transparent/03_activity/event_title_chip.png",
       "target_resolution": "1900x320",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "state": "gpt_image_text_guided_v4_reference_review_candidate_pending_original_crop",
+      "approval": "pending_original_source_user_art_and_engine_qa",
+      "attempts": 1,
+      "delivered_file": "game/assets/ui/hud_v5_handpaint_review/Reviews/event_title_chip_V4_guided_20261108/event_title_chip_gpt_painted_v1_1900x320.png",
+      "reference_match": "V4_geometry_palette_only; source screenshot not verified",
+      "notes": "",
+      "candidate_sha256": "7dbfd3b97e160cc2cfddbf1eaa7d36988bc9bce861858c360c19e584f7c8bfdc",
+      "candidate_origin": "actual GPT Image output, text-guided only; source image binding NOT verified",
+      "qa_review_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/event_title_chip_V4_guided_20261108/event_title_chip_candidate_QA.json",
+      "original_bbox_xyxy": null,
+      "original_crop_status": "blocked_missing_library_original",
+      "native_resolution_review": [
+        190,
+        32
+      ],
+      "production_promoted": false
     },
     {
       "queue_number": 32,
@@ -2987,9 +2997,22 @@
       "original_crop_verified": false,
       "candidate_sha256": "a9e3c361b96d8b6eec0535a2b42bbeac6a3c3271f60265a6b8c9e9fd5564750c",
       "next": "other96/activity/event_title_chip"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/activity/event_title_chip",
+      "action": "One GPT Image isolated charcoal title pill produced, alpha cleaned and scaled to 1900x320; V4 isolated geometry used for textual visual guidance only. Original screenshot Library folder inaccessible, image input binding unverified.",
+      "result": "1 unapproved real GPT Image review candidate, one isolated asset, SHA256 and 190x32 / 380x64 QA. Library upload AccessDeny. GitHub review uploaded. No user/engine/art approval; no production replacements.",
+      "created_candidates": 1,
+      "gpt_image_passed_original_source_protocol": 0,
+      "approved": 0,
+      "counted_as_complete": false,
+      "source_original_crop_verified": false,
+      "candidate_sha256": "7dbfd3b97e160cc2cfddbf1eaa7d36988bc9bce861858c360c19e584f7c8bfdc",
+      "next": "other96/inventory/main_wood_panel"
     }
   ],
-  "current_focus": "other96/activity/event_title_chip",
+  "current_focus": "other96/inventory/main_wood_panel",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",

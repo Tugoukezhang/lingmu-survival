@@ -1,0 +1,44 @@
+{
+  "schema": "lingmu-event-title-chip-review-v1",
+  "task_id": "other96/activity/event_title_chip",
+  "source_requested": "03_活动大厅(4).jpg",
+  "source_crop_available": false,
+  "source_original_bbox_xyxy": null,
+  "source_limit": "Original References library folder missing; no original screenshot pixels given to generator. Do not claim original crop binding.",
+  "source_used": "game/assets/ui/hud_extra_five_screens/SVG_Editable/03_activity/event_title_chip.svg",
+  "source_type": "V4 standalone source shape, not original screenshot",
+  "source_viewbox": [
+    0,
+    0,
+    950,
+    160
+  ],
+  "V4_reference_bbox_xyxy": [
+    20,
+    15,
+    940,
+    147
+  ],
+  "original_bbox_verified": false,
+  "generation": "One GPT Image text-guided isolated dark pill; no verifiable image reference binding; not a manual SVG raster",
+  "output_png": "event_title_chip_gpt_painted_v1_1900x320.png",
+  "output_sha256": "7dbfd3b97e160cc2cfddbf1eaa7d36988bc9bce861858c360c19e584f7c8bfdc",
+  "output_mode": "RGBA",
+  "output_size": [
+    1900,
+    320
+  ],
+  "alpha_extrema": [
+    0,
+    255
+  ],
+  "identity_check": "PASS: one long charcoal rounded event title strip; no words or other parts",
+  "palette_check": "PASS broad V4 match; warm charcoal #3c3635 to #262525",
+  "alpha_check": "PASS: transparent exterior, pixel-aligned soft edge; low-alpha noise cleaned",
+  "native_game_readability_check": "PASS at 190x32 and 380x64",
+  "original_crop_comparison": "BLOCKED: original reference not accessible",
+  "artistic_approval": "PENDING",
+  "engine_integration_qa": "PENDING",
+  "approval": "pending_user_and_engine_and_source_qa",
+  "production_replaced": false
+}

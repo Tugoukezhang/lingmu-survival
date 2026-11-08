@@ -328,9 +328,9 @@
       "target_png": "PNG_Transparent/03_activity/event_title_chip.png",
       "target_resolution": "1900x320",
       "reference": "03_活动大厅(4).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "gpt_image_text_guided_review_candidate_pending_original",
+      "qa": "source_crop_user_art_and_engine_pending",
+      "notes": "Review-only V4-guided dark title chip (no original screenshot input binding), SHA256 7dbfd3b97e160cc2cfddbf1eaa7d36988bc9bce861858c360c19e584f7c8bfdc; production unchanged."
     },
     {
       "index": 33,
