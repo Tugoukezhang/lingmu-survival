@@ -12,13 +12,13 @@
 - 负责人授权（2026-11-08）：玩法细节和数值由 AI 判断，写进文档标【建议】并在汇报里说明；只有方向性问题（美术风格、商业化、范围取舍、花钱的事）才停下来问。
 
 ## 当前状态（2026-11-08）
-- 阶段：M1。**T02、T03、T04、T08、T10、T20、T05、T25、T19、T06 已实现，待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）；宠物/技能/性格数据和属性、伤害、经验、捕捉、进化公式（`systems/petMath.js`）；存档（`systems/save.js` + `GameSession.js`：校验码、备份回退、版本迁移、自动存档）；时间昼夜与每日结算（`systems/time.js`，占位帐篷睡觉）；生命与饱食、吃东西（`systems/survival.js`、`inventory.js`）。远征岛随机生成（`systems/islandGen.js`）；飞艇出发与返回、倒下临时处理（`systems/travel.js`）；采集与制作（`systems/crafting.js`、`data/recipes.js`）；回合制宠物对战（`systems/battle.js`、`scenes/BattleScene.js`）。界面自动检查 68/68、逻辑检查 186/186 通过。
+- 阶段：M1。**M1 开发任务全部实现（T02–T08、T10、T19、T20、T25），待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）；宠物/技能/性格数据和属性、伤害、经验、捕捉、进化公式（`systems/petMath.js`）；存档（`systems/save.js` + `GameSession.js`：校验码、备份回退、版本迁移、自动存档）；时间昼夜与每日结算（`systems/time.js`，占位帐篷睡觉）；生命与饱食、吃东西（`systems/survival.js`、`inventory.js`）。远征岛随机生成（`systems/islandGen.js`）；飞艇出发与返回、倒下临时处理（`systems/travel.js`）；采集与制作（`systems/crafting.js`、`data/recipes.js`）；回合制宠物对战与捕捉（`systems/battle.js`、`scenes/BattleScene.js`）、队伍面板（`systems/party.js`）。界面自动检查 75/75、逻辑检查 203/203 通过。
 - 界面零件：负责人正在逐个手绘（T41），到了再换进 `widgets.js`；main 分支上的矢量重绘包只作参考和备用，不直接接入。
 - 已完成：方向确认；知识库搭建；引入游戏开发 skills；冒险探索、捕捉、宠物养成、商业化设计（开工图 v0.4、`docs/06`–`09`）；参考视频笔记；风格示例图入库。
 - 宠物名单（2026-11-08）：橡果刺猬（森）、航海鲨（水）、冰蓝小狼（水）、月影狐猫（暗）、星星熊仔（光）、焰尾狐（火）及其人形态（化形）全部定稿并抠图（`game/assets/pets/`，7 张待机图）。素材处理脚本和用法见 `tools/art/README.md`（抠图 `cutout.py`、无缝地块 `seamless.py`）。草地地块 `game/assets/tiles/tile_grass.png` 和 3 个物品图标 `game/assets/items/` 已入库，草地已用在游戏里。属性 5 种：森水火光暗。
 - 美术原创要求：出图不上传他人角色图；新图要和负责人提供的原截图并排对比原创度。抠图用 rembg（isnet-general-use 模型），已装在负责人电脑的 Python 里。
 - 等负责人：手机实测 T02；看一眼游戏里的新草地确认 T17；通读 07、08。
-- 下一步：T07 捕捉与队伍面板 → T09 M1 白天远征试玩 → T06 宠物对战（M1 主线）。
+- 下一步：T09 M1 白天远征试玩（负责人找 3 人不讲解试玩，AI 准备试玩包和观察表）；之后 M2：T23 倒下与失物包、T21 夜晚雾怪与光照 → T06 宠物对战（M1 主线）。
 - 工作副本：负责人电脑 `C:\Users\1\Desktop\lingmu-survival`（Windows，VS Code 本地会话）；云端会话也用同一个 GitHub 仓库。
 
 ## 文档索引（有效规则以这里为准）
@@ -46,7 +46,7 @@
 - 逻辑分辨率 960×540 横屏，FIT 缩放；触屏为主（左下虚拟摇杆、右下动作按钮），键盘为辅。
 - 内容（宠物、技能、作物、物品、NPC、任务）写成数据文件，不硬编码在逻辑里。
 - 存档：localStorage，带 `version` 字段和迁移函数，保留上一份备份。进度唯一来源是 `game.session.state`（纯 JSON，不存属性等可现算的值）；HUD 数值镜像在 registry；场景用 `session.onBeforeSave()` 写回自己管的部分（如玩家位置），改了状态调 `markDirty()` 或重要时刻 `save()`。改存档格式时：`SAVE_VERSION` +1 并在 `MIGRATIONS` 加一步，旧步骤不改。对战、倒下动画期间 `session.store.block(原因)`。
-- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 世界、UIScene 屏幕界面、BattleScene 宠物对战）、`game/src/systems/`（input 动作映射、rng 种子随机、petMath 宠物属性与战斗公式、save 存档读写与校验、GameSession 当前进度与自动存档、time 时钟昼夜与每日结算、survival 生命饱食与进食、inventory 背包增减、islandGen 远征岛生成与变化记录、travel 飞艇往返与倒下临时处理、crafting 采集制作与背包容量、battle 回合制对战规则）、`game/src/ui/`（widgets 木框奶油色组件与矢量图标、PanelStack 面板栈、panels 演示面板、VirtualJoystick）、`game/src/data/`（pets、skills、natures、elements、items；物品 ID 统一 `item_xxx`，宠物喜好食物也用它）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
+- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 世界、UIScene 屏幕界面、BattleScene 宠物对战）、`game/src/systems/`（input 动作映射、rng 种子随机、petMath 宠物属性与战斗公式、save 存档读写与校验、GameSession 当前进度与自动存档、time 时钟昼夜与每日结算、survival 生命饱食与进食、inventory 背包增减、islandGen 远征岛生成与变化记录、travel 飞艇往返与倒下临时处理、crafting 采集制作与背包容量、battle 回合制对战与捕捉、party 队伍管理）、`game/src/ui/`（widgets 木框奶油色组件与矢量图标、PanelStack 面板栈、panels 演示面板、VirtualJoystick）、`game/src/data/`（pets、skills、natures、elements、items；物品 ID 统一 `item_xxx`，宠物喜好食物也用它）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
 - 占位图都在 BootScene 里用 canvas 画（主角、树、石头、云、影子），正式素材到位后换成图片，键名不变。
 - 两层场景：PlayScene 只管世界；UIScene 叠在上面，放 HUD、摇杆、互动按钮、提示条、面板。两层不互相调用，只通过 registry（共享状态：day、clock、hp、hunger、clover、uiModal 等，HUD 监听变化自动刷新）和 game.events（`toast`、`interact-available`、`action-pressed`）通信。
 - 界面按钮一律用 `widgets.js` 的 `makeClickable`：按下和松开都在同一个按钮上才算点击，防止关弹窗时误触下面的按钮；面板关闭后 150ms 内忽略点击。触控区域 ≥ 44、HUD 离屏幕边 ≥ 24，自动检查会验证。

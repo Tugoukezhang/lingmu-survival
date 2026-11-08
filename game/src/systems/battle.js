@@ -6,8 +6,10 @@ import { species } from '../data/pets.js';
 import { skill as skillDef } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
 import { elementMultiplier } from '../data/elements.js';
-import { calcStats, calcDamage, damageRoll, battleSkills, displayName, gainExp, expForKO, baitMultiplier, createPet, wildLevel } from './petMath.js';
+import { calcStats, calcDamage, damageRoll, battleSkills, displayName, gainExp, expForKO, baitMultiplier, createPet, wildLevel, catchRate, catchSucceeds, affectionOnCatch } from './petMath.js';
 import { countOf, removeItem } from './inventory.js';
+
+export const PARTY_MAX = 3;
 import { mulberry32 } from './rng.js';
 
 export const CLOVER_PER_LEVEL = 3;      // 【建议】 clover per KO = 3 × enemy level
@@ -35,6 +37,7 @@ const makeMon = (inst) => {
     uid: inst.uid, species: inst.species, name: displayName(inst), element: sp.element, level: inst.level,
     stats, maxHp: stats.hp, hp: inst.hp == null ? stats.hp : Math.min(inst.hp, stats.hp),
     skills: battleSkills(inst), uses, buffs: [], bondUsed: false, affection: inst.affection ?? 0, form: inst.form,
+    src: inst,   // original instance (needed to keep a caught wild pet)
   };
 };
 
@@ -52,6 +55,7 @@ export function createBattle({ party, enemies, inventory, rng = Math.random }) {
     exp: {},                                     // my uid → exp earned
     clover: 0,
     defeated: [],                                // foe uids knocked out
+    caught: null,                                // { uid, favourite } after a successful catch
     over: null,                                  // 'win' | 'lose' | 'flee' | 'caught'
     needSwitch: false,
   };
@@ -155,6 +159,10 @@ export function resolveTurn(b, action) {
     if (!target || target.hp <= 0 || action.index === b.sides.me.active) return { ok: false, reason: 'bad-switch' };
   }
   if (action.type === 'snack' && (!ITEMS[action.item]?.food || countOf(b.inventory, action.item) < 1)) return { ok: false, reason: 'no-item' };
+  if (action.type === 'catch') {
+    if (!ITEMS[action.item]?.netMult || countOf(b.inventory, action.item) < 1) return { ok: false, reason: 'no-net' };
+    if (active(b, 'foe').hp <= 0) return { ok: false, reason: 'fainted' };   // A09
+  }
 
   const ev = [];
   b.turn += 1;
@@ -172,6 +180,25 @@ export function resolveTurn(b, action) {
     const mult = baitMultiplier(foe.species, action.item);
     b.bait[foe.uid] = Math.max(b.bait[foe.uid] ?? 1, mult);
     ev.push({ t: 'snack', item: action.item, itemName: ITEMS[action.item].name, name: foe.name, favourite: mult === 1.5 });
+  }
+  if (action.type === 'catch') {
+    // docs/02 第 6 节: one net per throw, success or not; a failed throw is the player's action
+    removeItem(b.inventory, action.item, 1);
+    b.used[action.item] = (b.used[action.item] ?? 0) + 1;
+    const foe = active(b, 'foe');
+    const rate = catchChance(b, action.item);
+    const roll = b.rng();
+    ev.push({ t: 'throw', item: action.item, itemName: ITEMS[action.item].name, name: foe.name, rate });
+    if (catchSucceeds(rate, roll)) {
+      const favourite = (b.bait[foe.uid] ?? 1) === 1.5;
+      b.caught = { uid: foe.uid, favourite };
+      const killer = active(b, 'me');
+      b.exp[killer.uid] = (b.exp[killer.uid] ?? 0) + expForKO(foe.level);
+      b.over = 'caught';
+      ev.push({ t: 'caught', name: foe.name }, { t: 'exp', name: killer.name, amount: expForKO(foe.level) }, { t: 'end', result: 'caught' });
+      return { ok: true, events: ev };
+    }
+    ev.push({ t: 'escape', name: foe.name });
   }
   // 2. skills by speed (ties: the player first)
   const order = [];
@@ -194,6 +221,12 @@ export function resolveTurn(b, action) {
   return { ok: true, events: ev };
 }
 
+// Current catch chance against the active foe with this net (shown in the UI).
+export function catchChance(b, netId) {
+  const foe = active(b, 'foe');
+  return catchRate({ base: species(foe.species).catchRate, hp: foe.hp, maxHp: foe.maxHp, netMult: ITEMS[netId].netMult, baitMult: b.bait[foe.uid] ?? 1 });
+}
+
 // One commit at the end (docs/02 第 4 节 5–6): pet HP, exp, used items, clover,
 // defeated wild pets go into the island record. Returns a summary for the UI.
 export function finishBattle(state, b, { wildId } = {}) {
@@ -211,6 +244,16 @@ export function finishBattle(state, b, { wildId } = {}) {
   }
   for (const [id, n] of Object.entries(b.used)) removeItem(state.inventory, id, n);
   state.clover += b.clover;
-  if (b.over === 'win' && wildId && state.expedition && !state.expedition.changes.pets.includes(wildId)) state.expedition.changes.pets.push(wildId);
+  if (b.over === 'caught' && b.caught) {
+    const mon = b.sides.foe.mons.find((m) => m.uid === b.caught.uid);
+    let n = state.pets.length, uid;
+    do uid = `pet-${mon.species}-${(n++).toString(36)}`; while (state.pets.some((p) => p.uid === uid));
+    const inst = { ...JSON.parse(JSON.stringify(mon.src)), uid, hp: mon.hp >= mon.maxHp ? null : mon.hp, affection: affectionOnCatch(b.caught.favourite) };
+    state.pets.push(inst);
+    const joined = state.party.length < PARTY_MAX;
+    if (joined) state.party.push(uid);
+    summary.caught = { uid, name: mon.name, joined, affection: inst.affection, stars: inst.stars, shiny: inst.shiny };
+  }
+  if ((b.over === 'win' || b.over === 'caught') && wildId && state.expedition && !state.expedition.changes.pets.includes(wildId)) state.expedition.changes.pets.push(wildId);
   return summary;
 }

@@ -64,8 +64,9 @@ export default class PlayScene extends Phaser.Scene {
     const onReturn = () => this.travel(() => returnHome(this.state), '回到家园了');
     const onFaint = () => this.faint();
     const onBattleEnd = (r) => this.onBattleEnd(r);
+    const onParty = () => this.syncParty();
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
@@ -299,7 +300,8 @@ export default class PlayScene extends Phaser.Scene {
       const shadow = this.add.image(home.x, home.y + 2, 'shadow').setScale(0.7);
       const sprite = this.add.image(home.x, home.y, petTextureKey(data.id)).setOrigin(0.5, 0.92);
       sprite.setScale(PET_HEIGHT * 0.9 / sprite.height);
-      return { ...w, data, level, sprite, shadow, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: 0 };
+      // no encounter in the first 2 s after arriving / loading (the player may stand right next to one)
+      return { ...w, data, level, sprite, shadow, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: this.time.now + 2000 };
     });
   }
 
@@ -364,7 +366,7 @@ export default class PlayScene extends Phaser.Scene {
     return true;
   }
 
-  onBattleEnd({ result, wildId }) {
+  onBattleEnd({ result, wildId, summary }) {
     const w = this.inBattle;
     this.inBattle = null;
     this.scene.resume();
@@ -373,7 +375,7 @@ export default class PlayScene extends Phaser.Scene {
     this.session.store.unblock('battle');
     const now = this.time.now;
     if (w) {
-      if (result === 'win') {           // defeated: runs away for good (already in the island record)
+      if (result === 'win' || result === 'caught') {   // defeated or caught: gone for good (in the island record)
         this.tweens.add({ targets: [w.sprite, w.shadow], alpha: 0, duration: 400, onComplete: () => { w.sprite.destroy(); w.shadow.destroy(); } });
         this.wild = this.wild.filter((x) => x !== w);
         this.island.pets = this.island.pets.filter((x) => x.id !== wildId);
@@ -381,6 +383,14 @@ export default class PlayScene extends Phaser.Scene {
         w.cooldown = now + (result === 'lose' ? 8000 : 4000);
         this.hopAway(w, now);
         if (result === 'lose') this.showToast('伙伴们玩累了，野生宠物跑开了');
+      }
+    }
+    // a caught pet that joined the party comes along right away
+    if (result === 'caught' && summary?.caught?.joined) {
+      const inst = this.state.pets.find((x) => x.uid === summary.caught.uid);
+      if (inst) {
+        const pet = this.addPetSprite(inst, { x: w?.sprite.x ?? this.player.x, y: w?.sprite.y ?? this.player.y });
+        this.pets.push(pet);
       }
     }
     this.session.save('battle');
@@ -501,18 +511,31 @@ export default class PlayScene extends Phaser.Scene {
     // home: every owned pet lives here; expedition: only the party comes along. party[0] follows.
     const owned = this.area === 'home' ? this.state.pets : this.state.pets.filter((x) => this.state.party.includes(x.uid));
     this.pets = owned.map((inst, i) => {
-      const data = species(inst.species);
       const slot = slots[i % slots.length];
-      const home = { x: center.x + slot[0] + Math.floor(i / slots.length) * 24, y: center.y + slot[1] };
-      const shadow = this.add.image(home.x, home.y + 2, 'shadow').setScale(0.75);
-      const sprite = this.add.image(home.x, home.y, petTextureKey(data.id)).setOrigin(0.5, 0.92);
-      const pet = { data, inst, sprite, shadow, home, target: { ...home }, phase: this.rand() * Math.PI * 2, wanderAt: 0 };
-      this.applyPetTexture(pet);
-      return pet;
+      return this.addPetSprite(inst, { x: center.x + slot[0] + Math.floor(i / slots.length) * 24, y: center.y + slot[1] });
     });
     this.follower = this.pets.find((p) => p.inst.uid === this.state.party[0]) ?? this.pets[0];
     const p = this.player;
     this.follower.sprite.setPosition(p.x - 46, p.y + 6);
+  }
+
+  addPetSprite(inst, home) {
+    const data = species(inst.species);
+    const shadow = this.add.image(home.x, home.y + 2, 'shadow').setScale(0.75);
+    const sprite = this.add.image(home.x, home.y, petTextureKey(data.id)).setOrigin(0.5, 0.92);
+    const pet = { data, inst, sprite, shadow, home, target: { ...home }, phase: this.rand() * Math.PI * 2, wanderAt: 0 };
+    this.applyPetTexture(pet);
+    return pet;
+  }
+
+  // Party changed in the party panel: the new leader follows the player.
+  syncParty() {
+    const lead = this.pets.find((x) => x.inst.uid === this.state.party[0]);
+    if (lead && lead !== this.follower) {
+      const old = this.follower;
+      if (old && !this.followLag(old)) { old.target = { ...old.home }; old.wanderAt = 0; }
+      this.follower = lead;
+    }
   }
 
   // Move the player instantly (used by tests; later by doors / airship) and

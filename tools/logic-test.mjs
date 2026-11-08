@@ -20,6 +20,7 @@ import * as TR from '../game/src/systems/travel.js';
 import * as CR from '../game/src/systems/crafting.js';
 import { RECIPES } from '../game/src/data/recipes.js';
 import * as B from '../game/src/systems/battle.js';
+import * as PT from '../game/src/systems/party.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -559,6 +560,68 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('野生宠物组由种子决定，领头的是碰到的那只', g1.length === 3 && g1[0].species === 'acorn' && g1[0].level === 3 && JSON.stringify(g1) === JSON.stringify(g2));
   const sl = S.newGameState(); sl.pets[0].hp = 3; T.runSettlement(sl, { slept: true });
   check('睡一觉后宠物体力回满', sl.pets.every((x) => x.hp == null));
+}
+
+// ---------- catching & party (T07; docs/02 第 6 节) ----------
+{
+  const pet = (id, o = {}) => M.createPet(id, { stars: 3, nature: 'gentle', shiny: false, uid: `${id}-${o.tag ?? 'x'}`, ...o });
+  const setup = () => {
+    const st = S.newGameState();
+    st.expedition = { seed: 5, biome: 'mistwood', changes: G.emptyChanges() }; st.player.area = 'expedition';
+    const party = st.party.map((u) => st.pets.find((x) => x.uid === u));
+    const b = B.createBattle({ party, enemies: [pet('acorn', { tag: 'wild' })], inventory: st.inventory, rng: () => 0.5 });
+    B.active(b, 'foe').hp = 16;                       // docs/02 第 6 节 example: 16 HP left
+    B.resolveTurn(b, { type: 'snack', item: 'item_carrot' });
+    B.active(b, 'foe').hp = 16;                       // (the snack turn doesn't touch it, but keep the example exact)
+    return { st, b };
+  };
+  // A04
+  let { st, b } = setup();
+  near('捕捉面板显示的成功率：剩 16 体力 + 萝卜 + 草编网 = 56.7%', B.catchChance(b, 'item_net_grass'), 0.5674);
+  const nets0 = I.countOf(st.inventory, 'item_net_grass'), carrots0 = I.countOf(st.inventory, 'item_carrot'), pets0 = st.pets.length;
+  b.rng = () => 0.50;
+  let r = B.resolveTurn(b, { type: 'catch', item: 'item_net_grass' });
+  check('A04 随机数 0.50 < 56.7% → 捕捉成功，对战立即结束', r.ok && b.over === 'caught' && r.events.some((e) => e.t === 'caught') && !r.events.some((e) => e.t === 'use' && e.side === 'foe'));
+  let sum = B.finishBattle(st, b, { wildId: 'w2' });
+  const got = st.pets.at(-1);
+  check('A04 捕捉后：好感 20、网 −1、萝卜 −1，宠物进入家园（队伍满 3 只）', got.affection === 20 && I.countOf(st.inventory, 'item_net_grass') === nets0 - 1
+    && I.countOf(st.inventory, 'item_carrot') === carrots0 - 1 && st.pets.length === pets0 + 1 && !st.party.includes(got.uid) && sum.caught.joined === false,
+    JSON.stringify({ aff: got.affection, party: st.party.length }));
+  check('捕捉到的宠物保留种类、等级、资质、性格，体力带出（16）', got.species === 'acorn' && got.level === 1 && got.stars === 3 && got.nature === 'gentle' && got.hp === 16);
+  check('捕捉到的宠物有新的唯一编号，存档合法', got.uid !== 'acorn-wild' && new Set(st.pets.map((x) => x.uid)).size === st.pets.length && S.validate(st).length === 0, S.validate(st).join());
+  check('被捕捉的野生宠物记入岛屿记录', st.expedition.changes.pets.includes('w2'));
+  check('捕捉成功出战宠物也得经验（按对方等级 8）', sum.exp.some((x) => x.amount === 8));
+  // A08
+  ({ st, b } = setup());
+  const n1 = I.countOf(b.inventory, 'item_net_grass');
+  b.rng = () => 0.60;
+  r = B.resolveTurn(b, { type: 'catch', item: 'item_net_grass' });
+  check('A08 随机数 0.60 → 失败：网 −1，对方照常行动', r.ok && !b.over && I.countOf(b.inventory, 'item_net_grass') === n1 - 1 && r.events.some((e) => e.t === 'escape') && r.events.some((e) => e.t === 'use' && e.side === 'foe'));
+  // A09
+  ({ st, b } = setup());
+  B.active(b, 'foe').hp = 0;
+  check('A09 对方体力 0 → 不能捕捉', B.resolveTurn(b, { type: 'catch', item: 'item_net_grass' }).reason === 'fainted');
+  ({ st, b } = setup());
+  b.inventory = b.inventory.filter((x) => !ITEMS[x.id].netMult);
+  check('没有网不能捕捉', B.resolveTurn(b, { type: 'catch', item: 'item_net_grass' }).reason === 'no-net');
+  // join the party when there is room
+  ({ st, b } = setup());
+  st.party = ['pet-pup'];
+  b.rng = () => 0.01;
+  B.resolveTurn(b, { type: 'catch', item: 'item_net_vine' });
+  sum = B.finishBattle(st, b, { wildId: 'w3' });
+  check('队伍不满 3 只 → 抓到的宠物直接进队伍', sum.caught.joined && st.party.length === 2 && st.party[1] === sum.caught.uid);
+
+  // party panel rules
+  const ps = S.newGameState();
+  check('队伍满 3 只时不能再加入', PT.joinParty(ps, 'pet-shark').reason === 'full');
+  check('离开队伍后可以加入别的伙伴', PT.leaveParty(ps, 'pet-acorn').ok && PT.joinParty(ps, 'pet-shark').ok && ps.party.join() === 'pet-pup,pet-fox,pet-shark');
+  check('设为领头：排到第一', PT.setLead(ps, 'pet-shark').ok && ps.party[0] === 'pet-shark' && ps.party.length === 3);
+  PT.leaveParty(ps, 'pet-fox'); PT.leaveParty(ps, 'pet-pup');
+  check('队伍里至少留 1 只', PT.leaveParty(ps, 'pet-shark').reason === 'last' && ps.party.length === 1);
+  ps.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; ps.player.area = 'expedition';
+  check('远征中不能从家里叫伙伴、也不能让伙伴回家', PT.joinParty(ps, 'pet-fox').reason === 'away');
+  check('远征中可以调整领头', (PT.joinParty({ ...ps, player: { ...ps.player, area: 'home' } }, 'pet-fox'), true) && PT.setLead(ps, ps.party[0]).ok);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

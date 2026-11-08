@@ -3,7 +3,7 @@ import { petTextureKey, species, ELEMENT_COLORS } from '../data/pets.js';
 import { SKILLS } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
 import { woodPanel, capsuleButton, plaqueButton, text, tag, MIN_TOUCH } from '../ui/widgets.js';
-import { resolveTurn, active, finishBattle } from '../systems/battle.js';
+import { resolveTurn, active, finishBattle, catchChance } from '../systems/battle.js';
 
 // Turn-based pet battle screen (T06). Runs on top of the paused world;
 // all rules live in systems/battle.js, this scene only shows them.
@@ -31,7 +31,7 @@ export default class BattleScene extends Phaser.Scene {
     this.sprites = { me: this.makeSprite('me'), foe: this.makeSprite('foe') };
     this.cards = { foe: this.makeCard('foe', 32, 28), me: this.makeCard('me', GAME_W - 352, 268) };
     this.panel = woodPanel(this, GAME_W - 40, 150).setPosition(GAME_W / 2, GAME_H - 88);
-    this.msg = text(this, -GAME_W / 2 + 56, -48, '', 19, { wrap: 380, lineSpacing: 6 });
+    this.msg = text(this, -GAME_W / 2 + 56, -48, '', 19, { wrap: 330, lineSpacing: 6 });
     this.panel.add(this.msg);
     this.menuBox = this.add.container(0, 0);
     this.panel.add(this.menuBox);
@@ -147,7 +147,7 @@ export default class BattleScene extends Phaser.Scene {
     this.button(x0, y0, '技能', () => this.showSkills(), { name: 'cmd-skill' });
     this.button(x0 + dx, y0, '换伙伴', () => this.showSwitch(false), { name: 'cmd-switch', style: 'yellow' });
     this.button(x0 + dx * 2, y0, '零食', () => this.showSnacks(), { name: 'cmd-snack', style: 'yellow' });
-    this.button(x0, y0 + dy, '捕捉', () => this.say('捕捉功能马上就来（T07）！'), { name: 'cmd-catch', style: 'yellow' });
+    this.button(x0, y0 + dy, '捕捉', () => this.showNets(), { name: 'cmd-catch', style: 'yellow', disabled: active(this.battle, 'foe').hp <= 0 });
     this.button(x0 + dx, y0 + dy, '溜走', () => this.act({ type: 'flee' }), { name: 'cmd-flee', style: 'yellow' });
   }
 
@@ -180,7 +180,7 @@ export default class BattleScene extends Phaser.Scene {
     this.clearMenu(); this.menu = 'snacks';
     const foods = this.battle.inventory.filter((s) => ITEMS[s.id]?.food);
     const foe = active(this.battle, 'foe');
-    this.say(foods.length ? `喂${foe.name}吃点什么？（喜欢的食物更容易捕捉）` : '背包里没有零食。');
+    this.say(foods.length ? `喂${foe.name}吃点什么？\n（喜欢的食物更好抓）` : '背包里没有零食。');
     foods.slice(0, 4).forEach((s, i) => {
       this.button(40 + (i % 2) * 210, -30 + Math.floor(i / 2) * 60, `${ITEMS[s.id].name} ×${s.count}`, () => this.act({ type: 'snack', item: s.id }),
         { w: 196, style: 'yellow', name: `snack-${s.id}` });
@@ -188,10 +188,23 @@ export default class BattleScene extends Phaser.Scene {
     this.backButton();
   }
 
+  showNets() {
+    this.clearMenu(); this.menu = 'nets';
+    const nets = this.battle.inventory.filter((s) => ITEMS[s.id]?.netMult);
+    const foe = active(this.battle, 'foe');
+    this.say(nets.length ? `用哪张网抓${foe.name}？\n（体力越低越好抓）` : '背包里没有捕宠网，\n可以在「制作」里编一张。');
+    nets.slice(0, 4).forEach((s, i) => {
+      const pct = Math.round(catchChance(this.battle, s.id) * 100);
+      this.button(40 + (i % 2) * 210, -30 + Math.floor(i / 2) * 60, `${ITEMS[s.id].name}×${s.count} ${pct}%`, () => this.act({ type: 'catch', item: s.id }),
+        { w: 196, style: 'green', name: `net-${s.id}` });
+    });
+    this.backButton();
+  }
+
   // ---------- turn playback ----------
   act(action) {
     const r = resolveTurn(this.battle, action);
-    if (!r.ok) { this.say({ 'no-uses': '这个技能这场用完了。', 'bad-switch': '它不能上场。', 'no-item': '没有这个零食了。' }[r.reason] ?? '现在不能这么做。'); return; }
+    if (!r.ok) { this.say({ 'no-uses': '这个技能这场用完了。', 'bad-switch': '它不能上场。', 'no-item': '没有这个零食了。', 'no-net': '没有这张网了。', fainted: '它已经跑掉了，抓不到了。' }[r.reason] ?? '现在不能这么做。'); return; }
     this.clearMenu();
     this.busy = true;
     this.play(r.events, 0);
@@ -251,6 +264,24 @@ export default class BattleScene extends Phaser.Scene {
       case 'flee':
         this.say('悄悄溜走了……');
         return next(600);
+      case 'throw': {
+        this.say(`扔出了${e.itemName}！`);
+        const tgt = this.sprites.foe.img;
+        const net = this.add.image(SPOT.me.x + 40, SPOT.me.y - 120, ITEMS[e.item].icon).setScale(0.5);
+        this.tweens.add({ targets: net, x: tgt.x, y: tgt.y - tgt.displayHeight * 0.5, angle: 360, duration: 450 * this.speed + 1, ease: 'Quad.out',
+          onComplete: () => this.tweens.add({ targets: net, scale: 0.62, duration: 120 * this.speed + 1, yoyo: true, repeat: 2, onComplete: () => net.destroy() }) });
+        return next(1200);
+      }
+      case 'caught': {
+        this.say(`抓到了${e.name}！`);
+        const img = this.sprites.foe.img;
+        this.tweens.add({ targets: img, scale: img.scaleX * 0.2, alpha: 0, duration: 380 * this.speed + 1 });
+        return next(900);
+      }
+      case 'escape':
+        this.say(`${e.name}挣脱了网！`);
+        this.tweens.add({ targets: this.sprites.foe.img, x: '+=10', duration: 50 * this.speed + 1, yoyo: true, repeat: 3 });
+        return next(800);
       default:
         return next(0);
     }
@@ -269,9 +300,16 @@ export default class BattleScene extends Phaser.Scene {
     const sum = finishBattle(session.state, this.battle, { wildId: this.wildId });
     session.pushToRegistry();
     this.summary = sum;
-    const title = { win: '胜利！', lose: '伙伴们玩累了……', flee: '溜走了' }[sum.result] ?? '对战结束';
+    const title = { win: '胜利！', lose: '伙伴们玩累了……', flee: '溜走了', caught: '捕捉成功！' }[sum.result] ?? '对战结束';
     const lines = [];
-    if (sum.result === 'win') {
+    if (sum.result === 'caught') {
+      const c = sum.caught;
+      lines.push(`${c.name}${c.shiny ? '（异色！）' : ''} ${'★'.repeat(c.stars)}`);
+      lines.push(c.joined ? `${c.name}加入了队伍！` : `队伍满了，${c.name}被送回家园宠物小屋。`);
+      lines.push(`好感 ${c.affection}${c.affection >= 20 ? '（喂过喜欢的零食）' : ''}`);
+      for (const x of sum.exp) lines.push(`${x.name} 经验 +${x.amount}`);
+      for (const x of sum.levelUps) lines.push(`${x.name} 升到了 Lv.${x.level}！`);
+    } else if (sum.result === 'win') {
       for (const x of sum.exp) lines.push(`${x.name} 经验 +${x.amount}`);
       for (const x of sum.levelUps) lines.push(`${x.name} 升到了 Lv.${x.level}！`);
       lines.push(`四叶草 +${sum.clover}`);

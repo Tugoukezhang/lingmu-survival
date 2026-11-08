@@ -1,10 +1,12 @@
 import { COLORS } from '../config.js';
 import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
-import { calcStats, displayName } from '../systems/petMath.js';
+import { calcStats, displayName, expToNext } from '../systems/petMath.js';
+import { NATURES } from '../data/natures.js';
+import { joinParty, leaveParty, setLead } from '../systems/party.js';
 import { RECIPES } from '../data/recipes.js';
 import { canCraft, craft, bagSlots } from '../systems/crafting.js';
-import { woodPanel, plaqueButton, capsuleButton, slot, tag, text } from './widgets.js';
+import { woodPanel, plaqueButton, capsuleButton, slot, tag, text, makeClickable } from './widgets.js';
 
 // Panels read the saved game state (scene.game.session.state).
 const stateOf = (scene) => scene.game.session.state;
@@ -81,27 +83,78 @@ export function bagPanel(scene, stack) {
   return c;
 }
 
+const NATURE_NAMES = (id) => (NATURES[id] ?? NATURES.gentle).name;
+
+// Party panel (T07): all owned pets, 6 per page; pick a pet, then join /
+// leave the party or make it the leader (party max 3, docs/02 第 6 节).
 export function petsPanel(scene, stack) {
-  const w = 760, h = 420;
+  const w = 760, h = 420, perPage = 6;
   const c = woodPanel(scene, w, h);
-  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '宠物伙伴', 26));
-  const st0 = stateOf(scene);
-  st0.pets.slice(0, 6).forEach((inst, i) => {
-    const p = species(inst.species);
-    const x = -w / 2 + 130 + (i % 3) * 250, y = -60 + Math.floor(i / 3) * 170;
-    const card = scene.add.graphics();
-    card.fillStyle(COLORS.creamDark).fillRoundedRect(x - 105, y - 70, 210, 150, 18);
-    const img = scene.add.image(x - 45, y + 6, petTextureKey(inst.form === 'human' && p.humanForm ? p.humanForm : p.id));
-    img.setScale(120 / img.height);
-    const nameT = text(scene, x + 10, y - 40, displayName(inst), 18);
-    const el = tag(scene, x + 40, y - 2, `${p.element}属性`, Phaser.Display.Color.HexStringToColor(ELEMENT_COLORS[p.element]).color);
-    const st = calcStats(inst);
-    const inParty = st0.party.includes(inst.uid);
-    const lv = text(scene, x + 10, y + 20, `Lv.${inst.level}${inParty ? ' · 同行' : ''}`, 15);
-    const stats = text(scene, x + 10, y + 42, `体${st.hp} 攻${st.atk}
-防${st.def} 速${st.spd}`, 14, { bold: false, lineSpacing: 2 });
-    c.add([card, img, nameT, el, lv, stats]);
-  });
+  const title = text(scene, -w / 2 + 36, -h / 2 + 22, '', 26);
+  c.add(title);
+  const body = scene.add.container(0, 0);
+  c.add(body);
+  let page = 0, selected = stateOf(scene).party[0];
+
+  const act = (fn, okMsg) => {
+    const st = stateOf(scene);
+    const r = fn(st, selected);
+    if (r.ok) { scene.game.session.markDirty(); scene.game.events.emit('party-changed'); if (okMsg) scene.showToast(okMsg); }
+    else scene.showToast({ full: '队伍满了（最多 3 只），先让一只离队', away: '远征中只能调整顺序，回家园再换伙伴', last: '队伍里至少要有 1 只伙伴' }[r.reason] ?? '现在不能这么做');
+    draw();
+  };
+
+  const draw = () => {
+    const st = stateOf(scene);
+    const pages = Math.max(1, Math.ceil(st.pets.length / perPage));
+    page = Math.min(page, pages - 1);
+    title.setText(`宠物伙伴  队伍 ${st.party.length}/3`);
+    body.removeAll(true);
+    st.pets.slice(page * perPage, page * perPage + perPage).forEach((inst, i) => {
+      const sp = species(inst.species);
+      const x = -w / 2 + 132 + (i % 3) * 248, y = -h / 2 + 136 + Math.floor(i / 3) * 140;
+      const sel = inst.uid === selected;
+      const g = scene.add.graphics();
+      if (sel) g.fillStyle(COLORS.yellow).fillRoundedRect(x - 116, y - 64, 232, 128, 20);
+      g.fillStyle(COLORS.creamDark).fillRoundedRect(x - 112, y - 60, 224, 120, 17);
+      const img = scene.add.image(x - 62, y + 6, petTextureKey(inst.form === 'human' && sp.humanForm ? sp.humanForm : sp.id));
+      img.setScale(98 / img.height);
+      if (inst.hp === 0) img.setAlpha(0.45);
+      const stats = calcStats(inst);
+      const hpNow = inst.hp == null ? stats.hp : inst.hp;
+      const items = [g, img,
+        text(scene, x - 8, y - 46, displayName(inst), 17),
+        text(scene, x - 8, y - 20, `Lv.${inst.level}  ${'★'.repeat(inst.stars)}`, 14, { color: '#c99a1e' }),
+        tag(scene, x + 22, y + 10, `${sp.element}属性`, Phaser.Display.Color.HexStringToColor(ELEMENT_COLORS[sp.element]).color),
+        text(scene, x - 8, y + 26, `体力 ${hpNow}/${stats.hp}`, 13, { bold: false, color: hpNow === 0 ? '#d9572b' : '#5a4030' }),
+      ];
+      const rank = st.party.indexOf(inst.uid);
+      if (rank >= 0) items.push(tag(scene, x + 80, y - 46, rank === 0 ? '领头' : '队伍', rank === 0 ? 0xd9572b : 0x6fae4a));
+      if (inst.shiny) items.push(text(scene, x + 84, y + 26, '✦异色', 12, { color: '#7a4aa0', ox: 0.5 }));
+      const hit = scene.add.rectangle(x, y, 224, 120, 0xffffff, 0.001);
+      makeClickable(scene, hit, () => { selected = inst.uid; draw(); });
+      hit.setData({ name: `pet-card-${inst.uid}`, touchW: 224, touchH: 120 });
+      body.add([...items, hit]);
+    });
+    if (pages > 1) {
+      body.add(capsuleButton(scene, w / 2 - 210, -h / 2 + 38, '◀', { w: 56, h: 44, style: 'yellow', name: 'pets-prev', onClick: () => { page = (page + pages - 1) % pages; draw(); } }));
+      body.add(text(scene, w / 2 - 160, -h / 2 + 38, `${page + 1}/${pages}`, 16, { ox: 0.5, oy: 0.5 }));
+      body.add(capsuleButton(scene, w / 2 - 110, -h / 2 + 38, '▶', { w: 56, h: 44, style: 'yellow', name: 'pets-next', onClick: () => { page = (page + 1) % pages; draw(); } }));
+    }
+    // bottom bar: details + actions for the selected pet
+    const inst = st.pets.find((x) => x.uid === selected);
+    if (inst) {
+      const y = h / 2 - 40;
+      body.add(text(scene, -w / 2 + 36, y, `${displayName(inst)} · ${NATURE_NAMES(inst.nature)} · 好感 ${inst.affection} · 经验 ${inst.exp}/${expToNext(inst.level)}`, 14, { oy: 0.5, bold: false }));
+      const rank = st.party.indexOf(inst.uid);
+      if (rank < 0) body.add(capsuleButton(scene, w / 2 - 110, y, '加入队伍', { w: 150, h: 44, onClick: () => act(joinParty, `${displayName(inst)}加入了队伍`), name: 'party-join' }));
+      else {
+        if (rank > 0) body.add(capsuleButton(scene, w / 2 - 270, y, '设为领头', { w: 140, h: 44, style: 'yellow', onClick: () => act(setLead, `${displayName(inst)}现在领头`), name: 'party-lead' }));
+        body.add(capsuleButton(scene, w / 2 - 110, y, '离开队伍', { w: 150, h: 44, style: 'yellow', onClick: () => act(leaveParty, `${displayName(inst)}回宠物小屋休息了`), name: 'party-leave' }));
+      }
+    }
+  };
+  draw();
   c.add(closeBtn(scene, stack, w, h));
   return c;
 }

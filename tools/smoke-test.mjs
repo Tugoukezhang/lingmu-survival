@@ -333,6 +333,28 @@ try {
   check('点继续 → 回到岛上，世界恢复，HUD 回来', !(await bt()) && !afterB.inBattle && await page.evaluate(() => !window.__game.scene.isPaused('play') && window.__game.scene.isVisible('ui')));
   if (endB.over === 'win') check('打赢：野生宠物消失、得到四叶草', wildCount1 === wildCount0 - 1 && (await reg('clover')) > clover0b, `${wildCount0}→${wildCount1} 四叶草 ${clover0b}→${await reg('clover')}`);
   else check('打输：野生宠物还在、提示伙伴累了', wildCount1 === wildCount0, endB.over);
+  // ---------- catching (T07) ----------
+  await page.evaluate(() => { const st = window.__game.session.state; for (const x of st.pets) x.hp = null; });
+  await page.waitForTimeout(4200);
+  const petsBefore = await page.evaluate(() => window.__game.session.state.pets.length);
+  const wildBefore = await page.evaluate(() => window.__game.scene.getScene('play').wild.length);
+  await meetWild(0);
+  await page.evaluate(() => { for (const m of window.__game.scene.getScene('battle').battle.sides.foe.mons) m.stats.atk = 1; }); // keep this check deterministic
+  await tapBattle('cmd-snack'); await page.waitForTimeout(150);
+  const snackName = await page.evaluate(() => window.__game.scene.getScene('battle').battle.inventory.find((s) => s.id.startsWith('item_') && ['item_berry', 'item_carrot', 'item_fish_roast'].includes(s.id))?.id);
+  await tapBattle(`snack-${snackName}`); await waitIdle();
+  await tapBattle('cmd-catch'); await page.waitForTimeout(150);
+  await page.screenshot({ path: join(OUT, '28-catch-menu.png') });
+  const shown = await page.evaluate(() => window.__game.scene.getScene('battle').findTarget('net-item_net_grass'));
+  check('捕捉菜单列出捕宠网和成功率', !!shown);
+  await page.evaluate(() => { window.__game.scene.getScene('battle').battle.rng = () => 0.01; });   // make the throw succeed
+  await tapBattle('net-item_net_grass'); await waitIdle();
+  const caughtB = await bt();
+  await page.screenshot({ path: join(OUT, '29-caught.png') });
+  check('扔网成功 → 捕捉成功结算', caughtB?.over === 'caught', JSON.stringify(caughtB));
+  await tapBattle('battle-continue'); await page.waitForTimeout(500);
+  const afterCatch = await page.evaluate(() => ({ pets: window.__game.session.state.pets.length, party: window.__game.session.state.party.length, wild: window.__game.scene.getScene('play').wild.length }));
+  check('抓到的宠物进入存档（队伍满了送回家园），野生宠物从岛上消失', afterCatch.pets === petsBefore + 1 && afterCatch.party === 3 && afterCatch.wild === wildBefore - 1, JSON.stringify(afterCatch));
   // A05: flee keeps the wild pet
   await page.evaluate(() => { const st = window.__game.session.state; for (const x of st.pets) x.hp = null; });
   const wc = await page.evaluate(() => window.__game.scene.getScene('play').wild.length);
@@ -364,6 +386,28 @@ try {
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(500);
   check('回到家园岛', (await state()).area === 'home' && (await state()).onWalkable);
+
+  // ---------- party panel (T07) ----------
+  await tapTarget('hud-pets');
+  const newUid = await page.evaluate(() => window.__game.session.state.pets.at(-1).uid);
+  check('宠物超过 6 只时可以翻页', !!(await page.evaluate(() => window.__game.scene.getScene('ui').findTarget('pets-next'))));
+  await tapTarget('pets-next');
+  await page.screenshot({ path: join(OUT, '30-party-page2.png') });
+  await tapTarget('pets-prev');
+  const leaveUid = await page.evaluate(() => window.__game.session.state.party[2]);
+  await tapTarget(`pet-card-${leaveUid}`);
+  await tapTarget('party-leave');
+  await tapTarget('pets-next');
+  await tapTarget(`pet-card-${newUid}`);
+  await tapTarget('party-join');
+  await tapTarget('party-lead');
+  const pty = await page.evaluate(() => window.__game.session.state.party);
+  check('回家后：让一只离队、新伙伴加入并设为领头', pty.length === 3 && pty[0] === newUid && !pty.includes(leaveUid), JSON.stringify(pty));
+  check('队伍面板按钮触控尺寸 ≥ 44', smallTargets(await ui()).length === 0, JSON.stringify(smallTargets(await ui())));
+  await page.screenshot({ path: join(OUT, '31-party-lead.png') });
+  await tapTarget('close');
+  const lead = await page.evaluate(() => window.__game.scene.getScene('play').follower.inst.uid);
+  check('新领头跟在玩家身后', lead === newUid);
 
   // ---------- airship travel (T25) ----------
   await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.dock.x, sc.dock.y + 20); });
