@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Dev-only tools (automated smoke test). The game itself has no build step.",
   "scripts": {
-    "test": "node smoke-test.mjs"
+    "test": "node logic-test.mjs && node smoke-test.mjs",
+    "logic": "node logic-test.mjs"
   },
   "devDependencies": {
     "playwright-core": "1.56.1"

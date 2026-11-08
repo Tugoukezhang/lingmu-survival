@@ -1,5 +1,6 @@
 import { COLORS } from '../config.js';
 import { PETS, ELEMENT_COLORS, petTextureKey } from '../data/pets.js';
+import { createStarter, calcStats } from '../systems/petMath.js';
 import { woodPanel, plaqueButton, capsuleButton, slot, tag, text } from './widgets.js';
 
 // Demo panels for T03. They show the visual language and the stack
@@ -71,8 +72,12 @@ export function petsPanel(scene, stack) {
     img.setScale(120 / img.height);
     const nameT = text(scene, x + 10, y - 40, p.name, 18);
     const el = tag(scene, x + 40, y - 2, `${p.element}属性`, Phaser.Display.Color.HexStringToColor(ELEMENT_COLORS[p.element]).color);
-    const lv = text(scene, x + 10, y + 26, 'Lv.1', 15, { bold: false });
-    c.add([card, img, nameT, el, lv]);
+    // demo: a fresh Lv1, 3-star, 温和 pet; the real party comes with T07/T08
+    const st = calcStats(createStarter(p.id, { uid: `demo-${p.id}` }));
+    const lv = text(scene, x + 10, y + 20, 'Lv.1', 15);
+    const stats = text(scene, x + 10, y + 42, `体${st.hp} 攻${st.atk}
+防${st.def} 速${st.spd}`, 14, { bold: false, lineSpacing: 2 });
+    c.add([card, img, nameT, el, lv, stats]);
   });
   c.add(closeBtn(scene, stack, w, h));
   return c;

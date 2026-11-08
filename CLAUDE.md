@@ -11,12 +11,13 @@
 - 和负责人沟通用**中文**，少用术语；需要决策时给推荐项和理由。
 
 ## 当前状态（2026-11-08）
-- 阶段：M0 技术基线。**T02、T03 已实现，待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）。自动检查 23/23 通过。
+- 阶段：M1。**T02、T03、T04 已实现，待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）；宠物/技能/性格数据和属性、伤害、经验、捕捉、进化公式（`systems/petMath.js`）。界面自动检查 23/23、逻辑检查 53/53 通过。
+- 界面零件：负责人正在逐个手绘（T41），到了再换进 `widgets.js`；main 分支上的矢量重绘包只作参考和备用，不直接接入。
 - 已完成：方向确认；知识库搭建；引入游戏开发 skills；冒险探索、捕捉、宠物养成、商业化设计（开工图 v0.4、`docs/06`–`09`）；参考视频笔记；风格示例图入库。
 - 宠物名单（2026-11-08）：橡果刺猬（森）、航海鲨（水）、冰蓝小狼（水）、月影狐猫（暗）、星星熊仔（光）、焰尾狐（火）及其人形态（化形）全部定稿并抠图（`game/assets/pets/`，7 张待机图）。素材处理脚本和用法见 `tools/art/README.md`（抠图 `cutout.py`、无缝地块 `seamless.py`）。草地地块 `game/assets/tiles/tile_grass.png` 和 3 个物品图标 `game/assets/items/` 已入库，草地已用在游戏里。属性 5 种：森水火光暗。
 - 美术原创要求：出图不上传他人角色图；新图要和负责人提供的原截图并排对比原创度。抠图用 rembg（isnet-general-use 模型），已装在负责人电脑的 Python 里。
 - 等负责人：手机实测 T02；看一眼游戏里的新草地确认 T17；通读 07、08。
-- 下一步：T04（宠物与技能数据）→ T08 存档 → T10 时间昼夜 → T05 远征岛生成 → T06 宠物对战（M1 主线）。
+- 下一步：T08 存档 → T10 时间昼夜 → T05 远征岛生成 → T06 宠物对战（M1 主线）。
 - 工作副本：负责人电脑 `C:\Users\1\Desktop\lingmu-survival`（Windows，VS Code 本地会话）；云端会话也用同一个 GitHub 仓库。
 
 ## 文档索引（有效规则以这里为准）
@@ -44,7 +45,7 @@
 - 逻辑分辨率 960×540 横屏，FIT 缩放；触屏为主（左下虚拟摇杆、右下动作按钮），键盘为辅。
 - 内容（宠物、技能、作物、物品、NPC、任务）写成数据文件，不硬编码在逻辑里。
 - 存档：localStorage，带 `version` 字段和迁移函数，保留上一份备份。
-- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 世界、UIScene 屏幕界面）、`game/src/systems/`（input 动作映射、rng 种子随机）、`game/src/ui/`（widgets 木框奶油色组件与矢量图标、PanelStack 面板栈、panels 演示面板、VirtualJoystick）、`game/src/data/`（pets 名单）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
+- 代码目录：`game/index.html`（入口）、`game/src/main.js`、`game/src/config.js`（分辨率、配色、URL 参数）、`game/src/scenes/`（BootScene 加载与占位贴图、PlayScene 世界、UIScene 屏幕界面）、`game/src/systems/`（input 动作映射、rng 种子随机、petMath 宠物属性与战斗公式）、`game/src/ui/`（widgets 木框奶油色组件与矢量图标、PanelStack 面板栈、panels 演示面板、VirtualJoystick）、`game/src/data/`（pets、skills、natures、elements）、`game/assets/`、`game/vendor/phaser.min.js`（4.2.1，MIT）。无构建步骤，原生 ES 模块。
 - 占位图都在 BootScene 里用 canvas 画（主角、树、石头、云、影子），正式素材到位后换成图片，键名不变。
 - 两层场景：PlayScene 只管世界；UIScene 叠在上面，放 HUD、摇杆、互动按钮、提示条、面板。两层不互相调用，只通过 registry（共享状态：day、clock、hp、hunger、clover、uiModal 等，HUD 监听变化自动刷新）和 game.events（`toast`、`interact-available`、`action-pressed`）通信。
 - 界面按钮一律用 `widgets.js` 的 `makeClickable`：按下和松开都在同一个按钮上才算点击，防止关弹窗时误触下面的按钮；面板关闭后 150ms 内忽略点击。触控区域 ≥ 44、HUD 离屏幕边 ≥ 24，自动检查会验证。
@@ -62,6 +63,7 @@
 
 ## 运行与验证
 - 本地运行：`python -m http.server 8000 --directory game`，浏览器打开 `http://localhost:8000`。URL 参数：`?debug=1` 显示帧率和格子坐标，`?seed=数字` 换一座占位岛。
+- 逻辑检查：`cd tools && node logic-test.mjs`（不开浏览器，核对文档里的演算例子和验收用例；纯规则代码放 `systems/`、`data/`，不能引用 Phaser）。
 - 自动检查：`cd tools && npm install && node smoke-test.mjs`。用本机 Edge（playwright-core，不下载浏览器）以 844×390 手机横屏 + 触屏打开游戏，测加载、缩放、键盘、触屏摇杆、岛边碰撞、互动、按钮、竖屏提示、报错；截图在 `tools/out/`（不提交）。**改完代码都要跑一遍，并看截图。**
 - 测试钩子：PlayScene 的 `debugState()`、`teleport()`、`findClearRun()`；UIScene 的 `debugUi()`、`findTarget(按钮名)`。`window.__game` 是游戏实例。
 
