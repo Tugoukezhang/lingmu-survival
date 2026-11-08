@@ -1,0 +1,34 @@
+name: Assemble HUD V2 ZIP (one time)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/assemble_hud_v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Assemble and verify original HUD V2 ZIP
+        run: python game/assets/ui/hud_v2/assemble_hud_v2.py
+      - name: Commit ZIP to repository
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game/assets/ui/hud_v2/hud_v2_complete_ascii.zip
+          if git diff --cached --quiet; then
+            echo "ZIP already committed."
+          else
+            git commit -m "Add original HUD V2 complete ZIP (verified)"
+            git push origin HEAD:main
+          fi
