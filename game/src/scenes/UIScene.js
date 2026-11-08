@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 import { currentGoal, GOALS, guideState } from '../systems/guide.js';
 
@@ -41,11 +41,12 @@ export default class UIScene extends Phaser.Scene {
     ev.on('seed-request', this.openSeeds, this);
     ev.on('seedshop-request', this.openSeedShop, this);
     ev.on('ship-request', this.openShip, this);
+    ev.on('petcare-request', this.openCare, this);
     this.events.once('shutdown', () => {
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
       ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this); ev.off('storage-request', this.openStorage, this); ev.off('guide-changed', this.refreshGuide, this);
-      ev.off('seed-request', this.openSeeds, this); ev.off('seedshop-request', this.openSeedShop, this); ev.off('ship-request', this.openShip, this);
+      ev.off('seed-request', this.openSeeds, this); ev.off('seedshop-request', this.openSeedShop, this); ev.off('ship-request', this.openShip, this); ev.off('petcare-request', this.openCare, this);
     });
     this.refreshAll();
     const session = this.game.session;
@@ -71,6 +72,7 @@ export default class UIScene extends Phaser.Scene {
 
   openSeeds(info) { if (!this.stack.size) this.stack.push('seeds', (s, st) => seedPanel(s, st, info)); }
   openSeedShop() { if (!this.stack.size) this.stack.push('seedshop', seedShopPanel); }
+  openCare(info) { if (!this.stack.size) this.stack.push('petcare', (s, st) => petCarePanel(s, st, info)); }
   openShip() { if (!this.stack.size) this.stack.push('ship', shipPanel); }
 
   openStorage() {

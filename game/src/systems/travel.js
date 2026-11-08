@@ -9,6 +9,7 @@ import { ITEMS } from '../data/items.js';
 import { addItem } from './inventory.js';
 import { bagSlots } from './crafting.js';
 import { bump } from './guide.js';
+import { bondFromTrip } from './petcare.js';
 
 export const TRAVEL_MIN = 60;    // departure and return each take 1 game hour
 export const WAKE_CLOCK = 8 * 60;
@@ -54,6 +55,7 @@ export function returnHome(state) {
   state.player.x = null; state.player.y = null;
   state.flags.arriveAt = 'dock';
   bump(state, 'returns');
+  bondFromTrip(state);   // a finished trip together: +2 affection (≤5/day)
   return { ok: true };
 }
 

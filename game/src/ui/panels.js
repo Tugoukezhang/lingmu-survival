@@ -8,6 +8,7 @@ import { lightTorch } from '../systems/night.js';
 import { SKILL_NAMES, SKILL_HELP, depositAll, withdrawAll } from '../systems/explore.js';
 import { guideState, setGuideOff, guideDone } from '../systems/guide.js';
 import * as FM from '../systems/farm.js';
+import * as PC from '../systems/petcare.js';
 import { CROPS } from '../data/crops.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
@@ -119,7 +120,7 @@ export function petsPanel(scene, stack) {
     const st = stateOf(scene);
     const r = fn(st, selected);
     if (r.ok) { scene.game.session.markDirty(); scene.game.events.emit('party-changed'); scene.showToast(r.moved?.length ? `${okMsg}；背包变小了，多出的 ${r.moved.length} 格物品放进了家园仓库` : okMsg); }
-    else scene.showToast({ full: '队伍满了（最多 3 只），先让一只离队', away: '远征中只能调整顺序，回家园再换伙伴', last: '队伍里至少要有 1 只伙伴' }[r.reason] ?? '现在不能这么做');
+    else scene.showToast({ full: '队伍满了（最多 3 只），先让一只离队', away: '远征中只能调整顺序，回家园再换伙伴', last: '队伍里至少要有 1 只伙伴', party: '队伍里的伙伴不能打工，先让它离队' }[r.reason] ?? '现在不能这么做');
     draw();
   };
 
@@ -149,6 +150,7 @@ export function petsPanel(scene, stack) {
       ];
       const rank = st.party.indexOf(inst.uid);
       if (rank >= 0) items.push(tag(scene, x + 80, y - 46, rank === 0 ? '领头' : '队伍', rank === 0 ? 0xd9572b : 0x6fae4a));
+      else if (inst.job) items.push(tag(scene, x + 80, y - 46, '打工', 0x3d7fb8));
       if (inst.shiny) items.push(text(scene, x + 84, y + 26, '✦异色', 12, { color: '#7a4aa0', ox: 0.5 }));
       const hit = scene.add.rectangle(x, y, 224, 120, 0xffffff, 0.001);
       makeClickable(scene, hit, () => { selected = inst.uid; draw(); });
@@ -168,7 +170,11 @@ export function petsPanel(scene, stack) {
       const ex = species(inst.species).explore;
       body.add(text(scene, -w / 2 + 36, y + 11, `探索：${SKILL_NAMES[ex]}——${SKILL_HELP[ex]}`, 12, { oy: 0.5, bold: false, color: '#7a6450' }));
       const rank = st.party.indexOf(inst.uid);
-      if (rank < 0) body.add(capsuleButton(scene, w / 2 - 110, y, '加入队伍', { w: 150, h: 44, onClick: () => act(joinParty, `${displayName(inst)}加入了队伍`), name: 'party-join' }));
+      if (rank < 0) {
+        body.add(capsuleButton(scene, w / 2 - 110, y, '加入队伍', { w: 150, h: 44, onClick: () => act(joinParty, `${displayName(inst)}加入了队伍`), name: 'party-join' }));
+        body.add(capsuleButton(scene, w / 2 - 270, y, inst.job ? '停止打工' : '派去打工', { w: 140, h: 44, style: 'yellow', name: 'job-toggle',
+          onClick: () => act((s, u) => PC.setJob(s, u, !inst.job), inst.job ? `${displayName(inst)}回来休息了` : `${displayName(inst)}去${PC.WORK[species(inst.species).work].name}了，明早带东西回来`) }));
+      }
       else {
         if (rank > 0) body.add(capsuleButton(scene, w / 2 - 270, y, '设为领头', { w: 140, h: 44, style: 'yellow', onClick: () => act(setLead, `${displayName(inst)}现在领头`), name: 'party-lead' }));
         body.add(capsuleButton(scene, w / 2 - 110, y, '离开队伍', { w: 150, h: 44, style: 'yellow', onClick: () => act(leaveParty, `${displayName(inst)}回宠物小屋休息了`), name: 'party-leave' }));
@@ -346,6 +352,87 @@ export function storagePanel(scene, stack) {
       const r = withdrawAll(stateOf(scene), bagSlots(stateOf(scene)));
       scene.game.session.markDirty(); scene.showToast(r.left ? `取回了 ${r.took} 格，背包满了，还有 ${r.left} 格留在仓库` : r.took ? `取回了 ${r.took} 格` : '仓库是空的'); draw();
     } }));
+  };
+  draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// ---------- pet care (T12) ----------
+// Pet, feed, make leader, send to work, shape-shift (焰尾狐 demo).
+export function petCarePanel(scene, stack, { uid }) {
+  const w = 600, h = 360;
+  const c = woodPanel(scene, w, h);
+  const body = scene.add.container(0, 0);
+  c.add(body);
+  const session = scene.game.session;
+  let feeding = false;
+  const draw = () => {
+    body.removeAll(true);
+    const st = stateOf(scene), inst = st.pets.find((p) => p.uid === uid);
+    if (!inst) return;
+    const sp = species(inst.species), care = PC.caredToday(st, inst), inParty = st.party.includes(uid);
+    const img = scene.add.image(-w / 2 + 110, 10, petTextureKey(inst.form === 'human' && sp.humanForm ? sp.humanForm : sp.id));
+    img.setScale(180 / img.height);
+    body.add(img);
+    body.add(text(scene, -w / 2 + 210, -h / 2 + 30, displayName(inst), 24));
+    body.add(text(scene, -w / 2 + 210, -h / 2 + 64, `好感 ${inst.affection ?? 0} / 100`, 16));
+    const g = scene.add.graphics();
+    g.fillStyle(COLORS.woodDark).fillRoundedRect(-w / 2 + 340, -h / 2 + 64, 200, 18, 9).fillStyle(COLORS.creamDark).fillRoundedRect(-w / 2 + 342, -h / 2 + 66, 196, 14, 7);
+    if (inst.affection) g.fillStyle(0xf08aa0).fillRoundedRect(-w / 2 + 342, -h / 2 + 66, Math.max(14, 196 * inst.affection / 100), 14, 7);
+    body.add(g);
+    const favName = ITEMS[sp.food]?.name ?? '';
+    body.add(text(scene, -w / 2 + 210, -h / 2 + 94, `今天：${care.fed ? '已喂食' : '还没喂'} · ${care.petted ? '已摸摸' : '还没摸'}　最爱：${favName}`, 14, { bold: false, color: '#7a6450' }));
+    body.add(text(scene, -w / 2 + 210, -h / 2 + 116, inParty ? '在队伍里（跟你去远征）' : inst.job ? `在${PC.WORK[sp.work].name}（明早带东西回来）` : '在家园休息', 14, { bold: false, color: '#7a6450' }));
+    const bx = -w / 2 + 290, by = -10;
+    if (feeding) {
+      const foods = PC.foodsInBag(st);
+      body.add(text(scene, bx - 80, by - 16, foods.length ? '喂什么？' : '背包里没有能喂的东西', 15));
+      foods.slice(0, 6).forEach((s, i) => {
+        const fav = sp.food === s.id;
+        body.add(capsuleButton(scene, bx + (i % 2) * 170, by + 26 + Math.floor(i / 2) * 52, `${ITEMS[s.id].name}${fav ? ' ♥+15' : ' +5'}`, { w: 160, h: 44, style: fav ? 'green' : 'yellow', name: `feed-${s.id}`,
+          onClick: () => {
+            const r = PC.feed(stateOf(scene), uid, s.id);
+            if (r.ok) { session.markDirty(); scene.game.events.emit('pet-happy', uid); scene.showToast(r.favourite ? `${displayName(inst)}超喜欢！好感 +${r.gain}` : `${displayName(inst)}吃掉了，好感 +${r.gain}`); }
+            else scene.showToast(r.reason === 'fed' ? '今天已经喂过了' : '没有了');
+            feeding = false; draw();
+          } }));
+      });
+      body.add(capsuleButton(scene, bx + 85, h / 2 - 50, '返回', { w: 120, h: 44, style: 'yellow', name: 'feed-back', onClick: () => { feeding = false; draw(); } }));
+      return;
+    }
+    body.add(capsuleButton(scene, bx, by, care.petted ? '摸过了' : '摸摸 +2', { w: 160, h: 46, style: care.petted ? 'yellow' : 'green', name: 'care-pet', onClick: () => {
+      const r = PC.petPet(stateOf(scene), uid);
+      if (r.ok) { session.markDirty(); scene.game.events.emit('pet-happy', uid); scene.showToast(`${displayName(inst)}眯起了眼睛，好感 +${r.gain}`); } else scene.showToast('今天已经摸过了');
+      draw();
+    } }));
+    body.add(capsuleButton(scene, bx + 170, by, care.fed ? '喂过了' : '喂食', { w: 160, h: 46, style: care.fed ? 'yellow' : 'green', name: 'care-feed', onClick: () => {
+      if (care.fed) { scene.showToast('今天已经喂过了，明天再来'); return; }
+      feeding = true; draw();
+    } }));
+    const lead = st.party[0] === uid;
+    body.add(capsuleButton(scene, bx, by + 58, lead ? '正在领头' : '跟着我', { w: 160, h: 46, style: 'yellow', name: 'care-lead', onClick: () => {
+      const s2 = stateOf(scene);
+      if (s2.party[0] === uid) return;
+      if (!s2.party.includes(uid)) {
+        if (s2.player.area !== 'home') { scene.showToast('远征中只能带队伍里的伙伴'); return; }
+        if (s2.party.length >= 3) { const out = s2.party[s2.party.length - 1]; leaveParty(s2, out); scene.showToast(`${displayName(s2.pets.find((p) => p.uid === out))}回宠物小屋休息了`); }
+        joinParty(s2, uid);
+      }
+      setLead(s2, uid);
+      session.save('party');
+      scene.game.events.emit('party-changed');
+      stack.clear();
+      scene.showToast(`${displayName(inst)}跟着你啦！`);
+    } }));
+    if (!inParty) body.add(capsuleButton(scene, bx + 170, by + 58, inst.job ? '停止打工' : '派去打工', { w: 160, h: 46, style: 'yellow', name: 'care-job', onClick: () => {
+      const r = PC.setJob(stateOf(scene), uid, !inst.job);
+      if (r.ok) { session.markDirty(); scene.showToast(inst.job ? `${displayName(inst)}去${PC.WORK[sp.work].name}了，明早带东西回来` : `${displayName(inst)}回来休息了`); }
+      else scene.showToast(r.reason === 'away' ? '回家园才能派去打工' : '队伍里的伙伴不能打工');
+      draw();
+    } }));
+    if (sp.humanForm) body.add(capsuleButton(scene, bx + 85, by + 116, inst.form === 'human' ? '变回原形' : '化形（演示）', { w: 180, h: 46, name: 'care-form', onClick: () => { scene.game.events.emit('pet-form', uid); draw(); } }));
+    body.add(text(scene, bx - 80, h / 2 - 34, `打工：${PC.WORK[sp.work].name}　探索：${SKILL_NAMES[sp.explore]}`, 14, { bold: false, color: '#9a8468' }));
   };
   draw();
   c.add(closeBtn(scene, stack, w, h));

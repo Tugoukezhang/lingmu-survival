@@ -106,6 +106,7 @@ export class GameClock {
 
 import { bump } from './guide.js';
 import { settleShipping, growCrops } from './farm.js';
+import { runPetWork } from './petcare.js';
 
 // ---------- daily settlement ----------
 // Order from docs/00 第 3 节: shipping → crops → pet work → home resources →
@@ -122,7 +123,7 @@ export const SETTLEMENT_STEPS = [
   } },
   { id: 'shipping', name: '出货结算', run: (s) => (s.farm ? settleShipping(s) : []) },   // T11
   { id: 'crops', name: '作物生长', run: (s) => (s.farm ? growCrops(s) : []) },             // T11
-  { id: 'petWork', name: '宠物打工', run: () => [] },      // T12
+  { id: 'petWork', name: '宠物打工', run: (s) => (s.pets ? runPetWork(s) : []) },   // T12
   { id: 'resources', name: '刷新家园资源', run: () => [] },
   { id: 'weather', name: '天气', run: () => [] },
 ];

@@ -78,38 +78,36 @@ export default {
       if (this.actions.consumeInteract()) spot.act();
       return;
     }
+    // pets: open the care panel (pet, feed, lead, work, shape-shift)
     const pet = this.nearestPet();
-    const canAct = !!(pet && (pet !== this.follower || pet.data.humanForm));
-    this.setActionVerb(!canAct ? null : pet === this.follower ? (pet.inst.form === 'human' ? '变回' : '化形') : '领头');
+    this.setActionVerb(pet ? '照顾' : null);
     if (pet) {
-      const label = pet === this.follower
-        ? (pet.data.humanForm ? `${pet.data.name} · 点互动${pet.inst.form === 'human' ? '变回原形' : '化形'}（演示）` : `${pet.data.name} · 跟着你`)
-        : `${pet.data.name} · ${pet.data.element}`;
+      const st = this.state, uid = pet.inst.uid;
+      const label = `${pet.data.name} · ${pet === this.follower ? '跟着你' : st.party.includes(uid) ? '队伍' : pet.inst.job ? '打工中' : pet.data.element}${pet.inst.fedDay === st.day ? '' : ' · 还没喂'}`;
       this.nameTag.setText(label).setBackgroundColor(ELEMENT_COLORS[pet.data.element])
         .setPosition(pet.sprite.x, pet.sprite.y - pet.sprite.displayHeight - 6).setVisible(true);
     } else {
       this.nameTag.setVisible(false);
     }
 
-    if (!this.actions.consumeInteract() || !canAct) return;
-    if (pet === this.follower) {
-      pet.inst.form = pet.inst.form === 'human' ? 'animal' : 'human';
-      this.applyPetTexture(pet);
-      this.showToast(pet.inst.form === 'human' ? `${pet.data.name} 化形了！` : `${pet.data.name} 变回了原形`);
-      this.session.markDirty();
-      return;
-    }
-    const old = this.follower;
-    old.home = { ...pet.home };
-    old.target = { ...pet.home };
-    old.wanderAt = 0;
-    if (old.inst.form === 'human') { old.inst.form = 'animal'; this.applyPetTexture(old); }
-    this.follower = pet;
-    // the new follower leads the party (max 3); interim until the party panel (T07)
-    this.state.party = [pet.inst.uid, ...this.state.party.filter((u) => u !== pet.inst.uid)].slice(0, 3);
-    this.session.save('party');
-    this.showToast(`${pet.data.name} 跟着你啦！`);
-    this.tweens.add({ targets: pet.sprite, scaleX: pet.sprite.scaleX * 1.15, scaleY: pet.sprite.scaleY * 0.85, duration: 90, yoyo: true });
+    if (!this.actions.consumeInteract() || !pet) return;
+    this.game.events.emit('petcare-request', { uid: pet.inst.uid });
+  },
+
+  // 化形 demo from the care panel (full rules: T39)
+  onPetForm(uid) {
+    const pet = this.pets.find((x) => x.inst.uid === uid);
+    if (!pet?.data.humanForm) return;
+    pet.inst.form = pet.inst.form === 'human' ? 'animal' : 'human';
+    this.applyPetTexture(pet);
+    this.showToast(pet.inst.form === 'human' ? `${pet.data.name} 化形了！` : `${pet.data.name} 变回了原形`);
+    this.session.markDirty();
+  },
+
+  // a little hop when a pet is cared for
+  onPetHappy(uid) {
+    const pet = this.pets.find((x) => x.inst.uid === uid);
+    if (pet) this.tweens.add({ targets: pet.sprite, y: pet.sprite.y - 14, duration: 140, yoyo: true, repeat: 1 });
   },
 
 };

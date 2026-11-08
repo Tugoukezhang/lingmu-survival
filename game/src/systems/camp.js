@@ -76,5 +76,6 @@ export function openChest(state, chestId, { bonus = false } = {}) {
   for (const [id, n] of Object.entries(loot.items)) addItem(state.inventory, id, n, bagSlots(state));
   state.clover += loot.clover;
   ch.chests.push(chestId);
+  if (state.flags) { state.flags.stats = state.flags.stats ?? {}; state.flags.stats.chests = (state.flags.stats.chests ?? 0) + 1; }
   return { ok: true, loot };
 }

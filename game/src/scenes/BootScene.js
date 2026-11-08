@@ -207,6 +207,13 @@ function seedBag(g, color) {
   g.fillStyle = '#6fae4a'; g.beginPath(); g.ellipse(72, 58, 10, 5, -0.6, 0, Math.PI * 2); g.fill();
 }
 const FARM_ICONS = {
+  item_fish: (g) => {
+    g.fillStyle = '#7ab0d8'; g.strokeStyle = '#3d5a7a'; g.lineWidth = 4;
+    g.beginPath(); g.ellipse(58, 64, 40, 22, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(94, 64); g.lineTo(120, 44); g.lineTo(120, 84); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#ffffff'; g.beginPath(); g.arc(34, 58, 6, 0, Math.PI * 2); g.fill(); g.fillStyle = '#3b2a20'; g.beginPath(); g.arc(34, 58, 3, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.6)'; g.lineWidth = 2; for (const x of [52, 64, 76]) { g.beginPath(); g.arc(x, 64, 10, -0.8, 0.8); g.stroke(); }
+  },
   item_seed_carrot: (g) => seedBag(g, '#f08a3a'), item_seed_strawberry: (g) => seedBag(g, '#e8445a'), item_seed_sunflower: (g) => seedBag(g, '#f5c84b'),
   item_seed_starwheat: (g) => seedBag(g, '#e8d27a'), item_seed_pumpkin: (g) => seedBag(g, '#e07a2a'),
   item_strawberry: (g) => {

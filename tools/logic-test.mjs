@@ -26,6 +26,7 @@ import * as CP from '../game/src/systems/camp.js';
 import * as EX from '../game/src/systems/explore.js';
 import * as GD from '../game/src/systems/guide.js';
 import * as FM from '../game/src/systems/farm.js';
+import * as PC from '../game/src/systems/petcare.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -934,6 +935,52 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const v1 = { ...S.newGameState(), version: 1 }; delete v1.farm; v1.inventory = v1.inventory.filter((x) => !['item_hoe', 'item_can', 'item_seed_carrot'].includes(x.id));
   const mig = S.decode(S.encode(v1));
   check('旧存档（版本 1）读入时自动迁移：加上农田、锄头、水壶、萝卜种子', mig.ok && mig.state.version === 2 && mig.state.farm && ['item_hoe', 'item_can', 'item_seed_carrot'].every((id) => mig.state.inventory.some((x) => x.id === id)), JSON.stringify(mig.reason ?? ''));
+}
+
+// ---------- pet care & work (T12; docs/02 第 7 节, docs/07 第 7 节) ----------
+{
+  const s = S.newGameState();
+  s.inventory.push({ id: 'item_carrot', count: 3 }, { id: 'item_sunflower', count: 2 });
+  let r = PC.feed(s, 'pet-acorn', 'item_carrot');
+  check('喂最爱的食物（橡果刺猬吃萝卜）：好感 +15', r.ok && r.favourite && s.pets.find((p) => p.uid === 'pet-acorn').affection === 15);
+  check('一天只能喂一次', PC.feed(s, 'pet-acorn', 'item_carrot').reason === 'fed');
+  r = PC.feed(s, 'pet-fox', 'item_carrot');
+  check('喂其他食物：好感 +5', r.ok && !r.favourite && s.pets.find((p) => p.uid === 'pet-fox').affection === 5);
+  check('向日葵人不能吃，但能喂冰蓝小狼（最爱 +15）', !ITEMS.item_sunflower.food && PC.feed(s, 'pet-pup', 'item_sunflower').gain === 15);
+  check('工具不能喂', PC.feed(s, 'pet-shark', 'item_hoe').reason === 'not-food');
+  check('摸摸 +2，一天一次', PC.petPet(s, 'pet-acorn').gain === 2 && PC.petPet(s, 'pet-acorn').reason === 'petted');
+  T.runSettlement(s, { slept: true });
+  check('第二天可以再喂、再摸', PC.feed(s, 'pet-acorn', 'item_carrot').ok && PC.petPet(s, 'pet-acorn').ok && s.pets.find((p) => p.uid === 'pet-acorn').affection === 34);
+  const a = s.pets.find((p) => p.uid === 'pet-acorn'); a.affection = 99;
+  PC.petPet({ ...s, day: s.day + 1 }, 'pet-acorn');
+  eq('好感最高 100', a.affection, 100);
+  // work
+  eq('打工产量公式：基础 4、好感 50 → 6', PC.workAmount(4, 50), 6);
+  eq('好感 100 → 翻倍', PC.workAmount(4, 100), 8);
+  check('队伍里的宠物不能打工', PC.setJob(s, 'pet-pup', true).reason === 'party');
+  const w = S.newGameState();
+  w.party = ['pet-acorn'];
+  for (const id of ['pet-pup', 'pet-fox', 'pet-shark', 'pet-shadecat', 'pet-starbear']) PC.setJob(w, id, true);
+  w.pets.find((p) => p.uid === 'pet-fox').affection = 50;
+  w.farm.plots['1,1'] = { tilled: true, crop: 'carrot', days: 0, watered: false };
+  w.farm.plots['2,1'] = { tilled: true, crop: 'carrot', days: 0, watered: false };
+  const clover0 = w.clover;
+  const rep = T.runSettlement(w, { slept: true });
+  const has = (id) => I.countOf(w.storage, id);
+  check('冰蓝小狼伐木：仓库木材 +4', has('item_wood') === 4);
+  check('焰尾狐挖矿（好感 50）：石头 +6、雾晶 +1', has('item_stone') === 6 && has('item_crystal') === 1);
+  check('航海鲨钓鱼：鱼 +2', has('item_fish') === 2);
+  check('月影狐猫寻宝：四叶草 +10', w.clover === clover0 + 10);
+  check('星星熊仔浇水：早上把地都浇了（作物生长之后浇，算新的一天）', Object.values(w.farm.plots).every((p) => p.watered && p.days === 0));
+  check('结算面板列出每只宠物带回的东西', rep.lines.filter((l) => /(伐木|挖矿|钓鱼|寻宝|浇水)：/.test(l)).length === 5, rep.lines.join(' / '));
+  check('打工的宠物加入队伍后自动停止打工', PT.joinParty(w, 'pet-pup').ok && w.pets.find((p) => p.uid === 'pet-pup').job === false);
+  // bonding on adventures
+  const b = S.newGameState(); b.party = ['pet-fox'];
+  for (let i = 0; i < 7; i++) PC.bondFromBattle(b);
+  eq('一起打赢对战每次 +1，一天最多 +5', b.pets.find((p) => p.uid === 'pet-fox').affection, 5);
+  PC.bondFromTrip(b); PC.bondFromTrip(b); PC.bondFromTrip(b);
+  eq('一起完成远征每次 +2，一天最多 +5', b.pets.find((p) => p.uid === 'pet-fox').affection, 10);
+  check('照顾记录存档合法', S.validate(w).length === 0 && S.validate(s).length === 0);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

@@ -16,6 +16,8 @@ export function joinParty(state, uid) {
   if (away(state)) return { ok: false, reason: 'away' };
   if (state.party.length >= PARTY_MAX) return { ok: false, reason: 'full' };
   state.party.push(uid);
+  const pet = state.pets.find((p) => p.uid === uid);
+  if (pet) pet.job = false;   // party members don't work at home
   return { ok: true };
 }
 

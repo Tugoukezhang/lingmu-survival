@@ -83,7 +83,12 @@ try {
   await keyHold(page, 'ArrowLeft', 4000);
   check('沿边缘横向走也不会出界', (await state()).onWalkable);
 
-  // interact: stand next to the fox and press E → fox follows
+  // interact: stand next to the fox, press E → care panel → 「跟着我」 → fox follows (T12)
+  const tapUi = async (name) => {
+    const q = await page.evaluate((n) => window.__game.scene.getScene('ui').findTarget(n), name);
+    if (!q) throw new Error(`UI target not found: ${name}`);
+    await page.touchscreen.tap(box.x + q.x * box.width / 960, box.y + q.y * box.height / 540); await page.waitForTimeout(300);
+  };
   await scene(() => {
     const sc = window.__game.scene.getScene('play');
     const fox = sc.pets.find((p) => p.data.id === 'fox');
@@ -91,14 +96,19 @@ try {
   });
   await page.waitForTimeout(100);
   await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  check('靠近宠物按互动 → 打开照顾面板', await page.evaluate(() => window.__game.scene.getScene('ui').stack.names.join() === 'petcare'));
+  await page.screenshot({ path: join(OUT, '03a-petcare.png') });
+  await tapUi('care-lead');
   const s4 = await state();
-  check('靠近宠物按互动 → 换成它跟随', s4.follower === 'fox', `follower=${s4.follower}`);
+  check('照顾面板点「跟着我」→ 换成它跟随', s4.follower === 'fox', `follower=${s4.follower}`);
   await page.screenshot({ path: join(OUT, '03-swap.png') });
 
-  // press E again next to the follower fox → human form (demo); do it in open ground away from other pets
+  // fox's care panel → 化形 (demo); do it in open ground away from other pets
   await goClear(1, 0, 3);
-  await page.waitForTimeout(100);
-  await page.keyboard.press('KeyE'); await page.waitForTimeout(400);
+  await page.waitForTimeout(400);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  await tapUi('care-form');
+  await tapUi('close');
   const s5 = await state();
   check('焰尾狐化形演示', s5.followerHuman === true);
   await page.screenshot({ path: join(OUT, '04-human-form.png') });
@@ -111,9 +121,10 @@ try {
   });
   await page.waitForTimeout(150);
   await page.touchscreen.tap(box.x + box.width * (864 / 960), box.y + box.height * (444 / 540));
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(350);
+  await tapUi('care-lead');
   const s6 = await state();
-  check('点屏幕右下「互动」按钮也能换宠物', s6.follower === 'starbear', `follower=${s6.follower}`);
+  check('点屏幕右下「互动」按钮也能照顾宠物、让它跟着', s6.follower === 'starbear', `follower=${s6.follower}`);
 
   // ---------- UI framework (T03) ----------
   const ui = () => page.evaluate(() => window.__game.scene.getScene('ui').debugUi());
@@ -767,6 +778,36 @@ try {
   const clover1 = await reg('clover');
   await sleepNight();
   check('出货的萝卜第二天结算成四叶草（每根 25）', (await reg('clover')) === clover1 + 25 * carrotsNow, `${clover1} → ${await reg('clover')} (${carrotsNow} 根)`);
+
+  // ---------- pet care & work (T12) ----------
+  // (opening by walking up to a pet is covered above; home pets wander and crowd, so open the exact one here)
+  const careOpen = async (species) => {
+    await page.evaluate((sp) => { const st = window.__game.session.state; const pet = st.pets.find((p) => p.species === sp && !p.uid.startsWith('pet-' + sp + '-')) ?? st.pets.find((p) => p.species === sp); window.__game.events.emit('petcare-request', { uid: pet.uid }); }, species);
+    await page.waitForTimeout(350);
+  };
+  await page.evaluate(() => { const inv = window.__game.session.state.inventory; const c = inv.find((s) => s.id === 'item_carrot'); if (c) c.count += 2; else inv.push({ id: 'item_carrot', count: 2 }); });
+  const aff0 = await page.evaluate(() => window.__game.session.state.pets.find((p) => p.uid === 'pet-acorn').affection ?? 0);
+  await careOpen('acorn');
+  await tapTarget('care-pet');
+  await tapTarget('care-feed');
+  await page.screenshot({ path: join(OUT, '54-feed.png') });
+  await tapTarget('feed-item_carrot');
+  const aff1 = await page.evaluate(() => window.__game.session.state.pets.find((p) => p.uid === 'pet-acorn').affection);
+  check('摸摸 +2、喂最爱的萝卜 +15', aff1 === Math.min(100, aff0 + 17), `${aff0} → ${aff1}`);
+  await tapTarget('care-feed');
+  check('一天只能喂一次', (await toastText()).includes('喂过'), await toastText());
+  await page.screenshot({ path: join(OUT, '55-petcare.png') });
+  await tapTarget('close');
+  // send a pet that is not in the party to work, then sleep → output in storage
+  const worker = await page.evaluate(() => { const st = window.__game.session.state; return st.pets.find((p) => !st.party.includes(p.uid) && p.species === 'pup')?.uid ?? st.pets.find((p) => !st.party.includes(p.uid)).uid; });
+  await page.evaluate((u) => window.__game.events.emit('petcare-request', { uid: u }), worker); await page.waitForTimeout(350);
+  await tapTarget('care-job');
+  await tapTarget('close');
+  check('不在队伍里的宠物可以派去打工', await page.evaluate((u) => window.__game.session.state.pets.find((p) => p.uid === u).job === true, worker));
+  const storage0 = await page.evaluate(() => (window.__game.session.state.storage ?? []).reduce((n, s) => n + s.count, 0) + window.__game.session.state.clover);
+  await sleepNight();
+  const storage1 = await page.evaluate(() => (window.__game.session.state.storage ?? []).reduce((n, s) => n + s.count, 0) + window.__game.session.state.clover);
+  check('打工的宠物第二天早上带回东西（放进家园仓库）', storage1 > storage0, `${storage0} → ${storage1}`);
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });

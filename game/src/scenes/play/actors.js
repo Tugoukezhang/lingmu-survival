@@ -127,8 +127,9 @@ export default {
     const lead = this.pets.find((x) => x.inst.uid === this.state.party[0]);
     if (lead && lead !== this.follower) {
       const old = this.follower;
-      if (old && !this.followLag(old)) { old.target = { ...old.home }; old.wanderAt = 0; }
       this.follower = lead;
+      if (old && !this.followLag(old)) { old.target = { ...old.home }; old.wanderAt = 0; }
+      this.tweens.add({ targets: lead.sprite, scaleX: lead.sprite.scaleX * 1.15, scaleY: lead.sprite.scaleY * 0.85, duration: 90, yoyo: true });
     }
   },
 

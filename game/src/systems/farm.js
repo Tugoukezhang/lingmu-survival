@@ -86,6 +86,7 @@ export function ship(state, id, n = 1) {
   if (priceOf(id) == null) return { ok: false, reason: 'no-price' };
   if (!removeItem(state.inventory, id, n)) return { ok: false, reason: 'none' };
   addItem(farmOf(state).shipping, id, n, Infinity);
+  bump(state, 'shipped', (priceOf(id) ?? 0) * n);
   return { ok: true };
 }
 

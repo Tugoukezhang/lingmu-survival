@@ -12,6 +12,7 @@ import { countOf, removeItem } from './inventory.js';
 export const PARTY_MAX = 3;
 import { mulberry32 } from './rng.js';
 import { bump } from './guide.js';
+import { bondFromBattle } from './petcare.js';
 
 export const CLOVER_PER_LEVEL = 3;      // 【建议】 clover per KO = 3 × enemy level
 
@@ -235,6 +236,7 @@ export function finishBattle(state, b, { wildId } = {}) {
   const summary = { result: b.over, exp: [], clover: b.clover, levelUps: [] };
   if (b.over !== 'flee') bump(state, 'battles');
   if (b.over === 'caught') bump(state, 'catches');
+  if (b.over === 'win' || b.over === 'caught') { bump(state, 'wins'); bondFromBattle(state); }   // docs/07 第 7 节: +1, ≤5/day
   for (const m of b.sides.me.mons) {
     const inst = state.pets.find((p) => p.uid === m.uid);
     if (!inst) continue;

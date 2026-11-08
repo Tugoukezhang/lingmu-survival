@@ -80,9 +80,11 @@ export default class PlayScene extends Phaser.Scene {
     const onWood = (id) => this.onAddWood(id);
     const onCampSleep = (id) => this.onCampSleep(id);
     const onPlant = (r) => this.onPlant(r);
+    const onPetForm = (uid) => this.onPetForm(uid);
+    const onPetHappy = (uid) => this.onPetHappy(uid);
     const onFarmRefresh = () => this.refreshFarm();
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh], ['pet-form', onPetForm], ['pet-happy', onPetHappy]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 

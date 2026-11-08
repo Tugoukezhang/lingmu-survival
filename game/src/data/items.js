@@ -36,6 +36,7 @@ export const ITEMS = {
   item_seed_starwheat: { name: '星光麦种子', tag: '种子', icon: 'item_seed_starwheat', desc: '浇水 6 天成熟。', quip: '摸起来暖暖的。' },
   item_seed_pumpkin: { name: '南瓜种子', tag: '种子', icon: 'item_seed_pumpkin', desc: '浇水 7 天成熟。\n最值钱的作物。', quip: '耐心等等。' },
 
+  item_fish: { name: '鱼', tag: '食物', icon: 'item_fish', food: 8, desc: '航海鲨打工钓来的鱼。\n饱食 +8　出货 10', quip: '还在扑腾。' },
   item_berry: { name: '浆果', tag: '食物', icon: 'item_berry', food: 10,
     desc: '林间随手摘的小浆果。\n饱食 +10', quip: '酸酸甜甜！' },
   item_carrot: { name: '萝卜', tag: '作物', icon: 'item_carrot', food: 15,

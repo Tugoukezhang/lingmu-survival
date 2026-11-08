@@ -16,7 +16,7 @@ export const cropBySeed = (seedId) => CROP_IDS.find((k) => CROPS[k].seed === see
 export const PRICES = {
   item_carrot: 25, item_strawberry: 40, item_sunflower: 45, item_starwheat: 60, item_pumpkin: 90,
   item_wood: 2, item_stone: 2, item_grass: 1, item_crystal: 20, item_cloth: 15,
-  item_berry: 3, item_berry_roast: 8, item_fish_roast: 20, item_soup: 60,
+  item_berry: 3, item_fish: 10, item_berry_roast: 8, item_fish_roast: 20, item_soup: 60,
   item_net_grass: 6, item_net_vine: 30, item_torch: 4, item_campfire: 10,
   item_seed_carrot: 5, item_seed_strawberry: 10, item_seed_sunflower: 7, item_seed_starwheat: 12, item_seed_pumpkin: 15,
 };
