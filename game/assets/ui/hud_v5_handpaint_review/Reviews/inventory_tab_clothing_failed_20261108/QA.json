@@ -8,7 +8,7 @@
   "fallback_reference": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_clothing.svg",
   "reference_type": "V3 isolated single button reconstructed via repo SVG, NOT screenshot",
   "reference_visual_identity": "One rounded blue-gray (#98b1c3) button with medium warm brown border (#a88772), dark-gray brown (#695d58) single T-shirt outline; clothing glyph unfilled and without collar/belt/lacing.",
-  "reference_sha256": "generated isolated reference SHA recorded in local QA zip",
+  "reference_sha256": "b4746b5f9912ff32e4a115123a6e774a3255115c6cd8bbf755f0426bcd328a72",
   "generated_attempts": [
     {
       "number": 1,
@@ -49,5 +49,11 @@
   "github_formal_png_uploaded": false,
   "qa_status": "fail identity/silhouette/palette; alpha measured only; game QA not performed",
   "next_task": "other96/inventory/tab_documents",
-  "local_rejected_QA_zip": "lingmu_tab_clothing_20261108_rejected_QA.zip"
+  "local_rejected_QA_zip": "lingmu_tab_clothing_20261108_rejected_QA.zip",
+  "fallback_alpha_bbox_xyxy_1024": [
+    140,
+    122,
+    894,
+    900
+  ]
 }
