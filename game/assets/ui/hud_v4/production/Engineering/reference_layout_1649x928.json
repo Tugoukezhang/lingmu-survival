@@ -1,0 +1,318 @@
+{
+  "01_title": {
+    "size": [
+      1649,
+      928
+    ],
+    "assets": {
+      "music": [
+        1526,
+        34,
+        62,
+        70
+      ],
+      "settings": [
+        1528,
+        112,
+        63,
+        70
+      ],
+      "announcement": [
+        1530,
+        188,
+        61,
+        70
+      ],
+      "support": [
+        1530,
+        267,
+        64,
+        68
+      ],
+      "start_pill": [
+        707,
+        693,
+        238,
+        74
+      ],
+      "age_12_badge": [
+        44,
+        813,
+        76,
+        74
+      ],
+      "logo_chinese_fallback": [
+        477,
+        106,
+        708,
+        420
+      ]
+    }
+  },
+  "03_activity": {
+    "size": [
+      1649,
+      928
+    ],
+    "assets": {
+      "activity_recommendation_badge": [
+        44,
+        37,
+        154,
+        100
+      ],
+      "nav_bar_base": [
+        44,
+        161,
+        307,
+        70
+      ],
+      "activity_list_button_normal": [
+        43,
+        255,
+        308,
+        75
+      ],
+      "activity_list_button_selected": [
+        43,
+        533,
+        313,
+        75
+      ],
+      "event_timer_black": [
+        1282,
+        232,
+        258,
+        56
+      ],
+      "reward_card_normal": [
+        1135,
+        561,
+        147,
+        158
+      ],
+      "reward_card_claimed": [
+        975,
+        560,
+        153,
+        157
+      ],
+      "reward_card_tall": [
+        1465,
+        555,
+        134,
+        322
+      ],
+      "event_title_chip": [
+        1125,
+        155,
+        475,
+        65
+      ],
+      "help_bubble": [
+        1537,
+        229,
+        60,
+        55
+      ]
+    }
+  },
+  "04_inventory": {
+    "size": [
+      1649,
+      928
+    ],
+    "assets": {
+      "main_wood_panel": [
+        624,
+        44,
+        900,
+        835
+      ],
+      "detail_wood_panel": [
+        213,
+        174,
+        450,
+        579
+      ],
+      "use_button": [
+        350,
+        621,
+        192,
+        62
+      ],
+      "slot_empty": [
+        834,
+        171,
+        96,
+        80
+      ],
+      "tab_general": [
+        826,
+        78,
+        90,
+        87
+      ],
+      "tab_food": [
+        958,
+        83,
+        78,
+        76
+      ],
+      "tab_clothing": [
+        1068,
+        82,
+        82,
+        76
+      ],
+      "tab_documents": [
+        1175,
+        83,
+        82,
+        75
+      ],
+      "tab_plants": [
+        1284,
+        82,
+        89,
+        75
+      ]
+    }
+  },
+  "06_home": {
+    "size": [
+      1649,
+      928
+    ],
+    "assets": {
+      "edit_tool_vertical": [
+        52,
+        383,
+        124,
+        374
+      ],
+      "bottom_category_bar": [
+        178,
+        759,
+        953,
+        115
+      ],
+      "right_furniture_panel": [
+        1180,
+        137,
+        436,
+        747
+      ],
+      "furniture_slot": [
+        1204,
+        255,
+        109,
+        96
+      ],
+      "place_button": [
+        1380,
+        797,
+        172,
+        49
+      ],
+      "save": [
+        1269,
+        56,
+        57,
+        56
+      ],
+      "hide": [
+        1353,
+        57,
+        60,
+        58
+      ],
+      "currency_clover": [
+        1430,
+        62,
+        164,
+        60
+      ]
+    }
+  },
+  "07_world_map": {
+    "size": [
+      1649,
+      928
+    ],
+    "assets": {
+      "map_back": [
+        34,
+        40,
+        101,
+        100
+      ],
+      "zoom_rail": [
+        1563,
+        310,
+        40,
+        278
+      ],
+      "zoom_plus": [
+        1545,
+        298,
+        66,
+        62
+      ],
+      "zoom_minus": [
+        1545,
+        546,
+        68,
+        61
+      ],
+      "status_bar_empty": [
+        1403,
+        47,
+        195,
+        65
+      ],
+      "status_star": [
+        1546,
+        55,
+        58,
+        57
+      ],
+      "status_leaf": [
+        1547,
+        121,
+        53,
+        49
+      ],
+      "location_label_blank": [
+        370,
+        439,
+        150,
+        55
+      ],
+      "selected_location_marker": [
+        858,
+        338,
+        71,
+        84
+      ],
+      "world_area_info_panel": [
+        41,
+        671,
+        355,
+        207
+      ],
+      "location_thumbnail_frame": [
+        145,
+        575,
+        185,
+        136
+      ],
+      "progress_track": [
+        80,
+        832,
+        285,
+        26
+      ]
+    }
+  }
+}

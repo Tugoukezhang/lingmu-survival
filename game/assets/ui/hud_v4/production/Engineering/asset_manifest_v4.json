@@ -1,0 +1,976 @@
+{
+  "source": "V3 screenshot-referenced reconstructed SVGs, NOT original pixel extraction",
+  "count": 97,
+  "assets": [
+    {
+      "group": "title",
+      "slug": "music",
+      "relative_path": "PNG_Transparent/01_title/music.png",
+      "source_svg": "SVG_Editable/01_title/music.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "726cc3c826e4f84e7a02feb779c6790be7bfb464ae590f409d6b9dfdfab1c7bd",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "settings",
+      "relative_path": "PNG_Transparent/01_title/settings.png",
+      "source_svg": "SVG_Editable/01_title/settings.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "16619a4806a0087bad537a116c740dab808d1447f5af90772ce9ef8fd489715c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "announcement",
+      "relative_path": "PNG_Transparent/01_title/announcement.png",
+      "source_svg": "SVG_Editable/01_title/announcement.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "b478e4a96bdac8f906b92b1d9c63300a2fb8ac195aa095b8c2dd81d232144964",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "support",
+      "relative_path": "PNG_Transparent/01_title/support.png",
+      "source_svg": "SVG_Editable/01_title/support.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "7f83b348d9f8f4490fe5a2b82e452e3f39fe42187f4b1c2208a1b45fc92abddb",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "left_chevrons",
+      "relative_path": "PNG_Transparent/01_title/left_chevrons.png",
+      "source_svg": "SVG_Editable/01_title/left_chevrons.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "0fefa8615bc25ac949f00536b21c06302d248102c6c73b9ca63a5af8f2822026",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "right_chevrons",
+      "relative_path": "PNG_Transparent/01_title/right_chevrons.png",
+      "source_svg": "SVG_Editable/01_title/right_chevrons.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "4d85b74adb0f4bb488c5b31d9837983a1060b4f61f5bdb348b764937cc9aef1f",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "start_pill",
+      "relative_path": "PNG_Transparent/01_title/start_pill.png",
+      "source_svg": "SVG_Editable/01_title/start_pill.svg",
+      "width": 1640,
+      "height": 400,
+      "sha256": "2bd8a6afb9416bdedda4e1fa6e3b0012d29fda805b322e61930e284b01221a31",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "age_12_badge",
+      "relative_path": "PNG_Transparent/01_title/age_12_badge.png",
+      "source_svg": "SVG_Editable/01_title/age_12_badge.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "1d562dd90ccfbaa09c62ffe11425d3cb082c429fbd051c3c627791ab48479acd",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "title",
+      "slug": "logo_chinese_fallback",
+      "relative_path": "PNG_Transparent/01_title/logo_chinese_fallback.png",
+      "source_svg": "SVG_Editable/01_title/logo_chinese_fallback.svg",
+      "width": 2000,
+      "height": 700,
+      "sha256": "85df90f1aef0a3727fe22c21eeed475139d4d5a7db476196f6165b38c141d8c7",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "close_wood",
+      "relative_path": "PNG_Transparent/00_common/close_wood.png",
+      "source_svg": "SVG_Editable/00_common/close_wood.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "710269f9ecb6f4aca5200b0641c30e1fa331c9eb4ef1a4f4dbee4f00566dc88c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "back_wood",
+      "relative_path": "PNG_Transparent/00_common/back_wood.png",
+      "source_svg": "SVG_Editable/00_common/back_wood.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "641a1a1592ae939fc40b8f818ab11f5e2e47ea0eba18a0ae78e80f8b9d915c7a",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "question_dark",
+      "relative_path": "PNG_Transparent/00_common/question_dark.png",
+      "source_svg": "SVG_Editable/00_common/question_dark.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "9d68cd94c00a111a655dc46d0b6825a32594239a4c47fdcda1e0db76400d1cb2",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "flower_decoration",
+      "relative_path": "PNG_Transparent/00_common/flower_decoration.png",
+      "source_svg": "SVG_Editable/00_common/flower_decoration.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "e3f710a4a041078585964a3e25d930f97271954168da483c1effc1243d451905",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_bar_base",
+      "relative_path": "PNG_Transparent/03_activity/nav_bar_base.png",
+      "source_svg": "SVG_Editable/03_activity/nav_bar_base.svg",
+      "width": 2000,
+      "height": 440,
+      "sha256": "3b43ba4fb8e25e65f679018b5d8f9334b7720b813bd263873fd05066ec65592c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_hourglass_white",
+      "relative_path": "PNG_Transparent/03_activity/nav_hourglass_white.png",
+      "source_svg": "SVG_Editable/03_activity/nav_hourglass_white.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "77c4068289864bb873882a69ce576b96df15e8bfca9d56bbdf320f9aba1173dd",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_home_white",
+      "relative_path": "PNG_Transparent/03_activity/nav_home_white.png",
+      "source_svg": "SVG_Editable/03_activity/nav_home_white.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "ad8a5d057d2dfabffaa236f657d6c2e4ace93ed9eb8b07316833c57098f50bc4",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_book_white",
+      "relative_path": "PNG_Transparent/03_activity/nav_book_white.png",
+      "source_svg": "SVG_Editable/03_activity/nav_book_white.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "08acbe78501d096648a32d8463dd1b55608c81ab9adf92b26c70b51fe5f4226f",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_board_white",
+      "relative_path": "PNG_Transparent/03_activity/nav_board_white.png",
+      "source_svg": "SVG_Editable/03_activity/nav_board_white.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "778477628e92a32aff30f1a255bb29764c59092039719ecb1dd3e16821e0b41c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "nav_active_tile",
+      "relative_path": "PNG_Transparent/03_activity/nav_active_tile.png",
+      "source_svg": "SVG_Editable/03_activity/nav_active_tile.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "3ae032d87576b91b9d850eb3dff3659bf7207101e4500e718cbd9a775e7de986",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_list_button_normal",
+      "relative_path": "PNG_Transparent/03_activity/activity_list_button_normal.png",
+      "source_svg": "SVG_Editable/03_activity/activity_list_button_normal.svg",
+      "width": 1600,
+      "height": 380,
+      "sha256": "c321f4cadf74643263b65d8c468b0e22fd18d2fa68dcf192632b42ead8abd862",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_list_button_selected",
+      "relative_path": "PNG_Transparent/03_activity/activity_list_button_selected.png",
+      "source_svg": "SVG_Editable/03_activity/activity_list_button_selected.svg",
+      "width": 1600,
+      "height": 380,
+      "sha256": "74b8b6d64f1fb4e72a18e79334ea61cc012dcb4cf7d5b8d7781a709dee22252b",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_recommendation_badge",
+      "relative_path": "PNG_Transparent/03_activity/activity_recommendation_badge.png",
+      "source_svg": "SVG_Editable/03_activity/activity_recommendation_badge.svg",
+      "width": 1400,
+      "height": 720,
+      "sha256": "e3075fd38e801ec410374a74b8b4c3a45c8281b7a373882443736dd95052e0ab",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "event_timer_black",
+      "relative_path": "PNG_Transparent/03_activity/event_timer_black.png",
+      "source_svg": "SVG_Editable/03_activity/event_timer_black.svg",
+      "width": 1240,
+      "height": 300,
+      "sha256": "fd23f4a6d6dd4b40fb1f9dc42f54ec54f4303c96ebfbc500e788cd25c87b3bc7",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "notification_orange_dot",
+      "relative_path": "PNG_Transparent/03_activity/notification_orange_dot.png",
+      "source_svg": "SVG_Editable/03_activity/notification_orange_dot.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "3f0972b3c6b10b8087d71958f394aa386e9b07176c857aaa66c2bdc4fd148531",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_normal",
+      "relative_path": "PNG_Transparent/03_activity/reward_card_normal.png",
+      "source_svg": "SVG_Editable/03_activity/reward_card_normal.svg",
+      "width": 840,
+      "height": 870,
+      "sha256": "cac22bfeede0dfb2a9dd736c70d4ec681079546e408568fba72557494e18a54d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_claimed",
+      "relative_path": "PNG_Transparent/03_activity/reward_card_claimed.png",
+      "source_svg": "SVG_Editable/03_activity/reward_card_claimed.svg",
+      "width": 840,
+      "height": 870,
+      "sha256": "7f1f068ec94c08872d9244952041f151096bb3728c73fedd98f7fd514a43d04b",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_selected",
+      "relative_path": "PNG_Transparent/03_activity/reward_card_selected.png",
+      "source_svg": "SVG_Editable/03_activity/reward_card_selected.svg",
+      "width": 840,
+      "height": 870,
+      "sha256": "d9658126a447401e5b32d10399dfe8cf1b401ac14df17e03cecb976d28eb94c2",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_card_tall",
+      "relative_path": "PNG_Transparent/03_activity/reward_card_tall.png",
+      "source_svg": "SVG_Editable/03_activity/reward_card_tall.svg",
+      "width": 760,
+      "height": 1260,
+      "sha256": "b3a225f3ca0e441b67c361e4e17f3e9ebc5c3ead64baec14833238e771475153",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "reward_shell_only",
+      "relative_path": "PNG_Transparent/03_activity/reward_shell_only.png",
+      "source_svg": "SVG_Editable/03_activity/reward_shell_only.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "9890fe37cd8c993661550cda85b1171e5b9932db6a8ca8bf9666cef1447c7b76",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "activity_card_rope",
+      "relative_path": "PNG_Transparent/03_activity/activity_card_rope.png",
+      "source_svg": "SVG_Editable/03_activity/activity_card_rope.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "ea7d950d34435a16b2b0c8baa2fc16ae265a9249dc2140826bac435cf02f05bf",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "help_bubble",
+      "relative_path": "PNG_Transparent/03_activity/help_bubble.png",
+      "source_svg": "SVG_Editable/03_activity/help_bubble.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "39be6c198a7dd38ea28139473c9a6f57ef86bdfa53172740c93e58046168103d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "activity",
+      "slug": "event_title_chip",
+      "relative_path": "PNG_Transparent/03_activity/event_title_chip.png",
+      "source_svg": "SVG_Editable/03_activity/event_title_chip.svg",
+      "width": 1900,
+      "height": 320,
+      "sha256": "9f8d0d6c40cc259f3c530b690ef25659d110f9b117c7939f47a9d06509171c64",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "main_wood_panel",
+      "relative_path": "PNG_Transparent/04_inventory/main_wood_panel.png",
+      "source_svg": "SVG_Editable/04_inventory/main_wood_panel.svg",
+      "width": 2480,
+      "height": 2000,
+      "sha256": "afe0e5d19a4bda2d300d13d4e102e994b7824a9d2017a4f32fdf15ba99478b29",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "detail_wood_panel",
+      "relative_path": "PNG_Transparent/04_inventory/detail_wood_panel.png",
+      "source_svg": "SVG_Editable/04_inventory/detail_wood_panel.svg",
+      "width": 1260,
+      "height": 1640,
+      "sha256": "488a663f9a86592099f97258af514bab0d2877c252439a5af2c490a98a24b45f",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_general",
+      "relative_path": "PNG_Transparent/04_inventory/tab_general.png",
+      "source_svg": "SVG_Editable/04_inventory/tab_general.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "008394e21000f460581e5620f65a50b7f48bd27c2c36db7c317043795154b028",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_food",
+      "relative_path": "PNG_Transparent/04_inventory/tab_food.png",
+      "source_svg": "SVG_Editable/04_inventory/tab_food.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "a962079a7627cb9f45b63c392276d3a932807ff5797e4dac5207301ddef9b7b5",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_clothing",
+      "relative_path": "PNG_Transparent/04_inventory/tab_clothing.png",
+      "source_svg": "SVG_Editable/04_inventory/tab_clothing.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "4925d8099a48c0e77608f99e045d78a1bf9a9ddcdf30d429b2f3b7be3ab83e03",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_documents",
+      "relative_path": "PNG_Transparent/04_inventory/tab_documents.png",
+      "source_svg": "SVG_Editable/04_inventory/tab_documents.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "2bdb8b49b352911a670e1227915ea88b65863667fdd04ba2d99077de88969fa5",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "tab_plants",
+      "relative_path": "PNG_Transparent/04_inventory/tab_plants.png",
+      "source_svg": "SVG_Editable/04_inventory/tab_plants.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "dfa9d79a3cc26f50c0d402b884e4fd9594babbd64ec91ecba4bbc9b215016cd3",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "slot_empty",
+      "relative_path": "PNG_Transparent/04_inventory/slot_empty.png",
+      "source_svg": "SVG_Editable/04_inventory/slot_empty.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "079549dcd2e61c8f0e95f5af25c06492b658f321caeadacac10a857d7bb0a943",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "slot_active",
+      "relative_path": "PNG_Transparent/04_inventory/slot_active.png",
+      "source_svg": "SVG_Editable/04_inventory/slot_active.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "c1fcc73520bb4d1e94a730aba2f2c08815e2e5f38a210d1b0ecd49da0d18e429",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "use_button",
+      "relative_path": "PNG_Transparent/04_inventory/use_button.png",
+      "source_svg": "SVG_Editable/04_inventory/use_button.svg",
+      "width": 1580,
+      "height": 520,
+      "sha256": "c13e9a6ef310b353ca4f07a5d2daa26d461d78118d7e58a2a49aef156c21018a",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_description_label",
+      "relative_path": "PNG_Transparent/04_inventory/item_description_label.png",
+      "source_svg": "SVG_Editable/04_inventory/item_description_label.svg",
+      "width": 1120,
+      "height": 420,
+      "sha256": "128c8d131fa16e32f2b44941623c633036273831ec589f19108871357989657e",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "selected_item_separator",
+      "relative_path": "PNG_Transparent/04_inventory/selected_item_separator.png",
+      "source_svg": "SVG_Editable/04_inventory/selected_item_separator.svg",
+      "width": 1600,
+      "height": 320,
+      "sha256": "f4038ac819ec39c7c1bcfcae2c450ccdd3a5f5872b2fa6ff64176b30a566fa4d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_apple",
+      "relative_path": "PNG_Transparent/04_inventory/item_apple.png",
+      "source_svg": "SVG_Editable/04_inventory/item_apple.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "7691dad17c181038407dcd5f5bcfa1444888af5779c22f395a67ff2759dba78e",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_flower",
+      "relative_path": "PNG_Transparent/04_inventory/item_flower.png",
+      "source_svg": "SVG_Editable/04_inventory/item_flower.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "480a45331ae1a8918b71f3135601c3ecad24966d13383438795da79a463dfe34",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_potion",
+      "relative_path": "PNG_Transparent/04_inventory/item_potion.png",
+      "source_svg": "SVG_Editable/04_inventory/item_potion.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "9c38bbdf55d0297d8eaffced8d61662a947d20634ef88b391a0538d00fbd6d2f",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_map_fragment",
+      "relative_path": "PNG_Transparent/04_inventory/item_map_fragment.png",
+      "source_svg": "SVG_Editable/04_inventory/item_map_fragment.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "424533bd12c4092b10a809fe024c764252811caea92bd0e7f51483b1dfdcc3d0",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_mushroom",
+      "relative_path": "PNG_Transparent/04_inventory/item_mushroom.png",
+      "source_svg": "SVG_Editable/04_inventory/item_mushroom.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "2f9f05eafce2377dcd0dd88853fc4fbe9c5a1cc247ed057dc279923f785e51a7",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_bread",
+      "relative_path": "PNG_Transparent/04_inventory/item_bread.png",
+      "source_svg": "SVG_Editable/04_inventory/item_bread.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "c715bcff41bdd671dd9293ebab98986267941325362a5eec8527e1533ac96aac",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_letter",
+      "relative_path": "PNG_Transparent/04_inventory/item_letter.png",
+      "source_svg": "SVG_Editable/04_inventory/item_letter.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "1e08bcacd6588adf9f7c9ae2dd328e7125c5aceaaabc138aeab1d0afb769381c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_forest_book",
+      "relative_path": "PNG_Transparent/04_inventory/item_forest_book.png",
+      "source_svg": "SVG_Editable/04_inventory/item_forest_book.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "606ee698fb23cdd94ee5ceac62b088261d39d7c8a1345676125fc2abf2085a46",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "inventory",
+      "slug": "item_leaf",
+      "relative_path": "PNG_Transparent/04_inventory/item_leaf.png",
+      "source_svg": "SVG_Editable/04_inventory/item_leaf.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "20b642a08719b97c0c8b43a0442c6011779ea55ad32823f47bcff6c128862eab",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "edit_tool_vertical",
+      "relative_path": "PNG_Transparent/06_home/edit_tool_vertical.png",
+      "source_svg": "SVG_Editable/06_home/edit_tool_vertical.svg",
+      "width": 636,
+      "height": 1800,
+      "sha256": "373cc2d79305597d0cf96ef01a2a81e4ac6536e19e05228e9cddbbb9d4f9d7ab",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "edit_move",
+      "relative_path": "PNG_Transparent/06_home/edit_move.png",
+      "source_svg": "SVG_Editable/06_home/edit_move.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "640dfd597fc98c88abf6bdcf016acf61f4e4d303b0e85b5808fc176aa166a25d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "edit_rotate",
+      "relative_path": "PNG_Transparent/06_home/edit_rotate.png",
+      "source_svg": "SVG_Editable/06_home/edit_rotate.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "a0da1771e9802e641b8a8db20b15d1c1690c82cc7582c337d27bf7c9392c332d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "edit_duplicate",
+      "relative_path": "PNG_Transparent/06_home/edit_duplicate.png",
+      "source_svg": "SVG_Editable/06_home/edit_duplicate.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "25b548269525f8545ce8be6d448aeedb78c5e329522a658971b87a6a9663bc1a",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "edit_remove",
+      "relative_path": "PNG_Transparent/06_home/edit_remove.png",
+      "source_svg": "SVG_Editable/06_home/edit_remove.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "13265420918127ce3cc333c21574974ee1fa240daf408b3abc5b01697032c14e",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "bottom_category_bar",
+      "relative_path": "PNG_Transparent/06_home/bottom_category_bar.png",
+      "source_svg": "SVG_Editable/06_home/bottom_category_bar.svg",
+      "width": 2980,
+      "height": 420,
+      "sha256": "22880194c44da8f6d90e41e3a26c58c0a422cfbf4f82772bad5fdf1724f5d687",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "category_furniture",
+      "relative_path": "PNG_Transparent/06_home/category_furniture.png",
+      "source_svg": "SVG_Editable/06_home/category_furniture.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "da5026313f6cf33a176aec41fed9635a9cc40d0a67d733b46244ea8af44b526b",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "category_rugs",
+      "relative_path": "PNG_Transparent/06_home/category_rugs.png",
+      "source_svg": "SVG_Editable/06_home/category_rugs.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "0bfb5360ff0737babfe5b5b5ba21d8429cc3f09baa8bc71756f53e2fb74cd3d7",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "category_hanging",
+      "relative_path": "PNG_Transparent/06_home/category_hanging.png",
+      "source_svg": "SVG_Editable/06_home/category_hanging.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "e802c38ede7c24e47669a2f61afed60b62096f0614718ee3a9792e79b8bd81cf",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "category_wall",
+      "relative_path": "PNG_Transparent/06_home/category_wall.png",
+      "source_svg": "SVG_Editable/06_home/category_wall.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "1ef30b322938ddd32727a4b6c743df2dac15be9ab9ddda04f94e89b8827ff7bd",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "category_special",
+      "relative_path": "PNG_Transparent/06_home/category_special.png",
+      "source_svg": "SVG_Editable/06_home/category_special.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "dcae37fd01dfff3b6d8450baf52d59a05c1617b3ade2c25a746a6ff50a428086",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "right_furniture_panel",
+      "relative_path": "PNG_Transparent/06_home/right_furniture_panel.png",
+      "source_svg": "SVG_Editable/06_home/right_furniture_panel.svg",
+      "width": 2320,
+      "height": 3040,
+      "sha256": "561631bcf37470b34f705af2c8f1d41eea492a1ccad59729845634d45f8fde2d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_chair",
+      "relative_path": "PNG_Transparent/06_home/furniture_tab_chair.png",
+      "source_svg": "SVG_Editable/06_home/furniture_tab_chair.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "e0a580f225703bb1a640f8717034fbbe28b329f7c96a23a8ec50ebaf8c2eccbe",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_nature",
+      "relative_path": "PNG_Transparent/06_home/furniture_tab_nature.png",
+      "source_svg": "SVG_Editable/06_home/furniture_tab_nature.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "850ed935afe4f82bfe52ee9cbaf8cbddc83919b7adfff6abcc513c36fa3de04c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_grid",
+      "relative_path": "PNG_Transparent/06_home/furniture_tab_grid.png",
+      "source_svg": "SVG_Editable/06_home/furniture_tab_grid.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "aea100cbb7b3c81177edad3b2721dd7f8bc6b55173be5107b24a049c273c6f2c",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_wall",
+      "relative_path": "PNG_Transparent/06_home/furniture_tab_wall.png",
+      "source_svg": "SVG_Editable/06_home/furniture_tab_wall.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "ad6f1fc94abf2143a31c578e6f515fa49119093f953b9b95b86fe6d593d0f9fe",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_tab_star",
+      "relative_path": "PNG_Transparent/06_home/furniture_tab_star.png",
+      "source_svg": "SVG_Editable/06_home/furniture_tab_star.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "ecb21265eb65e64713c44f6e47ddd856dd11159d1b896381e5c8ea9538186b87",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_slot",
+      "relative_path": "PNG_Transparent/06_home/furniture_slot.png",
+      "source_svg": "SVG_Editable/06_home/furniture_slot.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "64ec363d630d00ac2b26c952cc0b55397890894438481237d337a9e2c34b9267",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "furniture_slot_selected",
+      "relative_path": "PNG_Transparent/06_home/furniture_slot_selected.png",
+      "source_svg": "SVG_Editable/06_home/furniture_slot_selected.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "592354629a0517c258268bda3c1c28c8375c7e2014a794592d3936c6de3ae8a8",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "place_button",
+      "relative_path": "PNG_Transparent/06_home/place_button.png",
+      "source_svg": "SVG_Editable/06_home/place_button.svg",
+      "width": 1600,
+      "height": 500,
+      "sha256": "991ec53fcd55d28553c2332c0d7a0066778f68a722374c956348d2ab39ceaa83",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "save",
+      "relative_path": "PNG_Transparent/06_home/save.png",
+      "source_svg": "SVG_Editable/06_home/save.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "880973c0b470a85c38e2e064242d6cf712d4f4f4c3e740be73beed0e683b9bd0",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "hide",
+      "relative_path": "PNG_Transparent/06_home/hide.png",
+      "source_svg": "SVG_Editable/06_home/hide.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "6b7c8ec734377e3f9347f02f5f348517d1801a451c0ddaf1b3388a149733e99e",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "currency_clover",
+      "relative_path": "PNG_Transparent/06_home/currency_clover.png",
+      "source_svg": "SVG_Editable/06_home/currency_clover.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "845755c33700752830b2fa741f6999d70f2f2890b0a113a9257149c84f7c11c6",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "item_plant_pot",
+      "relative_path": "PNG_Transparent/06_home/item_plant_pot.png",
+      "source_svg": "SVG_Editable/06_home/item_plant_pot.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "b050daf5278bc8775fecca2d5ef27337615a174e9c0ae4125f2f2a5f40351852",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "item_flower_vase",
+      "relative_path": "PNG_Transparent/06_home/item_flower_vase.png",
+      "source_svg": "SVG_Editable/06_home/item_flower_vase.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "3cc21de6ae5b151c340aeb8fa4fc1a889a4101ad42ce9001711d8adc954503ba",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "item_plant_crate",
+      "relative_path": "PNG_Transparent/06_home/item_plant_crate.png",
+      "source_svg": "SVG_Editable/06_home/item_plant_crate.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "eca46e5f8b2d3357414cc011edfd536cf4f7a94ca60d96401aad8fd72f4dbb67",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "home",
+      "slug": "item_hanging_greenery",
+      "relative_path": "PNG_Transparent/06_home/item_hanging_greenery.png",
+      "source_svg": "SVG_Editable/06_home/item_hanging_greenery.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "ae4e667b8ba231aede868ded20a172f588ee4dd92736d54c5efeac658cb0853d",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "map_back",
+      "relative_path": "PNG_Transparent/07_world_map/map_back.png",
+      "source_svg": "SVG_Editable/07_world_map/map_back.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "754889c36fc1617d62a13aed21bb50769c7c613ba2ee6a953d07b4c80ac8f22b",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_plus",
+      "relative_path": "PNG_Transparent/07_world_map/zoom_plus.png",
+      "source_svg": "SVG_Editable/07_world_map/zoom_plus.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "4de424fb463f199765553249d96ac4b3ac41f3845780861972bdac79115729c5",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_minus",
+      "relative_path": "PNG_Transparent/07_world_map/zoom_minus.png",
+      "source_svg": "SVG_Editable/07_world_map/zoom_minus.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "7d0bc9e688efe3d7a439acc2ace152d03ee90ebd581868825a4a82aa2b850410",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_rail",
+      "relative_path": "PNG_Transparent/07_world_map/zoom_rail.png",
+      "source_svg": "SVG_Editable/07_world_map/zoom_rail.svg",
+      "width": 680,
+      "height": 1800,
+      "sha256": "6154071beb16920841b534d6629c815aed80c7e0fdafeedca0f7fc5214d975a8",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "zoom_thumb",
+      "relative_path": "PNG_Transparent/07_world_map/zoom_thumb.png",
+      "source_svg": "SVG_Editable/07_world_map/zoom_thumb.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "d53188bb4e4f0f6791a4a9e49d286cb446416e8f10dc675d54f602d77814f2b1",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "status_bar_empty",
+      "relative_path": "PNG_Transparent/07_world_map/status_bar_empty.png",
+      "source_svg": "SVG_Editable/07_world_map/status_bar_empty.svg",
+      "width": 1600,
+      "height": 560,
+      "sha256": "75d5a2678bdbb2652a920f1753298788ed23d97a74565f339906b4b5f87667f9",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "status_star",
+      "relative_path": "PNG_Transparent/07_world_map/status_star.png",
+      "source_svg": "SVG_Editable/07_world_map/status_star.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "a75789f8819f12a5283202dd6410fa1d9fe50cf34351a533e28109ecb1bfaeff",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "status_leaf",
+      "relative_path": "PNG_Transparent/07_world_map/status_leaf.png",
+      "source_svg": "SVG_Editable/07_world_map/status_leaf.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "877c3c15117f4b8ebaace92377f4c67632e2b1fdbe94df9d09a38dde5b651eb1",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "location_label_blank",
+      "relative_path": "PNG_Transparent/07_world_map/location_label_blank.png",
+      "source_svg": "SVG_Editable/07_world_map/location_label_blank.svg",
+      "width": 1180,
+      "height": 390,
+      "sha256": "5c9a341cbdba260505d9d81af889cd4a2e9119554cc33bcef65655dbcb6fecef",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "selected_location_marker",
+      "relative_path": "PNG_Transparent/07_world_map/selected_location_marker.png",
+      "source_svg": "SVG_Editable/07_world_map/selected_location_marker.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "15d5ca09ffe50445c9032c3a0bc7b0441066d334d3f728920917122faa97ff26",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "world_area_info_panel",
+      "relative_path": "PNG_Transparent/07_world_map/world_area_info_panel.png",
+      "source_svg": "SVG_Editable/07_world_map/world_area_info_panel.svg",
+      "width": 2100,
+      "height": 1300,
+      "sha256": "e780361617cdc802b5b2e8cb9321cc46bc1d8c11759eb4faea27303a3349f331",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "progress_track",
+      "relative_path": "PNG_Transparent/07_world_map/progress_track.png",
+      "source_svg": "SVG_Editable/07_world_map/progress_track.svg",
+      "width": 2100,
+      "height": 480,
+      "sha256": "c925ab534f0b8b101d0709db04a877e46909bf7f8c72b335a0e851ddbd8e97cc",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "location_thumbnail_frame",
+      "relative_path": "PNG_Transparent/07_world_map/location_thumbnail_frame.png",
+      "source_svg": "SVG_Editable/07_world_map/location_thumbnail_frame.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "9ee4f1f7432be4acc1c680f977bc77d626f13a6cb98eda799dfbfd7db0fac47a",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "map",
+      "slug": "map_faint_leaf_corner",
+      "relative_path": "PNG_Transparent/07_world_map/map_faint_leaf_corner.png",
+      "source_svg": "SVG_Editable/07_world_map/map_faint_leaf_corner.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "af7248d34365c718f935b6f0aa86deff3d01298c123facaa5a38eea7cdf85ad2",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "blank_cream_pill",
+      "relative_path": "PNG_Transparent/00_common/blank_cream_pill.png",
+      "source_svg": "SVG_Editable/00_common/blank_cream_pill.svg",
+      "width": 2000,
+      "height": 440,
+      "sha256": "5ae89b6884b7613724391d2c9827aafb2e54c70c0b238a5b1cc8803b2d86a962",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "badge_circle_dark",
+      "relative_path": "PNG_Transparent/00_common/badge_circle_dark.png",
+      "source_svg": "SVG_Editable/00_common/badge_circle_dark.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "9ce06e243cb590e505f7cae47fb58df3daeff2d8c4b26ec7d012e21475d6dd1b",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    },
+    {
+      "group": "shared",
+      "slug": "badge_circle_light",
+      "relative_path": "PNG_Transparent/00_common/badge_circle_light.png",
+      "source_svg": "SVG_Editable/00_common/badge_circle_light.svg",
+      "width": 1024,
+      "height": 1024,
+      "sha256": "c8f44091d5d323b1fb809a33105bac523b15f93765229081f4e558924475fb7a",
+      "status": "SVG geometry preserved; painterly raster finish; review against screenshot"
+    }
+  ]
+}
