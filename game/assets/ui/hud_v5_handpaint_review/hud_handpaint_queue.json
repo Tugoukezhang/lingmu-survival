@@ -64,10 +64,26 @@
       "title": "主界面任务栏",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "quest_tracker.png",
-      "state": "pending",
+      "state": "needs_gpt_image_regeneration",
       "approval": "pending",
       "notes": "白色半透明任务文字/收起按钮及距离标识分层",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "gpt_image_attempts": 2,
+      "last_failed_attempt_reason": "Two GPT Image generations produced full ornate wood-framed quest banners, not the small translucent collapse arrow; both rejected.",
+      "fidelity_component": "PNG_Transparent/00_gameplay/main_quest_collapse_toggle_fidelity_256x320.png",
+      "fidelity_kind": "programmatically painted geometry-locked fallback, not GPT Image; QA pending",
+      "subcomponents": [
+        {
+          "id": "quest_collapse_toggle",
+          "path": "PNG_Transparent/00_gameplay/main_quest_collapse_toggle_fidelity_256x320.png",
+          "status": "fidelity_reference_only_not_final",
+          "size": [
+            256,
+            320
+          ],
+          "sha256": "9907096622dc4fa7b88a833c716b1a4291453aab001a2a2c96ba2c50333436bc"
+        }
+      ]
     },
     {
       "queue_number": "HUD-03",
@@ -1560,7 +1576,15 @@
       "next": "main_quest",
       "qa_passed": false,
       "production_replaced": false
+    },
+    {
+      "date": "2026-11-08",
+      "task": "main_quest",
+      "result": "two_gpt_image_failed_visual_qa; fidelity_button_created",
+      "approved": false,
+      "material": "single transparent collapse toggle reference",
+      "path": "PNG_Transparent/00_gameplay/main_quest_collapse_toggle_fidelity_256x320.png"
     }
   ],
-  "current_focus": "main_quest"
+  "current_focus": "main_top_F1"
 }
