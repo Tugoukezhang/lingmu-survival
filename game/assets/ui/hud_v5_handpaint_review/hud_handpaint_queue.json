@@ -26,7 +26,8 @@
     "other_96_untouched": 85,
     "main_hud_queue_total": 12,
     "final_approved": 0,
-    "other_96_single_review_candidates_count": 2
+    "other_96_single_review_candidates_count": 2,
+    "user_design_accepted_tech_qa_pending": 1
   },
   "separate_qa": {
     "task_id": "activity/reward_shell_only",
@@ -702,15 +703,40 @@
       "source_reference": "01_标题页(1).jpg",
       "target_png": "PNG_Transparent/01_title/age_12_badge.png",
       "target_resolution": "1024x1024",
-      "state": "deferred_after_two_wrong_identity_generations",
-      "approval": "pending",
+      "state": "user_design_accepted_tech_qa_pending",
+      "approval": "design_accepted_by_user",
       "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Age rating. If text should remain dynamic, use text-free version.",
+      "notes": "Age rating. If text should remain dynamic, use text-free version. 2026-11-08 用户明确表示上轮生成的12控件可用；候选已从错位生成输出中正确归档回本任务，需真实游戏缩小尺寸检验后再转正。",
       "last_failed_reason": "Two 2026-11-08 GPT Image calls requested the 12+ age suitability square badge but returned decorated double-chevron arrow emblems instead. Both rejected, no age badge created. Defer until other never-created items attempted.",
-      "existing_candidate": null,
-      "next_attempt_restriction": "Only one 12+ square suitability badge: golden/amber warm square border, thick white 12+ digits, tiny blossom at top-right and compact bottom text strip; no right arrows, no round floral medallion, no other UI."
+      "existing_candidate": "/Lingmu_HUD_Exports/Title_Age12_Review/title_age12_handpaint_review_1024.png",
+      "next_attempt_restriction": "Only one 12+ square suitability badge: golden/amber warm square border, thick white 12+ digits, tiny blossom at top-right and compact bottom text strip; no right arrows, no round floral medallion, no other UI.",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Title_Age12_Review/title_age12_handpaint_review_1024.png",
+      "candidate_sha256": "0b994bd9785ee26637d8c6ad3eca2eb74d00f2f1a6ee7ffd4c1ea7cb7b1b3f7f",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "GPT Image original 12+ badge generated during later close_wood task due to apparent stale target; normalized to transparent isolated sprite after user explicitly accepted this design.",
+      "review_reference_library": "/Lingmu_HUD_Exports/Title_Age12_Review/age12_original_reference_crop.png",
+      "review_comparison_library": "/Lingmu_HUD_Exports/Title_Age12_Review/age12_QA_preview.jpg",
+      "qa_status": "identity and text verified; transparent RGBA checked; 80/96/128px appearance previewed; actual game integration and final file acceptance pending",
+      "production_promoted": false,
+      "source_crop": {
+        "source": "01_title.jpg",
+        "actual_source_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          45,
+          940,
+          142,
+          1031
+        ]
+      }
     },
     {
       "queue_number": 9,
@@ -738,9 +764,9 @@
       "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Wood-and-cream close icon with small leaves/flower.",
+      "notes": "Wood-and-cream close icon with small leaves/flower. Wrong-target image reassigned to title/age_12_badge, not discarded.",
       "existing_candidate": null,
-      "last_failed_reason": "Two independent GPT Image invocations while working on shared/close_wood instead returned age-rating 12+ green-gold badges. Both wrong identity, rejected; none was counted.",
+      "last_failed_reason": "Generation-reference mismatch: two attempts intended for shared/close_wood instead returned a usable 12+ age badge. That output has now been recovered and assigned to title/age_12_badge. shared/close_wood remains without a candidate.",
       "source_crop": {
         "source": "04_inventory.jpg",
         "image_size": [
@@ -2171,6 +2197,19 @@
       "gpt_image_failed_requests": 2,
       "reason": "Both generated atlases; handmade separate RGBA originals accepted only as unapproved technical review candidates.",
       "next": "other96/shared/back_wood"
+    },
+    {
+      "date": "2026-11-08",
+      "task_id": "other96/title/age_12_badge",
+      "action": "reassign previously wrongly-targeted but user-accepted 12+ image to correct asset; normalize independent transparent 1024x1024 PNG; store reference and size QA",
+      "result": "User accepted age 12 visual design. Technical/in-game QA pending. No production replacement. No new generation or false completion.",
+      "candidate_sha256": "0b994bd9785ee26637d8c6ad3eca2eb74d00f2f1a6ee7ffd4c1ea7cb7b1b3f7f",
+      "final_approved": false
+    },
+    {
+      "date": "2026-11-08",
+      "action": "diagnose target/reference mismatch",
+      "result": "Multiple generations return previous subject even after current focus changes. Added per-invocation target identity gate and recovery of misassigned but usable images. Keep one-image per run."
     }
   ],
   "current_focus": "other96/shared/back_wood",
@@ -2212,5 +2251,13 @@
     "main_top_P",
     "activity/reward_shell_only"
   ],
-  "deferred_retry_policy": "Skip prior failed icon image-generation attempts until all never-attempted HUD/other remaining queue items receive first candidates; preserve their failed status and revisit at end. Do not count them as approved."
+  "deferred_retry_policy": "Skip prior failed icon image-generation attempts until all never-attempted HUD/other remaining queue items receive first candidates; preserve their failed status and revisit at end. Do not count them as approved.",
+  "generation_target_integrity_protocol": {
+    "version": "v2",
+    "rule": "Only ONE clearly named current_target per generation, separate from previous tasks. Before invocation validate target id, attached single tight reference crop, literal subject, forbid wrong prior subject. After tool call verify the result depicts CURRENT target, independently of visual quality.",
+    "target_switch_failsafe": "If the generator returns the previous icon/topic, do not immediately retry using same stale context; mark as reference-binding mismatch, preserve generated image under the correct asset if useful, and advance or change controlled target method. Never count as current asset.",
+    "single_image_reference_only": true,
+    "batch_size": 1,
+    "qa_policy": "Separate functional identity vs aesthetic quality vs alpha/game size; user can accept quality of an asset even when it was generated under the wrong task."
+  }
 }
