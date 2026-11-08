@@ -40,10 +40,19 @@
       "title": "主界面左上日历 HUD",
       "source_reference": "05_gameplay_hud.jpg",
       "target_png": "calendar_icon.png",
-      "state": "pending",
+      "state": "needs_regeneration",
       "approval": "pending",
       "notes": "单件为日历符号；22 DAY文字单独渲染，原图无厚实底板",
-      "existing_candidate": null
+      "existing_candidate": null,
+      "failed_attempts": 2,
+      "last_attempt": "2026-11-08",
+      "failure_reason": "GPT Image returned production-queue/status dashboard graphics instead of the single calendar icon, twice. Outputs rejected, not uploaded or counted.",
+      "reference_images": [
+        "/Lingmu_HUD_Exports/Original_References/05_gameplay_hud.jpg",
+        "/Lingmu_HUD_Exports/Original_References/calendar_v2_icon_lock.png",
+        "/Lingmu_HUD_Exports/Original_References/calendar_v2_full_component_lock.png"
+      ],
+      "next_attempt_restriction": "Generate only the 3×2 grid white translucent calendar glyph, on transparent background. No 22 DAY text, no queue/status/dashboard text, no panels, progress or user interface beyond the calendar icon."
     },
     {
       "queue_number": "HUD-02",
@@ -1511,6 +1520,16 @@
       "delivered_file": null,
       "reference_match": null,
       "notes": ""
+    }
+  ],
+  "execution_log": [
+    {
+      "date": "2026-11-08",
+      "task": "main_calendar",
+      "result": "failed_validation",
+      "output_type": "unrequested_dashboard",
+      "attempts": 2,
+      "counted_as_complete": false
     }
   ]
 }
