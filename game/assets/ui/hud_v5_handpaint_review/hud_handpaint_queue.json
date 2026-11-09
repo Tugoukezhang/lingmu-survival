@@ -2291,12 +2291,23 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_forest_book.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "single_handpaint_review_candidate_unapproved",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "reference_match": "visual_identity_match_original_crop_not_bound_to_generator",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Inventory_Forest_Book_Single_Review/item_forest_book_review_1024.png",
+      "candidate_sha256": "a91c0ae4d7b2140767f8236b2276760517f9ad568c7992b13cba9d6412a11d2f",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "qa_status": "green forest book, cream clover, brown leather strap, gold clasp and red bookmark; transparent alpha checked; 64/96/128/192px previews; user/engine QA pending",
+      "production_promoted": false,
+      "review_bundle_library": "/Lingmu_HUD_Exports/Inventory_Forest_Book_Single_Review/item_forest_book_review_bundle.zip",
+      "source_binding_verified": false
     },
     {
       "queue_number": 52,
@@ -3644,6 +3655,15 @@
       "recovered_candidates": 2,
       "final_approved": 0,
       "production_promoted": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_forest_book",
+      "action": "single standalone forest book generated, visual identity checked, 1024 RGBA exported and archived",
+      "created_candidates": 1,
+      "approved": 0,
+      "production_promoted": false,
+      "next": "other96/inventory/item_leaf"
     }
   ],
   "current_focus": "other96/inventory/item_mushroom",
