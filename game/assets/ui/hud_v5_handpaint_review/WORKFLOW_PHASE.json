@@ -14,20 +14,20 @@
     "completed_count_user_confirmed": 96
   },
   "rework": {
-    "status": "inventory_selected_item_separator_source_matched_candidate_ready",
-    "current_target": "other96/inventory/selected_item_separator",
+    "status": "inventory_use_button_source_matched_candidate_archived",
+    "current_target": "other96/inventory/use_button",
     "remaining_count": null,
     "resume_policy": "Follow user-confirmed: initial 96 completed; repairs 93–95 completed; now fix previously failed images one by one. See REWORK_CONTINUITY_CHECKPOINT_20261109.md; legacy not_generated/current_focus/production_status counts are not authoritative.",
     "selection_policy": "Pick source-confirmed previously failed item. Preserve user-confirmed completed items and accepted designs. Candidate QA pending does not reopen a completed first-pass task.",
     "on_unresolved_target": "Do not generate an arbitrary new image. Record the reconciliation blocker truthfully. Do not claim a repair was completed.",
-    "latest_record": "Reviews/inventory_selected_item_separator_rejected_20261109/QA.json",
-    "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/selected_item_separator_source_matched_1800x104.png",
-    "latest_result": "1800x104 RGBA thin dotted separator rebuilt from authentic screenshot and archived. Preview at 450x26 verified. Awaiting art and in-engine QA; production unchanged.",
+    "latest_record": "Reviews/inventory_use_button_rejected_20261109/QA.json",
+    "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Use_Button_20261109/use_button_source_matched_blank_1580x520.png",
+    "latest_result": "1580x520 transparent RGBA muted-olive Use-button base rebuilt from authentic screenshot without embedded text; small-size previews and alpha verified; art and in-game QA pending; production unchanged",
     "last_completed_action_date": "2026-11-09",
-    "next_after_this": "Select next confirmed previously failed image from QA evidence, not legacy first pass. Reconcile latest mobile record first.",
-    "current_target_source": "04_inventory.jpg exact screenshot crop [315,540,765,566] and documented prior question-badge failure",
+    "next_after_this": "other96/inventory/item_description_label, original image 04_inventory.jpg [528,342,640,397], prior generation wrong question badge; confirm no accepted rework before repair",
+    "current_target_source": "04_inventory.jpg x405–641 y716–805, prior failure documented",
     "last_attempted": [
-      "other96/inventory/selected_item_separator"
+      "other96/inventory/use_button"
     ]
   },
   "existing_records": {
