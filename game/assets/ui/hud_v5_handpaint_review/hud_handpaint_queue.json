@@ -2835,12 +2835,21 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/item_plant_crate.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Item_Plant_Crate_Review/item_plant_crate_review_1024.png",
+      "candidate_sha256": "6995466f847ccdece3f7cbf87d56bc84da61afb193713193cf33df25e832dcba",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_binding_verified": false,
+      "qa_status": "Wooden planter crate identifiable, but flower count and succulent leaf shape differ from source; checkerboard alpha segmented, edge QA pending; no promotion.",
+      "production_promoted": false
     },
     {
       "queue_number": 79,
@@ -3947,6 +3956,15 @@
       "task_id": "other96/home/item_flower_vase",
       "action": "single flower vase art candidate normalized to RGBA",
       "result": "Candidate archived Library; original fidelity and game alpha QA pending; no production change.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/item_plant_crate",
+      "action": "single wooden planter crate image generated and alpha-separated",
+      "result": "One visual candidate saved to Library; original fidelity and alpha QA pending, no production change.",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
