@@ -2697,12 +2697,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/category_special.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Category_Special_Single_Review_20261109/category_special_single_star_1024_RGBA.png",
+      "reference_match": "Five-point gold star thick warm brown outline, V4 proxy verified; no authentic one-to-one generator crop",
+      "notes": "1 image generation ornate wrong-target rejected. Single 1024 transparent geometry-locked raster candidate built, small-size QA passed; art and in-engine QA pending. Not GPT Image final.",
+      "candidate_kind": "manual source-guided antialiased raster, not GPT Image handpainted final",
+      "candidate_sha256": "3126a6551a5eb55e90e2d0d8f73ff0de9099ffc7776aab9b0c5a48321a2d02cb",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_special_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 64,
@@ -4319,9 +4323,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_wall_20261109/QA.json",
       "next_focus": "other96/home/category_special",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/category_special",
+      "action": "Rejected ornate star ImageGen misroute, created 1024 single yellow/brown star transparent source-guided candidate, archived 32-256px previews and QA",
+      "result": "Unapproved raster reference candidate saved to Library, no production replacement and no approval count change",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_special_20261109/QA.json",
+      "next_focus": "other96/home/right_furniture_panel",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/category_special",
+  "current_focus": "other96/home/right_furniture_panel",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
