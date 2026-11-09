@@ -2568,12 +2568,20 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/furniture_tab_chair.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "art_candidate_technical_qa_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Furniture_Tab_Chair_Review/furniture_tab_chair_review_1024.png",
+      "candidate_sha256": "f96da7bfd556f74e40c212a6c5e4a9ea502956ed84709c68c312f19c1a75798b",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "qa_status": "chair category icon recognizable, generated checkerboard removed via segmentation, alpha edges and source comparison still pending",
+      "production_promoted": false
     },
     {
       "queue_number": 66,
@@ -3784,6 +3792,15 @@
       "approved": 0,
       "counted_as_complete": false,
       "result": "Art candidate only, source fidelity and edge QA pending; no production change."
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/furniture_tab_chair",
+      "action": "generated single chair tab and extracted checkerboard to transparent RGBA",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "notes": "User art and engine QA pending; no production promotion."
     }
   ],
   "current_focus": "other96/home/bottom_category_bar",
