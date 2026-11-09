@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/home/place_button",
+  "date": "2026-11-09",
+  "reference": "06_home.jpg",
+  "reference_target": "small warm-yellow rounded rectangle with subtle border; text 放置 should be rendered separately",
+  "target_resolution": "1600x500",
+  "attempts": 1,
+  "actual": "ornate wide olive green and thick gold badge with embedded 放置 lettering, down arrow, floral ornaments, checkerboard background",
+  "result": "rejected_wrong_palette_and_baked_text",
+  "accepted_candidates": 0,
+  "source_binding_verified": false,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "retry_policy": "Use tight crop of bottom-right yellow placement button and exclude text and extraneous badge ornaments; do not count as approved."
+}
