@@ -3134,12 +3134,16 @@
       "source_reference": "shared across multiple screens",
       "target_png": "PNG_Transparent/00_common/blank_cream_pill.png",
       "target_resolution": "2000x440",
-      "state": "not_generated",
+      "state": "rework_alpha_recovery_candidate_pending_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Rework_Blank_Cream_Pill/blank_cream_pill_rework_2000x440.png",
+      "candidate_sha256": "1b7117068f71cf1a9efd16a6a51698a3a54882d5557e1950c8253e0a42b7a1ba",
+      "qa_status": "alpha recovered from RGB checkerboard via contour, edge and source art QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 95,
@@ -4085,9 +4089,18 @@
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/shared/blank_cream_pill",
+      "action": "rework alpha segmentation from new generated cream pill",
+      "result": "2000x440 candidate saved to Library, technical edge QA pending, no production promotion",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
     }
   ],
-  "current_focus": "other96/home/category_furniture",
+  "current_focus": "other96/shared/badge_circle_dark",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
