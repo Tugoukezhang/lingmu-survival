@@ -4,21 +4,29 @@
 import { ITEMS } from '../data/items.js';
 import { countOf, removeItem } from './inventory.js';
 
-export const HUNGER_PER_TICK = 1;   // every 10 game minutes
-export const STARVE_DAMAGE = 3;     // per tick once fullness is 0
+// 【建议】 fullness −1 every 15 game minutes (72 per 6:00–24:00 day, empty after ~25 game hours
+// ≈ 16.7 real minutes, the same pace as 饥荒's "two days to starve"). Was −1 per 10-minute
+// tick until 2026-11-09 (docs/11 ①). Ticks still come every 10 minutes, so the leftover
+// minutes are kept in player.hungerAcc.
+export const HUNGER_EVERY_MIN = 15;
+export const TICK_MINUTES = 10;
+export const STARVE_DAMAGE = 3;     // per 10-minute tick once fullness is 0
 export const HUNGRY_AT = 20;        // warn when fullness drops to this
 
 // Home island and town are safe: health never goes below 1 there.
 export const isSafeArea = (area) => area === 'home' || area === 'town' || area === 'house';
 
-// One 10-minute tick. Mutates player; returns a list of events:
+// One 10-minute tick (fullness drops on two ticks out of three). Mutates player; returns events:
 // 'hungry' (fullness reached 20), 'empty' (fullness reached 0),
 // 'starving' (lost health to hunger), 'floor' (stopped at 1 in a safe area),
 // 'faint' (health reached 0 on an expedition).
 export function survivalTick(player, area) {
   const ev = [];
   if (player.hunger > 0) {
-    player.hunger = Math.max(0, player.hunger - HUNGER_PER_TICK);
+    player.hungerAcc = (player.hungerAcc ?? 0) + TICK_MINUTES;
+    if (player.hungerAcc < HUNGER_EVERY_MIN) return ev;
+    player.hungerAcc -= HUNGER_EVERY_MIN;
+    player.hunger = Math.max(0, player.hunger - 1);
     if (player.hunger === HUNGRY_AT) ev.push('hungry');
     if (player.hunger === 0) ev.push('empty');
     return ev;

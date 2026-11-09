@@ -316,11 +316,13 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
     return { s, ev, firstEmpty, faintAt };
   };
   const e03 = run('home', 6 * 60, 18 * 60);
-  eq('E03 6:00 饱食 100 不吃东西 → 18:00 饱食 28', e03.s.player.hunger, 28);
-  check('饱食降到 20 时提醒一次', run('home', 6 * 60, 24 * 60).ev.filter((x) => x === 'hungry').length === 1);
-  const ex = run('expedition', 6 * 60, 30 * 60);
-  eq('饱食在 22:40 归零（远征）', T.formatClock(ex.firstEmpty), '22:40');
-  eq('一直不吃，次日 4:20 倒下（远征）', T.formatClock(ex.faintAt ?? 0), '04:20');
+  eq('E03 6:00 饱食 100 不吃东西 → 18:00 饱食 52（每 15 分钟 −1）', e03.s.player.hunger, 52);
+  check('饱食降到 20 时提醒一次（6:00 满饱食，次日 2:00）', run('expedition', 6 * 60, 30 * 60).ev.filter((x) => x === 'hungry').length === 1);
+  const allDay = run('expedition', 6 * 60, 30 * 60);
+  check('6:00 满饱食一直不吃，一整个远征日（到次日 6:00）都饿不空：剩 4', allDay.firstEmpty === null && allDay.s.player.hunger === 4, `${allDay.s.player.hunger}`);
+  const ex = run('expedition', 6 * 60, 30 * 60, { hunger: 40 });
+  eq('饱食 40 出门不吃：16:00 归零（40 × 15 分钟）', T.formatClock(ex.firstEmpty), '16:00');
+  eq('之后每 10 分钟 −3 生命：21:40 倒下（远征）', T.formatClock(ex.faintAt ?? 0), '21:40');
   check('倒下时生命为 0', ex.s.player.hp === 0);
   const e11 = run('home', 6 * 60, 24 * 60, { hunger: 0, hp: 20 });
   check('E11 家园饱食归零很久：生命停在 1，不会倒下，有提示', e11.s.player.hp === 1 && !e11.ev.includes('faint') && e11.ev.filter((x) => x === 'floor').length === 1,
@@ -407,7 +409,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('没去过别的岛时不能选「回到上次的岛」', TR.depart(st, 'last').reason === 'no-last' && st.player.area === 'home');
   const seedA = TR.newIslandSeed(st);
   const r = TR.depart(st, 'new');
-  check('出发去新岛：耗时 1 小时、路上饱食 −6、到远征岛着陆点', r.ok && st.clock === 10 * 60 && st.player.hunger === 74 && st.player.area === 'expedition' && st.player.x === null && st.expedition.seed === seedA,
+  check('出发去新岛：耗时 1 小时、路上饱食 −4、到远征岛着陆点', r.ok && st.clock === 10 * 60 && st.player.hunger === 76 && st.player.area === 'expedition' && st.player.x === null && st.expedition.seed === seedA,
     `${T.formatClock(st.clock)} 饱食 ${st.player.hunger}`);
   check('出发后存档合法', S.validate(st).length === 0, S.validate(st).join());
   check('在远征岛上不能再出发', TR.depart(st, 'new').reason === 'not-home');
