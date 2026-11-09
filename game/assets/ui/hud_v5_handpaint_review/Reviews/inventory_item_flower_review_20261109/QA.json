@@ -1,0 +1,81 @@
+{
+  "schema": "lingmu-hud-v5-single-handpaint-review-v2",
+  "recorded_at_utc": "2026-11-09T06:41:00Z",
+  "task_id": "other96/inventory/item_flower",
+  "asset_id": "inventory/item_flower",
+  "queue_number": 45,
+  "status": "candidate_pending_art_and_engine_QA",
+  "approval": "pending",
+  "production_replaced": false,
+  "source": {
+    "library_file": "/Lingmu_HUD_Exports/Original_References/04_inventory.jpg",
+    "native_pixels": [
+      1920,
+      1080
+    ],
+    "native_source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [
+      1115,
+      207,
+      1210,
+      290
+    ],
+    "crop_sha256": "f97d21f0e809937f4769f2bda63db78226d31d1b3fb5c9c00554e99ade9926cf",
+    "processed_crop_sha256": "17f4ac658455afa6a57fd97ce7a9f5f2483f763a50c7be2a2c366cc96b11d216",
+    "only_reference": "flower-only original crop with quantity 4 removed; 8x upscale; no other sprite used",
+    "binding_requested": true,
+    "binding_technically_verified": false
+  },
+  "identity": {
+    "expected": "One cream-white flower with yellow circular center, dark green leaf left and right, small upper-right bud; count 4 is separately rendered.",
+    "observed": "Single high-quality five-petal ivory/pink flower with gold stamens, short stem and green leaves; no number, other buttons, or HUD atlas",
+    "functional_identity": "pass",
+    "art_differences": "Pinker edging and more elaborate yellow stamens, separate small bud absent; art approval pending"
+  },
+  "candidate": {
+    "path": "PNG_Transparent/04_inventory/item_flower.png",
+    "review_filename": "item_flower_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+    "generated_attempts": 1,
+    "misrouted_attempts": 0,
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "alpha_bbox_xyxy": [
+      109,
+      72,
+      915,
+      952
+    ],
+    "candidate_sha256": "153fe01972112f798217e53f3b7da34af003639f1daf31b7e2e1516da3225c2a",
+    "raw_generated_sha256": "e2f275a1654dd44aa26ae0c9cf6279809acb89dd7276a835e14495a0a1286aaf",
+    "review_comparison_sha256": "0cb8c0ac4f9b64f3748fb7da179fc1691974d844d3f87899355faf05dbe97b8b"
+  },
+  "qa": {
+    "one_sprite": true,
+    "transparency_local_check": "pass",
+    "functional_identity": "pass",
+    "small_size_visual_check": "readable at 48,64 and 96 px",
+    "art_approval": "pending",
+    "engine_qa": "pending",
+    "final_approved": false
+  },
+  "storage": {
+    "github_review_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_flower_review_20261109/QA.json",
+    "library_upload": "failed: AccessDeny (FileDrive_95e587b757a08191a27cb674e7492b1f)",
+    "github_fullres_png_committed": false,
+    "review_artifacts_local": [
+      "/mnt/data/lingmu_item_flower_20261109/item_flower_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+      "/mnt/data/lingmu_item_flower_20261109/item_flower_original_vs_candidate_QA.jpg",
+      "/mnt/data/lingmu_item_flower_20261109_REVIEW.zip"
+    ]
+  },
+  "next": "other96/inventory/item_potion",
+  "production_modified": false,
+  "historical_qa_states_modified": false
+}
