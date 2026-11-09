@@ -1,0 +1,28 @@
+{
+  "task_id": "other96/inventory/item_flower",
+  "asset_id": "inventory/item_flower",
+  "queue_number": 45,
+  "state": "authentic_reference_prepared_generation_pending",
+  "selection_reason": "Continue after the previous manual apple turn. The separator and apple misrouted generations remain unapproved; do not repeat either failed target. The live queue still points at the separator and needs later reconciliation; it has not been overwritten here.",
+  "source": {
+    "file": "04_inventory.jpg",
+    "source_library_path": "/Lingmu_HUD_Exports/Original_References/04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [1108, 202, 1208, 290],
+    "crop_dimensions": [100, 88],
+    "authentic_source_pixels_verified": true,
+    "note": "Tight screenshot crop contains only the flower item and the nearby quantity 4; quantity and cream inventory background must not be painted into the sprite."
+  },
+  "art_brief": {
+    "subject": "Exactly one small inventory wildflower: one five-rounded-petal ivory-white bloom with a round warm yellow center, a short slender green stem, two olive-green leaves opening left and right, and one tiny closed green bud on the upper-right side. Preserve the visible reference silhouette and proportions.",
+    "style": "Refined cozy hand-painted 2D game item, soft controlled shading, clean organic edges, subtle warm petal shadows; polished original interpretation rather than pixel-perfect tracing.",
+    "output": "One isolated flower sprite on genuinely transparent background, square 1024x1024; all subject parts fully inside canvas.",
+    "exclude": "No numbers, text, labels, review sheet, multi-size layout, inventory tile, frame, border, other objects, bouquet, added large flowers, gems, gold ornaments, excessive shine or dark background."
+  },
+  "accepted_candidates": 0,
+  "user_art_approval": "pending",
+  "alpha_qa": "pending_output",
+  "in_engine_qa": "pending",
+  "production_promoted": false
+}
