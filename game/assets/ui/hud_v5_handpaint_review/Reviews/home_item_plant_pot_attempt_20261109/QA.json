@@ -1,0 +1,14 @@
+{
+  "task_id": "other96/home/item_plant_pot",
+  "date": "2026-11-09",
+  "source": "06_home.jpg",
+  "target": "small green succulent with rounded fleshy leaves in simple terracotta pot and pale clover mark; no white flowers",
+  "attempts": 2,
+  "actual": "two ornate cream-and-gold flower pots with large white blossoms, not the original succulent",
+  "result": "rejected_wrong_plant_identity",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/home/item_flower_vase",
+  "note": "Both are attractive but may match a different flower-vase category; do not misassign as simple succulent."
+}
