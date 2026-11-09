@@ -1,0 +1,19 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "phase": "refine",
+  "library_path": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/detail_wood_panel_refine_1260x1640.png",
+  "sha256": "ea21f49c6d03784c6ea3dd08d3a6dfee17e10eff265f8db51e59e329ac7cacff",
+  "size": [
+    1260,
+    1640
+  ],
+  "status": "candidate_pending_art_edge_engine_QA",
+  "source_binding_verified": false,
+  "alpha_method": "segmented from RGB checkerboard",
+  "remaining_issues": [
+    "extra gold crests",
+    "edge contamination possible",
+    "no in-engine QA"
+  ],
+  "production_promoted": false
+}
