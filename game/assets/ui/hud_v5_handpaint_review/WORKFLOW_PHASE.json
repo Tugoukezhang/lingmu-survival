@@ -1,0 +1,41 @@
+{
+  "schema": "lingmu-hud-workflow-phase-v1",
+  "project": "Lingmu HUD V5",
+  "updated_on": "2026-11-09",
+  "phase": "rework_and_review",
+  "authority": "User's explicit latest correction in the active conversation; overrides stale first-pass focus and summary counters only.",
+  "user_correction": "等等，96项已经全部做完，我刚刚在手机上走的是返修流程，你没记录么？",
+  "first_pass": {
+    "scope_label": "Original 96-item queue; Chinese logo remains excluded by prior user instruction",
+    "status": "completed_user_confirmed",
+    "restart_allowed": false,
+    "artifact_inventory_independently_reconciled": false,
+    "note": "Completion of the first production pass must not be confused with final visual approval or engine QA. Do not report old not_generated or aggregate counters as current first-pass work remaining."
+  },
+  "rework": {
+    "status": "active_phase_target_reconciliation_required",
+    "current_target": null,
+    "remaining_count": null,
+    "resume_policy": "Reconcile the existing latest mobile/user rework instructions, review logs, archived candidates and queue entries before choosing a repair target. The exact latest mobile repair target was not recovered in this check; do not invent it or restart from badge_circle_light or any stale current_focus.",
+    "selection_policy": "Only repair an identified existing asset with a documented issue or explicit user repair request. Preserve already accepted designs; a pending technical check does not authorize an artwork redraw.",
+    "on_unresolved_target": "Do not generate an arbitrary new image. Record the reconciliation blocker truthfully. Do not claim a repair was completed."
+  },
+  "existing_records": {
+    "queue": "hud_handpaint_queue.json",
+    "production_status": "production_status.json",
+    "reviews": "Reviews",
+    "new_production_queue_created": false,
+    "observed_queue_blob_sha": "b99bb4fe87c32da21bfa47b0be39acabe30d2c29",
+    "legacy_summary_is_stale": true
+  },
+  "preserve": {
+    "one_control_per_run": true,
+    "existing_hourly_schedule": true,
+    "chinese_logo_skipped": true,
+    "user_accepted_designs": ["previous single two-person avatar quality benchmark", "title/age_12_badge", "inventory/item_bread", "inventory/item_letter"],
+    "candidate_history": true,
+    "final_approval_flags_unchanged": true,
+    "production_assets_unchanged": true
+  },
+  "reporting": "Report repair completed / repair remaining / awaiting visual review / awaiting technical QA separately. Do not equate first-pass completion, candidate presence, user design acceptance and engine approval. No new remaining count is asserted until reconciliation."
+}
