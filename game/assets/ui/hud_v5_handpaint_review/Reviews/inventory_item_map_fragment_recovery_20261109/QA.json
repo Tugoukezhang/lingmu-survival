@@ -1,0 +1,40 @@
+{
+  "task_id": "other96/inventory/item_map_fragment",
+  "asset_id": "inventory/item_map_fragment",
+  "queue_number": 47,
+  "state": "two_generated_outputs_rejected_programmatic_reference_only",
+  "source": {
+    "file": "04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "bbox_xyxy": [1360, 198, 1480, 296],
+    "crop_dimensions": [120, 98],
+    "exact_pixel_match_to_previous_reference": true
+  },
+  "new_image_generation_attempts": 2,
+  "accepted_generated_candidates": 0,
+  "failure": "Both generated images were unrelated labelled presentation sheets: slot_berry and slot_herb. Neither contains the requested standalone parchment map fragment. Do not promote or count either as a completed map.",
+  "rejected_output_sha256": [
+    "31e6c789b9cebbf9c398bc558031764688107dd0c5f2f779cfd01e67b620e112",
+    "4f973e220d2240ff53288652a9c3879baacd66aea0b05b99fd810f05e9d748e8"
+  ],
+  "reference_artifact": {
+    "kind": "Programmatically authored SVG and raster reference; NOT GPT Image handpaint artwork",
+    "library_png": "/Lingmu_HUD_Exports/Inventory_Map_Fragment_Reference_20261109/item_map_fragment_reference_1024.png",
+    "library_bundle": "/Lingmu_HUD_Exports/Inventory_Map_Fragment_Reference_20261109/item_map_fragment_reference_bundle.zip",
+    "size": [1024, 1024],
+    "mode": "RGBA",
+    "sha256": "ba5af5e543f8147360630d4f065fadbc40c9abc401003b0d82fd2b40a6754fa8",
+    "alpha_bbox": [118, 218, 934, 811],
+    "alpha_min": 0,
+    "alpha_max": 255,
+    "fully_transparent_fraction": 0.6459054946899414,
+    "small_size_previews": [32, 48, 64, 96, 128],
+    "library_upload_verified": true
+  },
+  "art_approval": "pending",
+  "engine_qa": "not_run",
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "main_queue_modified_this_turn": false,
+  "queue_reconciliation": "Keep map fragment in deferred rework; do not claim the programmatic reference is a completed handpainted candidate. Re-read live main queue before reconciliation. The next never-attempted entry after map is other96/inventory/item_mushroom. Do not repeatedly regenerate unrelated slot presentation sheets."
+}
