@@ -1,0 +1,119 @@
+{
+  "schema": "lingmu-hud-single-component-review-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/inventory/selected_item_separator",
+  "queue_number": 43,
+  "target_png": "PNG_Transparent/04_inventory/selected_item_separator.png",
+  "source": {
+    "path": "04_inventory.jpg",
+    "width": 1920,
+    "height": 1080,
+    "sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [
+      315,
+      540,
+      765,
+      566
+    ],
+    "crop_dimensions": [
+      450,
+      26
+    ],
+    "crop_sha256": "eedda3e3f7ae4529d41b0435dd4d2e238497a0199801f44b719b3ea36a02ee40",
+    "identity": "thin pale grey-beige dotted horizontal separator line on cream inventory item detail panel"
+  },
+  "generator_binding": {
+    "source_local_crop_prepared_and_verified": true,
+    "unique_image_reference_binding_verified": false,
+    "observed_generated_prompts": "question-mark help medallion rather than thin horizontal dashed separator",
+    "cross_task_contamination_detected": true
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "identity": "wooden carved question badge with green leaves",
+      "result": "REJECTED_wrong_identity_for_separator",
+      "mode": "RGBA",
+      "dimensions": [
+        1261,
+        1247
+      ],
+      "sha256": "d2e98fc8acbd5b33086de7fe86ca680d5958a49221dc21ebaf3aefec7c2b197c",
+      "alpha_bbox_nonzero": [
+        0,
+        0,
+        1237,
+        1247
+      ],
+      "alpha_bbox_threshold_128": [
+        213,
+        229,
+        1029,
+        1033
+      ]
+    },
+    {
+      "number": 2,
+      "identity": "wooden carved question badge with green leaves",
+      "result": "REJECTED_wrong_identity_for_separator",
+      "mode": "RGBA",
+      "dimensions": [
+        1261,
+        1247
+      ],
+      "sha256": "a4dda8a8e9cb5c8911abde4588894dbf1a2147580e42e3622245713cdea0be22",
+      "alpha_bbox_nonzero": [
+        0,
+        23,
+        1188,
+        1221
+      ],
+      "alpha_bbox_threshold_128": [
+        211,
+        206,
+        1013,
+        1033
+      ]
+    }
+  ],
+  "qa": {
+    "identity": "FAIL both",
+    "shape": "FAIL both",
+    "palette": "FAIL both",
+    "source_comparison": "FAIL both",
+    "in_game_small_size": "FAIL wrong functional object",
+    "alpha": "RGBA alpha exists but stray edge pixels; no production-grade approval",
+    "artistic_quality": "polished as question emblem; question_dark association and original-match QA not performed",
+    "approved": false,
+    "production_replaced": false
+  },
+  "review_artifacts": {
+    "local_zip": "/mnt/data/lingmu_selected_item_separator_20261109_REJECTED_QA.zip",
+    "original_crop": "source_crop_exact_450x26.png",
+    "comparison": "source_vs_two_wrong_identity_QA.jpg",
+    "fullsize_wrong_candidates": [
+      "REJECTED_1_wrong_question_badge_RGBA.png",
+      "REJECTED_2_wrong_question_badge_RGBA.png"
+    ],
+    "github_binary_uploaded": false,
+    "library_upload_status": "AccessDeny; none uploaded"
+  },
+  "misrouted_asset": {
+    "task_id": "other96/shared/question_dark",
+    "disposition": "archived locally only as unapproved misrouted candidate reference; DO NOT increment approved/passed totals or replace previous candidates"
+  },
+  "outcome": {
+    "separator_valid_candidates": 0,
+    "new_qa_approved": 0,
+    "production_replaced": 0,
+    "attempts": 2,
+    "failed_identity": 2,
+    "queue_deferred": true,
+    "next": "other96/inventory/item_apple"
+  },
+  "immutable_policy": {
+    "chinese_logo_skipped": true,
+    "age_12_design_accepted_technical_qa_pending": true,
+    "previous_rework_failures_unchanged": true
+  }
+}
