@@ -82,5 +82,35 @@
   "resume_target": "other96/inventory/item_description_label",
   "resume_gate": "Original screenshot bytes must actually exist and decode in the drawing runtime. Then tightly crop only the label, verify identity, record native bbox and SHA256, and use that single crop for generation.",
   "queue_and_production_json_modified": false,
-  "notes": "This is a source-transfer blocker, not two failed generations. No fabricated PNG, V3/V4 fallback, completion, or source binding is claimed."
+  "notes": "This is a source-transfer blocker, not two failed generations. No fabricated PNG, V3/V4 fallback, completion, or source binding is claimed.",
+  "rechecks": [
+    {
+      "checked_at_utc": "2026-11-09T03:07:28.284547+00:00",
+      "trigger": "user_continue",
+      "current_focus_read": "other96/inventory/item_description_label",
+      "required_inputs_reread": true,
+      "library_source_id": "file_0000000090ac81fd9322e31e4496ec1a",
+      "materialize_reported_path": "/mnt/data/files/04_inventory_4.jpg",
+      "materialize_report": "success",
+      "exists_in_active_container": false,
+      "exists_in_active_python": false,
+      "alternate_original_search": "Searched original inventory screenshot filename variants and image-only Library/conversation results; no usable alternate screenshot bytes recovered.",
+      "source_preview_reread_in_this_run": false,
+      "source_crop_created": false,
+      "source_bbox_xyxy": null,
+      "source_sha256": null,
+      "sole_crop_bound_to_generator": false,
+      "image_generation_calls": 0,
+      "generated_images": 0,
+      "new_review_candidates": 0,
+      "new_qa_passes": 0,
+      "rejected_generated_images": 0,
+      "production_replacements": 0,
+      "counts_changed": false,
+      "focus_advanced": false,
+      "result": "same_source_transfer_blocker_confirmed",
+      "recovery_required": "Readable authentic original screenshot bytes or authentic isolated item-description-label crop. Do not substitute V3/V4, text reconstruction, full-screen generation input, or previous outputs."
+    }
+  ],
+  "latest_recheck_status": "blocked_original_source_bytes_unavailable_in_drawing_runtime"
 }
