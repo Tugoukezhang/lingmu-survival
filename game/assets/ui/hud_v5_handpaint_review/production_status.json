@@ -526,9 +526,12 @@
       "target_png": "PNG_Transparent/04_inventory/item_flower.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "status": "single_handpaint_candidate_local_pending_approval",
+      "qa": "art_and_engine_pending",
+      "notes": "One real RGBA 1024 flower candidate created from tightly cropped source; functional identity recognized; art and engine QA pending. Binary stored in conversation review ZIP; Library AccessDeny, no production promotion.",
+      "candidate_sha256": "153fe01972112f798217e53f3b7da34af003639f1daf31b7e2e1516da3225c2a",
+      "review_qa_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_flower_review_20261109/QA.json",
+      "production_promoted": false
     },
     {
       "index": 47,
