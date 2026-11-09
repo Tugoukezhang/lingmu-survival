@@ -1,0 +1,12 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "V5 four-corner three-background zoom QA",
+  "alpha_partial": 14217,
+  "partial_near_white_rgb": 47,
+  "nonzero_alpha_border": 0,
+  "connected_component_count": 1,
+  "library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/v5_edge_magnification_grid.jpg",
+  "approved": false,
+  "engine_tested": false,
+  "production_promoted": false
+}
