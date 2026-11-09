@@ -23,4 +23,6 @@ const params = new URLSearchParams(location.search);
 export const DEBUG = params.has('debug');
 export const SEED = Number(params.get('seed')) || 20261108;
 // ?timescale=60 makes game time run 60× faster (testing day/night)
+// ?demo=1 skips the title page; a new game then starts with all six pets (tests, demos)
+export const DEMO = params.has('demo');
 export const TIMESCALE = Math.max(0.1, Number(params.get('timescale')) || 1);

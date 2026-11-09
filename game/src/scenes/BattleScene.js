@@ -308,7 +308,7 @@ export default class BattleScene extends Phaser.Scene {
     if (sum.result === 'caught') {
       const c = sum.caught;
       lines.push(`${c.name}${c.shiny ? '（异色！）' : ''} ${'★'.repeat(c.stars)}`);
-      lines.push(c.duplicate ? `你已经有${c.name}了：可以留下，或转成羁绊结晶给同种宠物升星。` : c.joined ? `${c.name}加入了队伍！` : `队伍满了，${c.name}被送回家园宠物小屋。`);
+      lines.push(c.duplicate ? `你已经有${c.name}了：可以留下，\n或转成羁绊结晶给同种宠物升星。` : c.joined ? `${c.name}加入了队伍！` : `队伍满了，${c.name}被送回家园宠物小屋。`);
       lines.push(`好感 ${c.affection}${c.affection >= 20 ? '（喂过喜欢的零食）' : ''}`);
       for (const x of sum.exp) lines.push(`${x.name} 经验 +${x.amount}`);
       for (const x of sum.levelUps) lines.push(`${x.name} 升到了 Lv.${x.level}！`);
@@ -320,10 +320,13 @@ export default class BattleScene extends Phaser.Scene {
       lines.push('野生宠物跑开了。', '回家睡一觉，伙伴们就能恢复。');
       if (sum.clover) lines.push(`四叶草 +${sum.clover}`);
     } else lines.push('野生宠物还在原地。');
-    const w = 440, h = 280;
-    const c = woodPanel(this, w, h).setPosition(GAME_W / 2, GAME_H / 2 - 30).setDepth(100);
+    // the panel grows with the text (a catch with level-ups can be 6–7 lines); text wraps inside
+    const w = 440;
+    const body = text(this, 0, 0, lines.join('\n'), 17, { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6, wrap: w - 50 });
+    const h = Math.max(280, Math.ceil(body.height) + 168);
+    const c = woodPanel(this, w, h).setPosition(GAME_W / 2, Math.min(GAME_H / 2 - 30, GAME_H - 150 - h / 2)).setDepth(100);
     c.add(text(this, 0, -h / 2 + 42, title, 28, { ox: 0.5, oy: 0.5 }));
-    c.add(text(this, 0, -8, lines.join('\n'), 17, { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6 }));
+    c.add(body.setPosition(0, -h / 2 + 72 + body.height / 2));
     if (sum.result === 'caught' && sum.caught.duplicate) {
       // docs/07 第 5 节: a duplicate can be kept or turned into crystals (= its stars)
       c.add(capsuleButton(this, -100, h / 2 - 48, '留下', { w: 170, onClick: () => this.close(), name: 'catch-keep' }));

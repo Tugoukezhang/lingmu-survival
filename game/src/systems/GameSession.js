@@ -38,6 +38,7 @@ export default class GameSession {
     const r = this.store.load();
     this.state = r.state;
     this.loadSource = r.source;
+    this.hasSave = r.source !== 'new';   // title page: 「继续游戏」 or 「开始游戏」
     if (!this.persistent) this.notice = '当前浏览器不允许存档，进度不会保存';
     else if (r.source === 'backup') this.notice = '存档损坏，已从备份恢复';
     else if (r.problem === 'future') this.notice = '存档来自更新的游戏版本，已另外保留；本次从新开始';
@@ -47,9 +48,11 @@ export default class GameSession {
     return r;
   }
 
-  newGame() {
+  // starter: pet chosen on the title page; none = demo start (all pets)
+  newGame({ starter = null } = {}) {
     this.store.wipe();
-    this.state = newGameState();
+    this.state = newGameState({ starter });
+    this.hasSave = true;
     this.pushToRegistry();
     this.dirty = true;
     this.save('new-game');

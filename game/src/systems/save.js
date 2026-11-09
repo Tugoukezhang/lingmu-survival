@@ -7,7 +7,7 @@
 //   aside, never overwritten silently.
 // - Saving can be blocked (battle, fainting animation) with block(reason).
 // Pure module: storage is injected, so tools/logic-test.mjs runs it in Node.
-import { PETS, PET_BY_ID } from '../data/pets.js';
+import { PETS, PET_BY_ID, STARTERS } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { createStarter } from './petMath.js';
 
@@ -16,10 +16,15 @@ export const KEYS = { main: 'lingmu.save.main', backup: 'lingmu.save.backup', fu
 export const PARTY_MAX = 3;
 
 // ---------- state shape ----------
-export function newGameState({ now = Date.now(), seed = 20261108 } = {}) {
-  // Demo start until the starter choice exists: all six pets live on the home
-  // island (as before), 冰蓝小狼 follows the player.
-  const pets = PETS.map((p) => createStarter(p.id, { uid: `pet-${p.id}` }));
+// 【建议】 the starter begins at Lv 4: with one pet only, Lv 1 lost every fight against
+// its counter element and most fights against 星星熊仔 (T16 measurement, docs/02 第 2 节).
+export const STARTER_LEVEL = 4;
+
+// starter = one of STARTERS (title page, T16) → a real new game with just that pet.
+// No starter = demo start (tests, ?demo=1): all six pets, 冰蓝小狼 follows.
+export function newGameState({ now = Date.now(), seed = 20261108, starter = null } = {}) {
+  if (starter != null && !STARTERS.includes(starter)) throw new Error(`unknown starter ${starter}`);
+  const pets = starter ? [createStarter(starter, { uid: `pet-${starter}`, level: STARTER_LEVEL })] : PETS.map((p) => createStarter(p.id, { uid: `pet-${p.id}` }));
   return {
     version: SAVE_VERSION,
     createdAt: now,
@@ -46,9 +51,9 @@ export function newGameState({ now = Date.now(), seed = 20261108 } = {}) {
     world: { expanded: false, bridge: false },
     house: { items: [] },
     pets,
-    party: ['pet-pup', 'pet-fox', 'pet-acorn'],
+    party: starter ? [`pet-${starter}`] : ['pet-pup', 'pet-fox', 'pet-acorn'],
     expedition: null, // { seed, biome, changes: {...} } while on an expedition island (T05)
-    flags: {},
+    flags: starter ? { starter } : {},
   };
 }
 

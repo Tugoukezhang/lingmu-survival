@@ -1190,5 +1190,42 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('进屋 / 出门不花时间，出门站在小屋门口', TR.enterHouse(tv).ok && tv.player.area === 'house' && tv.clock === 360 && TR.leaveHouse(tv).ok && tv.flags.arriveAt === 'house');
 }
 
+// ---------- title page & starter choice (T16) ----------
+{
+  check('开局三选一：橡果刺猬 / 航海鲨 / 焰尾狐（docs/02 第 2 节）', JSON.stringify(STARTERS) === '["acorn","shark","fox"]');
+  check('三只开局宠物的探索技能、打工都不一样（各有用处）', new Set(STARTERS.map((id) => species(id).explore)).size === 3 && new Set(STARTERS.map((id) => species(id).work)).size === 3);
+  const ok = STARTERS.every((id) => {
+    const s = S.newGameState({ starter: id });
+    return s.pets.length === 1 && s.pets[0].species === id && s.pets[0].level === S.STARTER_LEVEL && s.party.join() === `pet-${id}` && s.flags.starter === id && S.validate(s).length === 0;
+  });
+  check(`选了谁就只带谁：1 只宠物、${S.STARTER_LEVEL} 级、在队伍里、存档合法`, ok);
+  const s = S.newGameState({ starter: 'shark' });
+  check('开局存档读回来一样', JSON.stringify(S.decode(S.encode(s)).state.pets) === JSON.stringify(s.pets));
+  check('名单外的宠物不能当开局宠物', (() => { try { S.newGameState({ starter: 'shadecat' }); return false; } catch { return true; } })());
+  check('不选宠物 = 演示开局（6 只，自动检查用）', S.newGameState().pets.length === PETS.length && S.newGameState().pets.every((x) => x.level === 1));
+  // one pet only: day 1–3 fights must be winnable (simple player: strongest expected hit each turn)
+  const winRate = (st, foeId, day) => {
+    let win = 0;
+    for (let i = 0; i < 100; i++) {
+      const rng = mulberry32(i * 7919 + 13);
+      const me = M.createStarter(st, { uid: 'me', rng, level: S.STARTER_LEVEL });
+      const foe = B.makeWildGroup({ species: foeId, level: M.wildLevel(day, rng), islandSeed: i, wildIndex: 0, day, pool: PETS.map((x) => x.id) });
+      const b = B.createBattle({ party: [me], enemies: foe, inventory: [], rng });
+      for (let k = 0; k < 60 && !b.over; k++) {
+        const m = b.sides.me.mons[b.sides.me.active], f = b.sides.foe.mons[b.sides.foe.active];
+        const best = m.skills.filter((id) => m.uses[id] > 0).map((id) => [id, B.expectedDamage(m, f, id)]).sort((x, y) => y[1] - x[1])[0][0];
+        B.resolveTurn(b, { type: 'skill', skill: best });
+      }
+      if (b.over === 'win') win++;
+    }
+    return win / 100;
+  };
+  const counter = { acorn: 'fox', shark: 'acorn', fox: 'shark' };   // element that beats each starter
+  const rows = STARTERS.map((st) => PETS.filter((x) => x.element !== { acorn: '火', shark: '森', fox: '水' }[st]).map((x) => winRate(st, x.id, 1)));
+  check('只有开局宠物：第 1 天打不克制自己的野生宠物，每种胜率都 ≥ 80%', rows.every((r) => r.every((w) => w >= 0.8)), JSON.stringify(rows));
+  const hard = STARTERS.map((st) => winRate(st, counter[st], 1));
+  check('碰到克制自己的属性仍然吃力（胜率 < 50%，属性相克有意义）', hard.every((w) => w < 0.5), JSON.stringify(hard));
+}
+
 console.log(`\n${pass} 通过，${fail} 失败`);
 process.exit(fail ? 1 : 0);

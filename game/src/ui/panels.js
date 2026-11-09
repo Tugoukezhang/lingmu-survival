@@ -1,4 +1,4 @@
-import { COLORS } from '../config.js';
+import { COLORS, DEMO } from '../config.js';
 import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { calcStats, displayName, expToNext } from '../systems/petMath.js';
@@ -217,8 +217,10 @@ export function settingsPanel(scene, stack) {
   c.add(capsuleButton(scene, guideDone(session.state) ? 0 : 100, 60, '重新开始', {
     w: 170, style: 'yellow', name: 'restart',
     onClick: () => stack.push('confirm', (s, st) => confirmDialog(s, st, '确定要重新开始吗？\n当前进度会被清除。', () => {
-      scene.game.session.newGame();
-      scene.scene.get('play').scene.restart();
+      if (DEMO) { scene.game.session.newGame(); scene.scene.get('play').scene.restart(); return; }
+      // back to the title page to pick a starter again (T16)
+      scene.game.session.store.wipe(); scene.game.session.hasSave = false;
+      scene.scene.stop('battle'); scene.scene.stop('play'); scene.scene.start('title', { step: 'choose' });
     })),
   }));
   c.add(closeBtn(scene, stack, w, h));

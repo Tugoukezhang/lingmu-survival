@@ -106,8 +106,6 @@ export default class UIScene extends Phaser.Scene {
 
   onModal(open) {
     this.registry.set('uiModal', open);
-    // a message still on screen moves to the bottom edge so it doesn't cover the panel
-    if (open) for (const r of this.toastRows ?? []) if (r.t.alpha > 0.05 && r.t.y < GAME_H / 2) this.paintToast(r, r.t.text, GAME_H - 30, 900);
     this.joystick.release();
     this.joystick.setVisible(!open);
     this.actionGroup.setVisible(!open);
@@ -230,8 +228,9 @@ export default class UIScene extends Phaser.Scene {
   showToast(msg) {
     const [top, second] = this.toastRows;
     const now = this.time.now;
-    // with a panel open, messages go to the bottom edge so they never cover the panel's title
-    const y1 = this.stack?.size ? GAME_H - 30 : 84, y2 = this.stack?.size ? GAME_H - 74 : 38;
+    // messages sit at the bottom middle (between joystick and action button), so they never
+    // cover the HUD buttons at the top or a panel's title (T16 fix; was top-centre)
+    const y1 = GAME_H - 30, y2 = GAME_H - 74;
     if (!this.stack?.size && top.t.alpha > 0.5 && now - top.shownAt < 1500 && top.t.text !== msg) {   // one row while a panel is open
       this.paintToast(second, top.t.text, y2, Math.max(600, 1600 - (now - top.shownAt)));
     }

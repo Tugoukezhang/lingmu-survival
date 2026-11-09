@@ -1,4 +1,4 @@
-import { GAME_W, GAME_H, FONT, COLORS } from '../config.js';
+import { GAME_W, GAME_H, FONT, COLORS, DEMO } from '../config.js';
 import { PETS, petTextureKey } from '../data/pets.js';
 import GameSession from '../systems/GameSession.js';
 import { CROPS } from '../data/crops.js';
@@ -63,7 +63,7 @@ export default class BootScene extends Phaser.Scene {
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
     this.game.session.load();
-    this.scene.start('play');
+    this.scene.start(DEMO ? 'play' : 'title');
   }
 
   makeCanvas(key, w, h, draw) {

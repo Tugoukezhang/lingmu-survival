@@ -38,7 +38,7 @@ try {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
 
-  await page.goto(url);
+  await page.goto(`${url}?demo=1`);   // demo start: skip the title page, all six pets (title flow is tested at the end)
   await page.waitForFunction(() => window.__game?.scene?.isActive('play'), null, { timeout: 15000 });
   await page.waitForTimeout(600);
   const state = () => page.evaluate(() => window.__game.scene.getScene('play').debugState());
@@ -1008,6 +1008,68 @@ try {
   await page.keyboard.press('KeyE');
   await waitArea('home'); await page.waitForTimeout(400);
   check('出门回到家园，站在小屋门口', await page.evaluate(() => { const sc = window.__game.scene.getScene('play'); return Math.hypot(sc.player.x - sc.cottageSpot.x, sc.player.y - sc.cottageSpot.y) < 40; }));
+
+  // ---------- title page & starter choice (T16): fresh browser storage, no ?demo ----------
+  {
+    const tctx = await browser.newContext({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const tp = await tctx.newPage();
+    tp.on('pageerror', (e) => errors.push(e.message));
+    tp.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+    await tp.goto(url);
+    await tp.waitForFunction(() => window.__game?.scene?.isActive('title'), null, { timeout: 15000 });
+    await tp.waitForTimeout(400);
+    const tbox = await tp.locator('canvas').boundingBox();
+    const tapIn = async (sceneKey, name) => {
+      const p = await tp.evaluate(([k, n]) => window.__game.scene.getScene(k).findTarget(n), [sceneKey, name]);
+      if (!p) throw new Error(`${sceneKey} target not found: ${name}`);
+      await tp.touchscreen.tap(tbox.x + p.x * tbox.width / 960, tbox.y + p.y * tbox.height / 540); await tp.waitForTimeout(350);
+    };
+    const tTap = (name) => tapIn('title', name);
+    const td = () => tp.evaluate(() => window.__game.scene.getScene('title').debugTitle());
+    const inGame = () => tp.waitForFunction(() => window.__game.scene.isActive('play') && window.__game.scene.isActive('ui'), null, { timeout: 8000 }).then(() => tp.waitForTimeout(500));
+    let d = await td();
+    check('第一次打开：标题页只有「开始游戏」，还没进游戏', d.step === 'title' && d.targets.join() === 'start' && !(await tp.evaluate(() => window.__game.scene.isActive('play'))), JSON.stringify(d));
+    check('标题页有健康游戏忠告', await tp.evaluate(() => window.__game.scene.getScene('title').children.list.some((o) => o.text?.includes('抵制不良游戏'))));
+    await tp.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    check('停在标题页时不会存档', await tp.evaluate(() => localStorage.getItem('lingmu.save.main') === null));
+    await tp.screenshot({ path: join(OUT, '71-title.png') });
+    await tTap('start');
+    d = await td();
+    check('「开始游戏」→ 三只宠物可选', d.step === 'choose' && ['starter-acorn', 'starter-shark', 'starter-fox'].every((n) => d.targets.includes(n)), JSON.stringify(d));
+    await tTap('pick');
+    check('没选宠物时「就选它」不起作用', (await td()).step === 'choose');
+    await tTap('starter-fox');
+    await tp.screenshot({ path: join(OUT, '72-choose.png') });
+    await tTap('pick');
+    check('选焰尾狐 →「就选它」→ 开场介绍', (await td()).step === 'intro');
+    await tp.screenshot({ path: join(OUT, '73-intro.png') });
+    await tTap('begin');
+    await inGame();
+    const g1 = await tp.evaluate(() => { const st = window.__game.session.state, sc = window.__game.scene.getScene('play'); return { pets: st.pets.map((x) => x.species + x.level), party: st.party.join(), follower: sc.debugState().follower, saved: !!localStorage.getItem('lingmu.save.main'), guide: window.__game.scene.getScene('ui').guideText.text }; });
+    check('进入游戏：只有焰尾狐（4 级）跟着，已存档，新手目标是去码头', g1.pets.join() === 'fox4' && g1.party === 'pet-fox' && g1.follower === 'fox' && g1.saved && g1.guide.includes('码头'), JSON.stringify(g1));
+    await tp.screenshot({ path: join(OUT, '74-first-day.png') });
+    await tp.reload();
+    await tp.waitForFunction(() => window.__game?.scene?.isActive('title'), null, { timeout: 15000 }); await tp.waitForTimeout(300);
+    d = await td();
+    check('再打开：标题页显示「继续游戏」和「新的开始」', d.targets.includes('continue') && d.targets.includes('new'), JSON.stringify(d));
+    await tp.screenshot({ path: join(OUT, '75-title-continue.png') });
+    await tTap('new');
+    check('「新的开始」会先确认清除存档', (await td()).step === 'confirm');
+    await tTap('cancel');
+    await tTap('continue');
+    await inGame();
+    check('「继续游戏」回到原来的进度', await tp.evaluate(() => window.__game.session.state.party.join() === 'pet-fox'));
+    await tapIn('ui', 'hud-settings'); await tapIn('ui', 'restart'); await tapIn('ui', 'ok');
+    await tp.waitForFunction(() => window.__game.scene.isActive('title'), null, { timeout: 5000 }).catch(() => {});
+    await tp.waitForTimeout(300);
+    d = await td();
+    const wiped = await tp.evaluate(() => !window.__game.scene.isActive('play') && localStorage.getItem('lingmu.save.main') === null);
+    check('设置 → 重新开始：回到选宠物，旧存档已清除', d.step === 'choose' && wiped, JSON.stringify(d));
+    await tTap('starter-acorn'); await tTap('pick'); await tTap('begin');
+    await inGame();
+    check('重新选橡果刺猬开局，界面正常', await tp.evaluate(() => window.__game.session.state.party.join() === 'pet-acorn' && window.__game.scene.getScene('ui').dayText.text.includes('第 1 天')));
+    await tctx.close();
+  }
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });

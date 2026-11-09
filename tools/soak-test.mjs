@@ -10,6 +10,8 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 
 const DAYS = Number(process.argv[2]) || 6;
+// a real new game from the title page with one starter (T16): node soak-test.mjs 6 shark
+const STARTER = process.argv[3] || 'fox';
 const ROOT = fileURLToPath(new URL('../game/', import.meta.url));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.png': 'image/png' };
 const server = http.createServer(async (req, res) => {
@@ -28,7 +30,13 @@ try {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-  const boot = async () => { await page.waitForFunction(() => window.__game?.scene?.isActive('play') && window.__game.scene.isActive('ui'), null, { timeout: 15000 }); await page.waitForTimeout(400); await page.evaluate(() => { window.__battleFast = true; }); };
+  const boot = async () => {
+    // title page: continue the save, or start a new game with the chosen starter
+    await page.waitForFunction(() => window.__game?.scene?.isActive('title') || window.__game?.scene?.isActive('play'), null, { timeout: 15000 });
+    await page.evaluate((st) => { const g = window.__game; if (!g.scene.isActive('title')) return; const t = g.scene.getScene('title'); if (g.session.hasSave) t.continueGame(); else t.startNew(st); }, STARTER);
+    await page.waitForFunction(() => window.__game.scene.isActive('play') && window.__game.scene.isActive('ui'), null, { timeout: 15000 }); await page.waitForTimeout(400);
+    await page.evaluate(() => { window.__battleFast = true; });
+  };
   await page.goto(url); await boot();
   await page.evaluate(() => localStorage.clear()); await page.reload(); await boot();
   const play = (fn, arg) => page.evaluate(fn, arg);
@@ -61,14 +69,16 @@ try {
     try { await page.waitForFunction(() => window.__game.scene.isActive('battle'), null, { timeout: 3000 }); } catch { return 'no-battle'; }
     for (let k = 0; k < 80; k++) {
       await page.waitForFunction(() => { const s = window.__game.scene.getScene('battle'); return !window.__game.scene.isActive('battle') || (!s.busy && (s.menu || s.endPanel)); }, null, { timeout: 10000 });
-      const done = await play(() => {
+      const done = await play(async () => {
+        const B = await import('./src/systems/battle.js');
         const bs = window.__game.scene.getScene('battle'); const b = bs.battle;
         if (b.over) { bs.close(); return b.over; }
         if (b.needSwitch) { bs.act({ type: 'switch', index: b.sides.me.mons.findIndex((m) => m.hp > 0) }); return null; }
         const me = b.sides.me.mons[b.sides.me.active], foe = b.sides.foe.mons[b.sides.foe.active];
         const net = b.inventory.find((s) => s.id === 'item_net_grass');
         if (net && foe.hp < foe.maxHp * 0.4 && Math.random() < 0.6) { bs.act({ type: 'catch', item: 'item_net_grass' }); return null; }
-        const sk = me.skills.find((id) => me.uses[id] > 0 && !['heal', 'shell', 'puff'].includes(id)) ?? me.skills.find((id) => me.uses[id] > 0);
+        // like a player who reads the type matchups: the hit with the most expected damage
+        const sk = me.skills.filter((id) => me.uses[id] > 0).map((id) => [id, B.expectedDamage(me, foe, id)]).sort((x, y) => y[1] - x[1])[0][0];
         bs.act({ type: 'skill', skill: sk }); return null;
       });
       if (done) { await page.waitForTimeout(300); return done; }
