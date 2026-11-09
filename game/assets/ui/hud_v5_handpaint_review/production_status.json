@@ -539,9 +539,11 @@
       "target_png": "PNG_Transparent/04_inventory/item_potion.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "status": "two_attempts_rejected_deferred_rework",
+      "qa": "art_failed_blue_instead_of_yellow",
+      "notes": "Original yellow potion crop verified bbox [1246,200,1338,282]. Two independent generated blue bottle images rejected because wrong main color and extra rope/tag. QA record in Reviews/inventory_item_potion_rejected_20261109/QA.json. No approved candidate; production unchanged.",
+      "review_qa_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_potion_rejected_20261109/QA.json",
+      "production_promoted": false
     },
     {
       "index": 48,
