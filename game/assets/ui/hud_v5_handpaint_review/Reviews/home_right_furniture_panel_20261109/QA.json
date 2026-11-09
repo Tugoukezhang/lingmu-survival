@@ -1,0 +1,42 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/right_furniture_panel",
+  "asset_id": "home/right_furniture_panel",
+  "source_reference": "06_home.jpg visual reference; V4 image exists but binary was not available to drawing runtime",
+  "source_crop_bound_to_generator": false,
+  "scope": "Blank warm-brown wooden vertical furniture panel with two ivory paper insets; no furniture slot icons, text, tabs, action button",
+  "generator": {
+    "attempts": 1,
+    "status": "rejected",
+    "reason": "Generated ornate green floral alternate panel and baked-in category tabs"
+  },
+  "candidate": {
+    "library_path": "/Lingmu_HUD_Exports/Home_Right_Furniture_Panel_Review_20261109/right_furniture_panel_blank_2320x3040_RGBA.png",
+    "kind": "source-guided manually authored SVG/raster, NOT independent GPT Image handpainted art",
+    "resolution": [
+      2320,
+      3040
+    ],
+    "mode": "RGBA",
+    "sha256": "17ecb1763ceafd4b83a9624f55635acfc9f4e0d959b5e2b9408b12059325819f",
+    "review_bundle": "/Lingmu_HUD_Exports/Home_Right_Furniture_Panel_Review_20261109/right_furniture_panel_review_bundle.zip",
+    "qa_comparison": "/Lingmu_HUD_Exports/Home_Right_Furniture_Panel_Review_20261109/QA_scale_comparison.jpg"
+  },
+  "qa": {
+    "alpha": "passed",
+    "dimensions": "passed",
+    "previews_px": [
+      96,
+      192,
+      288,
+      576
+    ],
+    "visual_source_qa": "partial: original screenshot visually inspected, true V4 proxy pixels unavailable",
+    "art_approval": "pending",
+    "in_engine": "not_run"
+  },
+  "approval": "pending",
+  "production_replaced": false,
+  "counts_changed": false
+}
