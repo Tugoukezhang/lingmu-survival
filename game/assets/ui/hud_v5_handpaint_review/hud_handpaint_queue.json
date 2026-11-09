@@ -3254,12 +3254,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/world_area_info_panel.png",
       "target_resolution": "2100x1300",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
       "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": "Lower-left location information panel with text separate."
+      "delivered_file": "/Lingmu_HUD_Exports/Map_World_Area_Info_Panel_Review_20261109/world_area_info_panel_blank_2100x1300_RGBA.png",
+      "reference_match": "V4 broad cream parchment panel and 07 world map lower-left info board inspected; no exact crop passed into generative edit",
+      "notes": "2100x1300 RGBA source-guided paper-and-gold border blank panel created with SVG/Pillow; leave text, location image, and progress independent. Scale and alpha checked; art and engine QA pending. Not GPT Image final.",
+      "candidate_kind": "Programmatic SVG/Pillow parchment panel reconstruction, NOT independent GPT Image handpaint",
+      "candidate_sha256": "7eb72c5b79f80f1bf02403ea8e7453c089a6068ca0f3a65a42ccb4fbddf33ab9",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_world_area_info_panel_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 91,
@@ -4475,9 +4479,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_location_label_blank_20261109/QA.json",
       "next_focus": "other96/map/world_area_info_panel",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/world_area_info_panel",
+      "action": "Built 2100x1300 blank cream parchment world area panel with golden nested edges and subtle paper texture; delivered SVG/PNG and 210–1050px previews",
+      "result": "Library and GitHub QA archived; candidate unapproved, no production promotion or completion count changes",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_world_area_info_panel_20261109/QA.json",
+      "next_focus": "other96/map/progress_track",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/world_area_info_panel",
+  "current_focus": "other96/map/progress_track",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
