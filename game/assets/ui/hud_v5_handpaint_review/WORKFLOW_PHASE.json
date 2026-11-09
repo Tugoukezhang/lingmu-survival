@@ -13,18 +13,18 @@
     "note": "Completion of the first production pass must not be confused with final visual approval or engine QA. Do not report old not_generated or aggregate counters as current first-pass work remaining."
   },
   "rework": {
-    "status": "inventory_tab_plants_source_matched_review_candidate_ready",
-    "current_target": "other96/inventory/tab_plants",
+    "status": "inventory_tab_documents_source_matched_candidate_ready",
+    "current_target": "other96/inventory/tab_documents",
     "remaining_count": null,
     "resume_policy": "Reconcile the existing latest mobile/user rework instructions, review logs, archived candidates and queue entries before choosing a repair target. The exact latest mobile repair target was not recovered in this check; do not invent it or restart from badge_circle_light or any stale current_focus.",
     "selection_policy": "Only repair an identified existing asset with a documented issue or explicit user repair request. Preserve already accepted designs; a pending technical check does not authorize an artwork redraw.",
     "on_unresolved_target": "Do not generate an arbitrary new image. Record the reconciliation blocker truthfully. Do not claim a repair was completed.",
-    "latest_record": "Reviews/inventory_tab_plants_failed_20261108/QA.json",
-    "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_source_matched_candidate_1024.png",
-    "latest_result": "New source-matched 1024 RGBA candidate archived. Generation mismatch rejected. User art and engine QA pending. No production promotion.",
+    "latest_record": "Reviews/inventory_tab_documents_failed_20261108/QA.json",
+    "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_source_matched_candidate_1024.png",
+    "latest_result": "Manual isolated source-matched 1024 transparent RGBA document-tab sprite archived; alpha and reduced-size review passed preliminarily; pending user art and game QA; no production promotion",
     "last_completed_action_date": "2026-11-09",
-    "next_after_this": "Only proceed with next confirmed repair from real rework records, not stale first-pass queue.",
-    "current_target_source": "Authentic 04_inventory.jpg crop, not simplified V4 one-leaf fallback",
+    "next_after_this": "Select another explicitly documented unresolved repair, not stale first pass queue.",
+    "current_target_source": "04_inventory.jpg exact crop [1355,75,1490,205] and documented failed prior two attempts",
     "last_attempted": [
       "other96/inventory/tab_plants"
     ]
