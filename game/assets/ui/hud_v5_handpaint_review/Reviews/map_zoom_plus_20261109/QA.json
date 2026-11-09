@@ -1,0 +1,45 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/zoom_plus",
+  "asset_id": "map/zoom_plus",
+  "source": {
+    "reference": "07_world_map.jpg",
+    "v4": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/zoom_plus.png",
+    "v4_sha": "7c2146880def9cad7d32c80465a9ad62029a1c27",
+    "original_single_crop_generator_bound": false
+  },
+  "rejected_generation": {
+    "attempts": 1,
+    "reason": "Green clover-shaped flower backing rather than original brown circular zoom control"
+  },
+  "candidate": {
+    "path": "/Lingmu_HUD_Exports/Map_Zoom_Plus_Single_Review_20261109/map_zoom_plus_1024_RGBA_candidate.png",
+    "kind": "reference-guided programmatically painted sprite, NOT AI handpainted final",
+    "resolution": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "97597d5162ec55a1286b0e1c4019ff977c6bb9bfdf3f8cf242c1948b49bc2cbb",
+    "bundle": "/Lingmu_HUD_Exports/Map_Zoom_Plus_Single_Review_20261109/map_zoom_plus_review_bundle.zip"
+  },
+  "qa": {
+    "shape": "Warm brown roundel and cream central plus, small leaf-flower detail upper-left",
+    "alpha": "passed",
+    "preview_sizes": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_approval": "pending",
+    "game_engine": "not_run"
+  },
+  "approval": "pending",
+  "production_replaced": false,
+  "counts_changed": false
+}
