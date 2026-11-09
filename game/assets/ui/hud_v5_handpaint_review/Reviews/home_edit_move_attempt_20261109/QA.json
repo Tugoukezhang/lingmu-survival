@@ -1,0 +1,24 @@
+{
+  "task_id": "other96/home/edit_move",
+  "reference": "06_home.jpg",
+  "source_dimensions": [
+    1920,
+    1080
+  ],
+  "source_crop_approx": [
+    90,
+    470,
+    166,
+    539
+  ],
+  "target": "one dark-brown four-direction arrow symbol with small clover-like center; transparent background; no toolbar, label, floral medallion",
+  "attempts": 1,
+  "actual": "full vertical four-control decorated toolbar with flowers and frames",
+  "result": "rejected_wrong_scope",
+  "accepted_candidates": 0,
+  "source_image_verified": true,
+  "generator_binding_verified": false,
+  "production_promoted": false,
+  "next": "defer retry until isolated image edit binding; do not count full toolbar as edit_move",
+  "queue_mutated": false
+}
