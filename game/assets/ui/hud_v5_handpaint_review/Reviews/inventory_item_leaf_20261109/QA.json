@@ -1,0 +1,54 @@
+{
+  "schema": "lingmu-hud-single-asset-review-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/inventory/item_leaf",
+  "source_reference": "04_inventory.jpg",
+  "v4_proxy_url": "https://github.com/Tugoukezhang/lingmu-survival/blob/main/game/assets/ui/hud_v4/production/PNG_Transparent/04_inventory/item_leaf.png",
+  "source_pixel_crop_bound_to_generator": false,
+  "current_asset": "Single stylized leaf; rounded green form, one leaf stem, 2 water droplets, one side notch",
+  "expected_v4_asset": "One narrower pointed leaf outlined in warm brown with one diagonal vein",
+  "generation_attempts": [
+    {
+      "index": 1,
+      "kind": "GPT Image",
+      "status": "rejected",
+      "reason": "Three leaves plus tied twig; wrong target silhouette"
+    },
+    {
+      "index": 2,
+      "kind": "GPT Image",
+      "status": "candidate_unapproved",
+      "reason": "One leaf and valid transparent alpha, but broader heart-shaped silhouette plus extra stem/dew differs from original"
+    }
+  ],
+  "output": {
+    "library_path": "/Lingmu_HUD_Exports/Inventory_Item_Leaf_Single_Review/item_leaf_gpt_image_candidate_1024_RGBA_20261109.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "877c6d949717f3dfe2ca3e872429e16c86702faca2a41cdfbacf8159ef86906f",
+    "kind": "GPT Image second result, palette/alpha normalized",
+    "review_bundle": "/Lingmu_HUD_Exports/Inventory_Item_Leaf_Single_Review/item_leaf_review_bundle_20261109.zip"
+  },
+  "qa": {
+    "identity": "partial_match",
+    "alpha": "passed",
+    "size": "passed",
+    "preview_sizes": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art": "pending",
+    "game_engine": "not_run",
+    "user_approved": false
+  },
+  "production_replaced": false,
+  "final_approved": false
+}
