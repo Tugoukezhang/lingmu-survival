@@ -1,0 +1,49 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/category_furniture",
+  "asset_id": "home/category_furniture",
+  "source_reference": "06_home.jpg",
+  "source_preview_inspected": true,
+  "source_detail": "Bottom-left furniture category shows a single warm-brown wooden armchair with cream upholstered seat/back and short feet; label 家具 separate",
+  "v4_proxy_url": "https://github.com/Tugoukezhang/lingmu-survival/blob/main/game/assets/ui/hud_v4/production/PNG_Transparent/06_home/category_furniture.png",
+  "v4_proxy_sha": "3bf707b71408c03a54fb14845a8afce6448c809c",
+  "generator_crop_verified": false,
+  "imagegen_attempts": 2,
+  "imagegen_misroutes": [
+    "Attempt1 decorated entire armchair scene with clover badge, lamp, plant, rug, flowers",
+    "Attempt2 decorated living-room scene with circular plaque, lamp, rug, leaves; extracted chair only"
+  ],
+  "rejected_full_image_outputs": 2,
+  "candidate": {
+    "kind": "GPT Image #2 chair isolated from generated scene by manual shaped-alpha crop and warm-hue matte cleanup; not direct original screenshot edit",
+    "file_library": "/Lingmu_HUD_Exports/Home_Category_Furniture_Single_Review_20261109/category_furniture_armchair_isolated_1024_RGBA.png",
+    "sha256": "8f821a03aaffb9aa48b69109238bf8e5579a2cfe16e0045e977ee437f2327198",
+    "resolution": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "review_bundle": "/Lingmu_HUD_Exports/Home_Category_Furniture_Single_Review_20261109/category_furniture_review_bundle.zip",
+    "qa_comparison": "/Lingmu_HUD_Exports/Home_Category_Furniture_Single_Review_20261109/QA_before_after.jpg"
+  },
+  "qa": {
+    "identity": "pass furniture category recognizability, but image perspective and pillow flower differ from V4",
+    "transparency": "RGBA 0..255 alpha",
+    "preview_sizes": [
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "small_size": "recognizable at 96px",
+    "artifact_edge": "manual segmentation, residual minor fringe and small black/transparent gap around left rear frame to review",
+    "art_approval": "pending",
+    "engine_validation": "not_run",
+    "final_approved": false,
+    "production_replaced": false
+  },
+  "counts_changed": false
+}
