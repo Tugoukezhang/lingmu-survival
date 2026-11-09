@@ -2590,12 +2590,22 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/furniture_tab_nature.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Furniture_Tab_Nature_Single_Review/furniture_tab_nature_review_1024.png",
+      "candidate_sha256": "61dc269a5ccc7b933250f8e22662a63da194ff0b0fc3ff89c4139b9fe175bd72",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "source_crop_binding_verified": false,
+      "qa_status": "Nature sprout identifiable but original source is dark brown botanical motif on amber tab, whereas generated green gold shield with ivory sprout; visual and alpha edge QA pending; not approved",
+      "production_promoted": false
     },
     {
       "queue_number": 67,
@@ -3801,6 +3811,15 @@
       "approved": 0,
       "counted_as_complete": false,
       "notes": "User art and engine QA pending; no production promotion."
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/furniture_tab_nature",
+      "action": "single nature tab icon draft and checkerboard segmentation",
+      "result": "One 1024 RGBA visual candidate stored in Library, original palette/shape fidelity and alpha edge QA pending; not counted as approved; production unchanged.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
     }
   ],
   "current_focus": "other96/home/bottom_category_bar",
