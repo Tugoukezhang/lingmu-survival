@@ -2438,12 +2438,22 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/edit_remove.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "single_handpaint_review_candidate_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Edit_Remove_Single_Review/edit_remove_review_1024.png",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Home_Edit_Remove_Single_Review/edit_remove_bundle.zip",
+      "candidate_sha256": "e2324d3a8ffa4c8a679987ad84bad44166659dd7eaa903dc9c5b72f6b26d4c4b",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "qa_status": "Trash identity correct but ornamental floral plaque much richer than screenshot; user art and game QA pending.",
+      "production_promoted": false
     },
     {
       "queue_number": 58,
@@ -3747,9 +3757,19 @@
       "approved": 0,
       "counted_as_complete": false,
       "next": "other96/home/edit_remove"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/edit_remove",
+      "action": "single trash icon review sprite",
+      "result": "One 1024 RGBA trash icon candidate archived Library, alpha checked, ornament fidelity pending. Production untouched.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/home/bottom_category_bar"
     }
   ],
-  "current_focus": "other96/home/edit_remove",
+  "current_focus": "other96/home/bottom_category_bar",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
