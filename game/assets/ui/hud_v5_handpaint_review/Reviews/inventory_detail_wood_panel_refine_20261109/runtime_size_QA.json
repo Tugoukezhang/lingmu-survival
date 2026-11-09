@@ -1,0 +1,21 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "offline_runtime_size_preview",
+  "source_sha256": "997444a2e7603609a6b77446e8524a999e29dc77bd9145e172d9c4c3fe911293",
+  "preview_widths": [
+    180,
+    240,
+    320,
+    400
+  ],
+  "alpha_counts": {
+    "transparent": 872611,
+    "opaque": 1183276,
+    "partial": 10513
+  },
+  "preview_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/runtime_size_comparison.jpg",
+  "result": "offline_composites_created",
+  "engine_tested": false,
+  "approved": false,
+  "production_promoted": false
+}
