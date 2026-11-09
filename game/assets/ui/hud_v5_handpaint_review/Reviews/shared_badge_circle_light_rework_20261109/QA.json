@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/shared/badge_circle_light",
+  "phase": "rework",
+  "status": "visual_candidate_pending_art_and_engine_QA",
+  "file_library": "/Lingmu_HUD_Exports/Rework_Badge_Circle_Light/badge_circle_light_rework_1024.png",
+  "sha256": "d874e2d9f58810a8bea72f3fe99528c124bcda228c6240d50da21c6c014bec7e",
+  "size": [
+    1024,
+    1024
+  ],
+  "native_alpha": true,
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "next_phase": "reconcile queue state and select outstanding failed task by source priority"
+}
