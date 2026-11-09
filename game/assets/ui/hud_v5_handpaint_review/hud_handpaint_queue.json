@@ -1921,12 +1921,34 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/use_button.png",
       "target_resolution": "1580x520",
-      "state": "not_generated",
+      "state": "deferred_retry_two_off_target_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "source_crop": {
+        "source": "04_inventory.jpg",
+        "source_image_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          405,
+          716,
+          641,
+          805
+        ],
+        "crop_size": [
+          236,
+          89
+        ],
+        "source_crop_sha256": "ec6f100875ea3d4c8447ac068920b6950c5ca1cb59a135201d9788f40d1cc895",
+        "binding_to_generator": "not_independently_verified"
+      },
+      "failure_reason": "Original tight crop verified; two images produced thick wooden-framed green buttons with baked-in 使用 text, second added leaf vines. Both unacceptable vs thin muted-olive original; reject, defer.",
+      "last_attempt": "2026-11-09",
+      "qa_path": "Reviews/inventory_use_button_rejected_20261109/QA.json"
     },
     {
       "queue_number": 42,
@@ -3254,9 +3276,30 @@
       "qa_path": "Reviews/inventory_slot_active_V4_guided_20261109/QA.json",
       "production_replaced": false,
       "next": "other96/inventory/use_button"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/use_button",
+      "action": "Original screenshot bytes successfully verified, cropped to only Use button; two GPT Image attempts; QA rejected both off-target outputs",
+      "generated": 2,
+      "rejected": 2,
+      "created_candidates": 0,
+      "final_approved_delta": 0,
+      "source_crop_verified": true,
+      "source_crop_bbox_xyxy": [
+        405,
+        716,
+        641,
+        805
+      ],
+      "source_kind": "authentic original screenshot",
+      "reference_binding_verifiable": false,
+      "production_replaced": false,
+      "qa_path": "Reviews/inventory_use_button_rejected_20261109/QA.json",
+      "next": "other96/inventory/item_description_label"
     }
   ],
-  "current_focus": "other96/inventory/use_button",
+  "current_focus": "other96/inventory/item_description_label",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
