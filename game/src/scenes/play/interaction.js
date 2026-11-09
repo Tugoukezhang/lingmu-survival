@@ -23,6 +23,7 @@ import { ITEMS } from '../../data/items.js';
 import { HOME_COLS, HOME_ROWS, CLIFF, SPEED, PET_HEIGHT, INTERACT_RANGE, FOOT } from './constants.js';
 
 import * as GR from '../../systems/growth.js';
+import * as ST from '../../systems/stealth.js';
 export default {
   // ---------- world-space labels; screen UI lives in UIScene ----------
 
@@ -73,10 +74,12 @@ export default {
     let spot = null, bestD = INTERACT_RANGE;
     // prio: things worth more (a chest) win over things next to them (its thorns)
     for (const s of spots) { const d = Phaser.Math.Distance.Between(p.x, p.y, s.at.x, s.at.y); if (d < INTERACT_RANGE && d - (s.prio ?? 0) < bestD) { bestD = d - (s.prio ?? 0); spot = s; } }
+    if (!spot && this.wild?.length && !this.throwing) spot = this.throwSpot();
     if (!spot && this.island) spot = this.nearestResourceSpot();
     if (spot) {
       this.setActionVerb(spot.verb ?? '互动');
-      this.nameTag.setText(spot.label).setBackgroundColor('#5b3d26').setPosition(spot.at.x, spot.at.y - spot.tagY).setVisible(true);
+      this.nameTag.setText(spot.label).setBackgroundColor('#5b3d26').setVisible(true);
+      this.placeTag(spot.at.x, spot.at.y - spot.tagY);
       if (this.actions.consumeInteract()) spot.act();
       return;
     }
@@ -86,14 +89,36 @@ export default {
     if (pet) {
       const st = this.state, uid = pet.inst.uid;
       const label = `${pet.data.name} · ${pet === this.follower ? '跟着你' : st.party.includes(uid) ? '队伍' : pet.inst.job ? '打工中' : pet.data.element}${pet.inst.fedDay === st.day ? '' : ' · 还没喂'}`;
-      this.nameTag.setText(label).setBackgroundColor(ELEMENT_COLORS[pet.data.element])
-        .setPosition(pet.sprite.x, pet.sprite.y - pet.sprite.displayHeight - 6).setVisible(true);
+      this.nameTag.setText(label).setBackgroundColor(ELEMENT_COLORS[pet.data.element]).setVisible(true);
+      this.placeTag(pet.sprite.x, pet.sprite.y - pet.sprite.displayHeight - 6);
     } else {
       this.nameTag.setVisible(false);
     }
 
     if (!this.actions.consumeInteract() || !pet) return;
     this.game.events.emit('petcare-request', { uid: pet.inst.uid });
+  },
+
+  // Name tag above a thing, kept on screen and below the HUD buttons along the top edge.
+  placeTag(x, y) {
+    const v = this.cameras.main.worldView, t = this.nameTag, hw = t.width / 2;
+    t.setPosition(Phaser.Math.Clamp(x, v.x + hw + 8, v.right - hw - 8), Math.max(y, v.y + 160 + t.height));
+  },
+
+  // Field net throw (T45): the nearest wild pet within reach, if there is a net in the bag.
+  throwSpot() {
+    const netId = ST.pickNet(this.state.inventory);
+    if (!netId) return null;
+    let best = null, bestD = ST.THROW_RANGE;
+    for (const w of this.wild) {
+      const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, w.sprite.x, w.sprite.y);
+      if (d < bestD) { best = w; bestD = d; }
+    }
+    if (!best) return null;
+    const { stealth } = this.stealthTo(best);
+    const pct = Math.round(ST.fieldCatchRate(best.species, netId, stealth) * 100);
+    return { at: { x: best.sprite.x, y: best.sprite.y }, verb: '扔网', tagY: best.sprite.displayHeight + 46,   // above the notice bar
+      label: `${best.data.name} Lv.${best.level} · ${ST.STEALTH_NAMES[stealth]} · ${ITEMS[netId].name} ${pct}%`, act: () => this.throwNet(best) };
   },
 
   // 化形 demo from the care panel (full rules: T39)

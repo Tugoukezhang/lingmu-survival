@@ -32,6 +32,7 @@ import * as GR from '../game/src/systems/growth.js';
 import * as TW from '../game/src/systems/town.js';
 import * as PG from '../game/src/systems/progress.js';
 import * as HS from '../game/src/systems/house.js';
+import * as STL from '../game/src/systems/stealth.js';
 import { QUESTS } from '../game/src/data/quests.js';
 import { NPCS } from '../game/src/data/npcs.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
@@ -1264,6 +1265,53 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('背包满了：礼物先不给，下次再给（不会丢）', TW.claimHeartGift(full, 'lumi')?.full === true && !(full.town.heartGifts?.lumi ?? []).includes(3));
   check('3 份专属家具都能摆进小屋', ['item_furn_chime', 'item_furn_horse', 'item_furn_petbed'].every((id) => HS.isFurniture(id) && ITEMS[id]?.tag === '家具') && HS.footprint('item_furn_petbed', 0).w === 2);
   check('带送礼周记录的存档合法、读回一样', S.validate(s).length === 0 && JSON.stringify(S.decode(S.encode(s)).state.town) === JSON.stringify(s.town));
+}
+
+// ---------- field net throw, ambush, faster battles (T45; docs/11 ③, docs/12 第 9 节) ----------
+{
+  check('每种宠物都有性格（胆小 / 好斗）', PETS.every((x) => ['shy', 'bold'].includes(STL.TEMPER[x.id])));
+  const R0 = STL.NOTICE.radius;
+  check('朝向判定：正前方 0°、正后方 180°', Math.abs(STL.angleFromFacing({ x: 1, y: 0 }, 10, 0)) < 1e-9 && Math.abs(STL.angleFromFacing({ x: 1, y: 0 }, -10, 0) - Math.PI) < 1e-9);
+  const front = STL.noticeStep(0, { dist: R0 / 2, angle: 0, dt: 1 }), back = STL.noticeStep(0, { dist: R0 / 2, angle: Math.PI, dt: 1 });
+  check('发现条演算：半径一半处站在正前方 1 秒 = 0.6 × 1.5 = 0.9；正后方 0.12 × 1.5 = 0.18', Math.abs(front - 0.9) < 1e-9 && Math.abs(back - 0.18) < 1e-9, `${front} ${back}`);
+  const sneakBack = STL.noticeStep(0, { dist: R0 / 2, angle: Math.PI, sneaking: true, covered: true, dark: true, dt: 1 });
+  check('从背后悄悄走、躲在草丛边、夜里：涨得很慢（0.18 × 0.45 × 0.5 × 0.7 ≈ 0.028 / 秒）', Math.abs(sneakBack - 0.18 * 0.45 * 0.5 * 0.7) < 1e-9);
+  check('离开范围后发现条慢慢回落', STL.noticeStep(0.5, { dist: R0 + 1, angle: 0, dt: 1 }) === 0.2 && STL.noticeStep(0.1, { dist: R0 + 1, angle: 0, dt: 1 }) === 0);
+  check('满了算「发现你了」；没满时从背后算「背后」', STL.stealthOf(1, Math.PI) === 'seen' && STL.stealthOf(0.5, Math.PI) === 'back' && STL.stealthOf(0.5, 0.3) === 'unaware');
+  const rBack = STL.fieldCatchRate('acorn', 'item_net_grass', 'back'), rSeen = STL.fieldCatchRate('acorn', 'item_net_grass', 'seen'), rVine = STL.fieldCatchRate('acorn', 'item_net_vine', 'back');
+  check('野外扔网成功率（满血）：橡果刺猬草编网 被发现 15%、背后 37.5%、藤编网背后 56.25%', Math.abs(rSeen - 0.15) < 1e-9 && Math.abs(rBack - 0.375) < 1e-9 && Math.abs(rVine - 0.5625) < 1e-9);
+  check('先用草编网，只有藤编网时用藤编网', STL.pickNet([{ id: 'item_net_vine', count: 1 }, { id: 'item_net_grass', count: 2 }]) === 'item_net_grass' && STL.pickNet([{ id: 'item_net_vine', count: 1 }]) === 'item_net_vine' && STL.pickNet([]) === null);
+  // field catch
+  const s = S.newGameState({ starter: 'fox' });
+  s.expedition = { seed: 7, biome: 'mistwood', changes: G.emptyChanges() };
+  const wild = M.createPet('acorn', { level: 2, rng: mulberry32(5), uid: 'wild-3-0' });
+  s.inventory = s.inventory.filter((x) => !x.id.startsWith('item_net'));
+  check('没有网不能扔', B.fieldCatch(s, { wild, netId: 'item_net_grass', stealth: 'back', roll: 0, wildId: 'w3' }).reason === 'no-net');
+  s.inventory.push({ id: 'item_net_grass', count: 2 });
+  const miss = B.fieldCatch(s, { wild, netId: 'item_net_grass', stealth: 'back', roll: 0.99, wildId: 'w3' });
+  check('扔失败：网用掉 1 张，宠物没抓到、岛上记录不变', miss.ok && !miss.caught && I.countOf(s.inventory, 'item_net_grass') === 1 && s.pets.length === 1 && s.expedition.changes.pets.length === 0);
+  const lead0 = s.pets[0].level, exp0 = s.pets[0].exp;
+  const hit = B.fieldCatch(s, { wild, netId: 'item_net_grass', stealth: 'back', roll: 0, wildId: 'w3' });
+  check('扔中：抓到橡果刺猬，进队伍、进图鉴，岛上记下这只', hit.caught && s.pets.length === 2 && s.party.length === 2 && s.dex?.acorn?.caught && s.expedition.changes.pets.includes('w3') && hit.summary.caught.joined && !hit.summary.caught.duplicate);
+  check('野外抓到也给领队经验（8 × 对方等级）', hit.summary.exp[0].amount === 16 && (s.pets[0].exp !== exp0 || s.pets[0].level !== lead0));
+  check('统计：抓到 +1、背后抓到 +1（图鉴调查要用）', s.flags.stats?.catches === 1 && s.flags.stats?.backCatches === 1 && s.flags.stats?.throws === 2, JSON.stringify(s.flags.stats));
+  const g = S.newGameState({ starter: 'fox' }); g.flags.stats = { catches: 1 }; g.flags.guide = { step: 3, base: { catches: 0 } };
+  check('新手目标「打一场」：野外抓到一只也算完成', (() => { const st = S.newGameState({ starter: 'fox' }); st.flags.guide = { step: 3, base: { battles: 0, catches: 0 } }; st.flags.stats = { catches: 1 }; return GD.checkGuide(st)?.id === 'battle'; })());
+  // ambush
+  const half = () => 0.5;
+  const pet = (id, o = {}) => M.createPet(id, { stars: 3, nature: 'gentle', shiny: false, uid: `${id}-${o.tag ?? 'x'}`, ...o });
+  const amb = B.createBattle({ party: [pet('fox', { tag: 'me' })], enemies: [pet('shark', { tag: 'w' })], inventory: [], rng: half, ambush: true });
+  const t1 = B.resolveTurn(amb, { type: 'skill', skill: 'tackle' }).events, t2 = B.resolveTurn(amb, { type: 'skill', skill: 'tackle' }).events;
+  check('偷袭：第 1 回合对方吓了一跳不能行动，第 2 回合正常', !t1.some((e) => e.t === 'use' && e.side === 'foe') && t1.some((e) => e.t === 'surprised') && t2.some((e) => e.t === 'use' && e.side === 'foe'));
+  // auto / quick
+  const ab = B.createBattle({ party: [pet('fox', { tag: 'me' })], enemies: [pet('acorn', { tag: 'w' })], inventory: [], rng: half });
+  check('自动战斗选预计伤害最高的技能（焰尾狐打橡果刺猬 → 小火苗）', B.autoAction(ab).skill === 'ember');
+  ab.needSwitch = true; ab.sides.me.mons.push({ ...ab.sides.me.mons[0], uid: 'b', hp: 10 }); ab.sides.me.mons[0].hp = 0;
+  check('自动战斗：倒下后换上下一只还能打的', B.autoAction(ab).type === 'switch' && B.autoAction(ab).index === 1);
+  const strong = (lv) => B.createBattle({ party: [pet('fox', { tag: 'me', level: 10 })], enemies: [pet('acorn', { tag: 'w', level: lv })], inventory: [], rng: half });
+  check(`「一键结算」：野生宠物都比领队低 ${B.QUICK_GAP} 级以上才出现（Lv10 对 Lv7 有、对 Lv8 没有）`, B.canQuickResolve(strong(7)) && !B.canQuickResolve(strong(8)));
+  const qb = strong(3); B.quickResolve(qb);
+  check('一键结算直接打完：赢了，有经验和四叶草', qb.over === 'win' && Object.values(qb.exp)[0] > 0 && qb.clover > 0);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

@@ -3,7 +3,7 @@ import { petTextureKey, species, ELEMENT_COLORS } from '../data/pets.js';
 import { SKILLS } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
 import { woodPanel, capsuleButton, plaqueButton, text, tag, MIN_TOUCH } from '../ui/widgets.js';
-import { resolveTurn, active, finishBattle, catchChance } from '../systems/battle.js';
+import { resolveTurn, active, finishBattle, catchChance, autoAction, canQuickResolve, quickResolve } from '../systems/battle.js';
 import { convertToCrystal } from '../systems/growth.js';
 
 // Turn-based pet battle screen (T06). Runs on top of the paused world;
@@ -28,6 +28,10 @@ export default class BattleScene extends Phaser.Scene {
   }
 
   create() {
+    // 2× speed / auto battle (T45): remembered in the save
+    const flags = this.game.session.state.flags;
+    this.opts = flags.battle = { fast: false, auto: false, ...(flags.battle ?? {}) };
+    if (!window.__battleFast) this.speed = this.opts.fast ? 0.5 : 1;
     this.drawBackground();
     this.sprites = { me: this.makeSprite('me'), foe: this.makeSprite('foe') };
     this.cards = { foe: this.makeCard('foe', 32, 28), me: this.makeCard('me', GAME_W - 352, 268) };
@@ -39,7 +43,10 @@ export default class BattleScene extends Phaser.Scene {
     this.refreshAll();
     const foe = active(this.battle, 'foe');
     const extra = this.battle.sides.foe.mons.length - 1;
-    this.say(`野生的${foe.name}（Lv.${foe.level}）出现了！${extra ? `\n它还带着 ${extra} 个伙伴。` : ''}`);
+    this.intro = `野生的${foe.name}（Lv.${foe.level}）出现了！${extra ? `\n它还带着 ${extra} 个伙伴。` : ''}${this.battle.ambush ? '\n它没发现你——你先手！' : ''}`;
+    this.say(this.intro);
+    this.toggles = this.add.container(0, 0).setDepth(50);
+    this.drawToggles();
     this.cameras.main.fadeIn(300 * this.speed + 1, 0, 0, 0);
     this.time.delayedCall(700 * this.speed, () => this.showMain());
   }
@@ -140,9 +147,30 @@ export default class BattleScene extends Phaser.Scene {
     this.menuBox.add(plaqueButton(this, GAME_W / 2 - 60, -40, { icon: 'back', size: 48, onClick: () => { if (!this.busy) this.showMain(); }, name: 'cmd-back' }));
   }
 
+  // top-right switches: 2× speed and auto battle
+  drawToggles() {
+    this.toggles.removeAll(true);
+    const mk = (x, label, key, name) => this.toggles.add(capsuleButton(this, x, 34, label, { w: 104, h: 44, style: this.opts[key] ? 'green' : 'yellow', name, onClick: () => {
+      this.opts[key] = !this.opts[key];
+      if (key === 'fast' && !window.__battleFast) this.speed = this.opts.fast ? 0.5 : 1;
+      this.game.session.markDirty();
+      this.drawToggles();
+      if (key === 'auto' && this.opts.auto && !this.busy && (this.menu === 'main' || this.menu === 'forced-switch')) this.autoNext();
+    } }));
+    mk(GAME_W - 66, this.opts.auto ? '自动 开' : '自动', 'auto', 'cmd-auto');
+    mk(GAME_W - 180, this.opts.fast ? '2倍速 开' : '2倍速', 'fast', 'cmd-fast');
+  }
+
+  // auto battle: pick the move after a short pause (the player can still switch auto off)
+  autoNext() {
+    this.time.delayedCall(450 * this.speed, () => {
+      if (this.opts.auto && !this.busy && !this.battle.over && !this.endPanel && (this.menu === 'main' || this.menu === 'forced-switch')) this.act(autoAction(this.battle));
+    });
+  }
+
   showMain() {
     if (this.battle.over) return this.showEnd();
-    if (this.battle.needSwitch) return this.showSwitch(true);
+    if (this.battle.needSwitch) { this.showSwitch(true); if (this.opts.auto) this.autoNext(); return; }
     this.clearMenu(); this.menu = 'main';
     const m = active(this.battle, 'me');
     this.say(`${m.name}要做什么？`);
@@ -152,6 +180,9 @@ export default class BattleScene extends Phaser.Scene {
     this.button(x0 + dx * 2, y0, '零食', () => this.showSnacks(), { name: 'cmd-snack', style: 'yellow' });
     this.button(x0, y0 + dy, '捕捉', () => this.showNets(), { name: 'cmd-catch', style: 'yellow', disabled: active(this.battle, 'foe').hp <= 0 });
     this.button(x0 + dx, y0 + dy, '溜走', () => this.act({ type: 'flee' }), { name: 'cmd-flee', style: 'yellow' });
+    // much weaker wild pets: finish the whole battle at once (T45)
+    if (canQuickResolve(this.battle)) this.button(x0 + dx * 2, y0 + dy, '一键结算', () => { this.clearMenu(); quickResolve(this.battle); this.refreshAll(); this.showEnd(); }, { name: 'cmd-quick' });
+    if (this.opts.auto) this.autoNext();
   }
 
   showSkills() {
@@ -285,6 +316,9 @@ export default class BattleScene extends Phaser.Scene {
         this.say(`${e.name}挣脱了网！`);
         this.tweens.add({ targets: this.sprites.foe.img, x: '+=10', duration: 50 * this.speed + 1, yoyo: true, repeat: 3 });
         return next(800);
+      case 'surprised':
+        this.say(`野生的${e.name}吓了一跳，没能行动！`);
+        return next(650);
       default:
         return next(0);
     }
@@ -359,7 +393,7 @@ export default class BattleScene extends Phaser.Scene {
 
   debugBattle() {
     const b = this.battle;
-    return { menu: this.menu, busy: this.busy, over: b.over, turn: b.turn, msg: this.msg.text,
+    return { menu: this.menu, busy: this.busy, over: b.over, turn: b.turn, msg: this.msg.text, intro: this.intro, opts: { ...this.opts }, ambush: !!b.ambush,
       me: active(b, 'me') && { name: active(b, 'me').name, hp: active(b, 'me').hp }, foe: { name: active(b, 'foe').name, hp: active(b, 'foe').hp },
       foes: b.sides.foe.mons.length, minTouch: MIN_TOUCH };
   }

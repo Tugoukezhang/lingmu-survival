@@ -454,6 +454,22 @@ export function npcPanel(scene, stack, { id }) {
   return c;
 }
 
+// Field catch of a pet you already have (T45): keep it, or turn it into crystals (docs/07 第 5 节).
+export function fieldCatchPanel(scene, stack, sum) {
+  const w = 440, h = 280, c = woodPanel(scene, w, h), cg = sum.caught;
+  c.add(text(scene, 0, -h / 2 + 42, '捕捉成功！', 28, { ox: 0.5, oy: 0.5 }));
+  const lines = [`${cg.name}${cg.shiny ? '（异色！）' : ''} ${'★'.repeat(cg.stars)}`, `你已经有${cg.name}了：可以留下，\n或转成羁绊结晶给同种宠物升星。`, ...sum.exp.map((x) => `${x.name} 经验 +${x.amount}`), ...sum.levelUps.map((x) => `${x.name} 升到了 Lv.${x.level}！`)];
+  c.add(text(scene, 0, -10, lines.join('\n'), 17, { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6, wrap: w - 50 }));
+  c.add(capsuleButton(scene, -100, h / 2 - 48, '留下', { w: 170, name: 'catch-keep', onClick: () => stack.pop() }));
+  c.add(capsuleButton(scene, 100, h / 2 - 48, `转成结晶 +${cg.stars}`, { w: 190, style: 'yellow', name: 'catch-crystal', onClick: () => {
+    GR.convertToCrystal(stateOf(scene), cg.uid);
+    scene.game.session.markDirty();
+    scene.scene.get('play').removePetSprite?.(cg.uid);
+    stack.pop();
+  } }));
+  return c;
+}
+
 // The general store: two columns of goods; skill books rotate daily.
 export function shopPanel(scene, stack) {
   const w = 760, h = 420;

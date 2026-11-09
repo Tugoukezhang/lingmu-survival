@@ -47,7 +47,7 @@ export default class PlayScene extends Phaser.Scene {
     this.wicks = []; this.wicksNight = null; this.npcs = null; this.homeBridge = null; this.townBridge = null; this.northBridge = null; this.expandSpot = null; this.cottageSpot = null; this.doorSpot = null; this.decorSpot = null; this.furnSprites = [];
     this.farmRect = null; this.plots = null; this.shipSpot = null; this.seedSpot = null;
     this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
-    this.traveling = false; this.fainted = false; this.inBattle = null;
+    this.traveling = false; this.fainted = false; this.inBattle = null; this.throwing = false; this.covers = null;
     const want = this.state.player.area;
     this.area = want === 'expedition' && this.state.expedition ? 'expedition' : ['town', 'house'].includes(want) ? want : 'home';
     if (this.area === 'expedition') this.buildExpedition(); else if (this.area === 'town') this.buildTown(); else if (this.area === 'house') this.buildHouse(); else this.buildIsland();

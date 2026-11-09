@@ -29,13 +29,14 @@ export default {
   partyInsts() { return this.state.party.map((uid) => this.state.pets.find((x) => x.uid === uid)).filter(Boolean); },
 
   // Returns false when no battle started (tired party).
-  startBattle(w) {
+  // ambush: the pet had not noticed the player (T45) → it skips its first turn.
+  startBattle(w, { ambush = false } = {}) {
     if (this.inBattle || this.traveling || this.sleeping || this.fainted) return false;
     const party = this.partyInsts();
     if (!canStartBattle(party)) { this.showToast('伙伴们累了，回家休息吧'); return false; }   // A06
     this.session.pullFromRegistry();
     const enemies = makeWildGroup({ species: w.species, level: w.level, islandSeed: this.island.seed, wildIndex: Number(w.id.slice(1)), day: this.state.day, pool: PETS.map((x) => x.id) });
-    const battle = createBattle({ party, enemies, inventory: this.state.inventory });
+    const battle = createBattle({ party, enemies, inventory: this.state.inventory, ambush });
     for (const e of enemies) GR.dexSee(this.state, e.species);
     this.inBattle = w;
     this.clock.pause('battle');            // A07: time stops during the battle
@@ -63,6 +64,7 @@ export default {
         this.island.pets = this.island.pets.filter((x) => x.id !== wildId);
       } else {
         w.cooldown = now + (result === 'lose' ? 8000 : 4000);
+        w.mode = 'calm'; w.meter = 0;
         this.hopAway(w, now);
         if (result === 'lose') this.showToast('伙伴们玩累了，野生宠物跑开了');
       }

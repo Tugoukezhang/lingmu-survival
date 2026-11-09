@@ -13,7 +13,8 @@ export const PARTY_MAX = 3;
 import { mulberry32 } from './rng.js';
 import { bump } from './guide.js';
 import { bondFromBattle } from './petcare.js';
-import { dexCatch } from './growth.js';
+import { dexCatch, dexSee } from './growth.js';
+import { fieldCatchRate } from './stealth.js';
 
 export const CLOVER_PER_LEVEL = 3;      // 【建议】 clover per KO = 3 × enemy level
 
@@ -46,12 +47,14 @@ const makeMon = (inst) => {
 };
 
 // party: the player's pet instances in party order; enemies: wild instances.
-export function createBattle({ party, enemies, inventory, rng = Math.random }) {
+// ambush: the player walked into a pet that had not noticed them → it does not act on turn 1 (T45).
+export function createBattle({ party, enemies, inventory, rng = Math.random, ambush = false }) {
   const mine = party.map(makeMon);
   const first = mine.findIndex((m) => m.hp > 0);
   return {
     rng,
     turn: 0,
+    ambush,
     sides: { me: { mons: mine, active: first }, foe: { mons: enemies.map(makeMon), active: 0 } },
     inventory: inventory.map((s) => ({ ...s })), // copy; real inventory changes on finish
     used: {},                                    // itemId → count used in this battle
@@ -207,6 +210,7 @@ export function resolveTurn(b, action) {
   // 2. skills by speed (ties: the player first)
   const order = [];
   if (action.type === 'skill') order.push(['me', action.skill]);
+  const foeSkips = b.ambush && b.turn === 1;   // caught off guard: no move on the first turn
   const foeFirst = action.type === 'skill' && statWithBuffs(active(b, 'foe'), 'spd') > statWithBuffs(me, 'spd');
   if (foeFirst) order.unshift(['foe', enemySkill]); else order.push(['foe', enemySkill]);
   for (const [side, id] of order) {
@@ -215,6 +219,7 @@ export function resolveTurn(b, action) {
     if (user.hp <= 0) continue;
     // an enemy sent in this turn (after a faint) doesn't act until next turn
     if (side === 'foe' && ev.some((e) => e.t === 'send' && e.side === 'foe')) continue;
+    if (side === 'foe' && foeSkips) { ev.push({ t: 'surprised', name: user.name }); continue; }
     useSkill(b, side, id, ev);
   }
   // 3. buffs tick down at the end of the turn
@@ -253,16 +258,72 @@ export function finishBattle(state, b, { wildId } = {}) {
   state.clover += b.clover;
   if (b.over === 'caught' && b.caught) {
     const mon = b.sides.foe.mons.find((m) => m.uid === b.caught.uid);
-    let n = state.pets.length, uid;
-    do uid = `pet-${mon.species}-${(n++).toString(36)}`; while (state.pets.some((p) => p.uid === uid));
-    const inst = { ...JSON.parse(JSON.stringify(mon.src)), uid, hp: mon.hp >= mon.maxHp ? null : mon.hp, affection: affectionOnCatch(b.caught.favourite) };
-    state.pets.push(inst);
-    const duplicate = state.pets.some((p) => p.species === mon.species && p.uid !== uid);
-    dexCatch(state, inst);
-    const joined = state.party.length < PARTY_MAX;
-    if (joined) state.party.push(uid);
-    summary.caught = { uid, name: mon.name, joined, affection: inst.affection, stars: inst.stars, shiny: inst.shiny, duplicate };
+    summary.caught = addCaughtPet(state, mon.src, { name: mon.name, hp: mon.hp >= mon.maxHp ? null : mon.hp, favourite: b.caught.favourite });
   }
   if ((b.over === 'win' || b.over === 'caught') && wildId && state.expedition && !state.expedition.changes.pets.includes(wildId)) state.expedition.changes.pets.push(wildId);
   return summary;
+}
+
+// A caught wild pet joins the player (battle or field catch): new uid, dex, party if there is room.
+export function addCaughtPet(state, src, { name, hp = null, favourite = false } = {}) {
+  let n = state.pets.length, uid;
+  do uid = `pet-${src.species}-${(n++).toString(36)}`; while (state.pets.some((p) => p.uid === uid));
+  const inst = { ...JSON.parse(JSON.stringify(src)), uid, hp, affection: affectionOnCatch(favourite) };
+  state.pets.push(inst);
+  const duplicate = state.pets.some((p) => p.species === src.species && p.uid !== uid);
+  dexCatch(state, inst);
+  const joined = state.party.length < PARTY_MAX;
+  if (joined) state.party.push(uid);
+  return { uid, name: name ?? displayName(inst), joined, affection: inst.affection, stars: inst.stars, shiny: inst.shiny, duplicate };
+}
+
+// ---------- field catch (T45): throw a net without a battle ----------
+// wild: the wild pet instance (same individual a battle would use); stealth: 'seen' | 'unaware' | 'back'.
+// One net is used whether it works or not. On success the party leader gets the catch exp.
+export function fieldCatch(state, { wild, netId, stealth, roll, wildId }) {
+  if (!ITEMS[netId]?.netMult || countOf(state.inventory, netId) < 1) return { ok: false, reason: 'no-net' };
+  removeItem(state.inventory, netId, 1);
+  dexSee(state, wild.species);
+  bump(state, 'throws');
+  const rate = fieldCatchRate(wild.species, netId, stealth);
+  if (!catchSucceeds(rate, roll)) return { ok: true, caught: false, rate };
+  bump(state, 'catches');
+  bump(state, 'fieldCatches');
+  if (stealth === 'back') bump(state, 'backCatches');
+  const summary = { result: 'caught', exp: [], levelUps: [], clover: 0 };
+  const lead = state.pets.find((p) => p.uid === state.party[0]);
+  if (lead) {
+    const amount = expForKO(wild.level);
+    const ups = gainExp(lead, amount);
+    summary.exp.push({ name: displayName(lead), amount });
+    if (ups) summary.levelUps.push({ name: displayName(lead), level: lead.level });
+  }
+  summary.caught = addCaughtPet(state, wild, { hp: null, favourite: false });
+  if (wildId && state.expedition && !state.expedition.changes.pets.includes(wildId)) state.expedition.changes.pets.push(wildId);
+  return { ok: true, caught: true, rate, summary };
+}
+
+// ---------- faster battles (T45; docs/12 第 9 节) ----------
+// What the 「自动」 button does: switch in the next healthy pet after a faint, otherwise
+// the skill with the most expected damage (status skills only when nothing else is left).
+export function autoAction(b) {
+  if (b.needSwitch) return { type: 'switch', index: b.sides.me.mons.findIndex((m) => m.hp > 0) };
+  const me = active(b, 'me'), foe = active(b, 'foe');
+  const usable = me.skills.filter((id) => me.uses[id] > 0);
+  const best = usable.map((id) => [id, expectedDamage(me, foe, id)]).sort((x, y) => y[1] - x[1])[0];
+  return { type: 'skill', skill: best?.[0] ?? 'tackle' };
+}
+
+// 「一键结算」 is offered when every wild pet is at least QUICK_GAP levels below your leader.
+export const QUICK_GAP = 3;   // 【建议】
+export const canQuickResolve = (b) => {
+  const lead = b.sides.me.mons[b.sides.me.active];
+  return !!lead && !b.over && b.sides.foe.mons.every((m) => m.level <= lead.level - QUICK_GAP);
+};
+
+// Plays the whole battle with autoAction, no animation. Returns the number of turns.
+export function quickResolve(b, maxTurns = 200) {
+  let n = 0;
+  while (!b.over && n < maxTurns) { if (!resolveTurn(b, autoAction(b)).ok) break; n++; }
+  return n;
 }

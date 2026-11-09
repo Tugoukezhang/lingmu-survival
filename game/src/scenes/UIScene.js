@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel, dailyPanel, npcPanel, expandPanel, bridgePanel, decoratePanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel, dailyPanel, npcPanel, expandPanel, bridgePanel, decoratePanel, fieldCatchPanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 import { currentGoal, GOALS, guideState } from '../systems/guide.js';
 
@@ -46,7 +46,9 @@ export default class UIScene extends Phaser.Scene {
     ev.on('expand-request', this.openExpand, this);
     ev.on('bridge-request', this.openBridge, this);
     ev.on('decorate-request', this.openDecorate, this);
+    ev.on('field-caught', this.onFieldCaught, this);
     this.events.once('shutdown', () => {
+      ev.off('field-caught', this.onFieldCaught, this);
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
       ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this); ev.off('storage-request', this.openStorage, this); ev.off('guide-changed', this.refreshGuide, this);
@@ -81,6 +83,12 @@ export default class UIScene extends Phaser.Scene {
   openExpand() { if (!this.stack.size) this.stack.push('expand', expandPanel); }
   openBridge() { if (!this.stack.size) this.stack.push('bridge', bridgePanel); }
   openDecorate() { if (!this.stack.size) this.stack.push('decorate', decoratePanel); }
+  // field catch result (T45): a short message; a duplicate opens the keep / crystal choice
+  onFieldCaught(sum) {
+    const c = sum.caught;
+    if (c.duplicate) { this.stack.clear(); this.stack.push('field-caught', (s, st) => fieldCatchPanel(s, st, sum)); return; }
+    this.showToast(`抓到了${c.name}${c.shiny ? '（异色！）' : ''}！${c.joined ? '加入了队伍' : '队伍满了，送回家园'}`);
+  }
   openShip() { if (!this.stack.size) this.stack.push('ship', shipPanel); }
 
   openStorage() {

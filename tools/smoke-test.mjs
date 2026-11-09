@@ -1009,6 +1009,74 @@ try {
   await waitArea('home'); await page.waitForTimeout(400);
   check('出门回到家园，站在小屋门口', await page.evaluate(() => { const sc = window.__game.scene.getScene('play'); return Math.hypot(sc.player.x - sc.cottageSpot.x, sc.player.y - sc.cottageSpot.y) < 40; }));
 
+  // ---------- field net throw, ambush, faster battles (T45) ----------
+  await page.evaluate(() => { const g = window.__game; g.registry.set({ hp: 100, hunger: 100 }); g.session.state.flags.battle = { fast: false, auto: false }; for (const x of g.session.state.pets) x.hp = null; });
+  await scene(() => window.__game.scene.getScene('play').travelTo(909090));
+  await waitArea('expedition'); await page.waitForTimeout(900);
+  await page.evaluate(() => { const st = window.__game.session.state; st.inventory.push({ id: 'item_net_grass', count: 5 }); });
+  // hold a wild pet still, facing right, and stand behind it
+  const pinWild = (k, dx) => scene(([k, dx]) => {
+    const sc = window.__game.scene.getScene('play'), w = sc.wild[k];
+    w.mode = 'calm'; w.meter = 0; w.cooldown = 0; w.wanderAt = 1e12; w.target = { x: w.sprite.x, y: w.sprite.y }; w.face = { x: 1, y: 0 };
+    sc.teleport(w.sprite.x + dx, w.sprite.y); return w.id;
+  }, [k, dx]);
+  await pinWild(0, -90);
+  await page.waitForTimeout(300);
+  const throwUi = await page.evaluate(() => ({ verb: window.__game.scene.getScene('ui').actionLabel.text, tag: window.__game.scene.getScene('play').nameTag.text }));
+  check('从背后靠近野生宠物：按钮变「扔网」，标签写「背后」和成功率', throwUi.verb === '扔网' && throwUi.tag.includes('背后') && /\d+%/.test(throwUi.tag), JSON.stringify(throwUi));
+  await page.screenshot({ path: join(OUT, '76-sneak-throw.png') });
+  const before45 = await page.evaluate(() => ({ pets: window.__game.session.state.pets.length, wild: window.__game.scene.getScene('play').wild.length, nets: window.__game.session.state.inventory.filter((s) => s.id === 'item_net_grass').reduce((n, s) => n + s.count, 0) }));
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.throwNet(sc.wild[0], 0); });
+  await page.waitForTimeout(800);
+  const after45 = await page.evaluate(() => ({ pets: window.__game.session.state.pets.length, wild: window.__game.scene.getScene('play').wild.length, nets: window.__game.session.state.inventory.filter((s) => s.id === 'item_net_grass').reduce((n, s) => n + s.count, 0), stack: window.__game.scene.getScene('ui').stack.names.join() }));
+  check('野外扔中：网 −1、宠物 +1、岛上少一只；已经有这种宠物 → 弹出「留下 / 转成结晶」', after45.nets === before45.nets - 1 && after45.pets === before45.pets + 1 && after45.wild === before45.wild - 1 && after45.stack === 'field-caught', `${JSON.stringify(before45)} → ${JSON.stringify(after45)}`);
+  await page.screenshot({ path: join(OUT, '77-field-caught.png') });
+  await tapTarget('catch-crystal');
+  check('转成结晶：宠物数回到原来', await page.evaluate((n) => window.__game.session.state.pets.length === n, before45.pets));
+  // a failed throw: the pet notices you (shy → runs, bold → charges)
+  await pinWild(0, -90);
+  const temper45 = await page.evaluate(() => window.__game.scene.getScene('play').wild[0].temper);
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.throwNet(sc.wild[0], 0.999); });
+  await page.waitForTimeout(700);
+  const react45 = await page.evaluate(() => { const w = window.__game.scene.getScene('play').wild[0]; return { mode: w.mode, mark: w.mark.visible, meter: w.meter }; });
+  check('扔失败：它发现了你（头上出现「!」），胆小的跑开、好斗的冲过来', react45.meter === 1 && react45.mark && react45.mode === (temper45 === 'bold' ? 'charge' : 'flee'), `${temper45} ${JSON.stringify(react45)}`);
+  await page.evaluate(() => { const w = window.__game.scene.getScene('play').wild[0]; w.mode = 'calm'; w.meter = 0; w.cooldown = 1e12; });
+  // standing in front of a calm pet fills its meter
+  await pinWild(1, 80);
+  await page.evaluate(() => { const w = window.__game.scene.getScene('play').wild[1]; w.face = { x: 1, y: 0 }; });
+  await page.waitForTimeout(1200);
+  const meter45 = await page.evaluate(() => window.__game.scene.getScene('play').wild[1].meter);
+  check('站在野生宠物正前方：发现条慢慢涨', meter45 > 0.2 && meter45 < 1, String(meter45));
+  await page.screenshot({ path: join(OUT, '78-notice-meter.png') });
+  // ambush: walk into a pet that has not noticed you
+  await pinWild(1, -90);
+  await scene(() => { const sc = window.__game.scene.getScene('play'), w = sc.wild[1]; w.meter = 0; sc.teleport(w.sprite.x - 18, w.sprite.y); });
+  await page.waitForFunction(() => window.__game.scene.isActive('battle'), null, { timeout: 4000 });
+  await waitIdle();
+  const amb45 = await bt();
+  check('没被发现时碰上去：偷袭，开场提示「你先手」', amb45.ambush && amb45.intro.includes('先手'), amb45.intro);
+  await tapBattle('cmd-fast');
+  await tapBattle('cmd-auto');
+  check('对战里能开「2倍速」「自动」（会记住）', await page.evaluate(() => { const o = window.__game.session.state.flags.battle; return o.fast && o.auto; }));
+  await page.screenshot({ path: join(OUT, '79-battle-auto.png') });
+  await page.waitForFunction(() => { const s = window.__game.scene.getScene('battle'); return !window.__game.scene.isActive('battle') || !!s.endPanel; }, null, { timeout: 15000 });
+  check('自动战斗自己打完', await page.evaluate(() => !window.__game.scene.isActive('battle') || !!window.__game.scene.getScene('battle').battle.over));
+  await page.evaluate(() => { const bs = window.__game.scene.getScene('battle'); if (window.__game.scene.isActive('battle')) bs.close(); window.__game.session.state.flags.battle = { fast: false, auto: false }; });
+  await page.waitForTimeout(400);
+  // one-tap resolve against a much weaker pet
+  await page.evaluate(() => { const st = window.__game.session.state; const lead = st.pets.find((x) => x.uid === st.party[0]); lead.level = 30; lead.hp = null; });
+  const k45 = await page.evaluate(() => window.__game.scene.getScene('play').wild.length - 1);
+  await pinWild(k45, -90);
+  await scene((k) => { const sc = window.__game.scene.getScene('play'), w = sc.wild[k]; w.meter = 1; w.mode = 'calm'; sc.teleport(w.sprite.x - 18, w.sprite.y); }, k45);
+  await page.waitForFunction(() => window.__game.scene.isActive('battle'), null, { timeout: 4000 });
+  await waitIdle();
+  await tapBattle('cmd-quick');
+  await page.waitForTimeout(300);
+  check('对方弱很多：「一键结算」直接出结果（胜利）', await page.evaluate(() => { const s = window.__game.scene.getScene('battle'); return !!s.endPanel && s.battle.over === 'win'; }));
+  await page.screenshot({ path: join(OUT, '80-quick-resolve.png') });
+  await page.evaluate(() => window.__game.scene.getScene('battle').close());
+  await page.waitForTimeout(400);
+
   // ---------- title page & starter choice (T16): fresh browser storage, no ?demo ----------
   {
     const tctx = await browser.newContext({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });

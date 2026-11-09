@@ -10,7 +10,7 @@ export const GOALS = [
   { id: 'depart', text: '去出生点正下方的飞艇码头，坐飞艇出发', stat: 'trips', n: 1 },
   { id: 'gather', text: '在岛上采集 3 次：走到树、石头、草丛旁按「采集」', stat: 'gather', n: 3 },
   { id: 'axe', text: '点右上「制作」，做一把石斧（砍树一次得 3 木材）', check: (s) => countOf(s.inventory, 'item_axe') > 0 },
-  { id: 'battle', text: '碰一碰野生宠物，打一场（打弱了还能扔网抓它）', stat: 'battles', n: 1 },
+  { id: 'battle', text: '碰一碰野生宠物打一场；或者从背后悄悄靠近，按「扔网」直接抓', stat: 'battles', n: 1, alt: { stat: 'catches', n: 1 } },
   { id: 'return', text: '20 点会起雾——天黑前回着陆点坐飞艇回家', stat: 'returns', n: 1, alt: { stat: 'campSleeps', n: 1 } },
   { id: 'sleep', text: '走到家门口的帐篷，睡觉开始新的一天', stat: 'sleeps', n: 1 },
 ];
