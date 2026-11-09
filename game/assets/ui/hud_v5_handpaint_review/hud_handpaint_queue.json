@@ -3062,12 +3062,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/map_back.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Back_Single_Review_20261109/map_back_source_guided_1024_RGBA.png",
+      "reference_match": "V4 round brown map back icon and source 07_world_map.jpg visually inspected; original single crop not bound to generator",
+      "notes": "Generated green floral return badge rejected. One 1024 transparent brown wood roundel with creamy return arrow, upper-left green leaf and lower-right five-petal flower candidate, procedural SVG/Pillow. Technical scale QA passed, art and engine pending.",
+      "candidate_sha256": "97fbd1b305e6ff79e3523f7429311251a54078571a050f10c328e2faffa2c603",
+      "candidate_kind": "source-guided SVG/Pillow reconstruction, NOT separately GPT Image handpainted final",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_map_back_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 81,
@@ -4397,9 +4401,18 @@
       "next_focus": "other96/map/map_back",
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_item_plant_pot_20261109/QA.json",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/map_back",
+      "action": "Inspected original map and V4 back icon. Rejected green flower badge misroute; created source-guided 1024 RGBA wood back button and QA previews",
+      "result": "Candidate uploaded Library, QA recorded GitHub, not yet accepted or promoted",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_map_back_20261109/QA.json",
+      "next_focus": "other96/map/zoom_plus",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/map_back",
+  "current_focus": "other96/map/zoom_plus",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
