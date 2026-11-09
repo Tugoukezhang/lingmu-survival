@@ -1,0 +1,104 @@
+{
+  "schema": "lingmu-hud-v5-one-to-one-failed-QA",
+  "date": "2026-11-09",
+  "task_id": "other96/inventory/use_button",
+  "source": {
+    "kind": "authentic original screenshot single-control tight crop",
+    "original_library_path": "/Lingmu_HUD_Exports/Original_References/04_inventory.jpg",
+    "original_size": [
+      1920,
+      1080
+    ],
+    "original_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "source_crop_bbox_xyxy": [
+      405,
+      716,
+      641,
+      805
+    ],
+    "crop_size": [
+      236,
+      89
+    ],
+    "crop_sha256": "ec6f100875ea3d4c8447ac068920b6950c5ca1cb59a135201d9788f40d1cc895",
+    "single_target_verified": true
+  },
+  "identity": {
+    "target": "horizontal rounded olive green Use button",
+    "outline": "narrow dark olive edge, no wooden frame",
+    "label": "使用 appears in screenshot but must be editable separate engine text",
+    "component_count": 1,
+    "forbidden": [
+      "wooden rim",
+      "vines",
+      "leaves",
+      "flowers",
+      "oversaturated green",
+      "baked in Chinese text",
+      "extra HUD"
+    ]
+  },
+  "generation": {
+    "num_calls": 2,
+    "requested_visual_source": "single tight original crop only; no prior output",
+    "actual_image_input_binding": "not independently verifiable; result clearly disregarded reference constraints",
+    "attempts": [
+      {
+        "attempt": 1,
+        "original_generated_png": "a_clean_high_resolution_illustrative_ui_asset_a.png",
+        "size": [
+          1774,
+          887
+        ],
+        "alpha_bbox_xyxy_gt10": [
+          70,
+          179,
+          1700,
+          742
+        ],
+        "sha256": "2b506bbfca61f2ff8fbef859738a15476c68fcf9341831957c435dbff572c2d1",
+        "failure": "thick orange-brown wooden frame, saturated green inset, text permanently drawn into art"
+      },
+      {
+        "attempt": 2,
+        "original_generated_png": "a_high_quality_detailed_hand_painted_game_ui_butt.png",
+        "size": [
+          1774,
+          887
+        ],
+        "alpha_bbox_xyxy_gt10": [
+          59,
+          176,
+          1712,
+          742
+        ],
+        "sha256": "57f05519bfc08a39f780c37e59a136e22f231ef2c6127c07c884780ffc1b3540",
+        "failure": "same thick brown wood frame, added leaf vines, saturated green, text permanently drawn into art"
+      }
+    ]
+  },
+  "qa": {
+    "result": "two_misidentified_generations_rejected",
+    "alpha": "RGBA present for both; technical alpha bbox checked",
+    "original_comparison": "fail: large geometry/palette/component differences",
+    "game_scale_check": "compared on light/dark backgrounds at 225x80; both off-model",
+    "art_approved": false,
+    "technical_approved": false,
+    "production_replaced": false
+  },
+  "outputs": {
+    "source_crop": "/mnt/data/lingmu_use_button_20261109/use_button_original_crop_236x89.png",
+    "comparison": "/mnt/data/lingmu_use_button_20261109/use_button_reference_vs_two_rejected_QA.jpg",
+    "review_zip": "/mnt/data/lingmu_use_button_20261109_REJECTED_QA.zip",
+    "github_png": "not_uploaded_connector_text_only",
+    "library_upload": "failed: AccessDeny"
+  },
+  "next_focus": "other96/inventory/item_description_label",
+  "counters": {
+    "new_approved": 0,
+    "new_candidates_accepted": 0,
+    "failed_attempts": 2,
+    "production_replacements": 0
+  },
+  "note": "Two off-target generations -> defer retry and advance. Existing history and aggregates unchanged. No production asset overwritten."
+}
