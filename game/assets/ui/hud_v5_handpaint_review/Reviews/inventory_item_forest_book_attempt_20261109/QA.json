@@ -1,0 +1,19 @@
+{
+  "task_id": "other96/inventory/item_forest_book",
+  "source": "04_inventory.jpg",
+  "source_crop_bbox": [
+    1215,
+    300,
+    1370,
+    440
+  ],
+  "target_description": "small green closed forest journal with white clover on cover, horizontal brown leather strap and circular clasp, little leaves and red bookmark, no count 2",
+  "attempts": 1,
+  "result": "rejected_wrong_identity",
+  "actual_output": "ornate cream envelope with green wax clover seal, corresponding to previous letter item, not a green forest book",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "queue_mutated": false,
+  "next": "other96/inventory/item_leaf",
+  "note": "Reference crop verified; model target switching still fails. Do not count or claim finished artwork."
+}
