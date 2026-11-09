@@ -13,18 +13,22 @@
     "note": "Completion of the first production pass must not be confused with final visual approval or engine QA. Do not report old not_generated or aggregate counters as current first-pass work remaining."
   },
   "rework": {
-    "status": "portrait_detail_wood_panel_candidate_ready_for_visual_and_engine_QA",
-    "current_target": "other96/inventory/detail_wood_panel",
+    "status": "rework_generation_blocked_by_reference_misrouting",
+    "current_target": "other96/inventory/tab_clothing",
     "remaining_count": null,
     "resume_policy": "Reconcile the existing latest mobile/user rework instructions, review logs, archived candidates and queue entries before choosing a repair target. The exact latest mobile repair target was not recovered in this check; do not invent it or restart from badge_circle_light or any stale current_focus.",
     "selection_policy": "Only repair an identified existing asset with a documented issue or explicit user repair request. Preserve already accepted designs; a pending technical check does not authorize an artwork redraw.",
     "on_unresolved_target": "Do not generate an arbitrary new image. Record the reconciliation blocker truthfully. Do not claim a repair was completed.",
     "latest_record": "Reviews/inventory_detail_wood_panel_rework_20261109/QA.json",
     "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_1260x1640.png",
-    "latest_result": "one manually drawn, source-verified portrait candidate; AI generation wrong and rejected; art and in-engine QA remain pending; no promotion",
+    "latest_result": "3 image generations were rejected as unrelated assets (wood panel, map, blank wood panel). No new rework candidate accepted. Existing pending V4/V3 candidates preserved. Do not use programmatic geometry fallback.",
     "last_completed_action_date": "2026-11-09",
-    "next_after_this": "not established from reliable mobile rework queue; do not restart old first-pass focus",
-    "current_target_source": "Reviews/shared_back_wood_rework_20261109/QA.json explicit next_rework, and preexisting Reviews/inventory_detail_wood_panel_rework_20261109/QA.json defect list"
+    "next_after_this": "other96/inventory/tab_clothing, only after a clean one-item reference binding is available",
+    "current_target_source": "Reviews/shared_back_wood_rework_20261109/QA.json explicit next_rework, and preexisting Reviews/inventory_detail_wood_panel_rework_20261109/QA.json defect list",
+    "last_attempted": [
+      "other96/inventory/tab_general",
+      "other96/inventory/tab_food"
+    ]
   },
   "existing_records": {
     "queue": "hud_handpaint_queue.json",
