@@ -1,0 +1,42 @@
+{
+  "task_id": "other96/inventory/item_flower",
+  "date": "2026-11-09",
+  "state": "deferred_after_two_wrong_identity_generations",
+  "source": {
+    "file": "04_inventory.jpg",
+    "dimensions": [1920, 1080],
+    "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [1108, 202, 1208, 290],
+    "crop_sha256": "0a396d9444fbddc15b00182c35c2b0908c51d6da4f7a0e080579d98c5f4af8b7",
+    "authentic_source_pixels_verified": true,
+    "generator_reference_binding_verified": false
+  },
+  "intended_subject": "One ivory five-petal wildflower with yellow center, short green stem, two olive leaves and one tiny upper-right bud. Transparent outside subject. No number, tile, frame or review sheet.",
+  "outputs": [
+    {
+      "generation_id": "d912a242-9601-4881-90d2-4928664fc3b9",
+      "filename": "rejected_wrong_empty_slot_sheet.png",
+      "dimensions": [1536, 1024],
+      "mode": "RGBA",
+      "alpha_extrema": [7, 253],
+      "sha256": "36638ef717014e8df4427aced7fbcc638ac34e67fac59de759904e3a8736b33b",
+      "qa": "rejected_wrong_subject_and_multi_asset_sheet"
+    },
+    {
+      "generation_id": "1292ea57-7da1-433d-b1bf-1ad3dc53256f",
+      "filename": "rejected_wrong_disabled_slot_sheet.png",
+      "dimensions": [1536, 1024],
+      "mode": "RGBA",
+      "alpha_extrema": [33, 253],
+      "sha256": "801f3d4a269a48b064918d79f88a3b6214f1a88848dc5c1c86a3ffa5324bc8d1",
+      "qa": "rejected_wrong_subject_and_multi_asset_sheet"
+    }
+  ],
+  "generated_image_count": 2,
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "queue_modified": false,
+  "next_never_produced_item_after_this_manual_target": "other96/inventory/item_potion",
+  "note": "Both images depict unrelated inventory-slot review sheets. Failure cause not established. Stopped after two attempts; no redraw substitute claimed as an AI-handpainted result. Source brief was prepared in the previous manual turn; this record completes that attempt without overwriting concurrent queue progress."
+}
