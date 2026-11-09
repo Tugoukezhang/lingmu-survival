@@ -3290,12 +3290,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/location_thumbnail_frame.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
       "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Location_Thumbnail_Frame_Review_20261109/location_thumbnail_frame_transparent_1024_RGBA.png",
+      "reference_match": "V4 photo frame tilted with brown/cream layers and green placeholder inspected; source-guided transparent central aperture for dynamic image",
+      "notes": "1024 RGBA tilted sand-brown photo frame with ivory inner mat; transparent center for compositing, sage filled preview separate. SVG/Pillow source-guided; NOT independent GPT Image handpainted. Alpha and 48–256px QA passed; art/engine QA pending.",
+      "candidate_sha256": "3fa305f140520254e4e5e233be2b16c01b3fe85806cfc8fd37017e6ed84bef9a",
+      "candidate_kind": "source-guided antialiased procedural raster with editable SVG (NOT GPT Image handpainted)",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_location_thumbnail_frame_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 93,
@@ -4501,9 +4505,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_progress_track_20261109/QA.json",
       "next_focus": "other96/map/location_thumbnail_frame",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/location_thumbnail_frame",
+      "action": "Built 1024x1024 tilted blank photo thumbnail frame with alpha opening, sage placeholder preview, editable SVG and 48–256px QA",
+      "result": "Candidate and QA archived Library / GitHub. Art approval and game integration pending, counts unchanged",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_location_thumbnail_frame_20261109/QA.json",
+      "next_focus": "other96/map/map_faint_leaf_corner",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/location_thumbnail_frame",
+  "current_focus": "other96/map/map_faint_leaf_corner",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
