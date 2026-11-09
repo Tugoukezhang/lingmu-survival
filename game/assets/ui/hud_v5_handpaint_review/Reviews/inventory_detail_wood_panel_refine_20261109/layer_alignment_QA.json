@@ -1,0 +1,25 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "offline_layer_alignment",
+  "source": "04_inventory.jpg",
+  "source_dimensions": [
+    1920,
+    1080
+  ],
+  "reference_bbox": [
+    260,
+    190,
+    810,
+    890
+  ],
+  "overlay_bbox": [
+    266,
+    190,
+    804,
+    890
+  ],
+  "review_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/original_vs_layered_mock.jpg",
+  "finding": "panel aspect aligned; mock dynamic icon/text/button placement still mismatched, extra ornate border; not engine integrated",
+  "approved": false,
+  "production_promoted": false
+}
