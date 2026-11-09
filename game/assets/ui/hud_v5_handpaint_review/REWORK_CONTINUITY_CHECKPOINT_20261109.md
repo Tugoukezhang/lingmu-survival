@@ -27,3 +27,9 @@
 4. Wrong-subject generations are rejected and never treated as completed target assets.
 5. Do not change final approval or production asset until explicitly warranted by user acceptance and technical QA.
 6. Preserve previously accepted designs such as 12+ badge, bread and letter; Chinese logo remains excluded.
+
+## Confirmed repair continuation — 2026-11-09 selected_item_separator
+- Single failed image `other96/inventory/selected_item_separator` reworked based on original screenshot crop `[315,540,765,566]`. Created independent 1800x104 RGBA warm-gray beige delicate dashed line. Prior wrong question-mark badges remain rejected.
+- Library: `/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/` containing transparent PNG, source crop, source comparison, QA and ZIP.
+- SHA256: `5bcc72a0bc9f32484e7d941b1d24e44f6ffd3c203df700852643bb6449c8a5ab`; visual preview at native 450x26 checked. Method: screenshot-anchored transparent reconstruction (not GPT Image output).
+- Art acceptance pending; in-engine QA not yet run; production unchanged. Next = another specifically documented failed image, not first-pass 96 or 93–95.
