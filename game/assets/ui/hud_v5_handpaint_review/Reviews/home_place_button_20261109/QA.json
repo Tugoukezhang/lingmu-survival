@@ -1,0 +1,37 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "task_id": "other96/home/place_button",
+  "asset_id": "home/place_button",
+  "date": "2026-11-09",
+  "source": "06_home.jpg screenshot and V4 place_button visually inspected; source bytes not directly used in draw runtime",
+  "v4_proxy_blob_sha": "389b082dfa69e00b5426e980ba0b9690e854fdbb",
+  "image_gen_attempts": 1,
+  "rejected_image_gen": "Olive-green flower-and-vine button did not match warm yellow original",
+  "candidate": {
+    "path": "/Lingmu_HUD_Exports/Home_Place_Button_Single_Review_20261109/place_button_blank_1600x500_RGBA.png",
+    "size": [
+      1600,
+      500
+    ],
+    "mode": "RGBA",
+    "sha256": "9615bf9a0c0db830e0646a9bc6ba21950f06468f36f17735a3b9d250f6b44a2b",
+    "kind": "source-guided procedural Pillow redraw, NOT independently GPT Image handpainted",
+    "qa_preview": "/Lingmu_HUD_Exports/Home_Place_Button_Single_Review_20261109/QA_comparison.jpg",
+    "bundle": "/Lingmu_HUD_Exports/Home_Place_Button_Single_Review_20261109/place_button_review_bundle.zip"
+  },
+  "qa": {
+    "alpha": "passed",
+    "preview_widths": [
+      96,
+      192,
+      288,
+      400,
+      800
+    ],
+    "silhouette": "pass visually against V4",
+    "art_approval": "pending",
+    "game_validation": "not_run"
+  },
+  "production_replaced": false,
+  "counts_changed": false
+}
