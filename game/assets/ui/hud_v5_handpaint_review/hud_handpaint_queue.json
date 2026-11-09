@@ -3026,12 +3026,22 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/status_leaf.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Map_Status_Leaf_Review/status_leaf_review_1024.png",
+      "candidate_sha256": "819906977117b6492257a5f92bb813c9ed3921f0ef4655e695f9f3e5236a1762",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "native_alpha_verified": true,
+      "source_binding_verified": false,
+      "qa_status": "Single green leaf correct category, native RGBA verified; original source crop and in-engine QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 88,
@@ -4063,6 +4073,15 @@
       "task_id": "other96/map/status_star",
       "action": "single gold map status star generated with native alpha, normalized and archived",
       "result": "One review candidate, not production approved",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/status_leaf",
+      "action": "generated map status leaf with native alpha, normalized and archived",
+      "result": "One visual candidate, source and in-engine QA pending",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
