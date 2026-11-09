@@ -1894,7 +1894,7 @@
       "attempts": 1,
       "delivered_file": null,
       "reference_match": "one isolated V4 production asset visually inspected; original screenshot crop unavailable; actual image-gen image binding not verified",
-      "notes": "One visually suitable blank cream/gold active-slot candidate created; technical alpha and small-size preview pass. Real screenshot, user art and game integration QA still pending. Library permission denied; GitHub QA text saved, full PNG local only.",
+      "notes": "One visually suitable blank cream/gold active-slot candidate created; technical alpha and small-size preview pass. Real screenshot, user art and game integration QA still pending. Library permission denied; GitHub QA + 128px PNG preview saved; full 1024px PNG local only.",
       "candidate_count": 1,
       "candidate_kind": "one generated GPT Image + cleaned alpha/padding, authentic screenshot not available",
       "candidate_local": "/mnt/data/lingmu_slot_active_review_20261109/slot_active_GPTImage_V4_guided_candidate_v1_1024.png",
@@ -1910,7 +1910,9 @@
         898
       ],
       "qa_path": "Reviews/inventory_slot_active_V4_guided_20261109/QA.json",
-      "production_promoted": false
+      "production_promoted": false,
+      "github_preview": "Reviews/inventory_slot_active_V4_guided_20261109/slot_active_preview_128_indexed.png",
+      "github_preview_kind": "128px indexed PNG review image, not 1024px source"
     },
     {
       "queue_number": 41,
