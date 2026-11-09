@@ -33,3 +33,10 @@
 - Library: `/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/` containing transparent PNG, source crop, source comparison, QA and ZIP.
 - SHA256: `5bcc72a0bc9f32484e7d941b1d24e44f6ffd3c203df700852643bb6449c8a5ab`; visual preview at native 450x26 checked. Method: screenshot-anchored transparent reconstruction (not GPT Image output).
 - Art acceptance pending; in-engine QA not yet run; production unchanged. Next = another specifically documented failed image, not first-pass 96 or 93–95.
+
+## Repair continuation — 2026-11-09 inventory/use_button
+- Reworked prior failed `inventory/use_button`: original screenshot bbox `[405,716,641,805]`, muted-olive rounded button without baked-in `使用`; separate editable engine text.
+- Candidate `/Lingmu_HUD_Exports/Rework_Inventory_Use_Button_20261109/use_button_source_matched_blank_1580x520.png`, 1580×520 RGBA; SHA256 `8e5c14c99139ce378920f7179910d571da95519aaf6b11d3d4cd0d67d6a1eb5d`.
+- Method: original screenshot-source-anchored manual restoration, NOT GPT Image; unrelated generated floral divider rejected.
+- Preliminary transparency and 96/192/288-px scale checked. Art approval pending; engine QA pending; production unchanged.
+- Next prior failed image: `inventory/item_description_label`, pending source match, prior wrong question badge. Never restart first-pass 96.
