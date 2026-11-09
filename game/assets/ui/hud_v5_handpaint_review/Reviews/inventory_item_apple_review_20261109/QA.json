@@ -40,7 +40,7 @@
     "result": "wrong_question_mark_medallion",
     "status": "REJECTED_NOT_APPLE",
     "image": "misroute_question_dark_UNAPPROVED_1536x1024.png",
-    "sha256": "59_placeholder",
+    "sha256": "43865648f8d054fae5e1c5adde350e194f4379c662d4025e5d3c171493dd2467",
     "correct_asset": "shared/question_dark",
     "correct_asset_qa": "unapproved_misroute_archive_only"
   },
