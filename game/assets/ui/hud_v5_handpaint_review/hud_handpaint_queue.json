@@ -2246,7 +2246,19 @@
       "art_qa": "failed",
       "engine_qa": "not_run",
       "production_replaced": false,
-      "library_upload": "AccessDeny"
+      "library_upload": "AccessDeny",
+      "rework_status": "manual_source_matched_candidate_pending_art_and_engine_QA",
+      "rework_candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Item_Potion_20261109/item_potion_warm_yellow_source_matched_1024.png",
+      "rework_candidate_sha256": "c8a3f757216219b05040f2c19bc022b20b059527356facbe6c3a965152c7a4a4",
+      "rework_identity": "one squat pale-green glass bottle with warm amber-yellow potion, orange cork and small four-leaf clover side ornament; count 2 excluded",
+      "rework_source_crop_bbox": [
+        1244,
+        183,
+        1338,
+        280
+      ],
+      "rework_library_uploaded": true,
+      "rework_art_approval": "pending"
     },
     {
       "queue_number": 47,
