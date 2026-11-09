@@ -2375,12 +2375,20 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/edit_rotate.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "recovered_art_candidate_pending_user_and_engine_qa",
       "approval": "pending",
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "existing_candidate": "/Lingmu_HUD_Exports/Home_Edit_Rotate_Recovered_Review/edit_rotate_recovered_1024.png",
+      "candidate_sha256": "2459332c11cc6568ccf6ffa375e3a109c9638bf8336e6c62f2d244dffbb243d3",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_kind": "generated during edit_duplicate; identity rotate; ornate embellishment beyond original; source binding unverified",
+      "production_promoted": false
     },
     {
       "queue_number": 56,
@@ -2394,7 +2402,8 @@
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "last_generation_note": "One generation while targeting edit_duplicate produced previous edit_rotate (circular arrows); recovered under rotate. Duplicate remains not generated."
     },
     {
       "queue_number": 57,
@@ -3692,9 +3701,19 @@
       "approved": 0,
       "production_promoted": false,
       "next": "other96/home/edit_move"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/edit_duplicate",
+      "action": "one image-generation attempt misrouted to rotate; recovered correctly",
+      "result": "Rotate artwork 1024 RGBA archived Library pending art/game QA; duplicate not produced, production unchanged.",
+      "generated": 1,
+      "created_candidates_for_current": 0,
+      "recovered_for": "other96/home/edit_rotate",
+      "approved": 0
     }
   ],
-  "current_focus": "other96/home/edit_move",
+  "current_focus": "other96/home/edit_duplicate",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
