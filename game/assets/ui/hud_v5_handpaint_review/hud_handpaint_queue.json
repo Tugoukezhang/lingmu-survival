@@ -2910,12 +2910,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/save.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Save_Single_Review_20261109/save_circle_source_guided_1024_RGBA.png",
+      "reference_match": "Original screenshot visually inspected; original V4 round green save button confirmed; direct single-crop image generator binding not verified",
+      "notes": "Rejected generated ornamental horizontal banner. Round sage cream floppy-disk symbol rebuilt in 1024 RGBA via SVG/Pillow, not a GPT Image handpainted final. Alpha and 32–256px preview checked; art/in-engine QA pending.",
+      "candidate_kind": "source-guided SVG/Pillow reconstruction, not independently GPT Image handpainted",
+      "candidate_sha256": "cca4e6b67effab97337bb5ba6522560c09d833eb875102c5ea73bad8257f8d39",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_save_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 74,
@@ -4371,9 +4375,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_place_button_20261109/QA.json",
       "next_focus": "other96/home/save",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/save",
+      "action": "Rejected green floral horizontal save banner; rebuilt verified round sage save/floppy icon 1024 RGBA, with game-size previews",
+      "result": "Reference-guided candidate stored Library and QA GitHub, unapproved, no production changes or completion-count increment",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_save_20261109/QA.json",
+      "next_focus": "other96/home/item_plant_pot",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/save",
+  "current_focus": "other96/home/item_plant_pot",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
