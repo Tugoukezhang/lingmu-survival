@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/map/world_area_info_panel",
+  "source": "07_world_map.jpg",
+  "target": "lower-left landscape-format compact cream information panel, with location title and description dynamically overlaid, exploration progress separate",
+  "attempts": 1,
+  "actual": "large portrait-oriented ornate pink-gold parchment frame with compass crest and painted castle silhouette, checkerboard background",
+  "result": "rejected_wrong_aspect_and_structure",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "reason": "Portrait frame vs landscape card; unnecessary ornate trim and painted scene; transparency not verified",
+  "next": "other96/map/status_star or next unreviewed queue entry after checking queue"
+}
