@@ -1,0 +1,34 @@
+{
+  "task_id": "other96/inventory/item_flower",
+  "state": "deferred_after_two_wrong_identity_generations",
+  "source": "04_inventory.jpg",
+  "source_dimensions": [1920, 1080],
+  "source_bbox_xyxy": [1108, 202, 1208, 290],
+  "authentic_source_crop_verified": true,
+  "generator_reference_binding_verified": false,
+  "requested_subject": "Exactly one small five-petal ivory flower, round yellow center, green stem, two olive leaves and one small right-side green bud; standalone transparent sprite; no text, quantity, frame or showcase.",
+  "attempts": [
+    {
+      "attempt": 1,
+      "sha256": "fbc681d1fd16cc959d02bca06eff408cf573e8fb9cb5a7184b9b0bb3fa81e1e1",
+      "dimensions": [1536, 1024],
+      "mode": "RGBA",
+      "alpha_range": [5, 253],
+      "result": "Rejected: disabled berry inventory slot review board, not the requested flower; includes multiple panels, text and unwanted background."
+    },
+    {
+      "attempt": 2,
+      "sha256": "7b0c58a13356a19d0de37e7ed3dbc6f1d842475aacb23f7c85e413172d62544a",
+      "dimensions": [1536, 1024],
+      "mode": "RGBA",
+      "alpha_range": [7, 253],
+      "result": "Rejected: repeated disabled berry inventory slot review board. Stop after two misrouted outputs."
+    }
+  ],
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "next_never_produced": "other96/inventory/item_potion",
+  "queue_reconciliation": "The main queue still pointed at the previously failed separator when this run began. Do not repeat separator/apple/flower failed calls on the next manual continue. Reconcile these per-item records before changing main focus; main queue was not overwritten in this run.",
+  "note": "No synthetic SVG fallback or screenshot extraction counted as a generated hand-painted deliverable. Original source crop was available and inspected, but reference binding remains unverified."
+}
