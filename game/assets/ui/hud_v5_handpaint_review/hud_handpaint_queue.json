@@ -2450,12 +2450,16 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_leaf.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "gpt_image_candidate_unapproved_original_silhouette_drift",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "attempts": 2,
+      "delivered_file": "/Lingmu_HUD_Exports/Inventory_Item_Leaf_Single_Review/item_leaf_gpt_image_candidate_1024_RGBA_20261109.png",
+      "reference_match": "One leaf function; broader leaf with stem/dewdrops instead of slender V4 outline; authentic single crop not bound",
+      "notes": "Attempt1 three leaves with twig rejected. Attempt2 single leaf output saved, alpha/size/preview QA passed; screenshot fidelity and user art QA pending. Not promoted.",
+      "candidate_kind": "GPT Image output #2 with RGBA color/size normalization",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_leaf_20261109/QA.json",
+      "candidate_sha256": "877c6d949717f3dfe2ca3e872429e16c86702faca2a41cdfbacf8159ef86906f",
+      "production_replaced": false
     },
     {
       "queue_number": 53,
@@ -4254,9 +4258,18 @@
       "next_focus": "other96/inventory/item_leaf",
       "review_record": "Reviews/shared_badge_circle_light_source_guided_20261109/QA.json",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_leaf",
+      "action": "Two single-item image generations: reject 3-leaf twig, keep one-leaf hand-painted-style render, normalize transparency to 1024 and archive seven native scale previews",
+      "result": "One unapproved candidate in Library and QA JSON on GitHub. No source pixel crop binding, no production replacement, no acceptance added.",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_leaf_20261109/QA.json",
+      "next_focus": "other96/home/edit_move",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/inventory/item_leaf",
+  "current_focus": "other96/home/edit_move",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
