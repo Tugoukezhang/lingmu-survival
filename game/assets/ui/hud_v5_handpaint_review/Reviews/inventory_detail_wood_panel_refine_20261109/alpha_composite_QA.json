@@ -1,0 +1,35 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "phase": "technical_alpha_qa",
+  "asset": "detail_wood_panel_refine_1260x1640.png",
+  "size": [
+    1260,
+    1640
+  ],
+  "alpha_counts": {
+    "transparent": 863190,
+    "opaque": 1184419,
+    "partial": 18791
+  },
+  "alpha_bbox": [
+    117,
+    142,
+    1142,
+    1497
+  ],
+  "nonzero_alpha_on_canvas_outer_edges": 0,
+  "composite_backgrounds": [
+    "dark green",
+    "pale blue",
+    "cream"
+  ],
+  "preview_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/edge_composite_QA.jpg",
+  "result": "alpha_channel_present_and_outer_canvas_clear",
+  "remaining": [
+    "inspect fringe at 100% on outline",
+    "compare source geometry",
+    "test in engine at runtime size"
+  ],
+  "approved": false,
+  "production_promoted": false
+}
