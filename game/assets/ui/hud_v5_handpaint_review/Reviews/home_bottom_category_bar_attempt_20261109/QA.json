@@ -1,0 +1,12 @@
+{
+  "task_id": "other96/home/bottom_category_bar",
+  "attempts": 1,
+  "result": "rejected_wrong_structure",
+  "source": "06_home.jpg",
+  "target": "long cream rounded horizontal strip, five category positions with separate icons/text, first furniture segment warm amber; no baked symbols",
+  "actual": "ornate six-tab bar with home, chair, sprout, tent, fence and ellipsis icons baked in, extra floral vines and large jewels",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "queue_mutated": false,
+  "retry_policy": "Do not use generated six-tab sheet as a game bar. Require isolated icon-free five-segment base aligned to source."
+}
