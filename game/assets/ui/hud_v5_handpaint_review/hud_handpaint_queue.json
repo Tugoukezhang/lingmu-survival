@@ -2662,12 +2662,22 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/furniture_tab_star.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Furniture_Tab_Star_Single_Review/furniture_tab_star_review_1024.png",
+      "candidate_sha256": "4a264ddaa138eb5049b906d1bd7837120db65ed334841b343382a866a2e991c2",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "source_crop_binding_verified": false,
+      "qa_status": "Star symbol correct, shield gold rim and olive base visually consistent with neighboring generated tabs; source fidelity and alpha edge QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 70,
@@ -3855,6 +3865,15 @@
       "task_id": "other96/home/furniture_tab_wall",
       "action": "single wall-tab art candidate, alpha segmentation, Library archive",
       "result": "One review candidate, not approved; original source binding unverified; no production change.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/furniture_tab_star",
+      "action": "generated star tab visual candidate and segmented checkerboard background",
+      "result": "One 1024 RGBA star icon candidate archived to Library, source fidelity and alpha edge QA pending; not approved or production-promoted",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
