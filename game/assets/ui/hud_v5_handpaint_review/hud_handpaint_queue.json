@@ -1884,7 +1884,25 @@
       "source_reference_fallback": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_plants.svg",
       "qa": "Reviews/inventory_tab_plants_failed_20261108/QA.json",
       "original_screenshot_bbox_verified": false,
-      "production_promoted": false
+      "production_promoted": false,
+      "rework_actual_screenshot_source": {
+        "file": "04_inventory.jpg",
+        "size": [
+          1920,
+          1080
+        ],
+        "bbox": [
+          1487,
+          85,
+          1601,
+          195
+        ],
+        "visual_identity": "near-square peach/pink tab with warm brown border and TWO grey-olive leaves with pale veins and short stem"
+      },
+      "rework_reference_warning": "Old V3/V4 single-leaf fallback is not faithful to original screenshot.",
+      "rework_latest_attempts": 2,
+      "rework_status": "source_recovered_wrong_plaque_generations_rejected_no_accepted_candidate",
+      "rework_source_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_original_crop_114x110.png"
     },
     {
       "queue_number": 39,
