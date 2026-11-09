@@ -1865,7 +1865,18 @@
       "production_promoted": false,
       "qa": "Reviews/inventory_tab_documents_failed_20261108/QA.json",
       "last_failure_reason": "Both attempts generated blue-gray wooden badge with separate cream paper page and right folded corner instead of original V3 pastel-peach badge with simple dark folded-booklet outline. Color/silhouette mismatch; no accepted candidate.",
-      "source_reference_fallback": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_documents.svg"
+      "source_reference_fallback": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_documents.svg",
+      "rework_status": "source_matched_candidate_pending_user_and_engine_QA",
+      "rework_candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_source_matched_candidate_1024.png",
+      "rework_candidate_sha256": "2830d15ba59b4d3dc9a84fc95cc3b1e12199c693bb19ed8e3f07ba0e594f6716",
+      "rework_original_crop": [
+        1355,
+        75,
+        1490,
+        205
+      ],
+      "rework_identity": "peach near-square tab, brown border, desaturated green-gray curled scroll with 3 pale horizontal strokes",
+      "rework_art_approval": "pending"
     },
     {
       "queue_number": 38,
