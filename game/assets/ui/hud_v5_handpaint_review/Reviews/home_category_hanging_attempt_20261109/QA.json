@@ -1,0 +1,14 @@
+{
+  "task_id": "other96/home/category_hanging",
+  "date": "2026-11-09",
+  "target": "single small cream and olive hanging lamp/pendant category glyph from 06_home.jpg, no background medallion",
+  "attempts": 1,
+  "actual": "large ornate gold clover plaque featuring hanging banner, lamp and glass flower ornament",
+  "result": "rejected_wrong_scope",
+  "accepted_candidates": 0,
+  "art_qa": "failed_source_fidelity",
+  "source_binding_verified": false,
+  "production_promoted": false,
+  "main_queue_updated": false,
+  "note": "Keep as concept reference only, not an isolated category glyph. Avoid counting as complete."
+}
