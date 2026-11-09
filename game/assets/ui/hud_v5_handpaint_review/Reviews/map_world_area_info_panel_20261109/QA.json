@@ -1,0 +1,46 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/world_area_info_panel",
+  "asset_id": "map/world_area_info_panel",
+  "reference": {
+    "screenshot": "07_world_map.jpg visually inspected",
+    "v4_proxy_path": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/world_area_info_panel.png",
+    "v4_blob_sha": "a64af52d6e8e5d6a50fb1bb1064fa98ca5c77e89",
+    "v4_visually_inspected": true,
+    "original_single_crop_bound_to_image_generation": false
+  },
+  "candidate": {
+    "kind": "Programmatic SVG/Pillow parchment panel reconstruction, NOT independent GPT Image handpaint",
+    "png": "/Lingmu_HUD_Exports/Map_World_Area_Info_Panel_Review_20261109/world_area_info_panel_blank_2100x1300_RGBA.png",
+    "svg": "/Lingmu_HUD_Exports/Map_World_Area_Info_Panel_Review_20261109/world_area_info_panel_source_guided.svg",
+    "qa_bundle": "/Lingmu_HUD_Exports/Map_World_Area_Info_Panel_Review_20261109/world_area_info_panel_review_bundle.zip",
+    "sha256": "7eb72c5b79f80f1bf02403ea8e7453c089a6068ca0f3a65a42ccb4fbddf33ab9",
+    "size": [
+      2100,
+      1300
+    ],
+    "mode": "RGBA",
+    "content": "Layered sand-gold rounded border and blank creamy parchment face; all thumbnails, text, progress and decorations excluded"
+  },
+  "qa": {
+    "alpha_corners": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "preview_widths_px": [
+      210,
+      420,
+      630,
+      1050
+    ],
+    "art_review": "pending",
+    "game_integration": "not_run",
+    "user_approved": false
+  },
+  "production_replaced": false,
+  "final_approved": false,
+  "counts_changed": false
+}
