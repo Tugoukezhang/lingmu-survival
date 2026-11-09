@@ -2239,12 +2239,24 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_bread.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
+      "state": "user_design_accepted_technical_qa_pending",
+      "approval": "user_design_accepted_engine_qa_pending",
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "existing_candidate": "/Lingmu_HUD_Exports/Recovered_Misrouted_Bread_Letter_20261109/item_bread_recovered_review_1024.png",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Recovered_Misrouted_Bread_Letter_20261109/item_bread_recovered_review_1024.png",
+      "candidate_sha256": "8a94cb29bf9ee515897ed21fdc2bb3266a9c0ddb40b148ab360063725ad698d2",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "recovered cross-target generated image, normalized transparent RGBA; design accepted by user, technical/game QA pending",
+      "production_promoted": false,
+      "qa_status": "user accepts visual design; alpha present and normalized 1024, edge fringe and actual in-engine scale still require QA",
+      "recovery_note": "Generated in subsequent letter request, visually correct loaf with pink gingham cloth."
     },
     {
       "queue_number": 50,
@@ -2253,12 +2265,24 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_letter.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
+      "state": "user_design_accepted_technical_qa_pending",
+      "approval": "user_design_accepted_engine_qa_pending",
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "existing_candidate": "/Lingmu_HUD_Exports/Recovered_Misrouted_Bread_Letter_20261109/item_letter_recovered_review_1024.png",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Recovered_Misrouted_Bread_Letter_20261109/item_letter_recovered_review_1024.png",
+      "candidate_sha256": "8369cfa10b2cce27c9689e6fc0f54281dc5a06067bee12ca970ab81ed8f4cce4",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "candidate_kind": "recovered cross-target generated image, normalized transparent RGBA; design accepted by user, technical/game QA pending",
+      "production_promoted": false,
+      "qa_status": "user accepts visual design; alpha present and normalized 1024, edge fringe and actual in-engine scale still require QA",
+      "recovery_note": "Generated in subsequent forest-book request, visually correct cream envelope with green clover seal."
     },
     {
       "queue_number": 51,
@@ -3612,6 +3636,14 @@
       "library_upload": "AccessDeny",
       "github_qa": "Reviews/inventory_item_map_fragment_review_20261109/QA.json",
       "next": "other96/inventory/item_mushroom"
+    },
+    {
+      "date": "2026-11-09",
+      "action": "reconcile cross-target generated assets and harden identity binding",
+      "result": "User accepted bread generated during letter turn and envelope generated during forest-book turn. Both normalized 1024 RGBA, uploaded to Library, marked design-accepted technical-QA-pending; no production promotion. Reference binding preflight/postflight protocol updated.",
+      "recovered_candidates": 2,
+      "final_approved": 0,
+      "production_promoted": false
     }
   ],
   "current_focus": "other96/inventory/item_mushroom",
@@ -3634,7 +3666,21 @@
       "explicit forbidden details",
       "native displayed size"
     ],
-    "generate_sole_target_not_template": true
+    "generate_sole_target_not_template": true,
+    "version": "v3_target_lock_and_recovery",
+    "binding_rule": "Reference crop saved locally is NOT proof image generator consumed it. For each new target, explicitly verify current single image is actually attached/used for image editing; no previous generated image as reference.",
+    "preflight": [
+      "Fetch live queue and check whether target has a recovered candidate before generating.",
+      "One target ID and exactly one tight source crop, no review sheet or previous asset images.",
+      "State target silhouette, main palette, distinctive parts and forbidden previous-target identities."
+    ],
+    "postflight": [
+      "Inspect generated object identity before aesthetics and alpha.",
+      "If generated object matches another queued target, archive under actual identity, mark current target not done, and never discard useful valid art.",
+      "After two misroutes, stop generation, leave current target for retry and advance to next never-attempted item without counting completion.",
+      "User design acceptance is separate from technical QA and production promotion."
+    ],
+    "do_not_claim_verified_crop_binding_without_evidence": true
   },
   "draw_protocol_version": "user_quality_fidelity_2026_11_08",
   "production_batch_size_goal": {
