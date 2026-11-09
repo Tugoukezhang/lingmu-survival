@@ -1,0 +1,25 @@
+{
+  "task_id": "other96/inventory/item_mushroom",
+  "queue_number": 48,
+  "state": "authentic_reference_prepared_generation_pending",
+  "selection_reason": "User explicitly requested the next item after the map fragment. Produce the mushroom, not another map attempt. This preparation record does not mark any image complete or approved.",
+  "source": {
+    "file": "04_inventory.jpg",
+    "dimensions": [1920, 1080],
+    "bbox_xyxy": [1502, 196, 1614, 291],
+    "crop_dimensions": [112, 95],
+    "authentic_pixels_visually_inspected": true,
+    "crop_local_path": "/mnt/data/lingmu_item_mushroom_single/mushroom_original_crop_112x95.png",
+    "reference_binding_to_generator_verified": false
+  },
+  "art_brief": {
+    "subject": "Exactly ONE red-capped mushroom inventory sprite. Rounded asymmetrical coral-red cap with a prominent cream-white spot, a short thick ivory stem, small olive-green leafy tufts at the lower left and right. Match the reference's compact friendly silhouette, main palette and small-size readability; refine the soft hand-painted shading without ornate redesign.",
+    "output": "One centered isolated sprite, 1024x1024 transparent background, generous transparent padding. No inventory tile, card, border, quantities, captions, title, layout, review sheet, gold ornaments or additional item.",
+    "source_exclusions": "Remove cream screenshot background, quantity 3 and detached yellow attention marks."
+  },
+  "generated_candidates": 0,
+  "art_qa": "pending_output",
+  "alpha_qa": "pending_output",
+  "engine_qa": "not_run",
+  "production_promoted": false
+}
