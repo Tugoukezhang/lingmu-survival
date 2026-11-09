@@ -100,5 +100,46 @@
     "failed_attempts": 2,
     "production_replacements": 0
   },
-  "note": "Two off-target generations -> defer retry and advance. Existing history and aggregates unchanged. No production asset overwritten."
+  "note": "Two off-target generations -> defer retry and advance. Existing history and aggregates unchanged. No production asset overwritten.",
+  "rework_source_matched_20261109": {
+    "task_id": "other96/inventory/use_button",
+    "source": "authentic 04_inventory.jpg original screenshot",
+    "source_bbox_xyxy": [
+      405,
+      716,
+      641,
+      805
+    ],
+    "candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Use_Button_20261109/use_button_source_matched_blank_1580x520.png",
+    "candidate_sha256": "8e5c14c99139ce378920f7179910d571da95519aaf6b11d3d4cd0d67d6a1eb5d",
+    "dimensions": [
+      1580,
+      520
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "alpha_bbox": [
+      50,
+      15,
+      1530,
+      505
+    ],
+    "method": "manual screenshot-source-anchored silhouette and color restoration; NOT GPT Image",
+    "design": "muted olive button; slight dark outline; no wood/leaves/flowers; no baked 使用 text, which remains editable game overlay",
+    "size_checks": [
+      96,
+      192,
+      288
+    ],
+    "review": "/Lingmu_HUD_Exports/Rework_Inventory_Use_Button_20261109/use_button_source_vs_rework_QA.jpg",
+    "bundle": "/Lingmu_HUD_Exports/Rework_Inventory_Use_Button_20261109/use_button_rework_review_bundle.zip",
+    "wrong_image_rejected": "GPT Image result was floral ornate divider, unrelated; not counted",
+    "visual_source_match": "pass preliminary",
+    "art_approval": "pending",
+    "engine_QA": "not_run",
+    "production_promoted": false
+  }
 }
