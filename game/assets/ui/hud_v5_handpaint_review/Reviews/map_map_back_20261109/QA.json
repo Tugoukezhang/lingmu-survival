@@ -1,0 +1,47 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/map_back",
+  "asset_id": "map/map_back",
+  "source": {
+    "screenshot": "07_world_map.jpg",
+    "viewed": true,
+    "legacy_v4_path": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/map_back.png",
+    "v4_blob_sha": "adde2c9e4e4ad5254ecb852a7632d2cbd3b25865",
+    "original_screenshot_single_crop_bound_to_imagegen": false
+  },
+  "rejected_image_generation": {
+    "attempts": 1,
+    "result": "Green scalloped floral badge with white arrow, not screenshot's brown circle; rejected"
+  },
+  "candidate": {
+    "kind": "source-guided SVG/Pillow reconstruction, NOT separately GPT Image handpainted final",
+    "path": "/Lingmu_HUD_Exports/Map_Back_Single_Review_20261109/map_back_source_guided_1024_RGBA.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "format": "RGBA PNG",
+    "sha256": "97fbd1b305e6ff79e3523f7429311251a54078571a050f10c328e2faffa2c603",
+    "qa_package": "/Lingmu_HUD_Exports/Map_Back_Single_Review_20261109/map_back_review_bundle.zip",
+    "preview": "/Lingmu_HUD_Exports/Map_Back_Single_Review_20261109/QA_comparison.jpg"
+  },
+  "qa": {
+    "functional_identity": "pass screenshot vs V4 proxy: brown roundel, ivory return arrow, top-left leaf, lower-right flower",
+    "alpha": "pass",
+    "preview_sizes": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_qa": "pending",
+    "in_game": "not_run",
+    "user_approved": false
+  },
+  "production_replaced": false,
+  "counts_changed": false
+}
