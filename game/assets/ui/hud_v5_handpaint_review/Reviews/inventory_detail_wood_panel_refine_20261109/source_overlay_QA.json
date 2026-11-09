@@ -1,0 +1,20 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "offline_source_overlay_comparison",
+  "source": "04_inventory.jpg",
+  "source_size": [
+    1920,
+    1080
+  ],
+  "approximate_panel_bbox": [
+    260,
+    190,
+    810,
+    890
+  ],
+  "preview_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/source_vs_candidate_offline.jpg",
+  "finding": "Decorations more complex than source; blank panel obscures original dynamic item icon, description and use button if directly overlaid; needs separate UI layers",
+  "engine_tested": false,
+  "approved": false,
+  "production_promoted": false
+}
