@@ -1,0 +1,16 @@
+{
+  "task_id": "other96/shared/badge_circle_dark",
+  "phase": "rework",
+  "status": "technical_recovery_candidate_pending_art_and_engine_QA",
+  "file_library": "/Lingmu_HUD_Exports/Rework_Badge_Circle_Dark/badge_circle_dark_rework_1024.png",
+  "sha256": "70bc434858f08ed5275e5ce52e10e60a54bfb87f98c3584175a70cbf575cbe5d",
+  "size": [
+    1024,
+    1024
+  ],
+  "alpha_present": true,
+  "edge_qa": "tiny red/yellow fringe remains around outer gold edge; needs cleanup",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "next": "other96/shared/badge_circle_light"
+}
