@@ -1,0 +1,39 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/inventory/item_description_label",
+  "asset_id": "inventory/item_description_label",
+  "source_library": "/Lingmu_HUD_Exports/Original_References/04_inventory.jpg",
+  "verified_reference_crop": "/Lingmu_HUD_Exports/Inventory_Item_Description_Label_Manual_20261109/item_description_label_reference_crop.png",
+  "source_bbox_xyxy_from_previous_review": [
+    528,
+    342,
+    640,
+    397
+  ],
+  "output_library": "/Lingmu_HUD_Exports/Inventory_Item_Description_Label_Manual_20261109/item_description_label_1120x420_RGBA_candidate_20261109.png",
+  "review_bundle": "/Lingmu_HUD_Exports/Inventory_Item_Description_Label_Manual_20261109/item_description_label_candidate_pack_20261109.zip",
+  "resolution": [
+    1120,
+    420
+  ],
+  "channel_mode": "RGBA",
+  "text_layer": "separate (no characters baked in)",
+  "method": "programmatic raster reconstruction using visually inspected original label crop; NOT GPT Image handpainted art",
+  "mismatched_generated_images_rejected": 3,
+  "qa": {
+    "identity": "correct peach/orange rounded category-tag backing",
+    "alpha": "PNG output checked",
+    "small_preview_widths": [
+      96,
+      192,
+      288
+    ],
+    "art_approval": "pending",
+    "game_validation": "pending"
+  },
+  "status": "unapproved_reference_based_candidate",
+  "counts_unchanged": true,
+  "queue_focus_unchanged": true,
+  "note": "Do not promote to production or count as hand-painted deliverable. Images produced as green floral buttons were rejected; use peach-orange cropped source for next GPT Image attempt."
+}
