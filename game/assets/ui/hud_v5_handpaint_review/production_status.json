@@ -1039,9 +1039,12 @@
       "target_png": "PNG_Transparent/00_common/badge_circle_dark.png",
       "target_resolution": "1024x1024",
       "reference": "shared across multiple screens",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "review_candidate_v4_proxy_original_source_unverified",
+      "qa": "pending_source_art_and_game_technical_qa",
+      "notes": "Single independent RGBA review candidate (not production). Visual proxy based on existing V4 single asset, original source screenshot not accessible in run; candidate SHA256 5f68b41744aee805ba5f60003b850ea19caf1118a7adc945e39c2795e4061da1. GitHub review record Reviews/shared_badge_circle_dark_20261109T1035Z/QA.json. Library upload AccessDeny.",
+      "review_record": "Reviews/shared_badge_circle_dark_20261109T1035Z/QA.json",
+      "candidate_sha256": "5f68b41744aee805ba5f60003b850ea19caf1118a7adc945e39c2795e4061da1",
+      "production_replaced": false
     },
     {
       "index": 97,
