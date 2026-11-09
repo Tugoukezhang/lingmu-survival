@@ -1,0 +1,23 @@
+{
+  "schema": "lingmu-hud-one-target-misroute-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/bottom_category_bar",
+  "source_reference": "06_home.jpg",
+  "source_available_in_runtime": false,
+  "source_crop_bound_to_generator": false,
+  "generation_target": "other96/home/bottom_category_bar",
+  "prior_attempt_record": "Reviews/home_bottom_category_bar_attempt_20261109/QA.json",
+  "prior_attempt_count": 1,
+  "this_run_attempt_count": 1,
+  "combined_attempts": 2,
+  "this_run_image_actual_identity": "single red-orange cream-spotted mushroom with beige stem",
+  "reason": "wrong target object (not a five-position cream horizontal category-bar base); full-screen source missing, no image source bound",
+  "outcome": "rejected_for_bar_and_recovered_to_other96/inventory/item_mushroom",
+  "next_focus": "other96/home/category_furniture",
+  "bar_candidates_accepted": 0,
+  "qa_passes": 0,
+  "production_replacements": 0,
+  "production_promoted": false,
+  "library_upload": "AccessDeny",
+  "note": "No reproduction, no visual bar draft from this run. Two total wrong-scope attempts; defer bar until genuine source crop can be bound."
+}
