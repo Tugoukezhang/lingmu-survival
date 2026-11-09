@@ -2397,13 +2397,39 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/edit_duplicate.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "single_handpaint_review_candidate_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
       "notes": "",
-      "last_generation_note": "One generation while targeting edit_duplicate produced previous edit_rotate (circular arrows); recovered under rotate. Duplicate remains not generated."
+      "last_generation_note": "One generation while targeting edit_duplicate produced previous edit_rotate (circular arrows); recovered under rotate. Duplicate remains not generated.",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Edit_Duplicate_Single_Review/edit_duplicate_review_1024.png",
+      "candidate_sha256": "3dd15c85d626eb78e41a5919c05868c8220ef1ef7d03ddec4995a136bce387e6",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "source_crop": {
+        "source": "06_home.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          75,
+          674,
+          196,
+          777
+        ],
+        "library": "/Lingmu_HUD_Exports/Home_Edit_Duplicate_Single_Review/original_duplicate_crop.png",
+        "generator_binding_verified": false
+      },
+      "qa_status": "two overlapping squares identity correct, but generated ornamental plaque and flower accents beyond source; alpha and 48/64/96/128px QA done, user art and engine QA pending",
+      "review_comparison_library": "/Lingmu_HUD_Exports/Home_Edit_Duplicate_Single_Review/edit_duplicate_QA.jpg",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Home_Edit_Duplicate_Single_Review/edit_duplicate_bundle.zip",
+      "production_promoted": false
     },
     {
       "queue_number": 57,
@@ -3711,9 +3737,19 @@
       "created_candidates_for_current": 0,
       "recovered_for": "other96/home/edit_rotate",
       "approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/edit_duplicate",
+      "action": "generated single duplicate icon, normalized RGBA and verified native-size previews",
+      "result": "One duplicate identity correct review candidate, ornate border deviates from source; pending user/engine QA. Saved Library, no production promotion.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "next": "other96/home/edit_remove"
     }
   ],
-  "current_focus": "other96/home/edit_duplicate",
+  "current_focus": "other96/home/edit_remove",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
