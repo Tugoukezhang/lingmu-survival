@@ -1,0 +1,79 @@
+{
+  "schema": "lingmu-hud-review-run-v1",
+  "task_id": "other96/inventory/item_description_label",
+  "status": "deferred_after_two_wrong_identity_outputs",
+  "source": {
+    "filename": "04_inventory.jpg",
+    "native_size": [
+      1920,
+      1080
+    ],
+    "sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "crop_bbox_xyxy": [
+      528,
+      342,
+      640,
+      397
+    ],
+    "crop_size": [
+      112,
+      55
+    ],
+    "crop_sha256": "9e798bb0bee7f3bc455efcb9cfe06ae7733f943a5d27a8c94e06d08879904f53",
+    "target_identity": "Single narrow peach/orange rounded rectangular category-label backing under the item title; no baked-in 食物 text."
+  },
+  "target_resolution": [
+    1120,
+    420
+  ],
+  "generator_reference_binding_verified": false,
+  "generator_attempts": 2,
+  "attempts": [
+    {
+      "n": 1,
+      "result": "wrong_identity_question_dark_medallion",
+      "mode": "RGBA",
+      "original_png_sha256": "3fe3733ddef9324669b0c7ccdeac8e7c77fb5a0f9f1997bcb429cee49526a9a9",
+      "rejected_for_current_task": true,
+      "archive_to": "other96/shared/question_dark",
+      "archive_kind": "unapproved off-target illustration; reference mismatch, not a completed question_dark icon",
+      "normalized_1024_rgba_sha256": "f450122c66ae1d523a9935858b353e8fe77aa51b027b4d37daad78f67da9578d",
+      "archive_alpha_bbox_xyxy": [
+        0,
+        0,
+        1024,
+        1024
+      ],
+      "native_size_art_engine_QA": "pending"
+    },
+    {
+      "n": 2,
+      "result": "wrong_identity_question_dark_medallion_with_checkerboard",
+      "mode": "RGB",
+      "original_png_sha256": "8b0e7ab0e0b6f6a3ebaa43e6629410c392853b0aabcf092f8ddbb4dc7d1d2a1",
+      "rejected_for_current_task": true,
+      "rejected_for_transparency": true
+    }
+  ],
+  "results": {
+    "generated": 2,
+    "identity_rejected": 2,
+    "new_candidates_for_current_target": 0,
+    "approved": 0,
+    "production_replacements": 0,
+    "question_dark_misrouted_unapproved_archive_count": 1
+  },
+  "comparison_sha256": "aesthetic/source review image attached to run's QA zip; see local QA.json for hashes",
+  "review_files_available_in_run": [
+    "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/item_description_label_original_crop.png",
+    "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/misrouted_question_dark_unapproved_1024_RGBA.png",
+    "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/item_description_label_two_wrong_identity_QA.jpg",
+    "/mnt/data/lingmu_item_description_label_20261109/item_description_label_TWO_WRONG_identity_REVIEW.zip"
+  ],
+  "library_upload": "attempted, but AccessDeny; not falsely claimed saved",
+  "github_binary_upload": "not uploaded; manifest and file hashes saved, review binaries are in run artifacts",
+  "production_modified": false,
+  "qa_result": "wrong functional object, both outputs not suitable for label",
+  "next_focus": "other96/inventory/selected_item_separator",
+  "notes": "Unlike previous blocked runs, screenshot source bytes were successfully transferred, opened and hashed this run. Generator nevertheless ignored intended isolated chip and repeated historical question_dark medallion concept. Stop after two misidentifications."
+}
