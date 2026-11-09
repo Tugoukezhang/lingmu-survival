@@ -551,9 +551,16 @@
       "target_png": "PNG_Transparent/04_inventory/item_map_fragment.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "status": "single_handpaint_review_candidate_pending_final_QA",
+      "qa": "art_and_engine_pending",
+      "notes": "One individual map-fragment RGBA candidate; broad identity matches beige parchment green terrain red X. More ornate brown edging and mountain/river than source; source-crop generator binding unverified. Library AccessDeny. Never promoted to production.",
+      "candidate_sha256": "910c8a6bedf824e20664c7e2d29755365083ed1d9fc2846cd6162e1ccfafefdb",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "review_qa_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_map_fragment_review_20261109/QA.json",
+      "production_promoted": false
     },
     {
       "index": 49,
