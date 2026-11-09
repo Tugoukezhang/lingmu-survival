@@ -2975,12 +2975,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/item_plant_pot.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Item_Plant_Pot_Single_Review_20261109/item_plant_pot_three_leaves_1024_RGBA.png",
+      "reference_match": "V4 three-leaf terracotta flowerpot motif visually inspected; screenshot reference seen, ImageGen did not ingest isolated target crop",
+      "notes": "ImageGen flowering porcelain planter rejected for mismatch. One 1024 RGBA source-guided painted SVG/Pillow candidate archived. Three leaf silhouettes and pot geometry match original proxy; art/in-engine QA pending.",
+      "candidate_sha256": "f52ac7dd7c7887fdceec5bc25922a002b5daecedf1e7853da7409adeb092fa1d",
+      "candidate_kind": "source-guided original SVG/raster illustration, NOT GPT Image handpainted",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_item_plant_pot_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 77,
@@ -4384,9 +4388,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_save_20261109/QA.json",
       "next_focus": "other96/home/item_plant_pot",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/item_plant_pot",
+      "action": "One rejected ImageGen flowering pot; produced simple terracotta three-leaf 1024 RGBA source-guided sprite and six native previews",
+      "result": "QA and candidate uploaded Library; not approved or promoted; counts unchanged",
+      "next_focus": "other96/map/map_back",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_item_plant_pot_20261109/QA.json",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/item_plant_pot",
+  "current_focus": "other96/map/map_back",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
