@@ -1,0 +1,61 @@
+{
+  "phase": "rework_and_review_not_first_pass",
+  "date": "2026-11-09",
+  "task_id": "other96/inventory/tab_documents",
+  "selection_reason": "Existing failed repair review from Reviews/inventory_tab_documents_failed_20261108/QA.json; not legacy first-pass current_focus",
+  "reference": {
+    "screenshot": "04_inventory.jpg",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "crop_xyxy": [
+      1355,
+      75,
+      1490,
+      205
+    ],
+    "original_crop_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_original_crop_135x130.png",
+    "verified_identity": "Dusty peach rounded-square tab with warm brown rim, dark grey-green filled curled document scroll, three pale horizontal slots"
+  },
+  "candidate": {
+    "kind": "Source-informed manually authored and softly textured layered vector/raster reconstruction; not verified image-generation edit",
+    "library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_source_matched_candidate_1024(1).png",
+    "review": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_source_comparison(1).jpg",
+    "small_size_review": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_small_sizes_review.jpg",
+    "bundle": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Documents_20261109/tab_documents_rework_bundle(1).zip",
+    "sha256": "2830d15ba59b4d3dc9a84fc95cc3b1e12199c693bb19ed8e3f07ba0e594f6716",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "alpha_bbox": [
+      127,
+      108,
+      885,
+      933
+    ],
+    "transparent_corners": true,
+    "small_sizes_checked": [
+      32,
+      48,
+      64,
+      96,
+      128
+    ]
+  },
+  "review": {
+    "identity_preliminary": "pass",
+    "alpha_preliminary": "pass",
+    "small_size_preliminary": "pass",
+    "user_art_approval": "pending",
+    "in_engine_qa": "pending",
+    "production_promoted": false
+  },
+  "exclusions": "No new first-pass task created. Do not confuse old V3 simplified reference with real screenshot. Previously generated blue-gray wood badge and blank paper were rejected. No approval flags changed."
+}
