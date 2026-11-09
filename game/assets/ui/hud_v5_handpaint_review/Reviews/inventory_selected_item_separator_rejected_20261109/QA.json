@@ -115,5 +115,44 @@
     "chinese_logo_skipped": true,
     "age_12_design_accepted_technical_qa_pending": true,
     "previous_rework_failures_unchanged": true
+  },
+  "source_matched_rework_20261109": {
+    "status": "candidate_completed_pending_art_and_engine_QA",
+    "source_original": "04_inventory.jpg",
+    "source_bbox": [
+      315,
+      540,
+      765,
+      566
+    ],
+    "source_crop": [
+      450,
+      26
+    ],
+    "candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/selected_item_separator_source_matched_1800x104.png",
+    "candidate_sha256": "5bcc72a0bc9f32484e7d941b1d24e44f6ffd3c203df700852643bb6449c8a5ab",
+    "candidate_size": [
+      1800,
+      104
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      115
+    ],
+    "alpha_bbox": [
+      0,
+      50,
+      1800,
+      76
+    ],
+    "visual_review": "/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/selected_item_separator_source_vs_candidate_QA.jpg",
+    "review_bundle": "/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/selected_item_separator_rework_bundle.zip",
+    "method": "pixel-anchored transparent line extraction from original game screenshot, not AI handpaint",
+    "fixes": "correct thin grey-beige discontinuous horizontal divider, not misrouted question-mark badge",
+    "technical_preview": "native 450x26 pass, RGBA alpha verified",
+    "art_approval": "pending",
+    "in_engine_QA": "not_run",
+    "production_promoted": false
   }
 }
