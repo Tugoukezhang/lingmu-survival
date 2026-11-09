@@ -1,0 +1,14 @@
+{
+  "task_id": "other96/map/zoom_plus",
+  "date": "2026-11-09",
+  "source": "07_世界地图(1).jpg",
+  "target": "small cream plus symbol in simple circular map zoom control, no magnifying glass handle",
+  "attempts": 1,
+  "actual": "large ornate green-and-gold magnifying glass with cream plus, leaves and flowers; checkerboard rendered",
+  "result": "rejected_wrong_structure",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/map/zoom_minus",
+  "reason": "Zoom plus symbol correct but magnifier body and floral decoration wrong, baked checkerboard not transparency."
+}
