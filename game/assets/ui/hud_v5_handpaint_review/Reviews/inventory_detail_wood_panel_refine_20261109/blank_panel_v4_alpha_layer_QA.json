@@ -1,0 +1,30 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "v4_alpha_layer_qa",
+  "size": [
+    1260,
+    1640
+  ],
+  "alpha_counts": {
+    "transparent": 491140,
+    "partial": 21574,
+    "opaque": 1553686
+  },
+  "alpha_bbox": [
+    31,
+    34,
+    1223,
+    1528
+  ],
+  "outer_canvas_nonzero": 0,
+  "low_alpha_near_white_pixels": 4826,
+  "layer_test": "V4 blank background composited with V3 illustrative dynamic layer",
+  "library_folder": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel",
+  "remaining": [
+    "edge white halo risk",
+    "source fidelity",
+    "in-engine validation"
+  ],
+  "approved": false,
+  "production_promoted": false
+}
