@@ -1,0 +1,42 @@
+{
+  "task_id": "other96/inventory/item_map_fragment",
+  "queue_number": 47,
+  "status": "defer_after_two_wrong_identity_outputs",
+  "source_crop": {
+    "source": "04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "bbox_xyxy": [1360, 198, 1480, 296],
+    "dimensions": [120, 98],
+    "sha256": "c492efe0ebe5217af9e55f2f1214d614701ebda540b1c2210e13b71e5edf3f74",
+    "original_pixels_inspected": true,
+    "generator_reference_binding_verified": false
+  },
+  "expected": "One isolated pale-peach treasure-map fragment, curved ochre dashed route, small brown house lower-left, olive tree upper-right, coral-red X lower-right, olive leaves behind paper. No quantity, frame or presentation sheet.",
+  "attempts": [
+    {
+      "generation_id": "681ef743-a8a6-4164-9af1-ea815dd698b7",
+      "file_id": "file_000000007aac821283ef06f9a22b88fb",
+      "local_file": "/mnt/data/a_highly_detailed_ui_design_sheet_in_the_same_styl.png",
+      "dimensions": [1536, 1024],
+      "mode": "RGBA",
+      "sha256": "d141f1a3010f97bdf6720eb69ed3a53c2ddcd88c6abcb05a91b7d30c12a01cc4",
+      "rejected_reason": "Mushroom inventory review infographic, not an isolated map fragment. Wrong object and format."
+    },
+    {
+      "generation_id": "e1a3f4f4-8f64-46d0-9a8c-c1a25cb32324",
+      "file_id": "file_000000002c2481fdabd4f9bc35343cb7",
+      "local_file": "/mnt/data/a_highly_detailed_ui_design_presentation_sheet_in.png",
+      "dimensions": [1536, 1024],
+      "mode": "RGBA",
+      "sha256": "726c832eeda137d5e0262a2e8eca1a5257a86f434f5dd90ec7d74b62ab9b62a3",
+      "rejected_reason": "Rolled-scroll inventory review infographic, not an isolated map fragment. Wrong silhouette and format."
+    }
+  ],
+  "generated_images": 2,
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "queue_file_modified": false,
+  "queue_reconciliation": "Record this target as deferred, not completed; next unattempted target in the observed queue is other96/inventory/item_mushroom. Re-read live queue before changing focus. Do not retry this failed target repeatedly based only on the stale current_focus field.",
+  "note": "No item icon has been substituted by cutting a component from either review infographic. Both outputs are rejected artwork, not usable inventory assets."
+}
