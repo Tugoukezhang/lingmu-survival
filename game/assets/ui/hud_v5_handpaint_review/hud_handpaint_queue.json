@@ -2005,12 +2005,37 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/selected_item_separator.png",
       "target_resolution": "1600x320",
-      "state": "not_generated",
+      "state": "deferred_two_wrong_identity_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": false,
+      "notes": "",
+      "last_attempt": "2026-11-09",
+      "failure_reason": "Two fresh generations of the selected item separator returned ornate question-mark wood medallions, not the slim pale dashed horizontal separator. Source crop verified locally but actual image-generator crop binding NOT verified.",
+      "source_crop": {
+        "source": "04_inventory.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+        "bbox_xyxy": [
+          315,
+          540,
+          765,
+          566
+        ],
+        "crop_dimensions": [
+          450,
+          26
+        ],
+        "crop_sha256": "eedda3e3f7ae4529d41b0435dd4d2e238497a0199801f44b719b3ea36a02ee40",
+        "reference_binding_to_generator_verified": false
+      },
+      "review_qa_path": "Reviews/inventory_selected_item_separator_rejected_20261109/QA.json",
+      "retry_policy": "Defer after 2 identity errors; do not retry without genuinely verified target-only crop binding; original is thin pale taupe dashed line, never question badge.",
+      "production_promoted": false
     },
     {
       "queue_number": 44,
@@ -3354,9 +3379,31 @@
       "library_upload": "AccessDeny; local artifacts and GitHub manifest saved",
       "github_qa": "Reviews/inventory_item_description_label_rejected_20261109/QA.json",
       "next": "other96/inventory/selected_item_separator"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/selected_item_separator",
+      "action": "Source screenshot verified/cropped; 2 image generations instead yielded question-mark badges, rejected for identity, deferred",
+      "source_crop_verified": true,
+      "source_bbox_xyxy": [
+        315,
+        540,
+        765,
+        566
+      ],
+      "source_crop_sha256": "eedda3e3f7ae4529d41b0435dd4d2e238497a0199801f44b719b3ea36a02ee40",
+      "reference_binding_verifiable": false,
+      "generation_attempts": 2,
+      "rejected": 2,
+      "valid_candidates": 0,
+      "misrouted_question_dark_locally_archived_unapproved": 2,
+      "github_qa": "Reviews/inventory_selected_item_separator_rejected_20261109/QA.json",
+      "library_upload": "AccessDeny, locally saved QA zip and PNGs",
+      "production_replaced": false,
+      "next": "other96/inventory/item_apple"
     }
   ],
-  "current_focus": "other96/inventory/selected_item_separator",
+  "current_focus": "other96/inventory/item_apple",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
