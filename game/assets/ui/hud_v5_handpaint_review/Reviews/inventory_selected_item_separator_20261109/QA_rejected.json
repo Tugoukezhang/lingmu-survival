@@ -1,0 +1,27 @@
+{
+  "task_id": "other96/inventory/selected_item_separator",
+  "asset_id": "inventory/selected_item_separator",
+  "status": "rejected_wrong_identity",
+  "source": {
+    "file": "04_inventory.jpg",
+    "dimensions": [1920, 1080],
+    "bbox_xyxy": [312, 549, 754, 566],
+    "crop_dimensions": [442, 17],
+    "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "crop_sha256": "aa208b3d4294ec2bc0dee18fed700a21e2d8ff564fea1f18e1773012ce1d8ef0",
+    "original_source_verified": true,
+    "direct_image_input_binding_verified": false
+  },
+  "intended_output": "One thin, faint warm-gray hand-painted horizontal dashed divider, transparent outside the line, no text or other controls. Target canvas 1600x320.",
+  "generated_outputs": [
+    {"file": "rejected_wrong_berry_sheet.png", "size": [1536, 1024], "sha256": "f4e967d14a8d6764eb48a8522127c8aeccd6adf6dd69c5d4104e4614f5a24bb5", "accepted": false, "reason": "Wrong object and layout: berry inventory slot review sheet instead of divider."},
+    {"file": "rejected_wrong_slot_frame_1.png", "size": [1536, 1024], "sha256": "be05becb961bbd67427cb96eb051c46aa179fc5a17541add23642798498ef8cd", "accepted": false, "reason": "Wrong object: ornate square inventory frame instead of horizontal divider."},
+    {"file": "rejected_wrong_slot_frame_2.png", "size": [1536, 1024], "sha256": "ef57a9f00dbe7d40318faf9cefe2d18e7d7bec7fcdbef88b0b7c5ebf4e7f9026", "accepted": false, "reason": "Wrong object: ornate square inventory frame instead of horizontal divider."}
+  ],
+  "generated_image_count": 3,
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "queue_reconciliation": "Defer this divider to the end of the existing retry queue without marking complete. Re-read live queue before any focus change. Next never-produced entry after this target is inventory/item_apple.",
+  "note": "No SVG substitute has been represented as a generated hand-painted result. Original crop is verified, but generator reference binding remains unverified. Stop attempts for this item."
+}
