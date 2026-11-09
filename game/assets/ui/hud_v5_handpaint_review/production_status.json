@@ -471,9 +471,12 @@
       "target_png": "PNG_Transparent/04_inventory/slot_active.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "local_GPT_image_candidate_review_pending_not_in_production",
+      "qa": "pending_art_original_screenshot_engine",
+      "notes": "One cream/gold rounded-square selected slot GPT Image candidate generated 2026-11-09; V4 isolated fallback used, authentic screenshot missing; RGBA & small-size technically checked; Library AccessDeny, GitHub only QA JSON so far. Do not count as delivered/approved; production unchanged.",
+      "candidate_sha256": "899fb18f3078f5e72d29c82fd24a6aa85168557742b27de0b44bcf3c4682c0da",
+      "candidate_local_path": "/mnt/data/lingmu_slot_active_review_20261109/slot_active_GPTImage_V4_guided_candidate_v1_1024.png",
+      "qa_path": "Reviews/inventory_slot_active_V4_guided_20261109/QA.json"
     },
     {
       "index": 42,
