@@ -44,9 +44,11 @@
   "limitations": [
     "Original inventory screenshot 04_背包(5).jpg is not available in the accessible Library or GitHub repository.",
     "The generating tool's direct binding to the V4 image is not verifiable; this is a text-guided GPT Image candidate informed by visually inspected isolated V4 asset, not a verified original-crop edit.",
-    "Complete PNG remains local; Library upload returned AccessDeny, GitHub binary not yet committed.",
+    "Full 1024px PNG remains local; Library upload AccessDeny. GitHub stores a 128px indexed PNG review preview, not the full candidate.",
     "No QA approval / production replacement / complete-count change."
   ],
   "local_review_bundle": "/mnt/data/lingmu_slot_active_review_20261109.zip",
-  "review_preview": "slot_active_V3_vs_candidate_QA.jpg"
+  "review_preview": "slot_active_V3_vs_candidate_QA.jpg",
+  "github_preview_path": "Reviews/inventory_slot_active_V4_guided_20261109/slot_active_preview_128_indexed.png",
+  "github_preview_details": "128x128 indexed PNG review preview, NOT the full 1024x1024 candidate; original candidate remains available in current conversation sandbox only"
 }
