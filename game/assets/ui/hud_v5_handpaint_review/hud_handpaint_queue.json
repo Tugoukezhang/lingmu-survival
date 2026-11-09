@@ -2715,12 +2715,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/right_furniture_panel.png",
       "target_resolution": "2320x3040",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Right_Furniture_Panel_Review_20261109/right_furniture_panel_blank_2320x3040_RGBA.png",
+      "reference_match": "Original right-side wooden inventory/detail panel visually inspected. V4 PNG not copied for exact source pixel QA.",
+      "notes": "Generated ornate green tabbed panel rejected. New blank two-section timber/ivory panel 2320x3040 RGBA; art/engine QA pending. NOT GPT Image final.",
+      "candidate_kind": "source-guided manually authored SVG/raster, NOT independent GPT Image handpainted art",
+      "candidate_sha256": "17ecb1763ceafd4b83a9624f55635acfc9f4e0d959b5e2b9408b12059325819f",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_right_furniture_panel_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 65,
@@ -4332,9 +4336,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_special_20261109/QA.json",
       "next_focus": "other96/home/right_furniture_panel",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/right_furniture_panel",
+      "action": "Rejected AI ornate alternate wood panel. Built 2320x3040 transparent source-guided blank 2-section wood-and-parchment panel and QA previews",
+      "result": "Unapproved candidate uploaded Library, QA logged, production unchanged",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_right_furniture_panel_20261109/QA.json",
+      "next_focus": "other96/home/furniture_slot",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/right_furniture_panel",
+  "current_focus": "other96/home/furniture_slot",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
