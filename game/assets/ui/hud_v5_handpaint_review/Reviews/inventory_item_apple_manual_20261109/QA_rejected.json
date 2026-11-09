@@ -1,0 +1,27 @@
+{
+  "task_id": "other96/inventory/item_apple",
+  "asset_id": "inventory/item_apple",
+  "status": "deferred_after_two_wrong_identity_generations",
+  "source": {
+    "file": "04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "bbox_xyxy": [318, 287, 506, 503],
+    "crop_dimensions": [188, 216],
+    "original_source_verified": true,
+    "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "crop_sha256": "e0ca82b545cd2f9974bedac1b91b2a5ba6e6f35023cf3df54cce728c50807269",
+    "direct_image_input_binding_verified": false
+  },
+  "intended_output": "One standalone coral-red apple with one short brown stem, one olive-green leaf, and two soft cream highlights; no text, frame, slot, dashboard, or background.",
+  "generated_outputs": [
+    {"file": "rejected_wrong_disabled_slot_sheet.png", "dimensions": [1536, 1024], "mode": "RGBA", "sha256": "2ed9a0022440c4bbd17a3d1666d106437da8a147e17bb231fa451d5439a385c2", "accepted": false, "reason": "Returned a labelled disabled-slot presentation sheet, not a single apple."},
+    {"file": "rejected_wrong_locked_slot_sheet.png", "dimensions": [1536, 1024], "mode": "RGBA", "sha256": "ee9d7ecab53d64db9afd2c97d37a32d43e9bb4e24483cc387034ccf6b540018a", "accepted": false, "reason": "Returned a labelled padlocked-slot presentation sheet, not a single apple."}
+  ],
+  "generated_image_count": 2,
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "queue_reconciliation": "Prior separator has a separate rejected QA record at Reviews/inventory_selected_item_separator_20261109/QA_rejected.json; its main queue state remains stale. Apple was the next never-produced item and was attempted in this manual continuation; defer apple rather than count a slot image as it. Re-read live queue and reconcile these two manual QA records before any retry or focus change.",
+  "next_never_produced_after_target": "other96/inventory/item_flower",
+  "note": "No synthetic SVG replacement or atlas cutout was counted as hand-painted success. Stopped after two wrong identities. This QA file does not itself mutate the main queue or claim final acceptance."
+}
