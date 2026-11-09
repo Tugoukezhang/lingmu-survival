@@ -1,0 +1,86 @@
+{
+  "schema": "lingmu-hud-single-asset-blocked-run-v1",
+  "recorded_at_utc": "2026-11-09T02:52:26.724076+00:00",
+  "task_id": "other96/inventory/item_description_label",
+  "asset_id": "inventory/item_description_label",
+  "status": "blocked_original_source_bytes_unavailable_in_drawing_runtime",
+  "required_inputs_read": [
+    "game/assets/ui/hud_v5_handpaint_review/hud_handpaint_queue.json",
+    "game/assets/ui/hud_v5_handpaint_review/production_status.json",
+    "game/assets/ui/hud_v5_handpaint_review/HUD_ONE_TO_ONE_DRAWING_STANDARD.md"
+  ],
+  "queue_observation": {
+    "current_focus": "other96/inventory/item_description_label",
+    "queue_number": 42,
+    "state": "not_generated",
+    "approval": "pending",
+    "attempts": 0,
+    "target_resolution": [1120, 420]
+  },
+  "source": {
+    "library_path": "/Lingmu_HUD_Exports/Original_References/04_inventory.jpg",
+    "file_id": "file_0000000090ac81fd9322e31e4496ec1a",
+    "listed_size_bytes": 206451,
+    "conversation_source_kind": "imported",
+    "source_preview_read": true,
+    "bytes_verified_in_this_run": false,
+    "source_dimensions_verified_in_this_run": null,
+    "source_sha256_verified_in_this_run": null,
+    "prior_run_reported_dimensions": [1920, 1080],
+    "prior_run_reported_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "prior_run_metadata_is_not_current_verification": true,
+    "original_crop_bbox_xyxy": null,
+    "isolated_crop_created": false,
+    "single_crop_bound_to_generator": false
+  },
+  "target_identity_observed_in_preview": {
+    "object": "one small pale peach/orange softly rounded horizontal item-category label beneath the apple title in the left inventory detail panel",
+    "source_text": "食物",
+    "text_layer_policy": "Text remains separate and editable; requested sprite is label backing only.",
+    "forbidden": ["green use button", "wooden frame", "apple", "leaves", "flowers", "other controls", "baked-in text", "previous generated outputs as reference", "full screenshot as generator input"]
+  },
+  "transfer_checks": [
+    {
+      "reported_path": "/mnt/data/files/04_inventory_3.jpg",
+      "materialize_report": "success",
+      "exists_in_active_container": false,
+      "exists_in_active_python": false
+    },
+    {
+      "reported_path": "/mnt/data/lingmu_item_description_label_20261109/source/04_inventory.jpg",
+      "materialize_report": "success",
+      "exists_in_active_container": false
+    }
+  ],
+  "other_recovery_checks": [
+    "Inspected current conversation attachment metadata; same imported source ID is present, not a newly uploaded image.",
+    "Inspected existing use_button review ZIP; it contains the use-button crop and rejects, not the full original screenshot or current label crop. These images were not substituted."
+  ],
+  "actions": {
+    "controls_selected": 1,
+    "image_generation_calls": 0,
+    "generated_images": 0,
+    "rejected_generated_images": 0,
+    "new_review_candidates": 0,
+    "new_qa_passes": 0,
+    "production_replacements": 0,
+    "queue_rebuilt": false,
+    "counts_changed": false,
+    "focus_advanced": false,
+    "historical_states_changed": false
+  },
+  "qa": {
+    "identity": "original preview only; no candidate",
+    "alpha": "not_run",
+    "native_size": "not_run",
+    "art": "not_run",
+    "engine": "not_run",
+    "candidate_bbox_xyxy": null,
+    "candidate_sha256": null,
+    "final_approved": false
+  },
+  "resume_target": "other96/inventory/item_description_label",
+  "resume_gate": "Original screenshot bytes must actually exist and decode in the drawing runtime. Then tightly crop only the label, verify identity, record native bbox and SHA256, and use that single crop for generation.",
+  "queue_and_production_json_modified": false,
+  "notes": "This is a source-transfer blocker, not two failed generations. No fabricated PNG, V3/V4 fallback, completion, or source binding is claimed."
+}
