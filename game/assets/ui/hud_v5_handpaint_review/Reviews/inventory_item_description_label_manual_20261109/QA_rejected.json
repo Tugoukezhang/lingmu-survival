@@ -1,0 +1,48 @@
+{
+  "task_id": "other96/inventory/item_description_label",
+  "date": "2026-11-09",
+  "state": "deferred_after_two_wrong_identity_generations",
+  "source": {
+    "file": "04_inventory.jpg",
+    "image_size": [1920, 1080],
+    "bbox_xyxy": [522, 342, 642, 399],
+    "crop_size": [120, 57],
+    "crop_sha256": "e1da833251f7aef6ea355d34b5c9f57754d776032017e2782d6116bf9471c8db",
+    "authentic_source_inspected": true,
+    "generator_image_binding_verified": false
+  },
+  "requested_asset": {
+    "identity": "one flat peach/coral rounded item-category label backing, blank center, no text or icons",
+    "target_size": [1120, 420],
+    "transparent_exterior": true
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "generation_id": "47772f73-4f5e-49d9-a31d-79f70b40f225",
+      "sha256": "731956a9dce761ef1db84fd8532c93fc34adc32e7c9252374eaa0a4251592471",
+      "size": [1536, 1024],
+      "mode": "RGBA",
+      "alpha_extrema": [80, 252],
+      "status": "rejected",
+      "reason": "Wrong subject: slot_hover presentation sheet instead of a single blank peach category label. Full-frame background and multiple panels remain."
+    },
+    {
+      "attempt": 2,
+      "generation_id": "70f47f22-943d-45b1-b4fb-3572bcbf5d83",
+      "sha256": "13e1c26e3b16f0fd219c1219590b47e0003c0e2462c239385cd2a0c5a9d213b9",
+      "size": [1536, 1024],
+      "mode": "RGBA",
+      "alpha_extrema": [33, 252],
+      "status": "rejected",
+      "reason": "Wrong subject: slot_active presentation sheet instead of the isolated peach category label. Not a usable standalone transparent sprite."
+    }
+  ],
+  "created_usable_candidates": 0,
+  "final_approved": false,
+  "production_promoted": false,
+  "recommended_next_task": "other96/inventory/selected_item_separator",
+  "retry_policy": "Defer this item until untouched controls have been attempted; do not repeat these two sheets or count them as completed art.",
+  "queue_root_modified_this_turn": false,
+  "library_folder": "/Lingmu_HUD_Exports/Inventory_Item_Description_Label_Manual_20261109"
+}
