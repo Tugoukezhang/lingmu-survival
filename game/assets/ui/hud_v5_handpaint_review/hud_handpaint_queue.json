@@ -2751,12 +2751,22 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/hide.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Hide_Single_Review/home_hide_review_1024.png",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Home_Hide_Single_Review/home_hide_review_bundle.zip",
+      "candidate_sha256": "fc08638171036c685f023a24cde48995670127ae32f5edfc582fee809f52706d",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_binding_verified": false,
+      "qa_status": "Slashed eye on green square identifiable; added floral ornaments, checkerboard removed programmatically, alpha edges and source fidelity pending",
+      "production_promoted": false
     },
     {
       "queue_number": 75,
@@ -3892,6 +3902,15 @@
       "task_id": "other96/home/furniture_slot_selected",
       "action": "single selected slot draft, alpha segmentation and multi-size QA preview",
       "result": "One visual candidate archived, source fidelity and edge QA pending, not approved or promoted.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/hide",
+      "action": "generated hide eye-slash icon and extracted transparent candidate",
+      "result": "One RGBA candidate saved Library, identity correct, source and engine QA pending, production unchanged.",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
