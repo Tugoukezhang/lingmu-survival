@@ -2,15 +2,20 @@
   "task_id": "other96/inventory/item_potion",
   "asset_id": "inventory/item_potion",
   "queue_number": 46,
-  "state": "authentic_reference_prepared_generation_pending",
-  "selection_reason": "Continue manual production after the apple and flower attempts visible in this conversation. Do not repeat their rejected outputs. Live queue entries have not incorporated all manual review records; this record does not overwrite or approve those entries.",
+  "state": "manual_attempts_deferred_wrong_subject_output",
+  "selection_reason": "Continued the previously prepared single potion target. Earlier manual potion output depicted slot_locked; this attempt depicted slot_new. Neither is a potion candidate. This per-target record does not overwrite the central queue or concurrent automation results.",
   "source": {
     "file": "04_inventory.jpg",
     "source_dimensions": [1920, 1080],
+    "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
     "bbox_xyxy": [1244, 204, 1340, 291],
     "crop_dimensions": [96, 87],
+    "crop_sha256": "641af2fb224ed934d61bbb8f90d1fef60aaddc7e21e7704f663dff2a62c7e922",
     "authentic_source_pixels_verified": true,
-    "crop_local_path": "/mnt/data/lingmu_item_potion_single/item_potion_reference_crop_96x87.png",
+    "actual_crop_displayed_before_generation": true,
+    "generator_reference_binding_verified": false,
+    "crop_local_path": "/mnt/data/lingmu_potion_single_recovery/potion_original_crop_96x87.png",
+    "crop_library": "/Lingmu_HUD_Exports/Inventory_Potion_Single_20261109/potion_original_crop_96x87.png",
     "quantity_is_separate": true
   },
   "art_brief": {
@@ -18,9 +23,25 @@
     "finish": "Refined warm hand-painted 2D inventory item, controlled soft highlights and clean edges, not photorealistic. Preserve small-size readability and avoid excessive texture.",
     "output": "One isolated sprite on genuinely transparent background, square 1024x1024, generous clear padding, no quantity or lettering, no inventory slot or presentation sheet."
   },
+  "latest_manual_attempt": {
+    "result": "rejected_wrong_subject_and_layout",
+    "generated_images_this_run": 1,
+    "observed_subject": "slot_new inventory review sheet with text, frames and multiple slot examples; no potion bottle",
+    "dimensions": [1536, 1024],
+    "mode": "RGBA",
+    "alpha_extrema": [1, 253],
+    "sha256": "91f256980757cf520030db251565a91a8d71497b3ab67b43d54012d5b34f7490",
+    "accepted": false,
+    "library_image": "/Lingmu_HUD_Exports/Inventory_Potion_Single_20261109/rejected_wrong_slot_new_sheet.png",
+    "library_qa": "/Lingmu_HUD_Exports/Inventory_Potion_Single_20261109/QA_rejected.json",
+    "library_upload_verified": true
+  },
   "accepted_candidates": 0,
   "user_art_approval": "pending",
-  "alpha_qa": "pending_output",
-  "in_engine_qa": "pending",
-  "production_promoted": false
+  "alpha_qa": "failed: no fully transparent pixels and whole review-sheet background",
+  "in_engine_qa": "not_run_wrong_subject",
+  "production_promoted": false,
+  "retry_policy": "Defer this target after repeated wrong-subject outputs. Do not treat a labelled review sheet as an isolated potion or advance approval counts. Do not silently substitute a programmatic drawing as an AI handpaint result.",
+  "next_manual_unattempted_target": "other96/inventory/item_map_fragment",
+  "central_queue_reconciliation": "Re-read the live central queue and concurrent automation results before any focus or status mutation. This write changes only this per-target review record."
 }
