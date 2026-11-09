@@ -1,0 +1,65 @@
+{
+  "schema": "lingmu-hud-v5-one-control-qa-v1",
+  "run_date_utc": "2026-11-09",
+  "task_id": "other96/shared/badge_circle_dark",
+  "queue_number": 95,
+  "actual_generated_identity": "dark round badge background (blank charcoal disk, thin warm taupe rim)",
+  "reference": {
+    "kind": "GitHub V4 existing single-item PNG proxy (not original source screenshot)",
+    "repository": "Tugoukezhang/lingmu-survival",
+    "file": "game/assets/ui/hud_v4/production/PNG_Transparent/00_common/badge_circle_dark.png",
+    "github_blob_sha": "d3ed6211131cbea5106f4aaba4eb0f63825033ea",
+    "screenshot": "unavailable",
+    "source_bbox_xyxy": null,
+    "source_crop_sha256": null,
+    "reference_binding_to_generator_verified": false
+  },
+  "production_policy": "candidate only; no changes to production assets",
+  "generator": {
+    "engine": "image_gen",
+    "mode": "text-to-image; no actual image-to-image source binding",
+    "outputs": 2,
+    "selected_generation_id": "b5b5238f-7191-4378-b5d5-37fcb2cbc6db",
+    "other_generation_id": "d03f4bfe-4ac7-4284-81e3-c2dfc4fe1d58",
+    "other_version_disposition": "not selected (more ornate golden rim)"
+  },
+  "candidate": {
+    "status": "unapproved, reference-limited review only",
+    "filename": "badge_circle_dark_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+    "local_path": "/mnt/data/lingmu_badge_circle_dark_20261109/badge_circle_dark_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+    "sha256": "5f68b41744aee805ba5f60003b850ea19caf1118a7adc945e39c2795e4061da1",
+    "width": 1024,
+    "height": 1024,
+    "mode": "RGBA",
+    "alpha_bbox_xyxy_gt16": [
+      146,
+      128,
+      868,
+      871
+    ],
+    "alpha_bbox_xyxy_gt128": [
+      147,
+      129,
+      868,
+      871
+    ],
+    "alpha_check": "native RGBA, outer transparent, edge cleanup completed",
+    "native_scale_preview": "32,48,64,96 pixel"
+  },
+  "qa": {
+    "identity_match_against_v4_proxy": true,
+    "identity_match_against_original_screenshot": "not checked; source unavailable",
+    "art_approved": false,
+    "technical_qa_passed": false,
+    "production_replaced": false
+  },
+  "library_upload": {
+    "result": "failed",
+    "error": "AccessDeny: id=FileDrive_95e587b757a08191a27cb674e7492b1f"
+  },
+  "files": {
+    "comparison_local": "/mnt/data/lingmu_badge_circle_dark_20261109/badge_circle_dark_game_scale_QA.jpg",
+    "review_zip_local": "/mnt/data/lingmu_badge_circle_dark_20261109/badge_circle_dark_REVIEW.zip"
+  },
+  "next_step": "find authentic screenshot and verify per-component crop / design approval and game integration technical QA before promotion"
+}
