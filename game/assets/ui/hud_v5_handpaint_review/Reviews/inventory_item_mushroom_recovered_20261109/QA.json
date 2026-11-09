@@ -1,0 +1,51 @@
+{
+  "schema": "lingmu-hud-cross-target-recovery-v1",
+  "date": "2026-11-09",
+  "generated_when_targeting": "other96/home/bottom_category_bar",
+  "recovered_to": "other96/inventory/item_mushroom",
+  "generation_source_binding_verified": false,
+  "generation_type": "fresh text-to-image; generated object not the requested bar",
+  "source_image_for_postgeneration_comparison": "04_inventory.jpg",
+  "source_image_size": [
+    1920,
+    1080
+  ],
+  "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+  "original_bbox_xyxy": [
+    1514,
+    205,
+    1603,
+    286
+  ],
+  "original_crop_sha256": "fab1501d58076269287978484fa08df63c002a10ae886abf9ee99e69bc203050",
+  "candidate_png": "item_mushroom_misrouted_recovered_UNAPPROVED_1024_RGBA.png",
+  "candidate_sha256": "94d7725c35d10a6c2230fc5529985d90928e31ebf4ba60d8f8aeeb77b8aa64ea",
+  "candidate_size": [
+    1024,
+    1024
+  ],
+  "mode": "RGBA",
+  "alpha_bbox_xyxy": [
+    99,
+    85,
+    924,
+    938
+  ],
+  "review_jpg": "item_mushroom_original_vs_recovered_candidate_QA.jpg",
+  "review_sha256": "8c2bc299c1263a6be14788ab762f536d7ce5d80a8b1c19cf2e494dd0de876215",
+  "review_bundle_sha256": "d1a369cdcb10cbd3f027176e6e2cc4c0f177d82b889c75e787037ebe5b0a5a4e",
+  "qa_status": {
+    "mushroom_identity": "pass",
+    "broad_palette": "pass",
+    "shape_similarity": "partial; missing foliage around base, different cap",
+    "native_size_preview": "32,48,64,96px inspected",
+    "transparent_background": "RGBA with partial alpha, potential fringe, needs integration QA",
+    "generator_source_binding": "unverified; actual mushroom crop only used after generation for QA",
+    "user_art_approval": "pending",
+    "technical_engine_qa": "pending",
+    "production_promoted": false
+  },
+  "archive": "LOCAL review bundle only; Library upload denied",
+  "library_upload": "AccessDeny: FileDrive_95e587b757a08191a27cb674e7492b1f",
+  "notes": "Mushroom must not count as completion of home/bottom_category_bar or as QA-passed mushroom."
+}
