@@ -485,9 +485,10 @@
       "target_png": "PNG_Transparent/04_inventory/use_button.png",
       "target_resolution": "1580x520",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
+      "status": "deferred_retry_after_2_wrong_sprites",
       "qa": "pending",
-      "notes": ""
+      "notes": "2026-11-09 original screenshot crop verified (405,716)-(641,805); two GPT Image outputs rendered thick wooden frame + baked-in text and optional vines; both rejected; see game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_use_button_rejected_20261109/QA.json; production unchanged.",
+      "review_qa_path": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_use_button_rejected_20261109/QA.json"
     },
     {
       "index": 43,
