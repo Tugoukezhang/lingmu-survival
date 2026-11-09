@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/home/furniture_slot",
+  "source": "06_home.jpg",
+  "target": "plain soft beige square item cell with gently rounded corners, no gold frame, clover, leaf, or emblem",
+  "attempts": 1,
+  "generated": "large gilded decorative square with four-petal top crest and green corner flourishes, checkerboard rendered as pixels",
+  "result": "rejected_source_fidelity",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "queue_mutated": false,
+  "reason": "Wrong frame and decorative hierarchy; looks like selected/rarity slot rather than ordinary furniture slot.",
+  "next": "other96/home/furniture_slot_selected"
+}
