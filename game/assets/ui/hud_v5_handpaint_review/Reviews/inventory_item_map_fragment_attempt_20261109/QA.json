@@ -1,0 +1,12 @@
+{
+  "task_id": "other96/inventory/item_map_fragment",
+  "date": "2026-11-09",
+  "attempts_this_turn": 1,
+  "result": "rejected",
+  "reason": "Generated a full ornate Lingmu HUD asset review sheet, not a single isolated transparent map fragment; wrong deliverable and extra frame, labels, counts, other inventory items.",
+  "original_reference": "04_inventory.jpg",
+  "target": "1024x1024 isolated transparent map fragment",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "next_recommendation": "Defer after repeated sheet misroutes and advance to inventory/item_mushroom; do not count map reference redraw as AI-painted completion."
+}
