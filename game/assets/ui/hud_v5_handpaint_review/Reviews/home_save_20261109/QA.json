@@ -1,0 +1,42 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/save",
+  "asset_id": "home/save",
+  "source": "06_home.jpg visually inspected and V4 home/save.png inspected",
+  "v4_blob_sha": "02adf3a089ef7253b343bb50a80d073db5dad1fa",
+  "rejected_image_gen": {
+    "count": 1,
+    "reason": "Generated green decorative horizontal save banner; target is round save icon"
+  },
+  "candidate": {
+    "kind": "source-guided SVG/Pillow reconstruction, not independently GPT Image handpainted",
+    "library_png": "/Lingmu_HUD_Exports/Home_Save_Single_Review_20261109/save_circle_source_guided_1024_RGBA.png",
+    "library_bundle": "/Lingmu_HUD_Exports/Home_Save_Single_Review_20261109/save_review_bundle.zip",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "cca4e6b67effab97337bb5ba6522560c09d833eb875102c5ea73bad8257f8d39"
+  },
+  "qa": {
+    "functional_identity": "pass, cream floppy disk on sage-green round button",
+    "alpha": "pass",
+    "size_previews": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_acceptance": "pending",
+    "in_engine": "not_run",
+    "original_crop_bound_to_generator": false
+  },
+  "approval": "pending",
+  "production_replaced": false,
+  "counts_changed": false
+}
