@@ -1,0 +1,46 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/map_faint_leaf_corner",
+  "asset_id": "map/map_faint_leaf_corner",
+  "source": {
+    "screenshot": "07_world_map.jpg",
+    "legacy_v4_path": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/map_faint_leaf_corner.png",
+    "legacy_v4_blob_sha": "155f0abc80e8b53f13b211039bca099fc656b2ea",
+    "legacy_visual_inspected": true,
+    "original_single_crop_bound_to_image_gen": false
+  },
+  "rejected_image_generation": {
+    "attempts": 1,
+    "reason": "Produced ornate leafy vines and white blossoms, not exactly two sparse cropped leaves"
+  },
+  "candidate": {
+    "kind": "source-guided hand-authored SVG rendered to transparent raster; NOT independently GPT Image handpainted",
+    "png": "/Lingmu_HUD_Exports/Map_Faint_Leaf_Corner_Review_20261109/map_faint_leaf_corner_1024_RGBA_candidate.png",
+    "svg": "/Lingmu_HUD_Exports/Map_Faint_Leaf_Corner_Review_20261109/map_faint_leaf_corner_editable.svg",
+    "comparison": "/Lingmu_HUD_Exports/Map_Faint_Leaf_Corner_Review_20261109/QA_three_background_comparison.jpg",
+    "bundle": "/Lingmu_HUD_Exports/Map_Faint_Leaf_Corner_Review_20261109/map_faint_leaf_corner_review_bundle.zip",
+    "size": [
+      1024,
+      1024
+    ],
+    "format": "RGBA PNG",
+    "sha256": "f1919c991f39262d398049073aa0899ecd1fd11a2c85b1a93f347ff1bfed72f1",
+    "max_alpha": 148
+  },
+  "qa": {
+    "identity": "two cropped green leaves and pale yellow veins at top left and right edge",
+    "central_readability": "central alpha 0 for x235..545 y160..805",
+    "size_previews": [
+      128,
+      256,
+      512
+    ],
+    "alpha": "passed",
+    "art_approval": "pending",
+    "in_engine": "not_run"
+  },
+  "approved": false,
+  "production_replaced": false,
+  "counts_changed": false
+}
