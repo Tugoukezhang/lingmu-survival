@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/map/location_thumbnail_frame",
+  "source": "07_world_map.jpg",
+  "target": "slightly tilted light cream photo/polaroid thumbnail frame at lower-left, image area should be independently overlaid",
+  "attempts": 1,
+  "actual": "square gold and burgundy ornate fantasy frame, opaque dark interior and brown background, mountain emblem, green leaves",
+  "result": "rejected_source_fidelity_and_alpha",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/map/map_faint_leaf_corner",
+  "reason": "Wrong frame geometry, orientation and palette; no transparent opening or background."
+}
