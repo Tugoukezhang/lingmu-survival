@@ -4,6 +4,7 @@ import { SKILLS } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
 import { woodPanel, capsuleButton, plaqueButton, text, tag, MIN_TOUCH } from '../ui/widgets.js';
 import { resolveTurn, active, finishBattle, catchChance } from '../systems/battle.js';
+import { convertToCrystal } from '../systems/growth.js';
 
 // Turn-based pet battle screen (T06). Runs on top of the paused world;
 // all rules live in systems/battle.js, this scene only shows them.
@@ -72,7 +73,9 @@ export default class BattleScene extends Phaser.Scene {
     const key = petTextureKey(m.form === 'human' && sp.humanForm ? sp.humanForm : sp.id);
     const { img } = this.sprites[side];
     img.setTexture(key).setAlpha(1).setFlipX(side === 'me');
-    img.setScale(SPOT[side].h / img.height);
+    const inst = m.src;
+    img.setScale((SPOT[side].h * (inst?.evolved ? 1.12 : 1)) / img.height);
+    if (inst?.shiny) img.setTint(0xb8d8ff); else if (inst?.evolved) img.setTint(0xfff0cc); else img.clearTint();
     img.y = SPOT[side].y;
     img.baseScale = img.scaleX;
   }
@@ -305,7 +308,7 @@ export default class BattleScene extends Phaser.Scene {
     if (sum.result === 'caught') {
       const c = sum.caught;
       lines.push(`${c.name}${c.shiny ? '（异色！）' : ''} ${'★'.repeat(c.stars)}`);
-      lines.push(c.joined ? `${c.name}加入了队伍！` : `队伍满了，${c.name}被送回家园宠物小屋。`);
+      lines.push(c.duplicate ? `你已经有${c.name}了：可以留下，或转成羁绊结晶给同种宠物升星。` : c.joined ? `${c.name}加入了队伍！` : `队伍满了，${c.name}被送回家园宠物小屋。`);
       lines.push(`好感 ${c.affection}${c.affection >= 20 ? '（喂过喜欢的零食）' : ''}`);
       for (const x of sum.exp) lines.push(`${x.name} 经验 +${x.amount}`);
       for (const x of sum.levelUps) lines.push(`${x.name} 升到了 Lv.${x.level}！`);
@@ -321,7 +324,15 @@ export default class BattleScene extends Phaser.Scene {
     const c = woodPanel(this, w, h).setPosition(GAME_W / 2, GAME_H / 2 - 30).setDepth(100);
     c.add(text(this, 0, -h / 2 + 42, title, 28, { ox: 0.5, oy: 0.5 }));
     c.add(text(this, 0, -8, lines.join('\n'), 17, { ox: 0.5, oy: 0.5, align: 'center', bold: false, lineSpacing: 6 }));
-    c.add(capsuleButton(this, 0, h / 2 - 48, '继续', { w: 170, onClick: () => this.close(), name: 'battle-continue' }));
+    if (sum.result === 'caught' && sum.caught.duplicate) {
+      // docs/07 第 5 节: a duplicate can be kept or turned into crystals (= its stars)
+      c.add(capsuleButton(this, -100, h / 2 - 48, '留下', { w: 170, onClick: () => this.close(), name: 'catch-keep' }));
+      c.add(capsuleButton(this, 100, h / 2 - 48, `转成结晶 +${sum.caught.stars}`, { w: 190, style: 'yellow', name: 'catch-crystal', onClick: () => {
+        convertToCrystal(this.game.session.state, sum.caught.uid);
+        this.game.session.markDirty();
+        this.close();
+      } }));
+    } else c.add(capsuleButton(this, 0, h / 2 - 48, '继续', { w: 170, onClick: () => this.close(), name: 'battle-continue' }));
     this.endPanel = c;
     this.say(title);
   }

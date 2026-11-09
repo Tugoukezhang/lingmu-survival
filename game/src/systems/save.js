@@ -71,6 +71,7 @@ export function validate(s) {
   const ex = s.expedition;
   if (ex != null && !(Number.isInteger(ex.seed) && ex.changes && ['collected', 'chests', 'pets'].every((k) => Array.isArray(ex.changes[k])))) err.push('expedition');
   if (ex?.changes?.thorns != null && !Array.isArray(ex.changes.thorns)) err.push('expedition.thorns');
+  if (s.crystals != null && !(typeof s.crystals === 'object' && Object.values(s.crystals).every((n) => isInt(n) && n >= 0))) err.push('crystals');
   if (s.daily != null && !(isInt(s.daily.day) && Array.isArray(s.daily.tasks) && s.daily.base && typeof s.daily.base === 'object')) err.push('daily');
   const fm = s.farm;
   if (fm != null && !(fm.plots && typeof fm.plots === 'object' && Array.isArray(fm.shipping) && fm.shipping.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0)

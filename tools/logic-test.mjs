@@ -28,6 +28,7 @@ import * as GD from '../game/src/systems/guide.js';
 import * as FM from '../game/src/systems/farm.js';
 import * as PC from '../game/src/systems/petcare.js';
 import * as DY from '../game/src/systems/daily.js';
+import * as GR from '../game/src/systems/growth.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -434,7 +435,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('配方的材料和产出都是已定义的物品', RECIPES.every((r) => ITEMS[r.out] && Object.keys(r.cost).every((id) => ITEMS[id])));
   check('配方数值与文档一致（石斧 木3石2、石镐 木3石3、火把 木2草2、营火 木4石4、草编网 草3木2、藤编网 布1草3雾晶1）',
     JSON.stringify(RECIPES.map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
-      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }]]));
+      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }], ['fox_bell', { item_foxwick: 3 }]]));
   check('只有斧、镐、锄头、水壶、帐篷算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).sort().join() === 'item_axe,item_can,item_hoe,item_pickaxe,item_tent');
 
   const mk = (inv) => { const s = S.newGameState(); s.inventory = inv; s.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; s.player.area = 'expedition'; return s; };
@@ -1013,6 +1014,69 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('睡醒后任务刷新，进度从 0 开始', d2.day === s.day && d2.tasks.every((x) => !x.done && DY.progressOf(s, x) === 0));
   check('每日任务存档合法', S.validate(s).length === 0, S.validate(s).join());
   check('任务池里的计数名都有系统在累加', DY.POOL.every((x) => ['water', 'feed', 'pet', 'gather', 'plant', 'craft', 'wins', 'chests', 'shipped', 'harvest', 'catches'].includes(x.stat)));
+}
+
+// ---------- growth: evolution, stars, skill books, human form (T27/T28/T29/T39; docs/07) ----------
+{
+  const s = S.newGameState();
+  const fox = s.pets.find((p) => p.uid === 'pet-fox');
+  fox.level = 12; fox.affection = 29;
+  s.inventory.push({ id: 'item_evo_fire', count: 1 });
+  let r = GR.tryEvolve(s, 'pet-fox');
+  check('P05 等级 12、好感 29、有火之石 → 不能进化，提示还差好感', !r.ok && r.missing.join() === 'affection');
+  fox.affection = 30;
+  s.inventory = s.inventory.filter((x) => x.id !== 'item_evo_fire');
+  check('没有进化石不能进化', GR.tryEvolve(s, 'pet-fox').missing.join() === 'stone');
+  s.inventory.push({ id: 'item_evo_fire', count: 1 });
+  r = GR.tryEvolve(s, 'pet-fox');
+  check('P01→P02 进化：火之石 −1，攻击 24 → 30，名字变灯焰狐，学会狐火灯笼', r.ok && I.countOf(s.inventory, 'item_evo_fire') === 0 && M.calcStats(fox).atk === 30 && M.displayName(fox) === '灯焰狐' && M.battleSkills(fox).includes('foxlantern'));
+  check('进化后等级、好感不变', fox.level === 12 && fox.affection === 30);
+  check('已进化不能再进化', GR.tryEvolve(s, 'pet-fox').missing.includes('evolved'));
+  // P03/P04 already covered by petMath; P06 stars
+  const a = s.pets.find((p) => p.uid === 'pet-acorn'); a.stars = 1;
+  s.pets.push({ ...JSON.parse(JSON.stringify(a)), uid: 'dup-acorn', stars: 4 });
+  check('只有一只时不能转结晶', GR.convertToCrystal({ ...s, pets: s.pets.filter((p) => p.uid !== 'dup-acorn') }, 'pet-acorn').reason === 'only-one');
+  r = GR.convertToCrystal(s, 'dup-acorn');
+  check('重复的橡果刺猬（4 星）转成 4 个结晶，宠物移除', r.ok && r.gained === 4 && GR.crystalsOf(s, 'acorn') === 4 && !s.pets.some((p) => p.uid === 'dup-acorn'));
+  s.crystals.acorn = 6;
+  GR.starUp(s, 'pet-acorn'); GR.starUp(s, 'pet-acorn');
+  check('P06 1 星 + 6 个结晶连升两次 → 3 星，结晶剩 0', a.stars === 3 && GR.crystalsOf(s, 'acorn') === 0);
+  check('结晶不够不能升星', GR.starUp(s, 'pet-acorn').reason === 'crystals');
+  a.stars = 5; check('5 星封顶', GR.starUp(s, 'pet-acorn').reason === 'max');
+  // dex
+  GR.dexCatch(s, { species: 'shark', shiny: true });
+  check('图鉴分别记录普通色和异色', s.dex.shark.shiny === true && !s.dex.shark.caught);
+  // P08 skill books
+  s.inventory.push({ id: 'item_book_ember', count: 1 }, { id: 'item_book_bubble', count: 1 }, { id: 'item_book_heal', count: 1 });
+  check('P08 用火属性技能书给橡果刺猬（森） → 属性不符', GR.learnSkill(s, 'pet-acorn', 'item_book_ember', 0).reason === 'element');
+  check('状态技能书（治愈之歌）谁都能学', GR.canLearn(s, 'pet-acorn', 'item_book_heal').ok);
+  r = GR.learnSkill(s, 'pet-shark', 'item_book_bubble', 1);
+  check('已经会的技能不能再学', r.reason === 'known');
+  const shark = s.pets.find((p) => p.uid === 'pet-shark');
+  r = GR.learnSkill(s, 'pet-shark', 'item_book_heal', 0);
+  check('学会：替换第 1 格，技能书 −1', r.ok && shark.skills[0] === 'heal' && I.countOf(s.inventory, 'item_book_heal') === 0);
+  check('进化技能那一格不能被替换（只能换前 3 格）', GR.learnSkill(s, 'pet-fox', 'item_book_ember', 3).reason !== undefined && M.battleSkills(fox).includes('foxlantern'));
+  // P10 / P11 human form
+  const f2 = S.newGameState(); const fx = f2.pets.find((p) => p.uid === 'pet-fox'); fx.affection = 100;
+  check('P11 未进化的焰尾狐好感 100 → 化形不可用，提示先进化', GR.formCheck(f2, 'pet-fox').missing.includes('evolved'));
+  fx.evolved = true;
+  check('没有化形铃也不行', GR.formCheck(f2, 'pet-fox').missing.join() === 'bell');
+  check('只有焰尾狐能化形', GR.formCheck(f2, 'pet-pup').missing.join() === 'species');
+  f2.inventory.push({ id: 'item_foxwick', count: 3 });
+  f2.player.area = 'home';
+  check('3 个狐火灯芯在家园做成化形铃', CR.craft(f2, 'fox_bell').ok && I.countOf(f2.inventory, 'item_fox_bell') === 1);
+  const before = JSON.stringify(M.calcStats(fx));
+  check('学会化形：化形铃 −1，可以切换', GR.unlockForm(f2, 'pet-fox').ok && fx.canTransform && I.countOf(f2.inventory, 'item_fox_bell') === 0);
+  check('P10 切换成人形态：所有数值与切换前完全相同', GR.toggleForm(f2, 'pet-fox').form === 'human' && JSON.stringify(M.calcStats(fx)) === before);
+  check('P10 化形状态存进存档', S.decode(S.encode(f2)).state.pets.find((p) => p.uid === 'pet-fox').form === 'human');
+  check('没解锁不能切换', GR.toggleForm(S.newGameState(), 'pet-fox').reason === 'locked');
+  // drops
+  const lootB = CP.chestLoot(77, 'c2', true);
+  check('秘密宝箱必掉 1 块进化石', Object.keys(lootB.items).some((k) => GR.EVO_STONES.includes(k)));
+  let stones = 0, books = 0;
+  for (let i = 0; i < 400; i++) { const L = CP.chestLoot(i, 'c0'); if (Object.keys(L.items).some((k) => GR.EVO_STONES.includes(k))) stones++; if (Object.keys(L.items).some((k) => ITEMS[k].book)) books++; }
+  check('普通宝箱约 15% 进化石、约 20% 技能书', stones > 30 && stones < 95 && books > 50 && books < 115, `进化石 ${stones}/400 技能书 ${books}/400`);
+  check('养成后的存档合法', S.validate(s).length === 0 && S.validate(f2).length === 0, S.validate(s).join());
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

@@ -24,6 +24,23 @@ export const ITEMS = {
   item_tent: { name: '帐篷', tag: '工具', tool: true, icon: 'item_tent', desc: '在营火旁按互动，可以睡到天亮。\n能反复使用，倒下也不会丢。', quip: '野外的小小家。' },
   item_torch: { name: '火把', tag: '照明', icon: 'item_torch', desc: '在背包里「使用」点亮，\n身边照亮 2 格，烧 3 小时。', quip: '小小的光。' },
 
+  // growth (M3): evolution stones, skill books, 化形 items
+  item_evo_forest: { name: '森之石', tag: '进化石', icon: 'item_evo_forest', desc: '森属性宠物的进化石。\n等级 12、好感 30 时可以进化。', quip: '里面有光在转。' },
+  item_evo_water: { name: '水之石', tag: '进化石', icon: 'item_evo_water', desc: '水属性宠物的进化石。\n等级 12、好感 30 时可以进化。', quip: '里面有光在转。' },
+  item_evo_fire: { name: '火之石', tag: '进化石', icon: 'item_evo_fire', desc: '火属性宠物的进化石。\n等级 12、好感 30 时可以进化。', quip: '里面有光在转。' },
+  item_evo_light: { name: '光之石', tag: '进化石', icon: 'item_evo_light', desc: '光属性宠物的进化石。\n等级 12、好感 30 时可以进化。', quip: '里面有光在转。' },
+  item_evo_dark: { name: '暗之石', tag: '进化石', icon: 'item_evo_dark', desc: '暗属性宠物的进化石。\n等级 12、好感 30 时可以进化。', quip: '里面有光在转。' },
+  item_book_bubble: { name: '技能书·泡泡弹', tag: '技能书', icon: 'item_book', book: 'bubble', desc: '学会「泡泡弹」（水）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_ember: { name: '技能书·小火苗', tag: '技能书', icon: 'item_book', book: 'ember', desc: '学会「小火苗」（火）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_leafy: { name: '技能书·叶片旋风', tag: '技能书', icon: 'item_book', book: 'leafy', desc: '学会「叶片旋风」（森）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_twinkle: { name: '技能书·闪闪光', tag: '技能书', icon: 'item_book', book: 'twinkle', desc: '学会「闪闪光」（光）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_shadow: { name: '技能书·暗影弹', tag: '技能书', icon: 'item_book', book: 'shadow', desc: '学会「暗影弹」（暗）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_heal: { name: '技能书·治愈之歌', tag: '技能书', icon: 'item_book', book: 'heal', desc: '学会「治愈之歌」（状态）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_shell: { name: '技能书·刺球', tag: '技能书', icon: 'item_book', book: 'shell', desc: '学会「刺球」（状态）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_book_puff: { name: '技能书·毛茸茸', tag: '技能书', icon: 'item_book', book: 'puff', desc: '学会「毛茸茸」（状态）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
+  item_foxwick: { name: '狐火灯芯', tag: '材料', icon: 'item_foxwick', desc: '只在起雾的夜里出现的狐火。\n3 个能在家园做成化形铃。', quip: '摸起来不烫。' },
+  item_fox_bell: { name: '化形铃', tag: '道具', icon: 'item_fox_bell', desc: '让进化后、好感 100 的焰尾狐\n学会化形。在照顾面板使用。', quip: '叮铃——' },
+
   // food (icons are code-drawn placeholders until the art arrives)
   // farm crops (T11)
   item_strawberry: { name: '草莓', tag: '作物', icon: 'item_strawberry', food: 12, desc: '甜甜的草莓，月影狐猫最爱。\n饱食 +12　出货 40', quip: '一口一个！' },

@@ -22,6 +22,7 @@ import { countOf } from '../../systems/inventory.js';
 import { ITEMS } from '../../data/items.js';
 import { HOME_COLS, HOME_ROWS, CLIFF, SPEED, PET_HEIGHT, INTERACT_RANGE, FOOT } from './constants.js';
 
+import * as GR from '../../systems/growth.js';
 export default {
   // ---------- world-space labels; screen UI lives in UIScene ----------
 
@@ -98,10 +99,18 @@ export default {
   onPetForm(uid) {
     const pet = this.pets.find((x) => x.inst.uid === uid);
     if (!pet?.data.humanForm) return;
-    pet.inst.form = pet.inst.form === 'human' ? 'animal' : 'human';
+    if (!GR.toggleForm(this.state, uid).ok) return;   // needs the unlocked form (docs/07 第 10 节)
     this.applyPetTexture(pet);
     this.showToast(pet.inst.form === 'human' ? `${pet.data.name} 化形了！` : `${pet.data.name} 变回了原形`);
     this.session.markDirty();
+  },
+
+  onPetEvolved(uid) {
+    const pet = this.pets.find((x) => x.inst.uid === uid);
+    if (!pet) return;
+    this.applyPetTexture(pet);
+    const flash = this.add.circle(pet.sprite.x, pet.sprite.y - 30, 10, 0xfff4b0, 0.9).setDepth(pet.sprite.depth + 1);
+    this.tweens.add({ targets: flash, radius: 70, alpha: 0, duration: 700, onComplete: () => flash.destroy() });
   },
 
   // a little hop when a pet is cared for

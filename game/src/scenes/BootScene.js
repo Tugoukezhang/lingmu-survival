@@ -49,7 +49,7 @@ export default class BootScene extends Phaser.Scene {
       grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.62, 'rgba(255,255,255,1)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
       g.fillStyle = grd; g.fillRect(0, 0, w, w);
     });
-    for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS, ...FARM_ICONS })) this.makeCanvas(k, 128, 128, fn);
+    for (const [k, fn] of Object.entries({ ...FOOD_ICONS, ...MATERIAL_ICONS, ...FARM_ICONS, ...GROWTH_ICONS })) this.makeCanvas(k, 128, 128, fn);
     for (const [id, c] of Object.entries(CROPS)) for (let st = 0; st < 3; st++) this.makeCanvas(`crop_${id}_${st}`, 48, 56, (g, w, h) => drawCropStage(g, w, h, id, c.color, st));
     // load the save once; scenes read game.session.state from here on
     this.game.session = new GameSession(this.game);
@@ -206,6 +206,35 @@ function seedBag(g, color) {
   g.fillStyle = color; g.beginPath(); g.arc(64, 78, 18, 0, Math.PI * 2); g.fill();
   g.fillStyle = '#6fae4a'; g.beginPath(); g.ellipse(72, 58, 10, 5, -0.6, 0, Math.PI * 2); g.fill();
 }
+const GROWTH_ICONS = {
+  item_book: (g) => {
+    g.lineWidth = 4; g.strokeStyle = '#5b3d26';
+    g.fillStyle = '#7a4aa0'; g.fillRect(26, 22, 76, 88); g.strokeRect(26, 22, 76, 88);
+    g.fillStyle = '#fbf3dc'; g.fillRect(34, 26, 64, 80);
+    g.fillStyle = '#7a4aa0'; g.fillRect(26, 22, 14, 88);
+    g.fillStyle = '#f5c84b'; g.beginPath(); for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * 1.2566; g.lineTo(68 + Math.cos(a) * 16, 62 + Math.sin(a) * 16); g.lineTo(68 + Math.cos(a + 0.628) * 7, 62 + Math.sin(a + 0.628) * 7); } g.closePath(); g.fill();
+  },
+  item_foxwick: (g) => {
+    const grd = g.createRadialGradient(64, 64, 4, 64, 64, 50); grd.addColorStop(0, 'rgba(255,240,180,1)'); grd.addColorStop(0.4, 'rgba(255,150,80,0.9)'); grd.addColorStop(1, 'rgba(255,120,60,0)');
+    g.fillStyle = grd; g.beginPath(); g.arc(64, 64, 50, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#fff3c0'; g.beginPath(); g.moveTo(64, 30); g.quadraticCurveTo(84, 60, 64, 84); g.quadraticCurveTo(44, 60, 64, 30); g.fill();
+  },
+  item_fox_bell: (g) => {
+    g.lineWidth = 4; g.strokeStyle = '#8a4a1a';
+    g.fillStyle = '#f5c84b'; g.beginPath(); g.moveTo(34, 92); g.quadraticCurveTo(34, 34, 64, 30); g.quadraticCurveTo(94, 34, 94, 92); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#d9572b'; g.fillRect(28, 88, 72, 10); g.beginPath(); g.arc(64, 104, 7, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#d9572b'; g.lineWidth = 5; g.beginPath(); g.arc(64, 24, 9, Math.PI, 0); g.stroke();
+  },
+};
+for (const [k, c1, c2] of [['forest', '#9fdc6a', '#3f7a3a'], ['water', '#9fdcff', '#3d7fb8'], ['fire', '#ffcf7a', '#d9572b'], ['light', '#fff4a8', '#c99a1e'], ['dark', '#d0a8ff', '#5a2a8a']]) {
+  GROWTH_ICONS[`item_evo_${k}`] = (g) => {
+    const grd = g.createLinearGradient(34, 20, 94, 110); grd.addColorStop(0, c1); grd.addColorStop(1, c2);
+    g.fillStyle = grd; g.strokeStyle = '#3b2a20'; g.lineWidth = 4;
+    g.beginPath(); g.moveTo(64, 14); g.lineTo(100, 54); g.lineTo(82, 112); g.lineTo(46, 112); g.lineTo(28, 54); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,0.7)'; g.beginPath(); g.moveTo(64, 24); g.lineTo(80, 50); g.lineTo(64, 60); g.closePath(); g.fill();
+  };
+}
+
 const FARM_ICONS = {
   item_fish: (g) => {
     g.fillStyle = '#7ab0d8'; g.strokeStyle = '#3d5a7a'; g.lineWidth = 4;

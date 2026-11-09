@@ -40,11 +40,17 @@ export function gather(state, resource) {
   if (!changes || changes.collected.includes(resource.id)) return { ok: false, reason: 'gone' };
   const pv = gatherPreview(state, resource.type);
   if (pv.need) return { ok: false, reason: 'need-tool', tool: pv.need };
-  if (!fits(state, pv.gains)) return { ok: false, reason: 'full' };
-  for (const [id, n] of Object.entries(pv.gains)) addItem(state.inventory, id, n, Infinity);
+  // crystals mined with the pickaxe: 10% evolution stone (docs/07 第 3 节 雾晶矿的稀有掉落)
+  const gains = { ...pv.gains };
+  if (resource.type === 'crystal' && pv.usedTool) {
+    const h = ((state.expedition.seed * 31 + Number(String(resource.id).slice(1)) * 7919) >>> 0) % 1000;
+    if (h < 100) gains[['item_evo_forest', 'item_evo_water', 'item_evo_fire', 'item_evo_light', 'item_evo_dark'][h % 5]] = 1;
+  }
+  if (!fits(state, gains)) return { ok: false, reason: 'full' };
+  for (const [id, n] of Object.entries(gains)) addItem(state.inventory, id, n, Infinity);
   changes.collected.push(resource.id);
   bump(state, 'gather');
-  return { ok: true, gains: pv.gains, usedTool: pv.usedTool };
+  return { ok: true, gains, usedTool: pv.usedTool };
 }
 
 // { ok, missing: [{ id, need, have }] }

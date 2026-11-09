@@ -13,6 +13,7 @@ export const PARTY_MAX = 3;
 import { mulberry32 } from './rng.js';
 import { bump } from './guide.js';
 import { bondFromBattle } from './petcare.js';
+import { dexCatch } from './growth.js';
 
 export const CLOVER_PER_LEVEL = 3;      // 【建议】 clover per KO = 3 × enemy level
 
@@ -256,9 +257,11 @@ export function finishBattle(state, b, { wildId } = {}) {
     do uid = `pet-${mon.species}-${(n++).toString(36)}`; while (state.pets.some((p) => p.uid === uid));
     const inst = { ...JSON.parse(JSON.stringify(mon.src)), uid, hp: mon.hp >= mon.maxHp ? null : mon.hp, affection: affectionOnCatch(b.caught.favourite) };
     state.pets.push(inst);
+    const duplicate = state.pets.some((p) => p.species === mon.species && p.uid !== uid);
+    dexCatch(state, inst);
     const joined = state.party.length < PARTY_MAX;
     if (joined) state.party.push(uid);
-    summary.caught = { uid, name: mon.name, joined, affection: inst.affection, stars: inst.stars, shiny: inst.shiny };
+    summary.caught = { uid, name: mon.name, joined, affection: inst.affection, stars: inst.stars, shiny: inst.shiny, duplicate };
   }
   if ((b.over === 'win' || b.over === 'caught') && wildId && state.expedition && !state.expedition.changes.pets.includes(wildId)) state.expedition.changes.pets.push(wildId);
   return summary;

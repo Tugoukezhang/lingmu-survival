@@ -9,6 +9,8 @@ export const RECIPES = [
   { id: 'net_vine', out: 'item_net_vine', n: 1, station: 'anywhere', cost: { item_cloth: 1, item_grass: 3, item_crystal: 1 } },
   // home workbench (for now: anywhere on the home island)
   { id: 'tent', out: 'item_tent', n: 1, station: 'workbench', cost: { item_cloth: 4, item_wood: 6 } },
+  // interim for the town wish quest (docs/07 第 10 节): 3 foxwicks → bell at home
+  { id: 'fox_bell', out: 'item_fox_bell', n: 1, station: 'workbench', cost: { item_foxwick: 3 } },
 ];
 
 export const RECIPE_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));

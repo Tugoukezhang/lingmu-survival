@@ -64,6 +64,11 @@ export function chestLoot(islandSeed, chestId, bonus = false) {
     const [id, n] = pool.splice(Math.floor(rng() * pool.length), 1)[0];
     items[id] = (items[id] ?? 0) + n;
   }
+  // growth drops (M3) 【建议】: thorn chest always 1 evolution stone; normal chests 15% stone, 20% skill book
+  const STONES = ['item_evo_forest', 'item_evo_water', 'item_evo_fire', 'item_evo_light', 'item_evo_dark'];
+  const BOOKS = ['item_book_bubble', 'item_book_ember', 'item_book_leafy', 'item_book_twinkle', 'item_book_shadow', 'item_book_heal', 'item_book_shell', 'item_book_puff'];
+  if (bonus || rng() < 0.15) { const s = STONES[Math.floor(rng() * STONES.length)]; items[s] = (items[s] ?? 0) + 1; }
+  if (!bonus && rng() < 0.2) { const b = BOOKS[Math.floor(rng() * BOOKS.length)]; items[b] = (items[b] ?? 0) + 1; }
   return { items, clover: bonus ? 40 : 20 };
 }
 

@@ -22,6 +22,8 @@ import { countOf } from '../../systems/inventory.js';
 import { ITEMS } from '../../data/items.js';
 import { HOME_COLS, HOME_ROWS, CLIFF, SPEED, PET_HEIGHT, INTERACT_RANGE, FOOT } from './constants.js';
 
+import { addItem, countOf as countItems } from '../../systems/inventory.js';
+import { bagSlots } from '../../systems/crafting.js';
 export default {
   // ---------- time & day/night (T10) ----------
 
@@ -96,6 +98,7 @@ export default {
       for (const m of this.monsters) m.nextAttack = (m.nextAttack ?? 0) + delta;
       return;
     }
+    this.updateWicks();
     const ls = this.currentLights();
     const canStand = (x, y) => this.isOnIsland(x, y);   // ghosts float over trees and rocks
     if (N.shouldSpawn(this.state.clock, this.lastSpawn, this.monsters.length)) {
@@ -146,7 +149,36 @@ export default {
     if (ev.includes('faint')) this.faint();
   },
 
+  // 狐火灯芯 (T39): up to 2 per foggy night, only while the fog is out
+  updateWicks() {
+    const night = this.state.day;
+    if (this.wicksNight !== night) {
+      this.wicksNight = night;
+      const rng = mulberry32((this.island.seed * 13 + night * 101) >>> 0);
+      for (let i = 0, tries = 0; i < 2 && tries < 60; tries++) {
+        const tx = Math.floor(rng() * this.cols), ty = Math.floor(rng() * this.rows);
+        if (!this.isWalkableTile(tx, ty, false)) continue;
+        const x = tx * TILE + TILE / 2, y = ty * TILE + TILE / 2;
+        if (Math.hypot(x - this.player.x, y - this.player.y) < 4 * TILE) continue;
+        const img = this.add.image(x, y - 10, 'item_foxwick').setScale(0.35).setDepth(8555).setAlpha(0.9);
+        this.tweens.add({ targets: img, y: y - 18, alpha: 0.6, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+        this.wicks.push({ x, y, img });
+        i++;
+      }
+    }
+    for (const w of [...this.wicks]) {
+      if (Math.hypot(this.player.x - w.x, this.player.y - w.y) > 34) continue;
+      if (!addItem(this.state.inventory, 'item_foxwick', 1, bagSlots(this.state))) { this.showToast('背包满了，捡不了狐火灯芯'); continue; }
+      w.img.destroy();
+      this.wicks = this.wicks.filter((x) => x !== w);
+      this.session.markDirty();
+      this.showToast(`捡到了狐火灯芯（${countItems(this.state.inventory, 'item_foxwick')}/3）`);
+    }
+  },
+
   dissolveMonsters() {
+    for (const w of this.wicks) w.img.destroy();
+    this.wicks = [];
     for (const m of this.monsters) this.tweens.add({ targets: m.sprite, alpha: 0, duration: 1200, onComplete: () => m.sprite.destroy() });
     for (const w of this.warnings) w.g.destroy();
     this.monsters = []; this.warnings = [];

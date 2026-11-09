@@ -23,6 +23,7 @@ import { countOf } from '../../systems/inventory.js';
 import { ITEMS } from '../../data/items.js';
 import { HOME_COLS, HOME_ROWS, CLIFF, SPEED, PET_HEIGHT, INTERACT_RANGE, FOOT } from './constants.js';
 
+import * as GR from '../../systems/growth.js';
 export default {
   // ---------- pet battle (T06) ----------
   partyInsts() { return this.state.party.map((uid) => this.state.pets.find((x) => x.uid === uid)).filter(Boolean); },
@@ -35,6 +36,7 @@ export default {
     this.session.pullFromRegistry();
     const enemies = makeWildGroup({ species: w.species, level: w.level, islandSeed: this.island.seed, wildIndex: Number(w.id.slice(1)), day: this.state.day, pool: PETS.map((x) => x.id) });
     const battle = createBattle({ party, enemies, inventory: this.state.inventory });
+    for (const e of enemies) GR.dexSee(this.state, e.species);
     this.inBattle = w;
     this.clock.pause('battle');            // A07: time stops during the battle
     this.session.store.block('battle');    // A03: refreshing mid-battle loads the state from before it
@@ -66,7 +68,7 @@ export default {
       }
     }
     // a caught pet that joined the party comes along right away
-    if (result === 'caught' && summary?.caught?.joined) {
+    if (result === 'caught' && summary?.caught?.joined && this.state.pets.some((x) => x.uid === summary.caught.uid)) {
       const inst = this.state.pets.find((x) => x.uid === summary.caught.uid);
       if (inst) {
         const pet = this.addPetSprite(inst, { x: w?.sprite.x ?? this.player.x, y: w?.sprite.y ?? this.player.y });

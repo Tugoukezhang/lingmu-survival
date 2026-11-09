@@ -220,10 +220,12 @@ export default class UIScene extends Phaser.Scene {
   showToast(msg) {
     const [top, second] = this.toastRows;
     const now = this.time.now;
-    if (top.t.alpha > 0.5 && now - top.shownAt < 1500 && top.t.text !== msg) {
-      this.paintToast(second, top.t.text, 38, Math.max(600, 1600 - (now - top.shownAt)));   // above the main row: never covers panels
+    // with a panel open, messages go to the bottom edge so they never cover the panel's title
+    const y1 = this.stack?.size ? GAME_H - 30 : 84, y2 = this.stack?.size ? GAME_H - 74 : 38;
+    if (!this.stack?.size && top.t.alpha > 0.5 && now - top.shownAt < 1500 && top.t.text !== msg) {   // one row while a panel is open
+      this.paintToast(second, top.t.text, y2, Math.max(600, 1600 - (now - top.shownAt)));
     }
-    this.paintToast(top, msg, 84, 1600);
+    this.paintToast(top, msg, y1, 1600);
     top.shownAt = now;
   }
 

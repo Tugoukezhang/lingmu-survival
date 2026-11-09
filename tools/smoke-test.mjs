@@ -106,6 +106,8 @@ try {
   // fox's care panel → 化形 (demo); do it in open ground away from other pets
   await goClear(1, 0, 3);
   await page.waitForTimeout(400);
+  // the human form must be unlocked first (T39): evolved + affection 100 + 化形铃 → here we set it up directly
+  await page.evaluate(() => { const f = window.__game.session.state.pets.find((p) => p.uid === 'pet-fox'); f.evolved = true; f.canTransform = true; });
   await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
   await tapUi('care-form');
   await tapUi('close');
@@ -365,7 +367,8 @@ try {
   const caughtB = await bt();
   await page.screenshot({ path: join(OUT, '29-caught.png') });
   check('扔网成功 → 捕捉成功结算', caughtB?.over === 'caught', JSON.stringify(caughtB));
-  await tapBattle('battle-continue'); await page.waitForTimeout(500);
+  const dupBtn = await page.evaluate(() => window.__game.scene.getScene('battle').findTarget('catch-keep'));
+  await tapBattle(dupBtn ? 'catch-keep' : 'battle-continue'); await page.waitForTimeout(500);
   const afterCatch = await page.evaluate(() => ({ pets: window.__game.session.state.pets.length, party: window.__game.session.state.party.length, wild: window.__game.scene.getScene('play').wild.length }));
   check('抓到的宠物进入存档（队伍满了送回家园），野生宠物从岛上消失', afterCatch.pets === petsBefore + 1 && afterCatch.party === 3 && afterCatch.wild === wildBefore - 1, JSON.stringify(afterCatch));
   // A05: flee keeps the wild pet
@@ -825,6 +828,62 @@ try {
   await tapTarget('close');
   await page.waitForTimeout(800);
   check('完成每日任务自动发奖励（四叶草 +20）', (await reg('clover')) === cl0 + 20, `${cl0} → ${await reg('clover')} / ${await toastText()}`);
+
+  // ---------- growth (T27 / T28 / T29 / T39) ----------
+  const careFor = async (uid) => { await page.evaluate((u) => window.__game.events.emit('petcare-request', { uid: u }), uid); await page.waitForTimeout(350); };
+  const petOf = (uid) => page.evaluate((u) => JSON.parse(JSON.stringify(window.__game.session.state.pets.find((p) => p.uid === u))), uid);
+  await page.evaluate(() => {
+    const st = window.__game.session.state; const g = st.pets.find((p) => p.uid === 'pet-starbear');
+    g.level = 12; g.affection = 30; g.evolved = false; g.form = 'animal';
+    st.inventory.push({ id: 'item_evo_light', count: 1 }, { id: 'item_book_heal', count: 1 });
+    st.crystals = { starbear: 10 }; g.stars = 3;
+  });
+  await careFor('pet-starbear');
+  await page.screenshot({ path: join(OUT, '57-care-growth.png') });
+  await tapTarget('care-evolve');
+  const evo = await petOf('pet-starbear');
+  check('照顾面板点「进化」：星星熊仔进化（光之石 −1）', evo.evolved && (await inv('item_evo_light')) === 0, await toastText());
+  await tapTarget('care-star');
+  check('点「升星」：结晶 6 个 → 3 星升 4 星', (await petOf('pet-starbear')).stars === 4 && (await page.evaluate(() => window.__game.session.state.crystals.starbear)) === 4);
+  await page.screenshot({ path: join(OUT, '58-evolved.png') });
+  await tapTarget('close');
+  // skill book from the bag
+  await tapTarget('hud-bag');
+  await tapTarget('slot-item_book_heal');
+  await tapTarget('use');
+  check('背包使用技能书 → 选宠物', (await ui()).stack.join() === 'bag,learn', (await ui()).stack.join());
+  await tapTarget('learn-pet-pet-shark');
+  await page.screenshot({ path: join(OUT, '59-learn.png') });
+  await tapTarget('learn-slot-0');
+  check('选格子后学会「治愈之歌」，技能书 −1', (await petOf('pet-shark')).skills[0] === 'heal' && (await inv('item_book_heal')) === 0, await toastText());
+  // human form: craft the bell at home, unlock, switch
+  await page.evaluate(() => { const st = window.__game.session.state; const f = st.pets.find((p) => p.uid === 'pet-fox'); f.evolved = true; f.affection = 100; f.canTransform = false; f.form = 'animal'; st.inventory.push({ id: 'item_foxwick', count: 3 }); });
+  await tapTarget('hud-craft');
+  await tapTarget('recipe-fox_bell');
+  await tapTarget('craft-do');
+  await tapTarget('close');
+  check('家园工作台用 3 个狐火灯芯做出化形铃', (await inv('item_fox_bell')) === 1);
+  await careFor('pet-fox');
+  await tapTarget('care-form');
+  check('焰尾狐「学会化形」（化形铃 −1）', (await petOf('pet-fox')).canTransform && (await inv('item_fox_bell')) === 0, await toastText());
+  await tapTarget('care-form');
+  check('再点一次切换成人形态', (await petOf('pet-fox')).form === 'human');
+  await page.screenshot({ path: join(OUT, '60-human-form.png') });
+  await tapTarget('close');
+  // foxwicks on a foggy night
+  await page.evaluate(() => window.__game.registry.set({ hp: 100, hunger: 100 }));
+  await scene(() => window.__game.scene.getScene('play').travelTo(313131));
+  await waitArea('expedition'); await page.waitForTimeout(500);
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.wild.forEach((w) => { w.cooldown = 1e12; }); sc.debugAdvance(20 * 60 + 20 - sc.state.clock); });
+  await page.waitForTimeout(300);
+  const nWicks = await page.evaluate(() => window.__game.scene.getScene('play').wicks.length);
+  check('起雾的夜里岛上出现狐火灯芯', nWicks >= 1, `${nWicks}`);
+  const wick0 = await inv('item_foxwick');
+  await scene(() => { const sc = window.__game.scene.getScene('play'); const w = sc.wicks[0]; sc.monsters.forEach((m) => { m.nextAttack = 1e12; }); sc.teleport(w.x, w.y); });
+  await page.waitForTimeout(300);
+  check('走过去捡到狐火灯芯', (await inv('item_foxwick')) === wick0 + 1, await toastText());
+  await scene(() => window.__game.scene.getScene('play').goHome());
+  await waitArea('home'); await page.waitForTimeout(400);
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
