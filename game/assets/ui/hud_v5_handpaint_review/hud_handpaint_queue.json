@@ -2661,12 +2661,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/category_hanging.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Category_Hanging_Single_Review_20261109/category_hanging_single_1024_RGBA.png",
+      "reference_match": "Hanging floral bell with green leaves and pendant star; artwork based on original screenshot/V4 proxy, original crop not generator-bound",
+      "notes": "Rejected ImageGen wrong wall bracket; one shape-locked vector/raster 1024 RGBA candidate in Library. Not GPT Image handpainted final; alpha and preview checks passed; art/in-engine QA pending.",
+      "candidate_sha256": "cce0e3873e2b7a4160b06f7eaf4062e0acdb7f9c35fc37dd4d52310effe38e79",
+      "candidate_kind": "manual geometry-locked vector/raster candidate, NOT independently ImageGen hand-painted",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_hanging_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 62,
@@ -4293,9 +4297,18 @@
       "next_focus": "other96/home/category_hanging",
       "review_record": "Reviews/home_category_furniture_20261109/QA.json",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/category_hanging",
+      "action": "Rejected ornate wall lantern; generated source-guided hanging flower-bell sprite 1024 RGBA and saved QA previews",
+      "result": "Unapproved raster reference candidate; no production changes; counts unchanged",
+      "next_focus": "other96/home/category_wall",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_hanging_20261109/QA.json",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/category_hanging",
+  "current_focus": "other96/home/category_wall",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
