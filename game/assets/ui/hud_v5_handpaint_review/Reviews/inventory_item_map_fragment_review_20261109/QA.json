@@ -1,0 +1,76 @@
+{
+  "schema": "lingmu-hud-v5-single-component-review-v1",
+  "recorded_on": "2026-11-09",
+  "task_id": "other96/inventory/item_map_fragment",
+  "asset_id": "inventory/item_map_fragment",
+  "queue_number": 47,
+  "state": "single_generated_review_candidate_unapproved",
+  "original_source": {
+    "file": "04_inventory.jpg",
+    "size": [
+      1920,
+      1080
+    ],
+    "sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [
+      1368,
+      195,
+      1484,
+      273
+    ],
+    "crop_size": [
+      116,
+      78
+    ],
+    "crop_sha256": "e9ab80102828f9be937db5b84bcf05d98bb7e6d2efeeebfabb29215d6cf19d2d",
+    "only_current_target_crop_shown": true,
+    "crop_binding_to_generator_independently_verified": false
+  },
+  "identity": "One small beige parchment map fragment with green markings and a red X; quantities are separate text. No bottle or question badge.",
+  "candidate": {
+    "local_path": "/mnt/data/lingmu_map_fragment_20261109/item_map_fragment_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "alpha_bbox_xyxy": [
+      68,
+      73,
+      956,
+      950
+    ],
+    "sha256": "910c8a6bedf824e20664c7e2d29755365083ed1d9fc2846cd6162e1ccfafefdb",
+    "run_attempts": 1,
+    "art_detail": "Brush-painted detailed parchment with green mountains/river and red X; stronger brown edges/more elaborate scenery than screenshot"
+  },
+  "qa": {
+    "functional_identity": "recognizable_review_candidate",
+    "alpha": "pass_after_low_alpha_halo_cleanup",
+    "single_component": true,
+    "view_96px": "readable",
+    "view_64px": "readable",
+    "view_48px": "readable",
+    "view_32px": "recognizable_but_fine_texture_merges",
+    "art_final": "pending",
+    "game_integration": "not_run",
+    "approval": "pending"
+  },
+  "files_local": {
+    "source_crop": "/mnt/data/lingmu_map_fragment_20261109/item_map_fragment_original_tight_crop_116x78.png",
+    "comparison": "/mnt/data/lingmu_map_fragment_20261109/item_map_fragment_original_vs_candidate_QA.jpg",
+    "bundle": "/mnt/data/lingmu_map_fragment_20261109/item_map_fragment_review_bundle.zip"
+  },
+  "library": {
+    "upload_attempted": true,
+    "status": "AccessDeny",
+    "note": "Do not claim file uploaded"
+  },
+  "github": {
+    "text_qa": "committed",
+    "binary_candidate": "not_uploaded"
+  },
+  "production_replaced": false,
+  "final_approved": 0,
+  "next": "other96/inventory/item_mushroom"
+}
