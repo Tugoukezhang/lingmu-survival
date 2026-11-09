@@ -50,7 +50,7 @@
       "n": 2,
       "result": "wrong_identity_question_dark_medallion_with_checkerboard",
       "mode": "RGB",
-      "original_png_sha256": "8b0e7ab0e0b6f6a3ebaa43e6629410c392853b0aabcf092f8ddbb4dc7d1d2a1",
+      "original_png_sha256": "230a98b51b1a26c468d5492f5d88b83e0bce13bfe84c0b1cebe3c3c65ce345df",
       "rejected_for_current_task": true,
       "rejected_for_transparency": true
     }
@@ -63,7 +63,7 @@
     "production_replacements": 0,
     "question_dark_misrouted_unapproved_archive_count": 1
   },
-  "comparison_sha256": "aesthetic/source review image attached to run's QA zip; see local QA.json for hashes",
+  "comparison_sha256": "62efe41e1a5da99f43a9811601b337c0070e400704e4acb2c33eeb34d8f60ce5",
   "review_files_available_in_run": [
     "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/item_description_label_original_crop.png",
     "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/misrouted_question_dark_unapproved_1024_RGBA.png",
@@ -75,5 +75,6 @@
   "production_modified": false,
   "qa_result": "wrong functional object, both outputs not suitable for label",
   "next_focus": "other96/inventory/selected_item_separator",
-  "notes": "Unlike previous blocked runs, screenshot source bytes were successfully transferred, opened and hashed this run. Generator nevertheless ignored intended isolated chip and repeated historical question_dark medallion concept. Stop after two misidentifications."
+  "notes": "Unlike previous blocked runs, screenshot source bytes were successfully transferred, opened and hashed this run. Generator nevertheless ignored intended isolated chip and repeated historical question_dark medallion concept. Stop after two misidentifications.",
+  "github_queue_commit": "bd1960dbeb7f0b295463d842f2c65c4a9ebcff53"
 }
