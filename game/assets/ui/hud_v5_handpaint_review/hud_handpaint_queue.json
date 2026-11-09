@@ -2966,12 +2966,21 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/zoom_thumb.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Map_Zoom_Thumb_Review/zoom_thumb_review_1024.png",
+      "candidate_sha256": "580ef47c04c21dbe8f9976cbd795de13859f84afaabf87ceba41df4e3162a26c",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "reference_binding_verified": false,
+      "qa_status": "One circular sprout slider thumb draft. Source fidelity and segmented alpha edges pending. No in-engine QA or production promotion.",
+      "production_promoted": false
     },
     {
       "queue_number": 85,
@@ -4030,6 +4039,15 @@
         "Reviews/home_bottom_category_bar_second_wrong_20261109/QA.json",
         "Reviews/inventory_item_mushroom_recovered_20261109/QA.json"
       ]
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/zoom_thumb",
+      "action": "isolated zoom thumb draft with background segmentation and 1024 RGBA review",
+      "result": "One visual candidate archived to Library; pending source and engine QA; production unchanged.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
     }
   ],
   "current_focus": "other96/home/category_furniture",
