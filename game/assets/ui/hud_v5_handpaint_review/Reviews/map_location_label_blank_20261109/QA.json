@@ -1,0 +1,54 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/location_label_blank",
+  "asset_id": "map/location_label_blank",
+  "source": {
+    "screenshot": "07_world_map.jpg",
+    "v4_path": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/location_label_blank.png",
+    "v4_blob_sha": "fab7c8eb5f16816e36fe39a1eb2dc82dda33d5f8",
+    "v4_visual_inspected": true,
+    "original_single_crop_bound_to_generator": false
+  },
+  "target": {
+    "identity": "Dusty clay-rose horizontal irregular rounded location label with left plum circular seal and one dusty-pink map pin, no text",
+    "resolution": [
+      1180,
+      390
+    ],
+    "alpha": "RGBA"
+  },
+  "rejected_generator_result": {
+    "attempts": 1,
+    "reason": "Generated an ornate ivory floral plaque instead of dusty pink location label with location-pin seal"
+  },
+  "candidate": {
+    "kind": "Source-guided SVG/Pillow shape reconstruction; NOT an independent GPT Image handpainted final",
+    "file_library": "/Lingmu_HUD_Exports/Map_Location_Label_Blank_Review_20261109/location_label_blank_1180x390_RGBA_candidate.png",
+    "svg_library": "/Lingmu_HUD_Exports/Map_Location_Label_Blank_Review_20261109/location_label_blank_source_guided.svg",
+    "bundle_library": "/Lingmu_HUD_Exports/Map_Location_Label_Blank_Review_20261109/location_label_review_bundle.zip",
+    "qa_preview_library": "/Lingmu_HUD_Exports/Map_Location_Label_Blank_Review_20261109/QA_scale_comparison.jpg",
+    "sha256": "a079ea1b0d06acde854931a26abb6e777e4fb0a44db726b0ed4878c22389d8e9",
+    "size": [
+      1180,
+      390
+    ]
+  },
+  "qa": {
+    "identity": "Visually matches broad V4 form and pin layout",
+    "alpha": "pass, all four canvas corners transparent",
+    "preview_widths": [
+      118,
+      236,
+      354,
+      590
+    ],
+    "preview_clipping": "none",
+    "art_approval": "pending",
+    "in_engine": "not_run",
+    "user_approved": false
+  },
+  "production_replaced": false,
+  "final_approved": false,
+  "counts_changed": false
+}
