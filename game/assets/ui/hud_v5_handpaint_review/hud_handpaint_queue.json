@@ -880,7 +880,16 @@
       "manifest_library": "/Lingmu_HUD_Exports/Question_Dark_Single_Review/question_dark_manifest.json",
       "qa_status": "identity/silhouette: pass after adaptation; 48/64/96px readability and alpha checked; visual art and game integration QA pending",
       "production_promoted": false,
-      "last_generation_note": "Two direct GPT Image attempts returned large ornate circular question medallions with flowers, not small charcoal rounded-square question icon. Kept painted question glyph only, composited with independently constructed source-closer square backing; not a pure GPT Image final."
+      "last_generation_note": "Two direct GPT Image attempts returned large ornate circular question medallions with flowers, not small charcoal rounded-square question icon. Kept painted question glyph only, composited with independently constructed source-closer square backing; not a pure GPT Image final.",
+      "misrouted_art_review_20261109": {
+        "from_task": "other96/inventory/item_description_label",
+        "status": "unapproved_wrong_source_shape",
+        "description": "Ornate circular dark question medallion with wood/leaves, visually polished but not source-matched to compact charcoal rounded-square question icon; NOT to supersede existing adapted candidate.",
+        "sha256": "f450122c66ae1d523a9935858b353e8fe77aa51b027b4d37daad78f67da9578d",
+        "library_archive": "attempted_AccessDeny",
+        "github_qa": "Reviews/inventory_item_description_label_rejected_20261109/QA.json",
+        "run_file": "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/misrouted_question_dark_unapproved_1024_RGBA.png"
+      }
     },
     {
       "queue_number": 13,
@@ -1957,12 +1966,37 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_description_label.png",
       "target_resolution": "1120x420",
-      "state": "not_generated",
+      "state": "deferred_two_wrong_identity_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": false,
+      "notes": "",
+      "last_attempt": "2026-11-09",
+      "failure_reason": "Original inventory screenshot successfully transferred and source cropped to exact chip; two generations instead produced ornate question-mark medallions, not peach category chip. Second also baked checkerboard in RGB. Both rejected for this task.",
+      "source_crop": {
+        "source": "04_inventory.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+        "bbox_xyxy": [
+          528,
+          342,
+          640,
+          397
+        ],
+        "crop_dimensions": [
+          112,
+          55
+        ],
+        "sha256": "9e798bb0bee7f3bc455efcb9cfe06ae7733f943a5d27a8c94e06d08879904f53",
+        "reference_binding_to_generator_verified": false
+      },
+      "review_qa_path": "Reviews/inventory_item_description_label_rejected_20261109/QA.json",
+      "retry_policy": "After two identity misroutes, defer, do not loop generative calls until identity binding is demonstrable. Text-free peach rounded label only, no text/wood/question mark.",
+      "production_promoted": false
     },
     {
       "queue_number": 43,
@@ -3297,9 +3331,32 @@
       "production_replaced": false,
       "qa_path": "Reviews/inventory_use_button_rejected_20261109/QA.json",
       "next": "other96/inventory/item_description_label"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_description_label",
+      "action": "Source transfer repaired and tight original crop verified; generated two images, both wrong question_dark identity; art/archive QA only.",
+      "source_original_verified": true,
+      "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+      "bbox_xyxy": [
+        528,
+        342,
+        640,
+        397
+      ],
+      "crop_sha256": "9e798bb0bee7f3bc455efcb9cfe06ae7733f943a5d27a8c94e06d08879904f53",
+      "generation_attempts": 2,
+      "wrong_identity_rejected": 2,
+      "accepted_for_label": 0,
+      "misrouted_question_dark_unapproved_archived_locally": 1,
+      "art_game_qa_passed": 0,
+      "production_replaced": false,
+      "library_upload": "AccessDeny; local artifacts and GitHub manifest saved",
+      "github_qa": "Reviews/inventory_item_description_label_rejected_20261109/QA.json",
+      "next": "other96/inventory/selected_item_separator"
     }
   ],
-  "current_focus": "other96/inventory/item_description_label",
+  "current_focus": "other96/inventory/selected_item_separator",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
