@@ -1,0 +1,23 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "art_fidelity_gate",
+  "result": "blocked",
+  "source": "04_inventory.jpg",
+  "source_bbox": [
+    260,
+    190,
+    810,
+    890
+  ],
+  "candidate": "detail_wood_panel_blank_v5_edge_clean_1260x1640.png",
+  "comparison_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/source_vs_v5_art_gate.jpg",
+  "findings": [
+    "Wood frame too regular and bright vs source",
+    "Decorative foliage positions and scale differ",
+    "Dynamic content remains placeholders",
+    "No in-engine test"
+  ],
+  "next": "Hold item 33; next task can proceed separately without treating this as approved",
+  "approved": false,
+  "production_promoted": false
+}
