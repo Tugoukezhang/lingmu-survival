@@ -3152,12 +3152,20 @@
       "source_reference": "shared across multiple screens",
       "target_png": "PNG_Transparent/00_common/badge_circle_dark.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "review_candidate_from_v4_proxy_original_source_unverified",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": "Visual shape comparison to existing V4 PNG only; authentic screenshot single crop unavailable and not bound to generator",
+      "notes": "Dark round blank badge, matte charcoal face and thin warm brown rim. Single 1024 RGBA review candidate; alpha and 32/48/64/96px preview checked. V4 single asset visually checked; authentic screenshot cropped reference not accessible; not approved.",
+      "review_candidate_sha256": "5f68b41744aee805ba5f60003b850ea19caf1118a7adc945e39c2795e4061da1",
+      "candidate_local_path": "/mnt/data/lingmu_badge_circle_dark_20261109/badge_circle_dark_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+      "review_record": "Reviews/shared_badge_circle_dark_20261109T1035Z/QA.json",
+      "candidate_kind": "independently generated image_gen text-to-image, not bound reference edit",
+      "art_qa": "pending_source_comparison_and_user_approval",
+      "technical_qa": "pending",
+      "library_upload": "AccessDeny",
+      "production_replaced": false
     },
     {
       "queue_number": 96,
@@ -4098,9 +4106,19 @@
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/shared/badge_circle_dark",
+      "action": "Single dark circle badge review: V4 proxy visually checked, 2 text-to-image variations; 1 RGBA candidate normalized and game-size previewed",
+      "result": "candidate saved locally, QA recorded on GitHub; Library AccessDeny; no verified original crop, no production changes",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "review_record": "Reviews/shared_badge_circle_dark_20261109T1035Z/QA.json"
     }
   ],
-  "current_focus": "other96/shared/badge_circle_dark",
+  "current_focus": "other96/shared/badge_circle_light",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
