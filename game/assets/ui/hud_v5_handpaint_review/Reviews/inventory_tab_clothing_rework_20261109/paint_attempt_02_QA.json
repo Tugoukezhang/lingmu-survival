@@ -1,0 +1,14 @@
+{
+  "task_id": "other96/inventory/tab_clothing",
+  "stage": "handpaint_refinement_attempt",
+  "status": "rejected_art_fidelity",
+  "issues": [
+    "filled cream T-shirt instead of hollow dark-brown outline",
+    "unrequested blue leaf corner decorations",
+    "overly thick stone border instead of muted blue-gray square"
+  ],
+  "baseline": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Clothing/tab_clothing_1024.png",
+  "approved": false,
+  "production_promoted": false,
+  "next": "Refine existing vector candidate without changing icon silhouette or adding ornamentation"
+}
