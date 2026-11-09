@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/inventory/tab_clothing",
+  "stage": "vector_single_asset_reconstruction",
+  "resolution": [
+    1024,
+    1024
+  ],
+  "palette": "blue-gray background; dark-brown outline",
+  "identity": "unfilled T-shirt icon",
+  "source": "04_inventory.jpg",
+  "library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Clothing/tab_clothing_1024.png",
+  "status": "structural_candidate_pending_art_QA",
+  "approved": false,
+  "production_promoted": false
+}
