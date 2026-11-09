@@ -3282,12 +3282,18 @@
       "source_reference": "shared across multiple screens",
       "target_png": "PNG_Transparent/00_common/badge_circle_light.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_handpaint_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Rework_Badge_Circle_Light/badge_circle_light_source_guided_candidate_1024_20261109.png",
+      "reference_match": "V4 legacy plain cream/brown circle proxy visually verified; true screenshot isolated crop not verified",
+      "notes": "Single 1024x1024 RGBA source-guided procedural raster with subtle texture. An image_gen attempt misrouted to prior peach label and was REJECTED. Gold star rework retained but is wrong for this silhouette. This candidate is NOT independently GPT Image handpainted; technical alpha/small-size QA passed; artistic/source/in-engine QA pending.",
+      "qa_record": "Reviews/shared_badge_circle_light_source_guided_20261109/QA.json",
+      "candidate_sha256": "31e40aecde455554cbee2dac9b014e12240aa40c30824828a6c86b676389dda6",
+      "candidate_kind": "source-guided procedural raster, NOT GPT Image",
+      "technical_qa": "alpha and 32/48/64/96/192/288 previews passed",
+      "art_qa": "pending",
+      "production_replaced": false
     }
   ],
   "execution_log": [
@@ -4239,9 +4245,18 @@
       "action": "attempted next ordered targets tab_general then tab_food using one-to-one source references",
       "result": "tab_general: 2 misrouted generations rejected (wood panel, treasure map); tab_food: 1 misrouted generation rejected (blank wood panel). No valid new candidates, no production assets changed. Stopped image generation to avoid further wrong assets.",
       "next": "other96/inventory/tab_clothing"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/shared/badge_circle_light",
+      "action": "Compared true V4 light badge proxy to ornate misrouted library rework; rejected another peach label image_gen misroute; built one simple cream/brown 1024 transparent candidate and archived native-size QA",
+      "result": "Unapproved procedural source-guided candidate stored in Library. Not a GPT Image handpainted final. No production replacement, original screenshot verification or approval; all counts unchanged.",
+      "next_focus": "other96/inventory/item_leaf",
+      "review_record": "Reviews/shared_badge_circle_light_source_guided_20261109/QA.json",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/shared/badge_circle_light",
+  "current_focus": "other96/inventory/item_leaf",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
