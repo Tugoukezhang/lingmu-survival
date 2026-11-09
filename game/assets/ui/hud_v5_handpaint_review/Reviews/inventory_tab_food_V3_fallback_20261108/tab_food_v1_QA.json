@@ -56,5 +56,15 @@
     "full_png": "sandbox:/mnt/data/lingmu_tab_food_20261108/tab_food_GPTImage_V3_isolated_guided_candidate_v1_1024.png",
     "github_png_preview_only": true,
     "library": "AccessDeny"
-  }
+  },
+  "rework_attempts_20261109": [
+    {
+      "attempt": 1,
+      "result": "rejected_misrouted",
+      "observed": "blank wooden parchment panel, not blue apple category tab",
+      "accepted": false
+    }
+  ],
+  "rework_state": "existing_v3_candidate_still_pending; latest_attempt_rejected_misrouted",
+  "rework_note": "No new candidate accepted. Keep existing V3 candidate pending review; do not overwrite."
 }
