@@ -1,0 +1,70 @@
+{
+  "schema": "lingmu-hud-single-asset-blocked-run-v1",
+  "run_id": "inventory_use_button_source_transfer_blocked_20261109",
+  "task_id": "other96/inventory/use_button",
+  "asset_id": "inventory/use_button",
+  "status": "blocked_original_source_bytes_unavailable_in_drawing_runtime",
+  "current_focus_read_from_github": "other96/inventory/use_button",
+  "required_inputs_read": [
+    "game/assets/ui/hud_v5_handpaint_review/hud_handpaint_queue.json",
+    "game/assets/ui/hud_v5_handpaint_review/production_status.json",
+    "game/assets/ui/hud_v5_handpaint_review/HUD_ONE_TO_ONE_DRAWING_STANDARD.md"
+  ],
+  "source": {
+    "library_path": "/Lingmu_HUD_Exports/Original_References/04_inventory.jpg",
+    "file_id": "file_0000000090ac81fd9322e31e4496ec1a",
+    "listed_size_bytes": 206451,
+    "original_preview_read": true,
+    "original_bytes_available_in_drawing_runtime": false,
+    "native_dimensions": null,
+    "source_bbox_xyxy": null,
+    "source_sha256": null,
+    "isolated_crop_created": false,
+    "sole_crop_bound_to_generator": false
+  },
+  "identity_observed_in_original_preview": {
+    "function": "inventory use action",
+    "shape": "one horizontal softly rounded olive-green button with a narrow darker olive edge",
+    "text": "The original shows 使用. Keep text editable and separate from the button sprite.",
+    "forbidden": ["other controls", "wooden frame", "flowers", "leaves", "previous output as reference", "full screenshot supplied to image generator"]
+  },
+  "target_resolution_from_queue": [1580, 520],
+  "transfer_evidence": [
+    {
+      "reported_path": "/mnt/data/lingmu_use_button_20261109/source/04_inventory.jpg",
+      "materialize_report": "success",
+      "runtime_verification": "FileNotFoundError; absent in both container and Python runtime"
+    },
+    {
+      "reported_path": "/mnt/data/files/04_inventory.jpg",
+      "materialize_report": "success",
+      "runtime_verification": "absent when checked in active container"
+    }
+  ],
+  "actions": {
+    "image_generation_calls": 0,
+    "generated_images": 0,
+    "new_review_candidates": 0,
+    "rejected_generated_images": 0,
+    "new_qa_passes": 0,
+    "production_replacements": 0,
+    "queue_rebuilt": false,
+    "existing_counts_changed": false,
+    "existing_item_states_changed": false,
+    "current_focus_advanced": false,
+    "historical_rework_states_changed": false
+  },
+  "qa": {
+    "identity": "source_preview_only; no candidate to assess",
+    "alpha": "not_run",
+    "native_size_readability": "not_run",
+    "art": "not_run",
+    "in_game": "not_run",
+    "candidate_bbox_xyxy": null,
+    "candidate_sha256": null,
+    "approval": "not_approved"
+  },
+  "resume_target": "other96/inventory/use_button",
+  "resume_gate": "Verify original screenshot bytes physically exist in the drawing runtime; crop and inspect only the target, record native bbox/hash, then supply that crop as the sole generation reference.",
+  "do_not_substitute": "Do not replace the authentic crop with V3/V4, a text-only description, a full screenshot, or an earlier generated asset. No new image was made in this run."
+}
