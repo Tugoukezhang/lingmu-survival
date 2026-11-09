@@ -1,0 +1,37 @@
+{
+  "task_id": "other96/inventory/item_potion",
+  "state": "deferred_after_two_wrong_identity_generations",
+  "source": {
+    "file": "04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "bbox_xyxy": [1244, 204, 1340, 291],
+    "crop_size": [96, 87],
+    "crop_sha256": "641af2fb224ed934d61bbb8f90d1fef60aaddc7e21e7704f663dff2a62c7e922",
+    "authentic_source_pixels_verified": true,
+    "reference_binding_to_image_generator_verified": false
+  },
+  "requested": "One golden-yellow potion bottle, short orange-brown cork, pale-green glass, cream side tag and small green leaves; isolated transparent sprite, no quantity.",
+  "attempts": [
+    {
+      "file": "rejected_slot_disabled_sheet.png",
+      "size": [1536, 1024],
+      "mode": "RGBA",
+      "sha256": "f6af9079d3e961e9e26702d72bb18d831668dc3125794454bd745d92fe40cb40",
+      "qa": "rejected_wrong_object_and_layout"
+    },
+    {
+      "file": "rejected_slot_selected_sheet.png",
+      "size": [1536, 1024],
+      "mode": "RGBA",
+      "sha256": "9011090e480e6ab80d452db8f510fdd2c3986eef3899a8a5f124891ee17983f6",
+      "qa": "rejected_wrong_object_and_layout"
+    }
+  ],
+  "rejected_reason": "Both outputs are labelled inventory-slot presentation sheets, not a single potion bottle. Neither contains an acceptable potion sprite.",
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "next_never_attempted_after_target": "other96/inventory/item_map_fragment",
+  "queue_reconciliation": "This is an audit record, not a main-queue rewrite. Consult this and the prior apple/flower manual QA records before selecting a target. Do not count the potion complete or repeat its failed calls. Re-read live queue before any focus change.",
+  "local_reference_only_fallback_created": false
+}
