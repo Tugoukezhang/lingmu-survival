@@ -1,0 +1,55 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/edit_move",
+  "source_reference": "06_home.jpg",
+  "source_preview_inspected": true,
+  "v4_proxy_url": "https://github.com/Tugoukezhang/lingmu-survival/blob/main/game/assets/ui/hud_v4/production/PNG_Transparent/06_home/edit_move.png",
+  "v4_source_blob_sha": "35c10b51559ea66ee58b7a82046ef25b2504832c",
+  "source_pixel_crop_bound_to_generator": false,
+  "expected": "Plain warm brown four-direction arrow glyph: central cross + 4 open rounded arrow heads; transparent; no backing, flowers, leaves or labels",
+  "attempts": [
+    {
+      "number": 1,
+      "kind": "GPT Image",
+      "status": "rejected",
+      "reason": "Unwanted green clover badge, cream arrows and floral details"
+    },
+    {
+      "number": 2,
+      "kind": "GPT Image",
+      "status": "rejected",
+      "reason": "Again added cream and green filled badge plus flower"
+    }
+  ],
+  "candidate": {
+    "path": "/Lingmu_HUD_Exports/Home_Edit_Move_Single_Review_20261109/home_edit_move_reference_guided_1024_RGBA.png",
+    "sha256": "12282e8b55938acb388f84c249dd689e977e8cd56ace98970fdc096ef1f4fc1b",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "kind": "programmatic shape-locked reconstruction with subtle painterly tint; NOT GPT Image handpainted final",
+    "review_bundle": "/Lingmu_HUD_Exports/Home_Edit_Move_Single_Review_20261109/home_edit_move_review_bundle.zip",
+    "comparison": "/Lingmu_HUD_Exports/Home_Edit_Move_Single_Review_20261109/QA_native_size_comparison.jpg"
+  },
+  "qa": {
+    "identity_against_original_preview": "pass visual structure",
+    "alpha": "pass",
+    "native_sizes_px": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_qa": "pending",
+    "in_engine_qa": "not_run",
+    "user_approved": false,
+    "production_replaced": false
+  },
+  "final_approved": false
+}
