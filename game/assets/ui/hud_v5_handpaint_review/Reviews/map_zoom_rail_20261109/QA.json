@@ -1,0 +1,43 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/zoom_rail",
+  "asset_id": "map/zoom_rail",
+  "source": "GitHub V4 zoom_rail.png directly visually inspected; corresponding world map original was previously inspected",
+  "source_v4_blob_sha": "8e878ce8bd43235792e0089a1157613ef20aa157",
+  "expected": "Tall, narrow wooden border and ivory capsule with centered gold sliding track. Excludes plus/minus and moving knob",
+  "candidate": {
+    "kind": "original source-guided antialiased procedural raster redraw (NOT independent GPT Image handpaint)",
+    "resolution": [
+      680,
+      1800
+    ],
+    "format": "RGBA PNG",
+    "library_path": "/Lingmu_HUD_Exports/Map_Zoom_Rail_Single_Review_20261109/map_zoom_rail_680x1800_RGBA_candidate.png",
+    "sha256": "923e537d780ea33f697a5050bffbc278ec854cba2d721d1d4705ea73617f43ce",
+    "qa_bundle": "/Lingmu_HUD_Exports/Map_Zoom_Rail_Single_Review_20261109/map_zoom_rail_review_bundle.zip",
+    "preview": "/Lingmu_HUD_Exports/Map_Zoom_Rail_Single_Review_20261109/QA_light_dark_comparison.jpg"
+  },
+  "qa": {
+    "functional_identity": "pass vs legacy V4 silhouette",
+    "alpha": "pass, four corners alpha=0",
+    "bounding_box": [
+      158,
+      23,
+      522,
+      1777
+    ],
+    "preview_heights_px": [
+      180,
+      360,
+      600,
+      900
+    ],
+    "art_approval": "pending",
+    "engine_validation": "not_run"
+  },
+  "image_generation_call_count": 0,
+  "generation_note": "Exact long capsule works better as geometry-locked procedural raster; no ImageGen misroute attempted",
+  "production_replaced": false,
+  "counts_changed": false
+}
