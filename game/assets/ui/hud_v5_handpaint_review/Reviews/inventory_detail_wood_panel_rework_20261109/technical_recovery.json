@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "status": "technical_recovery_candidate_unapproved",
+  "file_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/detail_wood_panel_rework_review_1260x1640.png",
+  "sha256": "3c375b62b92ce00046ac1ba6be3581b696d14025dc03c34520e19f46618c902d",
+  "size": [
+    1260,
+    1640
+  ],
+  "alpha_present": true,
+  "source_crop_binding_verified": false,
+  "art_qa": "pending; overdecorated compared with source",
+  "edge_qa": "pending",
+  "production_promoted": false
+}
