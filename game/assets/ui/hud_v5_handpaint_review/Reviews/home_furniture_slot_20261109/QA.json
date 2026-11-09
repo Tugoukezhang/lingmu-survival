@@ -1,0 +1,41 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/furniture_slot",
+  "source": "06_home.jpg visually verified and legacy V4 furniture_slot.png verified",
+  "v4_proxy_sha": "3b8b2a486b67fa014e7219caddc04cf088641a5c",
+  "expected": "single empty warm cream-beige rounded square, transparent exterior, minimal tonal shading, no decoration",
+  "image_gen": {
+    "attempts": 1,
+    "rejected": 1,
+    "reason": "Ornate framed slot with leaves/flower, wrong silhouette and extras"
+  },
+  "candidate": {
+    "library_path": "/Lingmu_HUD_Exports/Home_Furniture_Slot_Single_Review_20261109/furniture_slot_blank_1024_RGBA.png",
+    "kind": "source-guided procedural painting using Pillow, NOT GPT Image handpainted final",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "016981569baf1ce91b413bc7e33c0a7e236ef5e548fdca1374cfb6f175c44cad",
+    "qa_bundle": "/Lingmu_HUD_Exports/Home_Furniture_Slot_Single_Review_20261109/furniture_slot_review_bundle.zip"
+  },
+  "qa": {
+    "alpha": "pass",
+    "native_preview_sizes_px": [
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_approval": "pending",
+    "in_game": "not_run",
+    "promoted": false
+  },
+  "final_approved": false,
+  "production_replaced": false,
+  "counts_changed": false
+}
