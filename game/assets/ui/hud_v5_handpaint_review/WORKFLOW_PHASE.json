@@ -14,20 +14,20 @@
     "completed_count_user_confirmed": 96
   },
   "rework": {
-    "status": "potion_rework_candidate_archived_next_separator_failed",
-    "current_target": "other96/inventory/item_potion",
+    "status": "inventory_selected_item_separator_source_matched_candidate_ready",
+    "current_target": "other96/inventory/selected_item_separator",
     "remaining_count": null,
     "resume_policy": "Follow user-confirmed: initial 96 completed; repairs 93–95 completed; now fix previously failed images one by one. See REWORK_CONTINUITY_CHECKPOINT_20261109.md; legacy not_generated/current_focus/production_status counts are not authoritative.",
     "selection_policy": "Pick source-confirmed previously failed item. Preserve user-confirmed completed items and accepted designs. Candidate QA pending does not reopen a completed first-pass task.",
     "on_unresolved_target": "Do not generate an arbitrary new image. Record the reconciliation blocker truthfully. Do not claim a repair was completed.",
-    "latest_record": "Reviews/inventory_item_potion_rejected_20261109/QA.json",
-    "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Item_Potion_20261109/item_potion_warm_yellow_source_matched_1024.png",
-    "latest_result": "1024 RGBA source-matched yellow potion candidate checked, SHA256 c8a3f757216219b05040f2c19bc022b20b059527356facbe6c3a965152c7a4a4, library archived; art/in-engine approval pending, production unchanged.",
+    "latest_record": "Reviews/inventory_selected_item_separator_rejected_20261109/QA.json",
+    "latest_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/selected_item_separator_source_matched_1800x104.png",
+    "latest_result": "1800x104 RGBA thin dotted separator rebuilt from authentic screenshot and archived. Preview at 450x26 verified. Awaiting art and in-engine QA; production unchanged.",
     "last_completed_action_date": "2026-11-09",
-    "next_after_this": "other96/inventory/selected_item_separator (documented wrong-question-badge failure), once real screenshot crop matched",
-    "current_target_source": "04_inventory.jpg screenshot single bottle, and documented failed blue-liquid QA.",
+    "next_after_this": "Select next confirmed previously failed image from QA evidence, not legacy first pass. Reconcile latest mobile record first.",
+    "current_target_source": "04_inventory.jpg exact screenshot crop [315,540,765,566] and documented prior question-badge failure",
     "last_attempted": [
-      "other96/inventory/item_potion"
+      "other96/inventory/selected_item_separator"
     ]
   },
   "existing_records": {
