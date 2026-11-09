@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-09",
+  "task_id": "other96/inventory/slot_active",
+  "asset_id": "inventory/slot_active",
+  "state": "deferred_after_two_wrong_layout_generations",
+  "source": {
+    "file": "04_inventory.jpg",
+    "dimensions": [1920,1080],
+    "bbox_xyxy": [955,197,1094,330],
+    "crop_sha256": "d541a6abe55f54bd84a0ae36ce51057c994a80765e8eadee14de85291da3e6ad",
+    "original_source_visually_verified": true,
+    "note": "Selected slot highlight beneath apple. Apple, cursor, leaf and cursor flower are foreground overlays, not the intended blank slot. Exact tool reference binding is unverified."
+  },
+  "generated_images": 2,
+  "acceptable_candidates": 0,
+  "final_approved_delta": 0,
+  "production_modified": false,
+  "manual_fallback_created": false,
+  "attempts": [
+    {
+      "file_id": "file_00000000663081fdacbe03dee7581736",
+      "sha256": "c5774edee71f9b6ad32f8545ba492e8205fd855f517fa561ba10c468bdc304b1",
+      "dimensions": [1536,1024],
+      "alpha_extrema": [4,253],
+      "fully_transparent_fraction": 0.0,
+      "accepted": false,
+      "reason": "Labelled multi-panel review board, not one isolated sprite. Heavy gilded border, diamond ornaments and leaf motifs differ from the subtle selected-slot highlight."
+    },
+    {
+      "file_id": "file_00000000222c81fd83ee6192ad544fe6",
+      "sha256": "1cd0df7d915c2d0baab70fb948ef62400eefbf1716487699fc25d4f851e2982d",
+      "dimensions": [1536,1024],
+      "alpha_extrema": [20,253],
+      "fully_transparent_fraction": 0.0,
+      "accepted": false,
+      "reason": "Second attempt after displaying a single cropped slot again returned a labelled multi-panel review sheet. No isolated transparent asset."
+    }
+  ],
+  "next_proposed_task_id": "other96/inventory/use_button",
+  "concurrency": "An hourly automation was recorded in_progress at the start of this manual turn. Preserve any independently produced concurrent candidate; do not overwrite or regress its queue state. These two manual-turn attempts are rejected and must not increase candidate/completion counts.",
+  "desired_output": "One empty softly rounded warm ivory/yellow inventory selection slot with subtle highlight and transparent surrounding area; no apple, cursor, text, infographic, examples, ornaments or additional controls."
+}
