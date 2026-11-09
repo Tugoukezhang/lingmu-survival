@@ -1901,8 +1901,13 @@
       },
       "rework_reference_warning": "Old V3/V4 single-leaf fallback is not faithful to original screenshot.",
       "rework_latest_attempts": 2,
-      "rework_status": "source_recovered_wrong_plaque_generations_rejected_no_accepted_candidate",
-      "rework_source_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_original_crop_114x110.png"
+      "rework_status": "source_matched_candidate_ready_for_user_and_engine_QA",
+      "rework_source_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_original_crop_114x110.png",
+      "rework_candidate_sha256": "47ae9370ca1138c3012252f1538720a68656de7fe22dc8cf16c7b9e9c5114902",
+      "rework_candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_source_matched_candidate_1024.png",
+      "rework_preview_library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_native_sizes_review.jpg",
+      "rework_corrections": "Do not use stale one-leaf V3/V4 fallback as true original. Two gray-olive filled leaves in authentic source; 1024 RGBA manual layered reconstruction only, art and engine QA pending.",
+      "rework_accepted_art": false
     },
     {
       "queue_number": 39,
