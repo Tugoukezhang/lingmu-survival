@@ -2614,12 +2614,22 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/furniture_tab_grid.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Furniture_Tab_Grid_Single_Review/furniture_tab_grid_review_1024.png",
+      "candidate_sha256": "1758393efdb93da3a6332089300cb667b3d57aafa98a842733d19206d5848521",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "source_crop_binding_verified": false,
+      "qa_status": "2x2 tile grid identity correct, ornate shield not verified against source; checkerboard alpha segmentation done, edge QA and game QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 68,
@@ -3817,6 +3827,15 @@
       "task_id": "other96/home/furniture_tab_nature",
       "action": "single nature tab icon draft and checkerboard segmentation",
       "result": "One 1024 RGBA visual candidate stored in Library, original palette/shape fidelity and alpha edge QA pending; not counted as approved; production unchanged.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/furniture_tab_grid",
+      "action": "created one grid icon and segmented checkerboard background",
+      "result": "One RGBA review candidate saved in Library; source comparison and alpha edge QA pending; production unchanged",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
