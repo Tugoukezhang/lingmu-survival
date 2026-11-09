@@ -2106,12 +2106,37 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_flower.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "single_handpaint_review_candidate_unapproved",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "reference_match": "functionally_correct_creamy_flower_pending_art_engine_QA",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "source_bbox_xyxy": [
+        1115,
+        207,
+        1210,
+        290
+      ],
+      "source_crop_sha256": "f97d21f0e809937f4769f2bda63db78226d31d1b3fb5c9c00554e99ade9926cf",
+      "source_crop_bind_verified": false,
+      "review_candidate_file": "/mnt/data/lingmu_item_flower_20261109/item_flower_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+      "review_candidate_sha256": "153fe01972112f798217e53f3b7da34af003639f1daf31b7e2e1516da3225c2a",
+      "review_candidate_alpha_bbox": [
+        109,
+        72,
+        915,
+        952
+      ],
+      "review_candidate_resolution": [
+        1024,
+        1024
+      ],
+      "qa_path": "Reviews/inventory_item_flower_review_20261109/QA.json",
+      "library_upload": "AccessDeny",
+      "production_replaced": false,
+      "art_qa": "pending",
+      "engine_qa": "pending"
     },
     {
       "queue_number": 46,
@@ -3469,9 +3494,32 @@
       "library_upload": "AccessDeny",
       "github_qa": "Reviews/inventory_item_apple_review_20261109/QA.json",
       "next": "other96/inventory/item_flower"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_flower",
+      "action": "Prepared/verified tightly cropped original flower reference (95x83) with count 4 masked; generated one single flower artwork. Functionally correct recognizable flower, RGBA 1024x1024, art/engine pending; not promoted.",
+      "source_crop_verified": true,
+      "source_bbox_xyxy": [
+        1115,
+        207,
+        1210,
+        290
+      ],
+      "source_crop_sha256": "f97d21f0e809937f4769f2bda63db78226d31d1b3fb5c9c00554e99ade9926cf",
+      "reference_binding_verifiable": false,
+      "generated": 1,
+      "identity_correct": 1,
+      "rejected": 0,
+      "review_candidate_sha256": "153fe01972112f798217e53f3b7da34af003639f1daf31b7e2e1516da3225c2a",
+      "final_approved": 0,
+      "production_replaced": false,
+      "github_qa": "Reviews/inventory_item_flower_review_20261109/QA.json",
+      "library_upload": "AccessDeny",
+      "next": "other96/inventory/item_potion"
     }
   ],
-  "current_focus": "other96/inventory/item_flower",
+  "current_focus": "other96/inventory/item_potion",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
