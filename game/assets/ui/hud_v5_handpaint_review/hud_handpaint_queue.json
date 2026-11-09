@@ -2892,12 +2892,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/place_button.png",
       "target_resolution": "1600x500",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Place_Button_Single_Review_20261109/place_button_blank_1600x500_RGBA.png",
+      "reference_match": "Verified V4 warm-yellow empty rounded horizontal button; screenshot visually inspected; target single crop not generator bound",
+      "notes": "One green ornamental GPT Image misroute rejected. Simple 1600x500 RGBA yellow button source-guided procedural candidate uploaded Library. No text; art and in-engine QA pending.",
+      "candidate_sha256": "9615bf9a0c0db830e0646a9bc6ba21950f06468f36f17735a3b9d250f6b44a2b",
+      "candidate_kind": "source-guided procedural Pillow redraw, NOT independently GPT Image handpainted",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_place_button_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 73,
@@ -4358,9 +4362,18 @@
       "next_focus": "other96/home/place_button",
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_furniture_slot_20261109/QA.json",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/place_button",
+      "action": "Rejected green floral ImageGen misroute; created single golden-yellow blank button in 1600x500 RGBA, 96-800px QA previews",
+      "result": "Candidate archived in Library; not independently GPT Image handpainted; no production or approved-count changes",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_place_button_20261109/QA.json",
+      "next_focus": "other96/home/save",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/place_button",
+  "current_focus": "other96/home/save",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
