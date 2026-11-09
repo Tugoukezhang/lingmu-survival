@@ -2126,7 +2126,12 @@
       },
       "review_qa_path": "Reviews/inventory_selected_item_separator_rejected_20261109/QA.json",
       "retry_policy": "Defer after 2 identity errors; do not retry without genuinely verified target-only crop binding; original is thin pale taupe dashed line, never question badge.",
-      "production_promoted": false
+      "production_promoted": false,
+      "rework_status": "source_matched_transparent_separator_candidate_pending_art_and_engine_QA",
+      "rework_candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Selected_Item_Separator_20261109/selected_item_separator_source_matched_1800x104.png",
+      "rework_candidate_sha256": "5bcc72a0bc9f32484e7d941b1d24e44f6ffd3c203df700852643bb6449c8a5ab",
+      "rework_method": "Source-anchored alpha extraction reconstruction, not generated handpaint",
+      "rework_art_approval": "pending"
     },
     {
       "queue_number": 44,
