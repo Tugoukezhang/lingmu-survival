@@ -63,5 +63,39 @@
   "qa_comparison_local": "/mnt/data/lingmu_tab_plants_20261108/tab_plants_V3_vs_two_rejected_QA.jpg",
   "review_zip_local": "/mnt/data/lingmu_tab_plants_20261108/tab_plants_rejected_review.zip",
   "library_upload": "AccessDeny",
-  "note": "Do not count as approved and do not promote. Source image binding to authentic screenshot not verified."
+  "note": "Do not count as approved and do not promote. Source image binding to authentic screenshot not verified.",
+  "followup_20261109": {
+    "selection_basis": "Documented outstanding repair failure in inventory_tab_plants_failed_20261108/QA.json, not legacy first-pass/current_focus pointer",
+    "visual_reference": "game/assets/ui/hud_v4/production/PNG_Transparent/04_inventory/tab_plants.png",
+    "visual_reference_sha": "9fa5bf1d9bbb66400874ec4a182786ad99e4c6b5",
+    "intended_identity": "One tilted outlined leaf in dark taupe, pale peach rounded-square fill, medium warm taupe outer stroke; no green sprouts, no wooden noticeboard.",
+    "attempts_this_turn": [
+      {
+        "number": 3,
+        "sha256": "ac6e15ce9376a45682bce6f1f828fec52e7858a3fd608f764b37b351c7842fe7",
+        "size": [
+          1098,
+          1433
+        ],
+        "mode": "RGB",
+        "result": "rejected_wrong_target_wooden_noticeboard"
+      },
+      {
+        "number": 4,
+        "sha256": "2b81285f6dc05a1c8de8822b4776a34a7c5630c87b72ab303801c91362050d41",
+        "size": [
+          991,
+          1587
+        ],
+        "mode": "RGB",
+        "result": "rejected_repeat_wrong_target_wooden_noticeboard"
+      }
+    ],
+    "accepted_new_candidate": false,
+    "pass_identity": false,
+    "source_binding_status": "reference visually inspected, tool did not bind correct source; misrouting persisted",
+    "production_modified": false,
+    "future_guardrail": "Do not spend another attempt until generator is explicitly bound to true single-item source; do not use the wrong wood board outputs as tab_plants.",
+    "provenance": "In-chat rework attempt after user requested resumption from mobile repairs, not first-pass queue"
+  }
 }
