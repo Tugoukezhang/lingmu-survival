@@ -1,0 +1,46 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/progress_track",
+  "asset_id": "map/progress_track",
+  "source": {
+    "legacy_v4_path": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/progress_track.png",
+    "v4_blob_sha": "45c635a5c3f0f6f6cc5255db110225c965739561",
+    "legacy_visual_inspected": true,
+    "reference_screenshot": "07_world_map.jpg",
+    "authentic_crop_bound_to_generator": false
+  },
+  "candidate": {
+    "kind": "reference-guided procedural Pillow sprite with separate dynamic overlays, not independent GPT Image handpaint",
+    "png": "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/progress_track_source_guided_2100x480_RGBA.png",
+    "svg": "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/progress_track_source_guided.svg",
+    "layer_paths": [
+      "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/progress_track_empty_2100x480_RGBA.png",
+      "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/progress_fill_green_2100x480_RGBA.png",
+      "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/progress_marker_gold_2100x480_RGBA.png"
+    ],
+    "qa_bundle": "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/map_progress_track_review_bundle.zip",
+    "dimensions": [
+      2100,
+      480
+    ],
+    "format": "RGBA",
+    "sha256": "b8676640b5c39819e6234857acc3b72b4ffbfcc3e6f4cba9e220c74c07318d1e"
+  },
+  "qa": {
+    "identity": "V4 beige long rounded track with sage green fill and gold progress marker",
+    "alpha": "exterior corners transparent",
+    "preview_widths": [
+      210,
+      420,
+      630,
+      1050
+    ],
+    "art_approval": "pending",
+    "engine_validation": "not_run",
+    "user_approved": false
+  },
+  "image_generation_calls": 0,
+  "production_replaced": false,
+  "counts_changed": false
+}
