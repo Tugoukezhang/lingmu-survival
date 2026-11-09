@@ -1,0 +1,46 @@
+{
+  "schema": "lingmu-hud-single-asset-review-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/category_special",
+  "asset_id": "home/category_special",
+  "source": {
+    "original": "06_home.jpg",
+    "v4_proxy": "game/assets/ui/hud_v4/production/PNG_Transparent/06_home/category_special.png",
+    "v4_proxy_sha": "8e179a9ab2dec47f7be0b4707028963eecac86b4",
+    "visually_checked": true,
+    "reference_crop_bound_to_image_generation": false
+  },
+  "rejected_image_generation": {
+    "attempts": 1,
+    "result": "Ornate star with arch, orbit rings, flowers and banner; incorrect target"
+  },
+  "candidate": {
+    "kind": "manual source-guided antialiased raster, not GPT Image handpainted final",
+    "path": "/Lingmu_HUD_Exports/Home_Category_Special_Single_Review_20261109/category_special_single_star_1024_RGBA.png",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "3126a6551a5eb55e90e2d0d8f73ff0de9099ffc7776aab9b0c5a48321a2d02cb",
+    "bundle": "/Lingmu_HUD_Exports/Home_Category_Special_Single_Review_20261109/category_special_review_bundle.zip"
+  },
+  "checks": {
+    "silhouette": "single five-point gold star with brown outline",
+    "alpha": "verified",
+    "preview_sizes_px": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_approval": "pending",
+    "engine_validation": "not_run"
+  },
+  "production_replaced": false,
+  "approval": "pending",
+  "counts_changed": false
+}
