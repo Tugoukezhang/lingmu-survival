@@ -1,0 +1,38 @@
+{
+  "asset_id": "inventory/slot_empty",
+  "source": "04_inventory.jpg",
+  "source_dimensions": [
+    1920,
+    1080
+  ],
+  "crop_bbox_xyxy": [
+    1360,
+    440,
+    1480,
+    558
+  ],
+  "crop_library": "/Lingmu_HUD_Exports/Inventory_Slot_Empty_Single_Review/slot_empty_original_single_crop_120x118.png",
+  "output": "/Lingmu_HUD_Exports/Inventory_Slot_Empty_Single_Review/slot_empty_source_guided_1024.png",
+  "output_size": [
+    1024,
+    1024
+  ],
+  "format": "RGBA PNG",
+  "sha256": "fb841d2099d9b488b3e144377083ab6792a8f03ce857ca0fb93c24be84c9c79a",
+  "candidate_kind": "manual source-locked subtly painterly translucent slot; not GPT Image final",
+  "generated_image_attempt": "rejected: wrong previous target tab_plants infographic; no candidate counted from generator",
+  "alpha_QA": "soft transparent edge outside slot verified",
+  "geometry_QA": "rounded warm gray-beige blank inventory slot, no icon/text/border",
+  "visual_scale_px": [
+    40,
+    64,
+    96,
+    128
+  ],
+  "art_approved": false,
+  "engine_approved": false,
+  "production_promoted": false,
+  "reference_original_verified": true,
+  "comparison": "/Lingmu_HUD_Exports/Inventory_Slot_Empty_Single_Review/slot_empty_QA_preview.jpg",
+  "bundle": "/Lingmu_HUD_Exports/Inventory_Slot_Empty_Single_Review/slot_empty_review_bundle.zip"
+}
