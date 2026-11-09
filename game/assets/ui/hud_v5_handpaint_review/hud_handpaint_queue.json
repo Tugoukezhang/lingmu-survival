@@ -2858,12 +2858,21 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/item_hanging_greenery.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Item_Hanging_Greenery_Review/item_hanging_greenery_review_1024.png",
+      "candidate_sha256": "b46c371adc720cd24f41a3bc2f30972ffd4ed7f96c39c28e99198854c9a98dc0",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_binding_verified": false,
+      "qa_status": "Hanging planter identity correct; extra wooden wall bracket compared to screenshot; alpha segmented from checkerboard, edge and in-engine QA pending.",
+      "production_promoted": false
     },
     {
       "queue_number": 80,
@@ -3965,6 +3974,15 @@
       "task_id": "other96/home/item_plant_crate",
       "action": "single wooden planter crate image generated and alpha-separated",
       "result": "One visual candidate saved to Library; original fidelity and alpha QA pending, no production change.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/item_hanging_greenery",
+      "action": "created single hanging greenery candidate, transparent-background segmentation and QA",
+      "result": "Candidate saved Library, source fidelity and edge QA pending; not production approved.",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
