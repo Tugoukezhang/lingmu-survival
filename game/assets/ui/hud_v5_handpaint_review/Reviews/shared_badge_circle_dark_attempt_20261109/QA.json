@@ -1,0 +1,12 @@
+{
+  "task_id": "other96/shared/badge_circle_dark",
+  "target": "reusable dark circular badge background with clean alpha, no external glow",
+  "attempts": 1,
+  "actual": "dark maroon gold circular badge with brown radial background/glow, not transparent",
+  "result": "rejected_background_not_transparent",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/shared/badge_circle_light",
+  "note": "Artwork geometry is suitable as visual reference but full image is opaque. No approved PNG."
+}
