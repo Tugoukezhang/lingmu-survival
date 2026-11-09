@@ -2225,12 +2225,38 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_mushroom.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
+      "state": "recovered_misrouted_art_candidate_pending_user_and_engine_qa",
+      "approval": "pending_user_and_engine_qa",
       "attempts": 0,
       "delivered_file": null,
       "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "review_candidate_local": "/mnt/data/lingmu_mushroom_recovery_20261109/item_mushroom_misrouted_recovered_UNAPPROVED_1024_RGBA.png",
+      "review_candidate_library": null,
+      "review_qa_repo": "Reviews/inventory_item_mushroom_recovered_20261109/QA.json",
+      "candidate_sha256": "94d7725c35d10a6c2230fc5529985d90928e31ebf4ba60d8f8aeeb77b8aa64ea",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "alpha_bbox_xyxy": [
+        99,
+        85,
+        924,
+        938
+      ],
+      "qa_status": "Mushroom identity/palette broadly correct; missing original green foliage; alpha preview and 32/48/64/96px checks; user art and in-engine QA pending.",
+      "original_crop_bbox_xyxy": [
+        1514,
+        205,
+        1603,
+        286
+      ],
+      "candidate_kind": "Recovered wrong-target text-to-image, NOT linked to mushroom source crop at generation; original reference only used for subsequent QA",
+      "source_binding_verified": false,
+      "library_upload": "AccessDeny",
+      "production_promoted": false
     },
     {
       "queue_number": 49,
@@ -2462,12 +2488,15 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/bottom_category_bar.png",
       "target_resolution": "2980x420",
-      "state": "not_generated",
+      "state": "deferred_after_two_wrong_scope_attempts_original_source_unavailable",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": false,
+      "notes": "",
+      "last_failure_reason": "Prior one ornate six-tab bar with wrong icons, plus this run generated unrelated mushroom; no authentic 06_home.jpg crop in this runtime.",
+      "last_attempt_record": "Reviews/home_bottom_category_bar_second_wrong_20261109/QA.json",
+      "production_promoted": false
     },
     {
       "queue_number": 59,
@@ -3986,9 +4015,24 @@
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/bottom_category_bar",
+      "action": "single target generation output mushroom; prior bar attempt already wrong, this is second. Recovered candidate under mushroom, no bar image.",
+      "result": "Bar deferred after two wrong identities; mushroom provisional art candidate, alpha and source comparison done, user/engine QA pending. Library AccessDeny. No production change.",
+      "created_candidates": 1,
+      "recovered_to": "other96/inventory/item_mushroom",
+      "approved": 0,
+      "counted_as_complete": false,
+      "reference_binding_verified": false,
+      "qa_records": [
+        "Reviews/home_bottom_category_bar_second_wrong_20261109/QA.json",
+        "Reviews/inventory_item_mushroom_recovered_20261109/QA.json"
+      ]
     }
   ],
-  "current_focus": "other96/home/bottom_category_bar",
+  "current_focus": "other96/home/category_furniture",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
