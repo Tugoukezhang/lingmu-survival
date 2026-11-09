@@ -1,0 +1,17 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "offline_layering_prototype",
+  "library_folder": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/Layering_Prototype",
+  "layers": [
+    "panel_background_only.png",
+    "dynamic_content_example.png"
+  ],
+  "previews": [
+    "apple_layered_preview.png",
+    "potion_layered_preview.png"
+  ],
+  "finding": "same frame can hold independently changed icon, description and button in offline composition",
+  "limitations": "sample UI content illustrative, not extracted from game; not integrated into engine; source frame art fidelity still pending",
+  "approved": false,
+  "production_promoted": false
+}
