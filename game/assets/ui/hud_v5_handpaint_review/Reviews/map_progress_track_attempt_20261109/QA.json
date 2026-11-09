@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/map/progress_track",
+  "source": "07_world_map.jpg",
+  "target": "thin horizontal exploration progress bar in lower-left info panel, with empty track and separate fill",
+  "attempts": 1,
+  "actual": "large ornate pink parchment landscape banner with mountain imagery, no thin progress track",
+  "result": "rejected_wrong_identity",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/map/location_thumbnail_frame",
+  "note": "Do not misclassify decorative landscape banner as exploration progress rail."
+}
