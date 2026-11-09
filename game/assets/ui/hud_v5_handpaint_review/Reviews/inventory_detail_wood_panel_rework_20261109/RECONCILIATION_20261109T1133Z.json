@@ -1,0 +1,55 @@
+{
+  "schema": "lingmu-hud-rework-reconciliation-v1",
+  "date": "2026-11-09",
+  "phase": "rework_and_review",
+  "target_id": "other96/inventory/detail_wood_panel",
+  "action": "existing_candidate_QA_preflight_only",
+  "target_selection_basis": [
+    "WORKFLOW_PHASE.json rework.current_target",
+    "Reviews/shared_back_wood_rework_20261109/QA.json next_rework",
+    "Reviews/inventory_detail_wood_panel_rework_20261109/QA.json latest_manual_rework",
+    "recovered prior mobile discussion: detail_wood_panel candidate is pending visual/game QA"
+  ],
+  "phase_authority": "First pass of 96 items completed per user; legacy current_focus and first-pass counts are stale",
+  "candidate_expected": {
+    "library_path": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_1260x1640.png",
+    "dimensions": [
+      1260,
+      1640
+    ],
+    "sha256": "d66fef98f5a937fa689cdb823364a85b275fe85fd490713ab5a967af53b0c366",
+    "kind": "manual reconstruction, not AI handpaint"
+  },
+  "reference_expected": {
+    "source": "04_inventory.jpg",
+    "bbox_xyxy": [
+      238,
+      168,
+      684,
+      772
+    ]
+  },
+  "attempted_access": {
+    "library_folder": "Library path not found on exact folder lookup; no replacement guessed",
+    "container": "Neither candidate nor matching source found among mounted current-conversation artifacts",
+    "github_code_search": "No indexed source/candidate by exact name"
+  },
+  "blocking_issue": "Cannot independently access the original candidate and source reference bytes to verify alpha, bbox, sha256, source fidelity or in-engine appearance. Mobile's next specified revision after this candidate remains unknown. No new target chosen.",
+  "results": {
+    "generated": 0,
+    "repairs_completed": 0,
+    "visual_approved": 0,
+    "technical_qa_passed": 0,
+    "production_promoted": 0,
+    "candidate_status": "preexisting candidate remains pending visual and game QA",
+    "no_first_pass_restarted": true,
+    "queue_or_production_mutated": false
+  },
+  "next_action": "Recover exact existing candidate and source files, then inspect and do QA for this target only. Do not invent another repair task or regenerate an already accepted asset.",
+  "preserved": [
+    "title/age_12_badge",
+    "inventory/item_bread",
+    "inventory/item_letter",
+    "Chinese logo skipped"
+  ]
+}
