@@ -3003,12 +3003,21 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/status_star.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Map_Status_Star_Review/status_star_review_1024.png",
+      "candidate_sha256": "b5b82551348c8b1a35b16937270da8ca912c7a02f4a8b8a6c23257a4e99f353a",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_binding_verified": false,
+      "qa_status": "Five-point gold star correctly identified, native RGBA alpha verified; source detail and in-engine small-size QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 87,
@@ -4045,6 +4054,15 @@
       "task_id": "other96/map/zoom_thumb",
       "action": "isolated zoom thumb draft with background segmentation and 1024 RGBA review",
       "result": "One visual candidate archived to Library; pending source and engine QA; production unchanged.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/status_star",
+      "action": "single gold map status star generated with native alpha, normalized and archived",
+      "result": "One review candidate, not production approved",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
