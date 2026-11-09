@@ -1,0 +1,40 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "task_id": "other96/shared/badge_circle_light",
+  "date": "2026-11-09",
+  "source_reference": "GitHub V4 badge_circle_light.png (visually inspected); authentic screenshot single crop NOT verified",
+  "source_url": "https://github.com/Tugoukezhang/lingmu-survival/blob/main/game/assets/ui/hud_v4/production/PNG_Transparent/00_common/badge_circle_light.png",
+  "old_source_blob_sha": "51ca01deca0d4e67fe48bf1542d34b0edec5b6b3",
+  "expected": "Single round matte cream badge face with simple warm brown narrow border; no stars, leaves, flowers, lettering, backing panel",
+  "actual_candidate": "1024x1024 RGBA transparent, warm ivory face, muted brown narrow ring, tiny raster paint grain",
+  "candidate_sha256": "31e40aecde455554cbee2dac9b014e12240aa40c30824828a6c86b676389dda6",
+  "candidate_library": "/Lingmu_HUD_Exports/Rework_Badge_Circle_Light/badge_circle_light_source_guided_candidate_1024_20261109.png",
+  "review_bundle_library": "/Lingmu_HUD_Exports/Rework_Badge_Circle_Light/badge_circle_light_source_guided_review_bundle_20261109.zip",
+  "qa_preview_library": "/Lingmu_HUD_Exports/Rework_Badge_Circle_Light/badge_circle_light_native_size_QA_20261109.jpg",
+  "candidate_kind": "programmatically hand-textured raster reconstruction, NOT GPT Image handpainted final",
+  "wrong_image_gen_result_rejected": {
+    "actual": "decorated peach horizontal inventory label",
+    "desired": "plain light circular badge",
+    "num_images": 1
+  },
+  "prior_library_rework_not_accepted": "Ornate gold and pink star badge is not faithful to simple V4 proxy; retained separately",
+  "qa": {
+    "identity_against_v4": "passed visually",
+    "alpha": "passed",
+    "connected_alpha_components": 1,
+    "preview_sizes_px": [
+      32,
+      48,
+      64,
+      96,
+      192,
+      288
+    ],
+    "game_validation": "not_run",
+    "true_original_crop": "not_verified",
+    "handpaint_art": "pending",
+    "approval": "pending"
+  },
+  "production_promotion": false,
+  "existing_counts_changed": false
+}
