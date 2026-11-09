@@ -2330,12 +2330,29 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/edit_tool_vertical.png",
       "target_resolution": "636x1800",
-      "state": "not_generated",
+      "state": "deferred_two_wrong_identity_generations",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "reference_match": false,
+      "notes": "",
+      "production_promoted": false,
+      "failure_reason": "Target is left-side tall cream four-section editing toolbar (move, rotate, duplicate, remove), not a hammer/wrench home maintenance emblem. Two generated outputs were unrelated single badge icons; rejected.",
+      "source_crop": {
+        "source": "06_home.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          60,
+          450,
+          207,
+          887
+        ],
+        "reference_binding_to_generator_verified": false
+      },
+      "retry_policy": "Retry only with verified target-specific image edit binding. Do not count either icon as a candidate."
     },
     {
       "queue_number": 54,
@@ -3664,9 +3681,20 @@
       "approved": 0,
       "production_promoted": false,
       "next": "other96/inventory/item_leaf"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/edit_tool_vertical",
+      "action": "Verified original home toolbar; two image generations returned unrelated repair/construction emblems",
+      "generated": 2,
+      "rejected": 2,
+      "created_candidates": 0,
+      "approved": 0,
+      "production_promoted": false,
+      "next": "other96/home/edit_move"
     }
   ],
-  "current_focus": "other96/inventory/item_mushroom",
+  "current_focus": "other96/home/edit_move",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
