@@ -2775,12 +2775,21 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/currency_clover.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Currency_Clover_Review/currency_clover_review_1024.png",
+      "candidate_sha256": "773ea40acfe3ea774ca6dd521e6293524646fa0baa6d7bdc47db7b6f3aaa4a2e",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_binding_verified": false,
+      "qa_status": "Clover icon correct class; generated clover has five leaf lobes rather than reference four-leaf emblem, source fidelity requires QA. Checkerboard segmented, edge QA pending.",
+      "production_promoted": false
     },
     {
       "queue_number": 76,
@@ -3911,6 +3920,15 @@
       "task_id": "other96/home/hide",
       "action": "generated hide eye-slash icon and extracted transparent candidate",
       "result": "One RGBA candidate saved Library, identity correct, source and engine QA pending, production unchanged.",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/currency_clover",
+      "action": "single clover currency visual draft and alpha segmentation",
+      "result": "One visual candidate archived, source and alpha QA pending; not approved or promoted.",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
