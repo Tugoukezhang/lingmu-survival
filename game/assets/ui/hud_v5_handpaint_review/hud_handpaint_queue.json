@@ -2679,12 +2679,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/category_wall.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Category_Wall_Single_Review_20261109/category_wall_framed_mountain_1024_RGBA.png",
+      "reference_match": "V4 simple brown frame + mountain line verified; screenshot viewed, isolated original crop not generator-bound",
+      "notes": "ImageGen full windmill picture rejected. Shape-locked programmatic 1024 transparent glyph delivered, NOT independent handpaint. Small-scale and alpha verified; art/in-engine QA pending.",
+      "candidate_kind": "programmatically drawn source-guided raster, NOT independent GPT Image handpaint",
+      "candidate_sha256": "2846e6140ce6597ed8f837fb979432b5b175d5029730a22eac680c991c96cacd",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_wall_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 63,
@@ -4306,9 +4310,18 @@
       "next_focus": "other96/home/category_wall",
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_hanging_20261109/QA.json",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/category_wall",
+      "action": "Verified original simple picture/mountain glyph; rejected ornate windmill art; produced accurate 1024 source-guided transparent raster and 32–256px QA",
+      "result": "Candidate uploaded to Library; GitHub QA archived; no official promotion; counts unchanged",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_category_wall_20261109/QA.json",
+      "next_focus": "other96/home/category_special",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/category_wall",
+  "current_focus": "other96/home/category_special",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
