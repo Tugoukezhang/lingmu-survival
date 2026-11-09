@@ -1,0 +1,19 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "phase": "edge_cleanup_v2",
+  "sha256": "997444a2e7603609a6b77446e8524a999e29dc77bd9145e172d9c4c3fe911293",
+  "size": [
+    1260,
+    1640
+  ],
+  "alpha_bbox": [
+    119,
+    145,
+    1139,
+    1494
+  ],
+  "outer_edge_nonzero": 0,
+  "library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/detail_wood_panel_edge_refined_1260x1640.png",
+  "status": "technical_refinement_pending_art_and_engine_QA",
+  "production_promoted": false
+}
