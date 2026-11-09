@@ -1,0 +1,19 @@
+{
+  "task_id": "other96/inventory/item_mushroom",
+  "source": "04_inventory.jpg",
+  "source_crop_bbox": [
+    1494,
+    192,
+    1612,
+    291
+  ],
+  "attempts": 2,
+  "accepted_candidates": 0,
+  "art_qa": "failed",
+  "attempt_1": "A standalone hand-painted mushroom was generated but lacks the source's prominent cream spots, has incorrect cap proportions and diffuse dirty background; reject.",
+  "attempt_2": "Generator switched to previous item_map_fragment instead of mushroom; correctly identified as map fragment but not counted for mushroom.",
+  "final_approved": 0,
+  "production_promoted": false,
+  "next": "other96/inventory/item_bread",
+  "note": "Both generated files are drafts only. Do not claim a finished transparent mushroom or promote. Main queue not advanced in this record."
+}
