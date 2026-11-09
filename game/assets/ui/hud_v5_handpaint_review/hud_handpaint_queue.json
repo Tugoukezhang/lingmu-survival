@@ -1738,7 +1738,35 @@
       ],
       "candidate_count": 0,
       "qa": "failed_identity_aspect",
-      "deferred_retry_policy": "Do not repeat generation without verified portrait-only source reference binding; skip to next unfinished asset."
+      "deferred_retry_policy": "Do not repeat generation without verified portrait-only source reference binding; skip to next unfinished asset.",
+      "rework_phase_state": "manual_reference_aligned_candidate_pending_user_and_engine_QA",
+      "rework_candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_1260x1640.png",
+      "rework_candidate_sha256": "d66fef98f5a937fa689cdb823364a85b275fe85fd490713ab5a967af53b0c366",
+      "rework_candidate_size": [
+        1260,
+        1640
+      ],
+      "rework_candidate_kind": "independent manual source-locked RGBA paint-texture candidate, NOT GPT Image handpaint acceptance",
+      "rework_review_comparison": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_QA.jpg",
+      "rework_qa_path": "Reviews/inventory_detail_wood_panel_rework_20261109/QA.json",
+      "rework_source_crop": {
+        "file": "04_inventory.jpg",
+        "actual_source_size": [
+          1920,
+          1080
+        ],
+        "bbox_xyxy": [
+          238,
+          168,
+          684,
+          772
+        ],
+        "original_screenshot_cropped": true
+      },
+      "rework_visual_approval": "pending",
+      "rework_engine_approval": "pending",
+      "production_promoted": false,
+      "rework_notes": "Original portrait walnut/cream frame preserved, previous incorrect landscape/ribbon/crest form removed. One new image generation was rejected as wrong map-fragment infographic; fallback candidate is manually redrawn, not a final accepted GPT Image asset. First production pass was user-confirmed complete; no first-pass completion count changed."
     },
     {
       "queue_number": 34,
@@ -4116,6 +4144,14 @@
       "approved": 0,
       "counted_as_complete": false,
       "review_record": "Reviews/shared_badge_circle_dark_20261109T1035Z/QA.json"
+    },
+    {
+      "date": "2026-11-09",
+      "phase": "rework",
+      "task_id": "other96/inventory/detail_wood_panel",
+      "action": "follow shared_back_wood_rework QA next_rework to existing detail_wood_panel, crop original screenshot, reject 1 misrouted image-gen output, rebuild one transparent portrait wood frame candidate",
+      "result": "Manual source-guided 1260x1640 RGBA candidate and QA uploaded to Library, GitHub existing rework QA extended. Visual art and in-engine QA pending. No production modification. First-pass finished remains user-confirmed.",
+      "new_approved": 0
     }
   ],
   "current_focus": "other96/shared/badge_circle_light",
