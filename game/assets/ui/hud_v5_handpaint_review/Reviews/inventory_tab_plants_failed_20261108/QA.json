@@ -97,5 +97,45 @@
     "production_modified": false,
     "future_guardrail": "Do not spend another attempt until generator is explicitly bound to true single-item source; do not use the wrong wood board outputs as tab_plants.",
     "provenance": "In-chat rework attempt after user requested resumption from mobile repairs, not first-pass queue"
+  },
+  "source_correction_20261109": {
+    "source_kind": "authentic 04_inventory.jpg 1920x1080 original screenshot",
+    "screenshot_bbox_xyxy": [
+      1487,
+      85,
+      1601,
+      195
+    ],
+    "crop_name": "tab_plants_original_crop_114x110.png",
+    "crop_sha256": "d0bc853edda2c8bd47bc61260367496a88ec1290fb83e39e288ca6d8c7af6f20",
+    "crop_is_rgba": false,
+    "correct_screenshot_identity": "Near-square dusty pink peach tab with warm taupe outline, TWO filled grey-olive leaves with lighter pale veins and one short stem. Not previously recorded one-leaf outline fallback.",
+    "previous_v3_v4_fallback_mismatch": "fallback has a single leaf and does not match screenshot",
+    "generation_attempts": [
+      {
+        "sha256": "ef456cd2351a4cc1516ee63dc651bd06f175fabbbeaeead3189fff00de91b3c4",
+        "size": [
+          1774,
+          887
+        ],
+        "mode": "RGB",
+        "result": "rejected_wrong_wide_flower_decorated_plaque"
+      },
+      {
+        "sha256": "d2197147c6c148ee56b48f830377d533085d2cd3fdaa9ff2f86bba0efd3fcc26",
+        "size": [
+          1774,
+          887
+        ],
+        "mode": "RGB",
+        "result": "rejected_repeat_wrong_wide_flower_decorated_plaque"
+      }
+    ],
+    "new_accepted_candidate": false,
+    "art_qa": "failed_identity_and_size",
+    "engine_qa": "not_run",
+    "production_modified": false,
+    "safety_rule": "Stop repeat generation after two misrouted outputs until source-locked image-edit is available",
+    "note": "No incorrect wood/plaque asset promoted. This is a mobile repair-stage task, never a first-pass restart."
   }
 }
