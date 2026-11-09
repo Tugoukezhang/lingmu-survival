@@ -1,0 +1,20 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "v5_edge_rgb_decontamination",
+  "library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/detail_wood_panel_blank_v5_edge_clean_1260x1640.png",
+  "sha256": "59ae1e4d540209951f1568e8ae62c27b598061575484ceaee902785848388595",
+  "size": [
+    1260,
+    1640
+  ],
+  "edge_pixels_recolored": 16496,
+  "alpha_partial": 14217,
+  "canvas_border_nonzero": 0,
+  "remaining": [
+    "100% fringe inspection",
+    "art source fidelity",
+    "engine integration"
+  ],
+  "approved": false,
+  "production_promoted": false
+}
