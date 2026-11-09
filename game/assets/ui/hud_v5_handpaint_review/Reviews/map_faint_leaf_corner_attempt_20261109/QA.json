@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/map/map_faint_leaf_corner",
+  "source": "07_world_map.jpg",
+  "target": "soft semi-transparent pale green leaf corner flourish only, isolated alpha, no flower or full background",
+  "attempts": 1,
+  "actual": "leaf and white flower over large bright white-to-black diagonal background gradient; no clean isolated alpha",
+  "result": "rejected_background_and_scope",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/shared/blank_cream_pill",
+  "note": "Retain only as visual concept; not game-ready."
+}
