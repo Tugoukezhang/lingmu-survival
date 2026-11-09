@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/map/status_bar_empty",
+  "date": "2026-11-09",
+  "source": "07_world_map.jpg",
+  "source_verified": true,
+  "source_description": "two slim translucent slate-blue horizontal counters in upper-right, rounded corners, subtle light outline; star and leaf plus numbers are separate",
+  "attempts": 1,
+  "generated": "ornate dark-green gold banner with floral decoration, gems and visible checkerboard",
+  "result": "rejected_source_fidelity",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/map/status_star",
+  "note": "Do not classify as finished status bar. Target should be simple translucent slate-blue rounded strip without embedded numbers/icons."
+}
