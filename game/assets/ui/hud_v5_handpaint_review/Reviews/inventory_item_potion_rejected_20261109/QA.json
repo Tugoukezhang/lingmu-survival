@@ -1,0 +1,96 @@
+{
+  "schema": "lingmu-hud-v5-single-control-qa-v1",
+  "run_utc": "2026-11-09T07:44:26Z",
+  "task_id": "other96/inventory/item_potion",
+  "asset_id": "inventory/item_potion",
+  "queue_number": 46,
+  "source": {
+    "name": "04_inventory.jpg",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [
+      1246,
+      200,
+      1338,
+      282
+    ],
+    "crop_size": [
+      92,
+      82
+    ],
+    "raw_crop_sha256": "86ac6b479bea35343a4529f774b53b415e73163ad783628603e24c4c82a49c95",
+    "one_target_reference_sha256": "b7905b63e685ceea28fc970eb6e0e19f1a718c27d5ed36f1249a907a1990c073",
+    "reference_cleanup": "Removed separate numeric 2 overlay via limited inpainting; retained original raw crop",
+    "reference_binding_verified": false
+  },
+  "source_identity": "Small transparent round glass bottle with bright yellow / amber liquid, orange-brown cork and modest green botanical accent; NO extra rope/tag/bubbles; count 2 is independent UI text",
+  "attempts": [
+    {
+      "n": 1,
+      "file": "potion_attempt_1_REJECTED_BLUE.png",
+      "sha256": "8e8987e978bd8eaf8e1234cae3ce82b42c4af2059b0379023fbb82b1c5698c65",
+      "size": [
+        1536,
+        1024
+      ],
+      "rgba": true,
+      "alpha_range": [
+        0,
+        254
+      ],
+      "alpha_bbox": [
+        41,
+        25,
+        1492,
+        992
+      ],
+      "identity": "potion bottle correct",
+      "art": "FAIL: bright blue liquid, thick rope and tag, bubbles instead of original amber vial",
+      "game_48px": "bottle recognizable; original palette wrong",
+      "approved": false
+    },
+    {
+      "n": 2,
+      "file": "potion_attempt_2_REJECTED_BLUE.png",
+      "sha256": "1c90dc4e67ba4f433f65c8102ed67c7752670e7a7841dcad93bfa650e5aa2e77",
+      "size": [
+        1536,
+        1024
+      ],
+      "rgba": true,
+      "alpha_range": [
+        0,
+        254
+      ],
+      "alpha_bbox": [
+        161,
+        25,
+        1520,
+        1002
+      ],
+      "identity": "potion bottle correct",
+      "art": "FAIL: same blue potion and rope/label instead of original warm yellow",
+      "game_48px": "bottle recognizable; original palette wrong",
+      "approved": false
+    }
+  ],
+  "status": "rejected_two_attempts_deferred_rework",
+  "attempt_count": 2,
+  "review_candidate_count": 0,
+  "passed_count": 0,
+  "production_replacements": 0,
+  "target_resolution": [
+    1024,
+    1024
+  ],
+  "gallery": "potion_reference_vs_two_rejections_QA.jpg",
+  "art_qa": "failed",
+  "engine_qa": "not_run",
+  "next": "other96/inventory/item_map_fragment",
+  "library_upload": "AccessDeny (FileDrive)",
+  "production_untouched": true,
+  "archive_note": "Full PNGs (and original crop/comparison) retained in local review ZIP; GitHub text record only, not pretending binary uploaded."
+}
