@@ -1,0 +1,19 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "blank_panel_v4",
+  "library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel/detail_wood_panel_blank_v4_1260x1640.png",
+  "sha256": "c2ec3c40a4f04355280b308123a4b1613dbb5ebac05dedae2050668b997cf83c",
+  "size": [
+    1260,
+    1640
+  ],
+  "content_baked_in": false,
+  "alpha_method": "exterior connected checkerboard segmentation",
+  "remaining": [
+    "edge fringe QA",
+    "source art fidelity QA",
+    "in-engine test"
+  ],
+  "approved": false,
+  "production_promoted": false
+}
