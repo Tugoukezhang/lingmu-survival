@@ -1,0 +1,23 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "stage": "offline_dynamic_alignment_v3",
+  "source_bbox": [
+    260,
+    190,
+    810,
+    890
+  ],
+  "target_resolution": [
+    1260,
+    1640
+  ],
+  "outputs": [
+    "aligned_dynamic_content_placeholder_v3.png",
+    "source_vs_aligned_content_v3.jpg",
+    "alignment_v3_bundle.zip"
+  ],
+  "library_folder": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel",
+  "notes": "Two-column layout positions now mapped from screenshot. Text, icons and button are illustrative placeholders, not original game assets. No engine integration.",
+  "approved": false,
+  "production_promoted": false
+}
