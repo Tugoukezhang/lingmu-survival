@@ -1,0 +1,23 @@
+{
+  "task_id": "other96/inventory/item_map_fragment",
+  "queue_number": 47,
+  "state": "authentic_single_reference_prepared",
+  "source": {
+    "file": "04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "bbox_xyxy": [1360, 198, 1480, 296],
+    "crop_dimensions": [120, 98],
+    "crop_path": "/mnt/data/lingmu_map_fragment_single/map_fragment_reference_crop.png",
+    "original_pixels_inspected": true
+  },
+  "single_asset_brief": {
+    "subject": "One small hand-painted treasure-map fragment for the inventory. A softly irregular pale peach-cream parchment sheet, slightly tilted, with a warm ochre dashed curved route. One tiny brown house symbol sits at lower left, one small olive-green tree symbol at upper right, and a coral-red X at lower right. A few small olive-green leaves peek from behind the paper edges. Preserve these distinctive features and the compact original silhouette.",
+    "finish": "Refined cozy 2D game painting, delicate paper folds and warm soft shadows, crisp clean contours, restrained texture and readable symbols at small sizes. This is an individual object, not a HUD presentation.",
+    "output": "Exactly ONE isolated map-fragment PNG on transparent background, square canvas, entire subject inside generous clear margins.",
+    "omit": "No inventory slot, label, quantities or the number 1; no infographic, review board, size comparisons, extra assets, gold frame, jewels, glow, potion, flowers or lettering."
+  },
+  "accepted_candidates": 0,
+  "art_approval": "pending_output",
+  "engine_qa": "not_run",
+  "production_promoted": false
+}
