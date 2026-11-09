@@ -1,0 +1,14 @@
+{
+  "task_id": "other96/shared/blank_cream_pill",
+  "target_resolution": "2000x440",
+  "target": "simple blank cream pill with subtle border and genuinely transparent outside, no text",
+  "attempts": 1,
+  "generated": "ornate cream horizontal pill with gold trim, green gems, faint leaves and checkerboard rendered into RGB",
+  "actual_image_mode": "RGB",
+  "result": "rejected_nontransparent_and_extra_decoration",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/shared/badge_circle_dark",
+  "reason": "RGB checkerboard is baked into pixels, not transparency; ornaments and aspect ratio depart from simple reusable pill."
+}
