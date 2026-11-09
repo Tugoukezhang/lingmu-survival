@@ -1,0 +1,49 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/item_plant_pot",
+  "asset_id": "home/item_plant_pot",
+  "source_reference": "06_home.jpg screenshot visually reviewed in project, V4 item_plant_pot.png proxy directly inspected",
+  "v4_blob_sha": "7938750aef3ffd6cba501728f110c3eced2d1829",
+  "generator": {
+    "attempts": 1,
+    "status": "rejected",
+    "reason": "Created white flowering ivory pot with bow and many leaves, instead of three-leaf terracotta proxy"
+  },
+  "candidate": {
+    "kind": "source-guided original SVG/raster illustration, NOT GPT Image handpainted",
+    "path": "/Lingmu_HUD_Exports/Home_Item_Plant_Pot_Single_Review_20261109/item_plant_pot_three_leaves_1024_RGBA.png",
+    "review_bundle": "/Lingmu_HUD_Exports/Home_Item_Plant_Pot_Single_Review_20261109/plant_pot_review_bundle.zip",
+    "qa_preview": "/Lingmu_HUD_Exports/Home_Item_Plant_Pot_Single_Review_20261109/QA_scale_comparison.jpg",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "f52ac7dd7c7887fdceec5bc25922a002b5daecedf1e7853da7409adeb092fa1d",
+    "alpha_bbox": [
+      319,
+      183,
+      798,
+      814
+    ]
+  },
+  "qa": {
+    "geometry": "three distinct green leaves plus simple brown clay pot, matching V4 motif",
+    "alpha": "passed",
+    "native_preview_sizes_px": [
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_approval": "pending",
+    "in_game": "not_run",
+    "authentic_reference_crop_bound_to_imagegen": false
+  },
+  "final_approved": false,
+  "production_replaced": false,
+  "count_changed": false
+}
