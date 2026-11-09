@@ -2173,12 +2173,50 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_map_fragment.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "single_handpaint_review_candidate_unapproved",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "reference_match": "functionally_correct_map_fragment_pending_art_game_QA",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "source_crop": {
+        "file": "04_inventory.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+        "bbox_xyxy": [
+          1368,
+          195,
+          1484,
+          273
+        ],
+        "dimensions": [
+          116,
+          78
+        ],
+        "sha256": "e9ab80102828f9be937db5b84bcf05d98bb7e6d2efeeebfabb29215d6cf19d2d",
+        "source_to_generator_binding_verified": false
+      },
+      "candidate_sha256": "910c8a6bedf824e20664c7e2d29755365083ed1d9fc2846cd6162e1ccfafefdb",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA",
+      "candidate_alpha_bbox": [
+        68,
+        73,
+        956,
+        950
+      ],
+      "candidate_local": "/mnt/data/lingmu_map_fragment_20261109/item_map_fragment_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+      "qa_path": "Reviews/inventory_item_map_fragment_review_20261109/QA.json",
+      "art_qa": "pending",
+      "engine_qa": "not_run",
+      "library_upload": "AccessDeny",
+      "production_replaced": false
     },
     {
       "queue_number": 48,
@@ -3552,9 +3590,31 @@
       "library_upload": "AccessDeny",
       "github_qa": "Reviews/inventory_item_potion_rejected_20261109/QA.json",
       "next": "other96/inventory/item_map_fragment"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_map_fragment",
+      "asset_id": "inventory/item_map_fragment",
+      "reference_file": "04_inventory.jpg",
+      "source_bbox_xyxy": [
+        1368,
+        195,
+        1484,
+        273
+      ],
+      "source_crop_sha256": "e9ab80102828f9be937db5b84bcf05d98bb7e6d2efeeebfabb29215d6cf19d2d",
+      "source_bind_verified": false,
+      "attempts": 1,
+      "rejected": 0,
+      "accepted_review_candidates": 1,
+      "final_approved": 0,
+      "production_replaced": false,
+      "library_upload": "AccessDeny",
+      "github_qa": "Reviews/inventory_item_map_fragment_review_20261109/QA.json",
+      "next": "other96/inventory/item_mushroom"
     }
   ],
-  "current_focus": "other96/inventory/item_map_fragment",
+  "current_focus": "other96/inventory/item_mushroom",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
