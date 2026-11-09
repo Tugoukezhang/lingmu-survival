@@ -3272,12 +3272,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/progress_track.png",
       "target_resolution": "2100x480",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
       "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Progress_Track_Single_Review_20261109/progress_track_source_guided_2100x480_RGBA.png",
+      "reference_match": "V4 progress track visually inspected: beige capsule with sage green fill and warm gold marker, screenshot context known, exact crop not generative-bound",
+      "notes": "2100x480 RGBA progress track candidate with separable blank track, green fill, and gold marker, plus SVG & preview bundle. Source-guided Pillow rendering, not independently AI handpainted. Alpha/previews pass; art and in-engine QA pending.",
+      "candidate_kind": "reference-guided procedural Pillow sprite with separate dynamic overlays, not independent GPT Image handpaint",
+      "candidate_sha256": "b8676640b5c39819e6234857acc3b72b4ffbfcc3e6f4cba9e220c74c07318d1e",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_progress_track_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 92,
@@ -4488,9 +4492,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_world_area_info_panel_20261109/QA.json",
       "next_focus": "other96/map/progress_track",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/progress_track",
+      "action": "Made single progress track 2100x480 RGBA and separated track/fill/marker dynamic layers, with light-dark QA sizes 210–1050px",
+      "result": "PNG/SVG/QA bundle uploaded Library, GitHub review archived, no approval or production promotion",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_progress_track_20261109/QA.json",
+      "next_focus": "other96/map/location_thumbnail_frame",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/progress_track",
+  "current_focus": "other96/map/location_thumbnail_frame",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
