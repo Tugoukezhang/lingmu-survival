@@ -2490,12 +2490,20 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/category_rugs.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
-      "approval": "pending",
-      "attempts": 0,
+      "state": "art_candidate_technical_qa_pending",
+      "approval": "pending_user_and_engine_qa",
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Category_Rugs_Review/category_rugs_review_1024.png",
+      "candidate_sha256": "1e51aa125df8f01c144eaccb291382f088dffc3caf97c259f7246423a6032e47",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "qa_status": "Rug identifiable but generated rolled rug/ornate medallion differs from source flat rug; dark background manually masked, alpha edge QA pending. Not production ready.",
+      "production_promoted": false
     },
     {
       "queue_number": 61,
@@ -3767,6 +3775,15 @@
       "approved": 0,
       "counted_as_complete": false,
       "next": "other96/home/bottom_category_bar"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/category_rugs",
+      "action": "one rug category generation, alpha masked, review archived",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false,
+      "result": "Art candidate only, source fidelity and edge QA pending; no production change."
     }
   ],
   "current_focus": "other96/home/bottom_category_bar",
