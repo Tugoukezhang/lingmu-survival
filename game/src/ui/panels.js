@@ -12,7 +12,7 @@ import * as PC from '../systems/petcare.js';
 import * as DY from '../systems/daily.js';
 import * as GR from '../systems/growth.js';
 import * as TW from '../systems/town.js';
-import { NPCS } from '../data/npcs.js';
+import { NPCS, HEART_GIFTS } from '../data/npcs.js';
 import { QUEST_BY_ID } from '../data/quests.js';
 import * as PG from '../systems/progress.js';
 import * as HS from '../systems/house.js';
@@ -386,6 +386,14 @@ export function npcPanel(scene, stack, { id }) {
   let mode = 'main', line = TW.talk(stateOf(scene), id);
   session.markDirty();
   if (line.gain) scene.game.events.emit('npc-talked');
+  // heart presents (3 / 5 hearts, docs/11 ②): the resident hands it over and says why
+  const present = (p) => {
+    if (!p) return;
+    if (p.full) { scene.showToast(`${n.name}有礼物给你，但背包满了`); return; }
+    line = { line: p.line };
+    scene.showToast(`${n.name}（${p.hearts} 颗心）送你：${Object.entries(p.items).map(([k, v]) => `${ITEMS[k].name}${v > 1 ? ` ×${v}` : ''}`).join('、')}`);
+  };
+  present(line.present);
   const draw = () => {
     body.removeAll(true);
     const st = stateOf(scene), f = TW.friendOf(st, id);
@@ -393,18 +401,21 @@ export function npcPanel(scene, stack, { id }) {
     body.add(img);
     body.add(text(scene, -w / 2 + 190, -h / 2 + 28, `${n.name} · ${n.role}`, 22));
     body.add(text(scene, -w / 2 + 190, -h / 2 + 60, `${'♥'.repeat(TW.hearts(f))}${'♡'.repeat(5 - TW.hearts(f))}  好感 ${f}`, 16, { color: '#d9572b' }));
+    const nextGift = Object.keys(HEART_GIFTS[id] ?? {}).map(Number).find((k) => k > TW.hearts(f));
+    if (nextGift) body.add(text(scene, -w / 2 + 380, -h / 2 + 62, `${nextGift} 颗心时有礼物`, 14, { bold: false, color: '#9a8468' }));
     const bubble = scene.add.graphics(); bubble.fillStyle(0xffffff, 0.9).fillRoundedRect(-w / 2 + 180, -h / 2 + 88, w - 220, 64, 14);
     body.add(bubble);
     body.add(text(scene, -w / 2 + 196, -h / 2 + 98, line.line, 15, { bold: false, wrap: w - 250, lineSpacing: 4 }));
     const bx = -w / 2 + 270, by = -h / 2 + 196;
     if (mode === 'gift') {
       const items = st.inventory.filter((s) => !ITEMS[s.id].tool).slice(0, 8);
-      body.add(text(scene, bx - 80, by - 22, items.length ? '送什么？（每天一次）' : '没有能送的东西', 15));
+      const left = TW.giftsLeft(st, id);
+      body.add(text(scene, bx - 80, by - 22, !items.length ? '没有能送的东西' : left ? `送什么？（本周还能送 ${left} 次，每天最多 1 次）` : '这周已经送过 2 次了，下周再来吧', 15));
       items.forEach((s, i) => {
         body.add(capsuleButton(scene, bx + (i % 3) * 132, by + 18 + Math.floor(i / 3) * 50, `${ITEMS[s.id].name}`, { w: 124, h: 44, style: 'yellow', name: `gift-${s.id}`, onClick: () => {
           const r = TW.gift(stateOf(scene), id, s.id);
-          if (r.ok) { session.markDirty(); line = { line: { love: '这是我最喜欢的！太谢谢你了！', like: '哇，我很喜欢这个，谢谢！', neutral: '谢谢你的心意～', dislike: '呃……这个嘛……谢谢。' }[r.taste] }; scene.showToast(`${n.name}好感 ${r.gain >= 0 ? '+' : ''}${r.gain}`); }
-          else scene.showToast(r.reason === 'gifted' ? '今天已经送过了' : '这个不能送');
+          if (r.ok) { session.markDirty(); line = { line: { love: '这是我最喜欢的！太谢谢你了！', like: '哇，我很喜欢这个，谢谢！', neutral: '谢谢你的心意～', dislike: '呃……这个嘛……谢谢。' }[r.taste] }; scene.showToast(`${n.name}好感 ${r.gain >= 0 ? '+' : ''}${r.gain}`); present(TW.claimHeartGift(stateOf(scene), id)); }
+          else scene.showToast({ gifted: '今天已经送过了', week: '这周已经送过 2 次了' }[r.reason] ?? '这个不能送');
           mode = 'main'; draw();
         } }));
       });
@@ -413,7 +424,8 @@ export function npcPanel(scene, stack, { id }) {
     }
     if (mode === 'quests') {
       const list = [...TW.activeOf(st, id), ...TW.offers(st, id)];
-      if (!list.length) body.add(text(scene, bx - 80, by, '现在没有要拜托你的事。', 15, { bold: false }));
+      const waiting = TW.heartLocked(st, id);
+      if (!list.length) body.add(text(scene, bx - 80, by, waiting ? `等你们再熟一点（${waiting.hearts} 颗心），${n.name}会有新的事拜托你。` : '现在没有要拜托你的事。', 15, { bold: false, wrap: 400 }));
       list.slice(0, 2).forEach((q, i) => {
         const y = by + i * 78, active = TW.questState(st, q.id) === 'active';
         const miss = active ? TW.missing(st, q.id) : [];
@@ -422,7 +434,7 @@ export function npcPanel(scene, stack, { id }) {
         body.add(text(scene, bx - 80, y + 8, active ? `需要：${needText}${miss.length ? '（还没凑齐）' : ''}` : q.ask, 14, { bold: false, wrap: 300, color: '#7a6450' }));
         body.add(capsuleButton(scene, bx + 300, y, active ? '交任务' : '接受', { w: 110, h: 44, style: active && !miss.length ? 'green' : 'yellow', name: active ? `quest-done-${q.id}` : `quest-take-${q.id}`, onClick: () => {
           const r = active ? TW.complete(stateOf(scene), q.id) : TW.accept(stateOf(scene), q.id);
-          if (r.ok) { session.markDirty(); session.pushToRegistry(); line = { line: active ? q.thanks : q.ask }; scene.showToast(active ? `完成任务「${q.title}」！${r.reward.clover ? `四叶草 +${r.reward.clover}` : ''}${r.reward.recipe ? ' 学会了新配方' : ''}` : `接受了任务「${q.title}」`); }
+          if (r.ok) { session.markDirty(); session.pushToRegistry(); line = { line: active ? q.thanks : q.ask }; scene.showToast(active ? `完成任务「${q.title}」！${r.reward.clover ? `四叶草 +${r.reward.clover}` : ''}${r.reward.recipe ? ' 学会了新配方' : ''}` : `接受了任务「${q.title}」`); if (active) present(TW.claimHeartGift(stateOf(scene), id)); }
           else scene.showToast({ missing: '东西还没凑齐', full: '背包满了', done: '已经完成了' }[r.reason] ?? '现在不行');
           draw();
         } }));

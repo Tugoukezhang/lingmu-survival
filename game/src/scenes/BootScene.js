@@ -46,8 +46,8 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('thorn', 60, 56, drawThorn);
     this.makeCanvas('seedstand', 72, 60, drawSeedStand);
     this.makeCanvas('bed', 92, 100, drawBed);
-    for (const k of ['chair', 'table', 'plant', 'rug', 'shelf', 'lamp']) {
-      const size = { chair: [48, 60], table: [96, 64], plant: [48, 64], rug: [96, 96], shelf: [96, 100], lamp: [48, 76] }[k];
+    for (const k of ['chair', 'table', 'plant', 'rug', 'shelf', 'lamp', 'chime', 'horse', 'petbed']) {
+      const size = { chair: [48, 60], table: [96, 64], plant: [48, 64], rug: [96, 96], shelf: [96, 100], lamp: [48, 76], chime: [48, 80], horse: [56, 56], petbed: [96, 52] }[k];
       this.makeCanvas(`furn_${k}`, size[0], size[1], (g, w, h) => drawFurniture(g, w, h, k));
       this.makeCanvas(`item_furn_${k}`, 128, 128, (g) => { const [w, h] = size; const s = Math.min(110 / w, 110 / h); g.save(); g.translate(64 - (w * s) / 2, 64 - (h * s) / 2); g.scale(s, s); drawFurniture(g, w, h, k); g.restore(); });
     }
@@ -388,6 +388,9 @@ function drawFurniture(g, w, h, k) {
   else if (k === 'plant') { g.fillStyle = '#c97a4a'; g.beginPath(); g.moveTo(10, h - 26); g.lineTo(w - 10, h - 26); g.lineTo(w - 14, h - 2); g.lineTo(14, h - 2); g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#5a9a3c'; for (const [x, y, r] of [[w / 2, 20, 14], [w / 2 - 12, 30, 10], [w / 2 + 12, 30, 10]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); } }
   else if (k === 'rug') { g.fillStyle = '#f0a9a0'; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2 - 4, h / 2 - 6, 0, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fbf3dc'; g.lineWidth = 4; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2 - 14, h / 2 - 16, 0, 0, Math.PI * 2); g.stroke(); }
   else if (k === 'shelf') { g.fillStyle = '#8a5a36'; g.fillRect(4, 4, w - 8, h - 8); g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#6e4529'; for (const y of [32, 60]) g.fillRect(8, y, w - 16, 5); const cs = ['#d9572b', '#3d7fb8', '#6fae4a', '#f5c84b', '#7a4aa0']; for (let i = 0; i < 9; i++) { g.fillStyle = cs[i % 5]; g.fillRect(12 + (i % 5) * 15, i < 5 ? 12 : 40, 10, 20); } }
+  else if (k === 'chime') { g.fillStyle = '#8a5a36'; g.fillRect(w / 2 - 3, 4, 6, h - 10); g.fillRect(w / 2 - 14, h - 8, 28, 6); g.fillRect(w / 2 - 3, 8, 18, 5); g.strokeStyle = '#5b3d26'; g.lineWidth = 2; for (const dx of [8, 13]) { g.beginPath(); g.moveTo(w / 2 + dx, 13); g.lineTo(w / 2 + dx, 30); g.stroke(); } g.fillStyle = '#9fd3e6'; for (const [dx, y] of [[8, 34], [13, 40]]) { g.beginPath(); g.arc(w / 2 + dx, y, 5, Math.PI, 0); g.fill(); g.stroke(); } g.fillStyle = '#f0a9a0'; g.fillRect(w / 2 + 6, 46, 9, 12); }
+  else if (k === 'horse') { g.fillStyle = '#c0905a'; g.beginPath(); g.ellipse(w / 2, h - 18, w / 2 - 6, 8, 0, 0, Math.PI); g.lineWidth = 4; g.strokeStyle = '#8a5a36'; g.stroke(); g.lineWidth = 3; g.strokeStyle = '#5b3d26'; g.fillRect(12, 18, w - 26, 16); g.strokeRect(12, 18, w - 26, 16); g.fillRect(w - 20, 4, 12, 20); g.strokeRect(w - 20, 4, 12, 20); g.fillStyle = '#d9572b'; g.fillRect(14, 12, 10, 8); g.fillStyle = '#5b3d26'; g.fillRect(16, 34, 5, 10); g.fillRect(w - 22, 34, 5, 10); }
+  else if (k === 'petbed') { g.fillStyle = '#7a4aa0'; g.beginPath(); g.ellipse(w / 2, h / 2 + 6, w / 2 - 4, h / 2 - 6, 0, 0, Math.PI * 2); g.fill(); g.stroke(); g.fillStyle = '#f2e6ff'; g.beginPath(); g.ellipse(w / 2, h / 2 + 8, w / 2 - 16, h / 2 - 14, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = '#fff4a8'; g.beginPath(); g.arc(w - 18, 12, 5, 0, Math.PI * 2); g.fill(); }
   else if (k === 'lamp') { g.fillStyle = '#8a5a36'; g.fillRect(w / 2 - 3, 26, 6, h - 32); g.fillRect(w / 2 - 12, h - 8, 24, 6); g.fillStyle = '#fff0a0'; g.beginPath(); g.moveTo(w / 2 - 16, 28); g.lineTo(w / 2 + 16, 28); g.lineTo(w / 2 + 9, 6); g.lineTo(w / 2 - 9, 6); g.closePath(); g.fill(); g.stroke(); }
 }
 

@@ -1108,7 +1108,9 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   r = TW.complete(s, 'granny_carrot');
   check('交任务：扣 5 根萝卜、四叶草 +60、好感 +10', r.ok && I.countOf(s.inventory, 'item_carrot') === car - 5 && s.clover === cl + 60 && TW.friendOf(s, 'granny') === fr + 10);
   check('任务不会重复领奖', TW.complete(s, 'granny_carrot').reason === 'done' && s.clover === cl + 60);
-  check('完成后解锁下一个任务', TW.offers(s, 'granny').map((q) => q.id).join() === 'granny_fish');
+  check('完成第一个任务后，第二个要 2 颗心才开放（docs/11 ②）', TW.friendOf(s, 'granny') < 40 && TW.offers(s, 'granny').length === 0 && TW.heartLocked(s, 'granny')?.id === 'granny_fish' && TW.accept(s, 'granny_fish').reason === 'hearts');
+  s.town.friend.granny = 40;
+  check('到 2 颗心：解锁下一个任务', TW.offers(s, 'granny').map((q) => q.id).join() === 'granny_fish' && TW.heartLocked(s, 'granny') === null);
   // recipe unlock
   s.player.area = 'home'; s.inventory.push({ id: 'item_carrot', count: 2 }, { id: 'item_pumpkin', count: 1 }, { id: 'item_fish', count: 3 });
   check('没学会之前做不了蔬菜汤', CR.craft(s, 'soup').reason === 'locked');
@@ -1227,6 +1229,41 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('只有开局宠物：第 1 天打不克制自己的野生宠物，每种胜率都 ≥ 80%', rows.every((r) => r.every((w) => w >= 0.8)), JSON.stringify(rows));
   const hard = STARTERS.map((st) => winRate(st, counter[st], 1));
   check('碰到克制自己的属性仍然吃力（胜率 < 50%，属性相克有意义）', hard.every((w) => w < 0.5), JSON.stringify(hard));
+}
+
+// ---------- friendship pacing & heart presents (docs/11 ②, 星露谷 comparison) ----------
+{
+  const s = S.newGameState();
+  s.inventory.push({ id: 'item_berry', count: 9 });
+  const g = () => TW.gift(s, 'ali', 'item_berry');
+  check('第 1 天送礼成功，同一天不能再送', g().ok && g().reason === 'gifted' && TW.giftsLeft(s, 'ali') === 1);
+  s.day = 2;
+  check('第 2 天还能送（本周第 2 次）', g().ok && TW.giftsLeft(s, 'ali') === 0);
+  s.day = 3;
+  check('第 3 天：本周已经送满 2 次，不能再送', g().reason === 'week');
+  check('别的居民不受影响', TW.gift(s, 'lumi', 'item_berry').ok);
+  s.day = 8;
+  check('第 8 天进入新的一周，又能送 2 次', TW.giftsLeft(s, 'ali') === 2 && g().ok);
+  // heart presents
+  const h = S.newGameState();
+  h.town.friend.granny = 59;
+  const seeds = I.countOf(h.inventory, 'item_seed_pumpkin');
+  const t1 = TW.talk(h, 'granny');
+  check('聊天到 60（3 颗心）：铃奶奶送南瓜种子 ×5，台词换成送礼的话', t1.present?.hearts === 3 && I.countOf(h.inventory, 'item_seed_pumpkin') === seeds + 5 && t1.line.includes('南瓜'));
+  h.day = 2;
+  check('3 颗心礼物只送一次', TW.talk(h, 'granny').present === null && I.countOf(h.inventory, 'item_seed_pumpkin') === seeds + 5);
+  h.town.friend.granny = 100;
+  const p5 = TW.claimHeartGift(h, 'granny');
+  check('5 颗心：送专属家具「小镇风铃」，之后没有了', p5?.hearts === 5 && I.countOf(h.inventory, 'item_furn_chime') === 1 && TW.claimHeartGift(h, 'granny') === null);
+  const jump = S.newGameState(); jump.town.friend.ali = 100;
+  const j1 = TW.claimHeartGift(jump, 'ali'), j2 = TW.claimHeartGift(jump, 'ali');
+  check('一下子从 0 到 5 颗心：两份礼物按顺序都能拿到（书架、小木马）', j1?.hearts === 3 && j2?.hearts === 5 && I.countOf(jump.inventory, 'item_furn_shelf') === 1 && I.countOf(jump.inventory, 'item_furn_horse') === 1);
+  const full = S.newGameState(); full.town.friend.lumi = 60;
+  full.inventory = Array.from({ length: CR.bagSlots(full) }, (_, i) => ({ id: Object.keys(ITEMS)[i], count: 1 })).filter((x) => x.id !== 'item_book_heal');
+  while (full.inventory.length < CR.bagSlots(full)) full.inventory.push({ id: 'item_wood', count: 1 });
+  check('背包满了：礼物先不给，下次再给（不会丢）', TW.claimHeartGift(full, 'lumi')?.full === true && !(full.town.heartGifts?.lumi ?? []).includes(3));
+  check('3 份专属家具都能摆进小屋', ['item_furn_chime', 'item_furn_horse', 'item_furn_petbed'].every((id) => HS.isFurniture(id) && ITEMS[id]?.tag === '家具') && HS.footprint('item_furn_petbed', 0).w === 2);
+  check('带送礼周记录的存档合法、读回一样', S.validate(s).length === 0 && JSON.stringify(S.decode(S.encode(s)).state.town) === JSON.stringify(s.town));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

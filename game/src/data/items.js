@@ -43,6 +43,9 @@ export const ITEMS = {
   item_fox_bell: { name: '化形铃', tag: '道具', icon: 'item_fox_bell', desc: '让进化后、好感 100 的焰尾狐\n学会化形。在照顾面板使用。', quip: '叮铃——' },
 
   // furniture (T15)
+  item_furn_chime: { name: '小镇风铃', tag: '家具', icon: 'item_furn_chime', desc: '铃奶奶送的风铃（1×1）。\n好感 5 颗心的礼物，在「布置家具」里摆放。', quip: '叮铃——' },
+  item_furn_horse: { name: '小木马', tag: '家具', icon: 'item_furn_horse', desc: '阿栗亲手做的小木马（1×1）。\n好感 5 颗心的礼物，在「布置家具」里摆放。', quip: '摇啊摇。' },
+  item_furn_petbed: { name: '宠物窝', tag: '家具', icon: 'item_furn_petbed', desc: '露米设计的宠物窝（2×1，可以旋转）。\n好感 5 颗心的礼物，在「布置家具」里摆放。', quip: '软乎乎的。' },
   item_furn_chair: { name: '木椅', tag: '家具', icon: 'item_furn_chair', desc: '一把小木椅（1×1）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
   item_furn_table: { name: '木桌', tag: '家具', icon: 'item_furn_table', desc: '长木桌（2×1，可以旋转）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
   item_furn_plant: { name: '盆栽', tag: '家具', icon: 'item_furn_plant', desc: '绿油油的盆栽（1×1）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },

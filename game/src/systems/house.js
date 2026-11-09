@@ -18,6 +18,10 @@ export const FURNITURE = {
   item_furn_rug: { w: 2, h: 2, floor: true },
   item_furn_shelf: { w: 2, h: 1 },
   item_furn_lamp: { w: 1, h: 1, light: true },
+  // residents' 5-heart presents (docs/11 ②), not craftable
+  item_furn_chime: { w: 1, h: 1 },
+  item_furn_horse: { w: 1, h: 1 },
+  item_furn_petbed: { w: 2, h: 1 },
 };
 export const isFurniture = (id) => !!FURNITURE[id];
 

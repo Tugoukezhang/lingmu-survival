@@ -37,3 +37,22 @@ export const NPC_IDS = Object.keys(NPCS);
 // Gift friendship 【建议】
 export const GIFT = { love: 10, like: 5, neutral: 2, dislike: -3 };
 export const TALK_GAIN = 1;
+// 【建议】 (docs/11 ②, after the 星露谷 comparison): at most 2 gifts per resident per week
+// (week = game days 1–7, 8–14, …), still at most one a day. Friendship never decays.
+export const GIFTS_PER_WEEK = 2;
+export const WEEK_DAYS = 7;
+// One-time presents when a resident reaches 3 and 5 hearts (handed over when you next meet).
+export const HEART_GIFTS = {
+  granny: {
+    3: { items: { item_seed_pumpkin: 5 }, line: '这些南瓜种子是奶奶珍藏的，种出来给我尝尝！' },
+    5: { items: { item_furn_chime: 1 }, line: '这串风铃挂在你家里吧，听见它响，就想起小镇。' },
+  },
+  ali: {
+    3: { items: { item_furn_shelf: 1 }, line: '顺手做了个书架，放你屋里正合适。' },
+    5: { items: { item_furn_horse: 1 }, line: '我小时候最想要的小木马——现在送你！' },
+  },
+  lumi: {
+    3: { items: { item_book_heal: 1 }, line: '这本技能书我研究完了，送给你的伙伴吧。' },
+    5: { items: { item_furn_petbed: 1 }, line: '我设计的宠物窝！宠物们一定会喜欢。' },
+  },
+};

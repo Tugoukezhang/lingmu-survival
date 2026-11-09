@@ -269,7 +269,7 @@ try {
   const h0 = await reg('hunger');
   await scene(() => window.__game.scene.getScene('play').debugAdvance(60));
   const h1 = await reg('hunger');
-  check('饱食随时间下降（60 游戏分钟 −6）', h0 - h1 === 6, `${h0} → ${h1}`);
+  check('饱食随时间下降（60 游戏分钟 −4，每 15 分钟 −1）', h0 - h1 === 4, `${h0} → ${h1}`);
   await tapTarget('hud-bag');
   await tapTarget('slot-item_berry');
   const berry0 = await page.evaluate(() => window.__game.session.state.inventory.find((x) => x.id === 'item_berry')?.count);
