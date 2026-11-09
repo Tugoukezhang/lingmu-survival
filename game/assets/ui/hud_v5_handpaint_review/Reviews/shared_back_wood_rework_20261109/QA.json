@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/shared/back_wood",
+  "phase": "rework",
+  "attempts": 1,
+  "result": "rejected_wrong_identity",
+  "actual": "tilted decorative Polaroid picture frame with pink tape and bow",
+  "target": "wooden back/navigation control, not picture frame",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "queue_mutated": false,
+  "next_rework": "other96/inventory/detail_wood_panel",
+  "note": "Do not count image or advance canonical queue pointer without reconciliation."
+}
