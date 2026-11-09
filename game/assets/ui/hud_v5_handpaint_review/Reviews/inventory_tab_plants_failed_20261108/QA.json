@@ -137,5 +137,22 @@
     "production_modified": false,
     "safety_rule": "Stop repeat generation after two misrouted outputs until source-locked image-edit is available",
     "note": "No incorrect wood/plaque asset promoted. This is a mobile repair-stage task, never a first-pass restart."
+  },
+  "rework_followup_20261109_v2": {
+    "reference": "04_inventory.jpg original crop [1487,85,1601,195]",
+    "new_candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_source_matched_candidate_1024.png",
+    "review": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_rework_QA_preview.jpg",
+    "review_bundle": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Plants_20261109/tab_plants_rework_review_bundle.zip",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "47ae9370ca1138c3012252f1538720a68656de7fe22dc8cf16c7b9e9c5114902",
+    "identity": "two gray-green leaves, dusty peach square and brown rounded rim",
+    "method": "source informed layered vector raster construction; image generator output misrouted and rejected",
+    "art_approval": "pending",
+    "engine_qa": "pending",
+    "production_promoted": false
   }
 }
