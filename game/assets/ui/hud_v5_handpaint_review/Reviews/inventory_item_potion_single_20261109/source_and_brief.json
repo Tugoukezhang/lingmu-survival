@@ -1,0 +1,26 @@
+{
+  "task_id": "other96/inventory/item_potion",
+  "asset_id": "inventory/item_potion",
+  "queue_number": 46,
+  "state": "authentic_reference_prepared_generation_pending",
+  "selection_reason": "Continue manual production after the apple and flower attempts visible in this conversation. Do not repeat their rejected outputs. Live queue entries have not incorporated all manual review records; this record does not overwrite or approve those entries.",
+  "source": {
+    "file": "04_inventory.jpg",
+    "source_dimensions": [1920, 1080],
+    "bbox_xyxy": [1244, 204, 1340, 291],
+    "crop_dimensions": [96, 87],
+    "authentic_source_pixels_verified": true,
+    "crop_local_path": "/mnt/data/lingmu_item_potion_single/item_potion_reference_crop_96x87.png",
+    "quantity_is_separate": true
+  },
+  "art_brief": {
+    "subject": "One compact squat pear-shaped transparent pale-green glass bottle filled with golden-yellow potion, short neck, thick rounded orange-brown cork, a thin brown neck cord and a small cream paper tag hanging to the right bearing a dark olive-green clover motif. A tiny dark-green leaf cluster sits by the lower-right base. Keep the original soft silhouette and palette.",
+    "finish": "Refined warm hand-painted 2D inventory item, controlled soft highlights and clean edges, not photorealistic. Preserve small-size readability and avoid excessive texture.",
+    "output": "One isolated sprite on genuinely transparent background, square 1024x1024, generous clear padding, no quantity or lettering, no inventory slot or presentation sheet."
+  },
+  "accepted_candidates": 0,
+  "user_art_approval": "pending",
+  "alpha_qa": "pending_output",
+  "in_engine_qa": "pending",
+  "production_promoted": false
+}
