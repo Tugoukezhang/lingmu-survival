@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/home/category_special",
+  "date": "2026-11-09",
+  "reference": "06_home.jpg",
+  "target": "small warm gold five-point star with tiny sparkle for special category, isolated transparent sprite; no orb, flowers, ribbon, frame",
+  "attempts": 1,
+  "output": "purple crystal orb with gold orbit, flowers and ribbon",
+  "result": "rejected_wrong_identity",
+  "accepted_candidates": 0,
+  "art_qa": "failed",
+  "production_promoted": false,
+  "queue_mutated": false,
+  "next": "other96/home/right_furniture_panel",
+  "note": "Do not misclassify the crystal orb as the simple special-category star."
+}
