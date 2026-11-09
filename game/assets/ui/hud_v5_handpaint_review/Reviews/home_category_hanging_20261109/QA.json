@@ -1,0 +1,35 @@
+{
+  "schema": "lingmu-hud-single-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/category_hanging",
+  "source": "06_home.jpg and V4 proxy visually inspected",
+  "original_crop_generator_bound": false,
+  "image_gen_attempt": {
+    "count": 1,
+    "result": "mismatched wall bracket / large lantern with background, rejected"
+  },
+  "output": {
+    "kind": "manual geometry-locked vector/raster candidate, NOT independently ImageGen hand-painted",
+    "library": "/Lingmu_HUD_Exports/Home_Category_Hanging_Single_Review_20261109/category_hanging_single_1024_RGBA.png",
+    "sha256": "cce0e3873e2b7a4160b06f7eaf4062e0acdb7f9c35fc37dd4d52310effe38e79",
+    "size": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA"
+  },
+  "qa": {
+    "alpha": "passed",
+    "previews": [
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_approval": "pending",
+    "engine": "not_run",
+    "production_replaced": false
+  }
+}
