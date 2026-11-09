@@ -92,5 +92,49 @@
   "next": "other96/inventory/item_map_fragment",
   "library_upload": "AccessDeny (FileDrive)",
   "production_untouched": true,
-  "archive_note": "Full PNGs (and original crop/comparison) retained in local review ZIP; GitHub text record only, not pretending binary uploaded."
+  "archive_note": "Full PNGs (and original crop/comparison) retained in local review ZIP; GitHub text record only, not pretending binary uploaded.",
+  "rework_source_matched_candidate_20261109": {
+    "date": "2026-11-09",
+    "phase": "rework_and_review",
+    "source": "04_inventory.jpg original 1920x1080",
+    "source_crop_bbox_xyxy": [
+      1244,
+      183,
+      1338,
+      280
+    ],
+    "identity": "one squat pale-green glass bottle with warm amber-yellow potion, orange cork and small four-leaf clover side ornament; count 2 excluded",
+    "failed_image_generation": "generated horizontal document-tab plaque instead of potion; rejected, not counted",
+    "method": "manual source-guided layered vector/raster illustration with subtle painterly texture, not GPT Image output",
+    "candidate": "/Lingmu_HUD_Exports/Rework_Inventory_Item_Potion_20261109/item_potion_warm_yellow_source_matched_1024.png",
+    "visual_qa": "/Lingmu_HUD_Exports/Rework_Inventory_Item_Potion_20261109/potion_original_vs_candidate_QA.jpg",
+    "review_bundle": "/Lingmu_HUD_Exports/Rework_Inventory_Item_Potion_20261109/potion_rework_review_bundle.zip",
+    "candidate_sha256": "c8a3f757216219b05040f2c19bc022b20b059527356facbe6c3a965152c7a4a4",
+    "candidate_size": [
+      1024,
+      1024
+    ],
+    "candidate_mode": "RGBA",
+    "alpha_bbox": [
+      229,
+      174,
+      764,
+      835
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "small_sizes_checked": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      256
+    ],
+    "art_approval": "pending",
+    "in_engine_QA": "not_run",
+    "production_promoted": false
+  }
 }
