@@ -4,16 +4,21 @@ import { TILE, FONT } from '../../config.js';
 import { CROPS } from '../../data/crops.js';
 import { ITEMS } from '../../data/items.js';
 import * as FM from '../../systems/farm.js';
+import { worldOf } from '../../systems/progress.js';
 
 export default {
   // Field next to the home spawn + the shipping box and seed stand on its right.
   placeFarm() {
     const r = this.farmRect;
     this.plots = [];
-    for (let ty = r.y; ty < r.y + r.h; ty++) for (let tx = r.x; tx < r.x + r.w; tx++) {
-      if (!this.walk[ty]?.[tx] || this.blocked[ty][tx]) continue;
-      this.plots.push({ key: FM.plotKey(tx, ty), tx, ty, cx: tx * TILE + TILE / 2, cy: ty * TILE + TILE / 2 });
+    const expanded = worldOf(this.state).expanded;
+    for (const rect of expanded ? [r, this.expandRect] : [r]) {
+      for (let ty = rect.y; ty < rect.y + rect.h; ty++) for (let tx = rect.x; tx < rect.x + rect.w; tx++) {
+        if (!this.walk[ty]?.[tx] || this.blocked[ty][tx]) continue;
+        this.plots.push({ key: FM.plotKey(tx, ty), tx, ty, cx: tx * TILE + TILE / 2, cy: ty * TILE + TILE / 2 });
+      }
     }
+    if (!expanded) this.placeExpansionSign();
     this.farmLayer = this.add.graphics().setDepth(-5);
     this.cropSprites = new Map();
     const prop = (tx, ty, key, tint) => {
@@ -27,6 +32,25 @@ export default {
     this.seedSpot = prop(r.x + r.w, r.y + 2, 'seedstand');
     this.add.text(this.shipSpot.x, this.shipSpot.y - 44, '出货箱', { fontFamily: FONT, fontSize: '13px', color: '#ffffff', backgroundColor: '#5b3d26', padding: { x: 4, y: 1 } }).setOrigin(0.5).setDepth(this.shipSpot.y);
     this.refreshFarm();
+  },
+
+  // Fenced plot with a sign until the expansion is bought (T14).
+  placeExpansionSign() {
+    const e = this.expandRect;
+    const g = this.add.graphics().setDepth((e.y + e.h) * TILE);
+    for (let ty = e.y; ty < e.y + e.h; ty++) for (let tx = e.x; tx < e.x + e.w; tx++) if (this.walk[ty]?.[tx]) this.blocked[ty][tx] = true;
+    const x0 = e.x * TILE + 4, y0 = e.y * TILE + 4, x1 = (e.x + e.w) * TILE - 4, y1 = (e.y + e.h) * TILE - 4;
+    g.fillStyle(0xd8c89a, 0.35).fillRect(x0, y0, x1 - x0, y1 - y0);
+    g.lineStyle(4, 0x8a5a36);
+    g.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    g.fillStyle(0x8a5a36);
+    for (let x = x0; x <= x1; x += 24) { g.fillRect(x - 3, y0 - 8, 6, 16); g.fillRect(x - 3, y1 - 8, 6, 16); }
+    for (let y = y0; y <= y1; y += 24) { g.fillRect(x0 - 3, y - 8, 6, 16); g.fillRect(x1 - 3, y - 8, 6, 16); }
+    const sx = (e.x + e.w / 2) * TILE, sy = (e.y + e.h) * TILE + 20;
+    g.fillStyle(0x6e4529).fillRect(sx - 3, sy - 4, 6, 26);
+    g.fillStyle(0xa8703f).fillRoundedRect(sx - 40, sy - 26, 80, 26, 6);
+    this.add.text(sx, sy - 13, '扩建用地', { fontFamily: FONT, fontSize: '14px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5).setDepth(sy + 1);
+    this.expandSpot = { x: sx, y: sy + 26 };
   },
 
   // Redraw soil and crops from the save.

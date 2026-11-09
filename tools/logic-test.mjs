@@ -30,6 +30,7 @@ import * as PC from '../game/src/systems/petcare.js';
 import * as DY from '../game/src/systems/daily.js';
 import * as GR from '../game/src/systems/growth.js';
 import * as TW from '../game/src/systems/town.js';
+import * as PG from '../game/src/systems/progress.js';
 import { QUESTS } from '../game/src/data/quests.js';
 import { NPCS } from '../game/src/data/npcs.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
@@ -1136,6 +1137,29 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const v2 = { ...S.newGameState(), version: 2 }; delete v2.town; delete v2.recipes;
   const m2 = S.decode(S.encode(v2));
   check('旧存档（版本 2）自动迁移：补上小镇和配方记录', m2.ok && m2.state.town && Array.isArray(m2.state.recipes));
+}
+
+// ---------- island progress: home expansion & bridge (T14) ----------
+{
+  const s = S.newGameState();
+  check('扩建：四叶草和材料不够 → 列出还差什么', PG.buyExpansion(s).missing.map((m) => m.id).join() === 'clover,item_wood,item_stone');
+  s.clover = 500; s.inventory.push({ id: 'item_wood', count: 30 }, { id: 'item_stone', count: 20 });
+  let r = PG.buyExpansion(s);
+  check('扩建：扣 400 四叶草、木材 20、石头 20，状态记下', r.ok && s.clover === 100 && I.countOf(s.inventory, 'item_wood') === 10 && I.countOf(s.inventory, 'item_stone') === 0 && s.world.expanded);
+  check('扩建只能买一次，材料只扣一次', PG.buyExpansion(s).reason === 'done' && s.clover === 100);
+  const away = S.newGameState(); away.player.area = 'town'; away.clover = 999;
+  check('不在家园不能买地', PG.buyExpansion(away).reason === 'away');
+  // bridge
+  const b = S.newGameState(); b.clover = 300; b.inventory.push({ id: 'item_wood', count: 50 }, { id: 'item_stone', count: 30 }, { id: 'item_cloth', count: 5 });
+  check('修桥要先完成阿栗的「工坊的木料」', PG.repairBridge(b).reason === 'ali' && !b.world.bridge);
+  b.town.quests.ali_wood = 'done';
+  r = PG.repairBridge(b);
+  check('修桥：扣 200 四叶草、木材 50、石头 30、布 5，桥修好', r.ok && b.clover === 100 && I.countOf(b.inventory, 'item_wood') === 0 && I.countOf(b.inventory, 'item_cloth') === 0 && b.world.bridge);
+  check('桥只修一次', PG.repairBridge(b).reason === 'done' && b.clover === 100);
+  check('扩建和修桥的状态存档后还在', (() => { const back = S.decode(S.encode(b)).state; return back.world.bridge === true; })());
+  const v3 = { ...S.newGameState(), version: 3 }; delete v3.world;
+  const m3 = S.decode(S.encode(v3));
+  check('旧存档（版本 3）自动迁移：补上扩建 / 修桥状态', m3.ok && m3.state.world && m3.state.world.expanded === false && m3.state.version === S.SAVE_VERSION);
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

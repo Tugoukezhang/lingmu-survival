@@ -2,6 +2,7 @@
 // Mixed into PlayScene.prototype (see ../PlayScene.js); `this` is the scene.
 import { TILE, FONT } from '../../config.js';
 import { NPCS } from '../../data/npcs.js';
+import { worldOf } from '../../systems/progress.js';
 
 const TOWN_W = 34, TOWN_H = 22;
 // house rectangles (tiles) and where each resident stands
@@ -66,9 +67,12 @@ export default {
     // broken bridge on the north edge (repaired in T14)
     const bx = Math.floor(TOWN_W / 2);
     let by = 0; while (!this.walk[by][bx]) by++;
-    g.setDepth(-4).fillStyle(0x8a5a36);
-    for (let i = 0; i < 3; i++) g.fillRect(bx * TILE + 6, (by - 1 - i) * TILE + 10, TILE - 12, 10);
-    this.add.text(bx * TILE + TILE / 2, by * TILE + 6, '断桥（阿栗说总有一天会修好）', { fontFamily: FONT, fontSize: '13px', color: '#ffffff', backgroundColor: '#8a5a36', padding: { x: 4, y: 2 } }).setOrigin(0.5, 0).setDepth(by * TILE + 40);
+    const fixed = worldOf(this.state).bridge;
+    g.setDepth(-4);
+    for (let i = 0; i < (fixed ? 6 : 3); i++) { g.fillStyle(i % 2 ? 0x8a5a36 : 0xa8703f).fillRect(bx * TILE + 6, (by - 1) * TILE + 30 - i * 22, TILE - 12, 18); }
+    if (fixed) g.lineStyle(3, 0xc99a5a).lineBetween(bx * TILE + 2, by * TILE, bx * TILE + 2, (by - 3) * TILE).lineBetween(bx * TILE + TILE - 2, by * TILE, bx * TILE + TILE - 2, (by - 3) * TILE);
+    this.add.text(bx * TILE + TILE / 2, by * TILE + 6, fixed ? '星光岛之桥' : '断桥（需要修理）', { fontFamily: FONT, fontSize: '13px', color: '#ffffff', backgroundColor: '#8a5a36', padding: { x: 4, y: 2 } }).setOrigin(0.5, 0).setDepth(by * TILE + 40);
+    this.northBridge = { x: bx * TILE + TILE / 2, y: by * TILE + TILE / 2, fixed };
     // rope bridge back home (east edge)
     const t = this.townBridgeTile;
     this.drawBridge(t.x * TILE + TILE, t.y * TILE + TILE / 2, 1);
@@ -89,6 +93,10 @@ export default {
     const spots = [];
     if (this.townBridge) spots.push({ at: this.townBridge, verb: '回家', label: '吊桥 · 回家园（10 分钟）', tagY: 40, act: () => this.game.events.emit('leave-town') });
     for (const n of this.npcs ?? []) spots.push({ at: { x: n.x, y: n.y }, verb: '聊天', label: `${NPCS[n.id].name} · ${NPCS[n.id].role}`, tagY: 84, prio: 10, act: () => this.game.events.emit('npc-request', { id: n.id }) });
+    if (this.northBridge) spots.push(this.northBridge.fixed
+      ? { at: this.northBridge, verb: '过桥', label: '星光岛之桥', tagY: 40, act: () => this.showToast('桥对面的星光岛还在建设中，敬请期待！') }
+      : { at: this.northBridge, verb: '修桥', label: '断桥 · 修好它', tagY: 40, act: () => this.game.events.emit('bridge-request') });
+    if (this.expandSpot) spots.push({ at: this.expandSpot, verb: '扩建', label: '扩建用地 · 买下变成第二块农田', tagY: 70, act: () => this.game.events.emit('expand-request') });
     if (this.homeBridge) spots.push({ at: this.homeBridge, verb: '过桥', label: '吊桥 · 去风铃小镇（10 分钟）', tagY: 40, act: () => this.game.events.emit('go-town') });
     return spots;
   },

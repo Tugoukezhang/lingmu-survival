@@ -14,6 +14,7 @@ import * as GR from '../systems/growth.js';
 import * as TW from '../systems/town.js';
 import { NPCS } from '../data/npcs.js';
 import { QUEST_BY_ID } from '../data/quests.js';
+import * as PG from '../systems/progress.js';
 import { SKILLS } from '../data/skills.js';
 import { CROPS } from '../data/crops.js';
 import { removeItem } from '../systems/inventory.js';
@@ -465,6 +466,55 @@ export function shopPanel(scene, stack) {
   refresh();
   c.add(closeBtn(scene, stack, w, h));
   return c;
+}
+
+// ---------- island progress (T14) ----------
+// A materials list with have / need and one confirm button.
+function costPanel(scene, stack, { title, desc, cost, confirm, onConfirm, note }) {
+  const w = 540, h = 360;
+  const c = woodPanel(scene, w, h);
+  const st = stateOf(scene);
+  c.add(text(scene, 0, -h / 2 + 40, title, 26, { ox: 0.5, oy: 0.5 }));
+  c.add(text(scene, 0, -h / 2 + 80, desc, 15, { ox: 0.5, oy: 0.5, align: 'center', bold: false, wrap: w - 80, lineSpacing: 4 }));
+  const rows = [['clover', '四叶草', cost.clover, st.clover], ...Object.entries(cost.items).map(([id, n]) => [id, ITEMS[id].name, n, st.inventory.filter((s) => s.id === id).reduce((k, s) => k + s.count, 0)])];
+  rows.forEach(([, name, need, have], i) => {
+    const y = -h / 2 + 128 + i * 32;
+    c.add(text(scene, -90, y, name, 16, { oy: 0.5 }));
+    c.add(text(scene, 110, y, `${Math.min(have, 9999)} / ${need}`, 16, { ox: 1, oy: 0.5, color: have >= need ? '#4f7d3a' : '#d9572b' }));
+  });
+  if (note) c.add(text(scene, 0, h / 2 - 92, note, 14, { ox: 0.5, oy: 0.5, color: '#d9572b', bold: false }));
+  c.add(capsuleButton(scene, 0, h / 2 - 50, confirm, { w: 200, name: 'cost-confirm', onClick: onConfirm }));
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+export function expandPanel(scene, stack) {
+  return costPanel(scene, stack, { title: '扩建用地', desc: '买下这块地，拆掉篱笆，变成第二块 6×4 的农田。', cost: PG.EXPAND_COST, confirm: '买下来',
+    onConfirm: () => {
+      const session = scene.game.session;
+      session.pullFromRegistry();
+      const r = PG.buyExpansion(session.state);
+      if (!r.ok) { scene.showToast(r.reason === 'missing' ? `还差：${r.missing.map((m) => `${m.name} ${m.need - m.have}`).join('、')}` : '现在不能买'); return; }
+      session.pushToRegistry();
+      stack.clear();
+      scene.game.events.emit('world-changed', '扩建完成！多了一块农田');
+    } });
+}
+
+export function bridgePanel(scene, stack) {
+  const st = stateOf(scene);
+  const trusted = st.town?.quests?.ali_wood === 'done';
+  return costPanel(scene, stack, { title: '修复断桥', desc: '阿栗说：只要材料备齐，他就能把通往星光岛的桥修好。', cost: PG.BRIDGE_COST, confirm: '交材料修桥',
+    note: trusted ? null : '先帮阿栗完成「工坊的木料」，他才有空帮你修桥',
+    onConfirm: () => {
+      const session = scene.game.session;
+      session.pullFromRegistry();
+      const r = PG.repairBridge(session.state);
+      if (!r.ok) { scene.showToast(r.reason === 'ali' ? '先去帮阿栗完成「工坊的木料」' : r.reason === 'missing' ? `还差：${r.missing.map((m) => `${m.name} ${m.need - m.have}`).join('、')}` : '已经修好了'); return; }
+      session.pushToRegistry();
+      stack.clear();
+      scene.game.events.emit('world-changed', '断桥修好了！对面的星光岛……敬请期待');
+    } });
 }
 
 // ---------- daily tasks (T44) ----------

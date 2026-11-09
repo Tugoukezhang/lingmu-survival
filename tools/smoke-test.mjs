@@ -933,6 +933,44 @@ try {
   const backHome = await state();
   check('从小镇过桥回到家园，出现在吊桥边', backHome.area === 'home' && await page.evaluate(() => { const sc = window.__game.scene.getScene('play'); return Math.hypot(sc.player.x - sc.homeBridge.x, sc.player.y - sc.homeBridge.y) < 60; }));
 
+  // ---------- island progress (T14) ----------
+  const plots0 = await page.evaluate(() => window.__game.scene.getScene('play').plots.length);
+  await page.evaluate(() => { const st = window.__game.session.state; window.__game.registry.set('clover', 900); st.inventory.push({ id: 'item_wood', count: 80 }, { id: 'item_stone', count: 60 }, { id: 'item_cloth', count: 6 }); });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.expandSpot.x, sc.expandSpot.y + 10); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('家园的「扩建用地」牌子按互动 → 材料清单', (await ui()).stack.join() === 'expand', (await ui()).stack.join());
+  await page.screenshot({ path: join(OUT, '65-expand.png') });
+  await tapTarget('cost-confirm');
+  await waitArea('home'); await page.waitForTimeout(700);
+  const plots1 = await page.evaluate(() => window.__game.scene.getScene('play').plots.length);
+  check('买下扩建地：篱笆拆掉，农田变成两块', plots1 > plots0 && await page.evaluate(() => window.__game.session.state.world.expanded), `${plots0} → ${plots1}`);
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport((sc.expandRect.x + 2) * 48 + 24, (sc.expandRect.y + 2) * 48 + 24); });
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: join(OUT, '66-expanded.png') });
+  // bridge in town (阿栗 first)
+  await page.evaluate(() => { window.__game.session.state.town.quests.ali_wood = 'done'; });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.homeBridge.x + 20, sc.homeBridge.y); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE');
+  await waitArea('town'); await page.waitForTimeout(500);
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.northBridge.x, sc.northBridge.y + 30); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('小镇北边的断桥按「修桥」→ 材料清单', (await ui()).stack.join() === 'bridge');
+  await tapTarget('cost-confirm');
+  await waitArea('town'); await page.waitForTimeout(700);
+  check('交材料后桥修好了（存档里记下）', await page.evaluate(() => window.__game.session.state.world.bridge && window.__game.scene.getScene('play').northBridge.fixed));
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.northBridge.x, sc.northBridge.y + 30); });
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: join(OUT, '67-bridge.png') });
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(300);
+  check('走上修好的桥：星光岛敬请期待', (await toastText()).includes('敬请期待'), await toastText());
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.townBridge.x - 30, sc.townBridge.y); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE');
+  await waitArea('home'); await page.waitForTimeout(400);
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);

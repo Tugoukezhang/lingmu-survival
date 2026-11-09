@@ -11,7 +11,7 @@ import { PETS, PET_BY_ID } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { createStarter } from './petMath.js';
 
-export const SAVE_VERSION = 3;   // 2: farm (T11), 3: town (T13)
+export const SAVE_VERSION = 4;   // 2: farm (T11), 3: town (T13), 4: island progress (T14)
 export const KEYS = { main: 'lingmu.save.main', backup: 'lingmu.save.backup', future: 'lingmu.save.future' };
 export const PARTY_MAX = 3;
 
@@ -43,6 +43,7 @@ export function newGameState({ now = Date.now(), seed = 20261108 } = {}) {
     farm: { plots: {}, shipping: [] },
     town: { friend: {}, talkDay: {}, giftDay: {}, quests: {} },
     recipes: [],
+    world: { expanded: false, bridge: false },
     pets,
     party: ['pet-pup', 'pet-fox', 'pet-acorn'],
     expedition: null, // { seed, biome, changes: {...} } while on an expedition island (T05)
@@ -75,6 +76,7 @@ export function validate(s) {
   if (ex?.changes?.thorns != null && !Array.isArray(ex.changes.thorns)) err.push('expedition.thorns');
   if (s.town != null && !(s.town.friend && s.town.quests && typeof s.town.quests === 'object' && Object.values(s.town.quests).every((v) => v === 'active' || v === 'done'))) err.push('town');
   if (s.recipes != null && !Array.isArray(s.recipes)) err.push('recipes');
+  if (s.world != null && !(typeof s.world.expanded === 'boolean' && typeof s.world.bridge === 'boolean')) err.push('world');
   if (s.crystals != null && !(typeof s.crystals === 'object' && Object.values(s.crystals).every((n) => isInt(n) && n >= 0))) err.push('crystals');
   if (s.daily != null && !(isInt(s.daily.day) && Array.isArray(s.daily.tasks) && s.daily.base && typeof s.daily.base === 'object')) err.push('daily');
   const fm = s.farm;
@@ -102,6 +104,8 @@ export const MIGRATIONS = {
   },
   // 2 → 3 (T13 town): friendship, quests and taught recipes start empty
   2: (d) => ({ ...d, town: { friend: {}, talkDay: {}, giftDay: {}, quests: {} }, recipes: [] }),
+  // 3 → 4 (T14): home expansion and the town bridge, both not done yet
+  3: (d) => ({ ...d, world: { expanded: false, bridge: false } }),
 };
 
 export function migrate(data, migrations = MIGRATIONS, target = SAVE_VERSION) {
