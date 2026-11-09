@@ -1,0 +1,13 @@
+{
+  "task_id": "other96/inventory/item_letter",
+  "date": "2026-11-09",
+  "target": "single pale cream envelope with green clover seal, two small leaves, no number 4",
+  "attempts": 1,
+  "output_identity": "previous item_bread (gold loaf with pink gingham cloth)",
+  "result": "rejected_wrong_identity",
+  "accepted_candidates": 0,
+  "art_qa": "failed",
+  "production_promoted": false,
+  "queue_mutated": false,
+  "next_recommendation": "Defer until target-specific image editing works; avoid repeated stale-generation calls."
+}
