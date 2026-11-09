@@ -1,0 +1,34 @@
+{
+  "asset_id": "shared/question_dark",
+  "original_attempt_task": "other96/inventory/selected_item_separator",
+  "identity": "brown hand-painted round question-mark medallion with two green leaves clusters",
+  "archive_type": "misrouted_new_unapproved_review_candidates",
+  "original_question_dark_reference_verified": false,
+  "final_approved": false,
+  "production_replaced": false,
+  "source_binding_to_question_dark": false,
+  "notes": "Both generated when attempting separator. Neither qualifies as separator. Stored locally in matching asset archive; not counted as delivered or passed. Requires independent question_dark visual/original matching and alpha QA.",
+  "images": [
+    {
+      "file": "question_dark_misrouted_from_separator_attempt_1_UNAPPROVED.png",
+      "sha256": "d2e98fc8acbd5b33086de7fe86ca680d5958a49221dc21ebaf3aefec7c2b197c",
+      "mode": "RGBA",
+      "dimensions": [
+        1261,
+        1247
+      ]
+    },
+    {
+      "file": "question_dark_misrouted_from_separator_attempt_2_UNAPPROVED.png",
+      "sha256": "a4dda8a8e9cb5c8911abde4588894dbf1a2147580e42e3622245713cdea0be22",
+      "mode": "RGBA",
+      "dimensions": [
+        1261,
+        1247
+      ]
+    }
+  ],
+  "full_resolution_pngs_stored_in_github": false,
+  "library_upload": "AccessDeny",
+  "local_archive": "/mnt/data/lingmu_question_dark_misroute_archive_20261109"
+}
