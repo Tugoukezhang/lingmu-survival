@@ -1,0 +1,14 @@
+{
+  "task_id": "other96/map/location_label_blank",
+  "source": "07_world_map.jpg",
+  "target_resolution": "1180x390",
+  "target": "small dusty-rose muted pink rounded map location label with dark charcoal left pin capsule, no text; simple painterly edging",
+  "attempts": 1,
+  "actual": "wide cream parchment plaque with thick gold border, green diamond ends, vines and white flowers, checkerboard background",
+  "result": "rejected_wrong_palette_and_geometry",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/map/world_area_info_panel",
+  "note": "Selected location marker at #89 already has candidate_unapproved; do not repeat. Main queue pointer remains separately stale."
+}
