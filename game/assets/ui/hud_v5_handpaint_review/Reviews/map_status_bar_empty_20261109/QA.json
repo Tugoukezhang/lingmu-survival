@@ -1,0 +1,36 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/status_bar_empty",
+  "source_v4": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/status_bar_empty.png",
+  "source_v4_blob_sha": "1e7878cf8b56192ee7341264dcb06512bcfa3f07",
+  "source_reference": "07_world_map.jpg; V4 image visually inspected",
+  "imagegen_attempts": 1,
+  "imagegen_rejected": "Produced unrelated pale floral long banner",
+  "candidate": {
+    "kind": "source-guided Pillow raster, not independently GPT Image handpainted final",
+    "path": "/Lingmu_HUD_Exports/Map_Status_Bar_Empty_Review_20261109/map_status_bar_empty_1600x560_RGBA_candidate.png",
+    "size": [
+      1600,
+      560
+    ],
+    "mode": "RGBA",
+    "sha256": "b89d2097026c314c03164fea7963d2fb544b0c17a6e2f36c7e0d47ba39cae2fa",
+    "qa_bundle": "/Lingmu_HUD_Exports/Map_Status_Bar_Empty_Review_20261109/map_status_bar_empty_review_bundle.zip"
+  },
+  "qa": {
+    "functional_identity": "blue-grey cool pill with pale cool grey border and blank interior",
+    "transparent_outside": "verified",
+    "preview_widths_px": [
+      160,
+      320,
+      480,
+      800
+    ],
+    "art_approval": "pending",
+    "in_game": "not_run",
+    "production_replaced": false
+  },
+  "approved": false,
+  "counts_changed": false
+}
