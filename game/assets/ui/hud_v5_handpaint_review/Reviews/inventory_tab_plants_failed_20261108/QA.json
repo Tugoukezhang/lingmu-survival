@@ -1,0 +1,67 @@
+{
+  "task_id": "other96/inventory/tab_plants",
+  "date_local": "2026-11-08",
+  "source_ref": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/tab_plants.svg",
+  "source_kind": "V3 isolated reconstructed SVG fallback, not original game screenshot",
+  "original_source": "04_背包(5).jpg",
+  "original_source_accessible": false,
+  "original_screenshot_bbox_verified": false,
+  "original_screenshot_bbox": null,
+  "fallback_raster_size": [
+    1024,
+    1024
+  ],
+  "fallback_alpha_bbox_xyxy_exclusive": [
+    140,
+    122,
+    894,
+    900
+  ],
+  "target": "One dark gray-brown outline of a single oblique leaf with central veins, dusty peach-pink rounded square background, thin taupe rounded outer border",
+  "attempts": [
+    {
+      "number": 1,
+      "sha256": "81a442f0fe47d1bd2eade798dc795e44c46024f493644f267e0c8c2d81c0cfcb",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "alpha_bbox_xyxy_exclusive": [
+        0,
+        21,
+        1508,
+        1004
+      ],
+      "result": "rejected_wrong_identity_and_palette"
+    },
+    {
+      "number": 2,
+      "sha256": "2b2b2d013ccb460db0ee9ce8bea23119bd309a995777816ac98d42bbe9310ecf",
+      "size": [
+        1261,
+        1247
+      ],
+      "mode": "RGBA",
+      "alpha_bbox_xyxy_exclusive": [
+        0,
+        35,
+        1249,
+        1247
+      ],
+      "result": "rejected_repeat_wrong_identity_and_palette"
+    }
+  ],
+  "failure": "Both outputs are a two-green-leaf sprout with stem on teal-blue field and thick wooden frame, not a one-leaf outline on a peach field. Repeated image-reference/target binding error; no acceptable candidate.",
+  "small_size": "48 px checked. Wrong glyph remains distinct from expected, therefore identity QA fails.",
+  "alpha": "Both images have transparent RGBA pixels but neither fulfills target identity; dimensions also do not match requested 1024x1024.",
+  "candidate_count": 0,
+  "art_qa": "failed_identity",
+  "game_qa": "not_run",
+  "approval": "pending_deferred",
+  "production_modified": false,
+  "qa_comparison_local": "/mnt/data/lingmu_tab_plants_20261108/tab_plants_V3_vs_two_rejected_QA.jpg",
+  "review_zip_local": "/mnt/data/lingmu_tab_plants_20261108/tab_plants_rejected_review.zip",
+  "library_upload": "AccessDeny",
+  "note": "Do not count as approved and do not promote. Source image binding to authentic screenshot not verified."
+}
