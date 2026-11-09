@@ -1,0 +1,49 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/location_thumbnail_frame",
+  "asset_id": "map/location_thumbnail_frame",
+  "source": {
+    "screenshot": "07_world_map.jpg",
+    "legacy_v4": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/location_thumbnail_frame.png",
+    "legacy_blob_sha": "71322bc178cf048dc958663243e6b78fde9a6a40",
+    "v4_visual_inspected": true,
+    "actual_single_crop_bound_to_image_generation": false
+  },
+  "candidate": {
+    "kind": "source-guided antialiased procedural raster with editable SVG (NOT GPT Image handpainted)",
+    "png": "/Lingmu_HUD_Exports/Map_Location_Thumbnail_Frame_Review_20261109/location_thumbnail_frame_transparent_1024_RGBA.png",
+    "svg": "/Lingmu_HUD_Exports/Map_Location_Thumbnail_Frame_Review_20261109/location_thumbnail_frame_editable.svg",
+    "sage_fill_preview": "/Lingmu_HUD_Exports/Map_Location_Thumbnail_Frame_Review_20261109/location_thumbnail_frame_sage_placeholder_PREVIEW.png",
+    "review_bundle": "/Lingmu_HUD_Exports/Map_Location_Thumbnail_Frame_Review_20261109/location_thumbnail_frame_review_bundle.zip",
+    "sha256": "3fa305f140520254e4e5e233be2b16c01b3fe85806cfc8fd37017e6ed84bef9a",
+    "resolution": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA"
+  },
+  "qa": {
+    "shape": "rounded square photographic frame rotated approx seven degrees clockwise, sand-brown rim and pale cream mat; image aperture left transparent by design",
+    "alpha": "passed; center and exterior corners alpha=0",
+    "alpha_bbox": [
+      79,
+      79,
+      946,
+      946
+    ],
+    "preview_sizes": [
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_approval": "pending",
+    "in_game": "not_run"
+  },
+  "approved": false,
+  "production_replaced": false,
+  "counts_changed": false
+}
