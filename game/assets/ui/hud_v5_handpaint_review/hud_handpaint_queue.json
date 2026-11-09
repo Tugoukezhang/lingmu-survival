@@ -2048,7 +2048,16 @@
       },
       "failure_reason": "Original tight crop verified; two images produced thick wooden-framed green buttons with baked-in 使用 text, second added leaf vines. Both unacceptable vs thin muted-olive original; reject, defer.",
       "last_attempt": "2026-11-09",
-      "qa_path": "Reviews/inventory_use_button_rejected_20261109/QA.json"
+      "qa_path": "Reviews/inventory_use_button_rejected_20261109/QA.json",
+      "rework_status": "source_matched_button_candidate_archived_pending_user_and_engine_QA",
+      "rework_candidate_library": "/Lingmu_HUD_Exports/Rework_Inventory_Use_Button_20261109/use_button_source_matched_blank_1580x520.png",
+      "rework_candidate_sha256": "8e5c14c99139ce378920f7179910d571da95519aaf6b11d3d4cd0d67d6a1eb5d",
+      "rework_candidate_size": [
+        1580,
+        520
+      ],
+      "rework_art_approval": "pending",
+      "production_promoted": false
     },
     {
       "queue_number": 42,
