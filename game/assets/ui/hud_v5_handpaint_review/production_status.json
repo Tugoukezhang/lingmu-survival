@@ -447,9 +447,13 @@
       "target_png": "PNG_Transparent/04_inventory/tab_plants.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": ""
+      "status": "deferred_two_wrong_generations",
+      "qa": "identity_and_palette_failed_two_attempts_deferred",
+      "notes": "Two unrelated outputs: 2-leaf green sprout on teal/wood vs single gray-brown outlined leaf on peach-taupe badge. Original screenshot unavailable; V3 single reconstructed SVG fallback only. No candidate approved. GitHub QA: Reviews/inventory_tab_plants_failed_20261108/QA.json.",
+      "attempts": 2,
+      "candidate_count": 0,
+      "original_screenshot_bbox_verified": false,
+      "production_replaced": false
     },
     {
       "index": 40,
