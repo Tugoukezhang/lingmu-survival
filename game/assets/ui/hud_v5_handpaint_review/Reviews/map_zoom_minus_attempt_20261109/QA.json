@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/map/zoom_minus",
+  "date": "2026-11-09",
+  "source": "07_世界地图(1).jpg",
+  "target": "small simple circular minus button in map zoom controls, transparent background, no decorative flowers or leaves",
+  "attempts": 1,
+  "actual": "large dark green circular button with cream minus, thick gold rim, green leaves and white flower; rendered checkerboard background",
+  "identity_correct": true,
+  "result": "visual_draft_only_not_accepted",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "reason": "Excess floral/gold ornamentation and checkerboard not verified as transparent. No source crop bound to generator.",
+  "next": "other96/map/zoom_rail"
+}
