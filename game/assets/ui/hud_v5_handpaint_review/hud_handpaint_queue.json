@@ -27,7 +27,10 @@
     "main_hud_queue_total": 12,
     "final_approved": 0,
     "other_96_single_review_candidates_count": 2,
-    "user_design_accepted_tech_qa_pending": 1
+    "user_design_accepted_tech_qa_pending": 1,
+    "first_pass_not_generated": 0,
+    "first_pass_entries_processed": 96,
+    "first_pass_queue_complete": true
   },
   "separate_qa": {
     "task_id": "activity/reward_shell_only",
@@ -3308,12 +3311,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/map_faint_leaf_corner.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Faint_Leaf_Corner_Review_20261109/map_faint_leaf_corner_1024_RGBA_candidate.png",
+      "reference_match": "V4 and source screenshot visually inspected: two clipped green/yellow leaves entering top-left and right edge; no exact generator-bound crop",
+      "notes": "ImageGen multi-leaf floral vine rejected. Single 1024 transparent source-guided SVG/RGBA with two faint edge leaves and large clear center; alpha and three-background previews verified. Art/in-game QA pending. Not independently GPT Image handpainted.",
+      "candidate_sha256": "f1919c991f39262d398049073aa0899ecd1fd11a2c85b1a93f347ff1bfed72f1",
+      "candidate_kind": "source-guided hand-authored SVG rendered to transparent raster; NOT independently GPT Image handpainted",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_faint_leaf_corner_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 94,
@@ -4514,9 +4521,19 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_location_thumbnail_frame_20261109/QA.json",
       "next_focus": "other96/map/map_faint_leaf_corner",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/map_faint_leaf_corner",
+      "action": "Rejected vine/flower ImageGen misroute. Created faint two-leaf 1024 RGBA corner sprite with editable SVG and transparency/composite QA",
+      "result": "Review candidate archived in Library; no final approvals or production changes. 96 entries now all processed at least once (including failed/deferred/skipped).",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_faint_leaf_corner_20261109/QA.json",
+      "next_focus": "main_calendar",
+      "new_approved": 0,
+      "first_pass_not_generated": 0
     }
   ],
-  "current_focus": "other96/map/map_faint_leaf_corner",
+  "current_focus": "main_calendar",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
