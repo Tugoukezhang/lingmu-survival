@@ -44,5 +44,21 @@
   "final_approved": false,
   "production_replaced": false,
   "next_task": "other96/inventory/tab_food",
-  "qa_state": "candidate_local_only_review_pending_original_and_engine_QA"
+  "qa_state": "candidate_local_only_review_pending_original_and_engine_QA",
+  "rework_attempts_20261109": [
+    {
+      "attempt": 1,
+      "result": "rejected_misrouted",
+      "observed": "wooden parchment detail panel, not green heart category tab",
+      "accepted": false
+    },
+    {
+      "attempt": 2,
+      "result": "rejected_misrouted",
+      "observed": "treasure map panel, not green heart category tab",
+      "accepted": false
+    }
+  ],
+  "rework_state": "deferred_after_two_misrouted_generations",
+  "rework_note": "Preserve existing V4 candidate and original production asset. Do not redraw via programmatic geometry; rebind a clean isolated source before next attempt."
 }
