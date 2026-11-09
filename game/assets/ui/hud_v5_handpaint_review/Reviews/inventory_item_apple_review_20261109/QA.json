@@ -1,0 +1,101 @@
+{
+  "schema": "lingmu-hud-single-sprite-review-v1",
+  "run_date_utc": "2026-11-09",
+  "task_id": "other96/inventory/item_apple",
+  "queue_number": 44,
+  "source": {
+    "file": "04_inventory.jpg",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+    "bbox_xyxy": [
+      320,
+      292,
+      512,
+      500
+    ],
+    "crop_dimensions": [
+      192,
+      208
+    ],
+    "crop_sha256": "6a6eb0caf2f756bd9f9a8bb1d180631e6ed57e78927dd090944225ba1386bad4",
+    "description": "authentic large red apple item illustration from left of inventory screen; small right-hand inventory icon was cursor-obscured",
+    "crop_bound_to_generator_verified": false
+  },
+  "identity": {
+    "target": "one red apple icon, short brown stem, one green leaf, two cream fruit highlights, two gold accent strokes",
+    "forbidden": [
+      "question mark",
+      "wooden medallion",
+      "flowers",
+      "text",
+      "extra controls",
+      "solid background"
+    ]
+  },
+  "attempts": 2,
+  "attempt1": {
+    "result": "wrong_question_mark_medallion",
+    "status": "REJECTED_NOT_APPLE",
+    "image": "misroute_question_dark_UNAPPROVED_1536x1024.png",
+    "sha256": "59_placeholder",
+    "correct_asset": "shared/question_dark",
+    "correct_asset_qa": "unapproved_misroute_archive_only"
+  },
+  "attempt2": {
+    "result": "red_apple_handpaint",
+    "status": "REVIEW_CANDIDATE_NOT_APPROVED",
+    "image": "item_apple_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+    "sha256": "bae1e8a68c160e7796354cbe7d52a04a1367ebe9036d5cb8d9e3091635d76ac8",
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "alpha_bbox_xyxy": [
+      224,
+      166,
+      829,
+      919
+    ],
+    "alpha_range": [
+      0,
+      255
+    ],
+    "alpha_nonzero_ratio": 0.238864,
+    "corner_alpha_zero": true,
+    "original_source_binding_verifiable": false
+  },
+  "qa": {
+    "identity": "PASS red apple recognizable",
+    "comparison": "PARTIAL original flat coral red apple + dark simple green leaf + two golden side marks; candidate shiny 3D red apple, brighter green serrated leaf, missing golden marks, includes diffuse base shadow",
+    "alpha": "PASS transparent RGBA PNG",
+    "small_size": "visually recognizable at 48px and 64px on cream and dark backgrounds",
+    "art": "pending",
+    "engine": "pending",
+    "final": "not_approved"
+  },
+  "files": {
+    "local_folder": "/mnt/data/lingmu_item_apple_20261109",
+    "original_crop": "item_apple_source_crop_192x208.png",
+    "candidate_png": "item_apple_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+    "rejected_png": "misroute_question_dark_UNAPPROVED_1536x1024.png",
+    "comparison": "item_apple_original_vs_candidate_QA.jpg",
+    "zip": "/mnt/data/lingmu_item_apple_20261109_REVIEW.zip",
+    "github_binary_uploaded": false
+  },
+  "library_upload": {
+    "attempted": true,
+    "result": "AccessDeny: id=FileDrive_95e587b757a08191a27cb674e7492b1f",
+    "saved_to_library": false
+  },
+  "state": "candidate_unapproved_reference_binding_art_engine_QA_pending",
+  "counts_delta": {
+    "new_final_approved": 0,
+    "production_replaced": 0
+  },
+  "production_unchanged": true,
+  "next_focus": "other96/inventory/item_flower"
+}
