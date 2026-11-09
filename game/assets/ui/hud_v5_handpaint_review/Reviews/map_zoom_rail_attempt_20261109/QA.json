@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/map/zoom_rail",
+  "date": "2026-11-09",
+  "source": "07_世界地图(1).jpg",
+  "target_resolution": "680x1800",
+  "target": "narrow vertical map zoom rail without baked thumb, minimal original structure",
+  "attempts": 1,
+  "actual": "wide horizontal ornate green-gold slider with center clover thumb, leaves and flowers, checkerboard",
+  "result": "rejected_wrong_orientation_and_structure",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "next": "other96/map/zoom_thumb",
+  "reason": "Horizontal vs vertical, thumb merged with track, decorative extras, no clean transparency."
+}
