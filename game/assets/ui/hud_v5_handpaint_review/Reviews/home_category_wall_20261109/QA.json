@@ -1,0 +1,42 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-qa-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/home/category_wall",
+  "source": "06_home.jpg visually inspected; V4 production category_wall proxy visually inspected",
+  "v4_proxy_sha": "f91d7e622e94af3d84fd120e7f91897aca9a84e4",
+  "expected": "One warm-brown rounded rectangular picture-frame outline plus one interior rising-and-falling mountain zigzag; no backing, scenery, floral decoration, words",
+  "image_gen": {
+    "attempts": 1,
+    "rejected": 1,
+    "reason": "Full colorful windmill landscape, hanging bar and flowers, not the HUD glyph"
+  },
+  "candidate": {
+    "kind": "programmatically drawn source-guided raster, NOT independent GPT Image handpaint",
+    "path": "/Lingmu_HUD_Exports/Home_Category_Wall_Single_Review_20261109/category_wall_framed_mountain_1024_RGBA.png",
+    "sha256": "2846e6140ce6597ed8f837fb979432b5b175d5029730a22eac680c991c96cacd",
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "review_package": "/Lingmu_HUD_Exports/Home_Category_Wall_Single_Review_20261109/category_wall_review_bundle.zip"
+  },
+  "qa": {
+    "silhouette": "pass visually compared with V4 proxy",
+    "alpha": "pass",
+    "sizes": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "art_qa": "pending",
+    "in_engine_qa": "not_run",
+    "approved": false
+  },
+  "production_replaced": false,
+  "counts_changed": false
+}
