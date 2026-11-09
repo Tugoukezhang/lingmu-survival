@@ -2145,12 +2145,26 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_potion.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "deferred_rework_two_wrong_palette_attempts",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 2,
       "delivered_file": null,
-      "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "reference_match": "both generated blue_bottle_instead_of_original_yellow_bottle",
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "source_bbox_xyxy": [
+        1246,
+        200,
+        1338,
+        282
+      ],
+      "source_crop_sha256": "86ac6b479bea35343a4529f774b53b415e73163ad783628603e24c4c82a49c95",
+      "reference_crop_sha256": "b7905b63e685ceea28fc970eb6e0e19f1a718c27d5ed36f1249a907a1990c073",
+      "source_crop_bind_verified": false,
+      "qa_path": "Reviews/inventory_item_potion_rejected_20261109/QA.json",
+      "art_qa": "failed",
+      "engine_qa": "not_run",
+      "production_replaced": false,
+      "library_upload": "AccessDeny"
     },
     {
       "queue_number": 47,
@@ -3517,9 +3531,30 @@
       "github_qa": "Reviews/inventory_item_flower_review_20261109/QA.json",
       "library_upload": "AccessDeny",
       "next": "other96/inventory/item_potion"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_potion",
+      "action": "Verified 1920x1080 authentic inventory screenshot and 92x82 tight original amber-potion crop; 2 separate image generations both produced blue potion with unrequested rope/tag/bubbles, so rejected by palette and identity fidelity. Alpha and 48px checks done; no valid candidate or production promotion.",
+      "source_bbox_xyxy": [
+        1246,
+        200,
+        1338,
+        282
+      ],
+      "source_crop_sha256": "86ac6b479bea35343a4529f774b53b415e73163ad783628603e24c4c82a49c95",
+      "source_bind_verified": false,
+      "attempts": 2,
+      "rejected": 2,
+      "accepted_review_candidates": 0,
+      "final_approved": 0,
+      "production_replaced": false,
+      "library_upload": "AccessDeny",
+      "github_qa": "Reviews/inventory_item_potion_rejected_20261109/QA.json",
+      "next": "other96/inventory/item_map_fragment"
     }
   ],
-  "current_focus": "other96/inventory/item_potion",
+  "current_focus": "other96/inventory/item_map_fragment",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
