@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/map/map_back",
+  "date": "2026-11-09",
+  "source": "07_世界地图(1).jpg",
+  "target": "map back button, cream left return arrow in small original wood/cream green foliage circle",
+  "attempts": 1,
+  "actual": "large ornate green gold return badge with flower, outer noisy checkerboard/colored halo",
+  "identity_correct": true,
+  "result": "visual_reference_only_rejected_for_alpha_and_source_fidelity",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "reason": "No clean isolated transparency and extra ornate frame; must not claim game-ready RGBA.",
+  "next": "other96/map/zoom_plus"
+}
