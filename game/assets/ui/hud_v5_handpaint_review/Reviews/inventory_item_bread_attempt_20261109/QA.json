@@ -1,0 +1,20 @@
+{
+  "task_id": "other96/inventory/item_bread",
+  "source": "04_inventory.jpg",
+  "source_bbox_xyxy": [
+    972,
+    320,
+    1084,
+    426
+  ],
+  "source_verified": true,
+  "source_description": "golden oval bread loaf with three diagonal cuts, wrapped partly in peach-and-cream checkered cloth; quantity 1 excluded",
+  "attempts": 1,
+  "generated_result": "wrong identity: red spotted mushroom from preceding item_mushroom",
+  "accepted_candidates": 0,
+  "final_approved": 0,
+  "production_promoted": false,
+  "queue_main_not_advanced": true,
+  "next": "other96/inventory/item_letter",
+  "note": "One attempted image was rejected as prior-item misroute; no bread sprite delivered."
+}
