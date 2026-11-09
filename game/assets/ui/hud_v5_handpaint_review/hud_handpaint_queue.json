@@ -3098,12 +3098,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/zoom_minus.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Zoom_Minus_Single_Review_20261109/map_zoom_minus_1024_RGBA_candidate.png",
+      "reference_match": "World map legacy zoom-minus verified; source-guided matching pair with previous plus, no authentic crop bound to ImageGen",
+      "notes": "One ornate green ImageGen misroute rejected. New 1024 RGBA brown circle with ivory minus and lower-right leaf flower from matching plus SVG; technical QA passed; art and engine QA pending. Not independently AI handpainted.",
+      "candidate_sha256": "f933b41dba38acac1bfaad91b248cb9becbef9063b65fc38ff645834711aa0c5",
+      "candidate_kind": "source-guided matching raster variant of zoom_plus, NOT independently AI handpainted",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_zoom_minus_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 83,
@@ -4423,9 +4427,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_zoom_plus_20261109/QA.json",
       "next_focus": "other96/map/zoom_minus",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/zoom_minus",
+      "action": "Rejected green floral image generation; derived matching 1024 RGBA round zoom-minus asset from zoom-plus source, shifted flower to lower-right, checked alpha and 32–256px",
+      "result": "PNG/SVG/QA bundle archived in Library; GitHub QA recorded; art/engine approval and production untouched",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_zoom_minus_20261109/QA.json",
+      "next_focus": "other96/map/zoom_rail",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/zoom_minus",
+  "current_focus": "other96/map/zoom_rail",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
