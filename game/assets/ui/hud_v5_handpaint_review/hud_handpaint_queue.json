@@ -889,7 +889,16 @@
         "library_archive": "attempted_AccessDeny",
         "github_qa": "Reviews/inventory_item_description_label_rejected_20261109/QA.json",
         "run_file": "/mnt/data/lingmu_item_description_label_20261109/review_20261109_second_attempt/misrouted_question_dark_unapproved_1024_RGBA.png"
-      }
+      },
+      "additional_misroute_archives": [
+        {
+          "from_task": "other96/inventory/item_apple",
+          "sha256": "43865648f8d054fae5e1c5adde350e194f4379c662d4025e5d3c171493dd2467",
+          "local_review_file": "/mnt/data/lingmu_item_apple_20261109/misroute_question_dark_UNAPPROVED_1536x1024.png",
+          "github_qa": "Reviews/inventory_item_apple_review_20261109/QA.json",
+          "status": "unapproved_wrong_silhouette_and_not_production_ready"
+        }
+      ]
     },
     {
       "queue_number": 13,
@@ -2044,12 +2053,51 @@
       "source_reference": "04_背包(5).jpg",
       "target_png": "PNG_Transparent/04_inventory/item_apple.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "gpt_image_apple_candidate_unapproved_reference_binding_and_art_game_QA_pending",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "attempts": 2,
+      "delivered_file": "/mnt/data/lingmu_item_apple_20261109/item_apple_handpaint_candidate_UNAPPROVED_1024_RGBA.png",
+      "reference_match": true,
+      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon.",
+      "candidate_sha256": "bae1e8a68c160e7796354cbe7d52a04a1367ebe9036d5cb8d9e3091635d76ac8",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "candidate_format": "RGBA PNG",
+      "source_crop": {
+        "file": "04_inventory.jpg",
+        "source_dimensions": [
+          1920,
+          1080
+        ],
+        "source_sha256": "b236576601b04e22829149889aa93a92bbd194021f3b0ee1bd072a8d8a1be581",
+        "bbox_xyxy": [
+          320,
+          292,
+          512,
+          500
+        ],
+        "dimensions": [
+          192,
+          208
+        ],
+        "sha256": "6a6eb0caf2f756bd9f9a8bb1d180631e6ed57e78927dd090944225ba1386bad4",
+        "reference_binding_to_generator_verified": false,
+        "notes": "Cropped authentic original large apple within left inventory detail; smaller grid apple obscured by mouse cursor."
+      },
+      "qa_status": "one apple identity review candidate, transparent alpha; original palette/highlight fidelity, artwork acceptance and game-integration QA pending; source-binding not proven",
+      "qa_path": "Reviews/inventory_item_apple_review_20261109/QA.json",
+      "library_upload_status": "AccessDeny; full local QA zip remains accessible in conversation, not claimed in Library",
+      "production_promoted": false,
+      "last_attempt": "2026-11-09",
+      "misroute": {
+        "correct_asset": "other96/shared/question_dark",
+        "identity": "ornate wood-rimmed question-mark badge",
+        "sha256": "43865648f8d054fae5e1c5adde350e194f4379c662d4025e5d3c171493dd2467",
+        "state": "unapproved_wrong_shape_for_question_dark; archive only",
+        "local_file": "/mnt/data/lingmu_item_apple_20261109/misroute_question_dark_UNAPPROVED_1536x1024.png"
+      }
     },
     {
       "queue_number": 45,
@@ -3401,9 +3449,29 @@
       "library_upload": "AccessDeny, locally saved QA zip and PNGs",
       "production_replaced": false,
       "next": "other96/inventory/item_apple"
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/inventory/item_apple",
+      "action": "Original apple source crop verified. First generated ornate question badge (rejected for apple); second generated recognizable red apple RGBA 1024 candidate (review only). Technical source binding unverified; art/engine QA still pending.",
+      "source_bbox_xyxy": [
+        320,
+        292,
+        512,
+        500
+      ],
+      "source_crop_sha256": "6a6eb0caf2f756bd9f9a8bb1d180631e6ed57e78927dd090944225ba1386bad4",
+      "attempts": 2,
+      "misrouted": 1,
+      "review_candidate": 1,
+      "final_approved": 0,
+      "production_replaced": false,
+      "library_upload": "AccessDeny",
+      "github_qa": "Reviews/inventory_item_apple_review_20261109/QA.json",
+      "next": "other96/inventory/item_flower"
     }
   ],
-  "current_focus": "other96/inventory/item_apple",
+  "current_focus": "other96/inventory/item_flower",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
