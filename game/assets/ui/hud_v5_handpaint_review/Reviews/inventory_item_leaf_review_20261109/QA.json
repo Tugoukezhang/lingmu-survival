@@ -1,0 +1,22 @@
+{
+  "task_id": "other96/inventory/item_leaf",
+  "date": "2026-11-09",
+  "candidate_file": "item_leaf_review_1024.png",
+  "sha256": "46c1c40f0ee9c24ffcd8f04f514b91af4fee8255d08df778d5ef2426e6d2c227",
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "alpha_bbox": [
+    32,
+    77,
+    992,
+    946
+  ],
+  "identity": "single green leaf",
+  "art_qa": "pending; extra twine and clover tag not verified against original screenshot",
+  "source_crop_binding_verified": false,
+  "engine_qa": "pending",
+  "approved": false,
+  "production_promoted": false
+}
