@@ -1,0 +1,50 @@
+{
+  "schema": "lingmu-hud-single-asset-candidate-v1",
+  "date": "2026-11-09",
+  "task_id": "other96/map/zoom_minus",
+  "asset_id": "map/zoom_minus",
+  "source": {
+    "screenshot": "07_world_map.jpg",
+    "legacy_v4": "game/assets/ui/hud_v4/production/PNG_Transparent/07_world_map/zoom_minus.png",
+    "legacy_blob_sha": "a3087abc0bede1bd1286d5162ef2c263e7a81ba1",
+    "original_single_crop_bound_to_imagegen": false,
+    "matching_previous_plus_source": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_zoom_plus_20261109/QA.json"
+  },
+  "rejected_generation": {
+    "attempts": 1,
+    "reason": "Generated green floral scalloped badge instead of warm brown round minus"
+  },
+  "candidate": {
+    "kind": "source-guided matching raster variant of zoom_plus, NOT independently AI handpainted",
+    "library_path": "/Lingmu_HUD_Exports/Map_Zoom_Minus_Single_Review_20261109/map_zoom_minus_1024_RGBA_candidate.png",
+    "svg_path": "/Lingmu_HUD_Exports/Map_Zoom_Minus_Single_Review_20261109/map_zoom_minus_source_guided.svg",
+    "comparison_path": "/Lingmu_HUD_Exports/Map_Zoom_Minus_Single_Review_20261109/QA_pair_comparison.jpg",
+    "bundle": "/Lingmu_HUD_Exports/Map_Zoom_Minus_Single_Review_20261109/map_zoom_minus_review_bundle.zip",
+    "resolution": [
+      1024,
+      1024
+    ],
+    "mode": "RGBA",
+    "sha256": "f933b41dba38acac1bfaad91b248cb9becbef9063b65fc38ff645834711aa0c5"
+  },
+  "qa": {
+    "identity": "pass visually: warm brown circular wooden button with cream minus bar",
+    "alpha": "passed",
+    "preview_sizes": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "paired_plus_visual": "passed",
+    "art_approval": "pending",
+    "in_game": "not_run"
+  },
+  "approval": "pending",
+  "final_approved": false,
+  "production_replaced": false,
+  "counts_changed": false
+}
