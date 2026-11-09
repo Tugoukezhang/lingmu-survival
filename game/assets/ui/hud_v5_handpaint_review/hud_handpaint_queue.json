@@ -2621,12 +2621,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/category_furniture.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "gpt_image_isolated_armchair_candidate_unapproved",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 2,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Category_Furniture_Single_Review_20261109/category_furniture_armchair_isolated_1024_RGBA.png",
+      "reference_match": "Furniture category chair confirmed in 06_home.jpg. Candidate preserves armchair/material function but has 3/4 view and floral pillow not in original; not original crop-bound",
+      "notes": "Two full ImageGen outputs misrouted to ornate room/plaques. Manual alpha cutout from second generated chair produced usable single 1024 PNG; native 48..256 preview and alpha inspected; minor fringe and in-engine art QA pending.",
+      "review_record": "Reviews/home_category_furniture_20261109/QA.json",
+      "candidate_sha256": "8f821a03aaffb9aa48b69109238bf8e5579a2cfe16e0045e977ee437f2327198",
+      "candidate_kind": "AI generated chair cutout via manual alpha mask; NOT standalone direct generator result",
+      "production_replaced": false
     },
     {
       "queue_number": 60,
@@ -4280,9 +4284,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_edit_move_reference_guided_20261109/QA.json",
       "next_focus": "other96/home/category_furniture",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/category_furniture",
+      "action": "Verified furniture icon from home screenshot and V4 proxy; rejected two ornate full-scene ImageGen misroutes; isolated armchair from second output into 1024 transparent PNG; QA previews, bundle saved Library",
+      "result": "Single generated-chair extraction candidate unapproved; not genuine one-to-one handpaint, no production replacement or approved-count change",
+      "next_focus": "other96/home/category_hanging",
+      "review_record": "Reviews/home_category_furniture_20261109/QA.json",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/category_furniture",
+  "current_focus": "other96/home/category_hanging",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
