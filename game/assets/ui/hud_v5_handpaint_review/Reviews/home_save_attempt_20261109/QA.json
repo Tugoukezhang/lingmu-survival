@@ -1,0 +1,12 @@
+{
+  "task_id": "other96/home/save",
+  "source": "06_home.jpg",
+  "source_target": "small ivory floppy/save icon on translucent dark green square at upper-right; simple clover mark on disk",
+  "attempts": 1,
+  "generated": "large ornate golden clover-shaped badge with cream floppy disk and checkerboard baked into RGB",
+  "result": "rejected_source_fidelity",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "main_queue_mutated": false,
+  "reason": "Wrong badge geometry and palette; embedded checkerboard is not true transparency."
+}
