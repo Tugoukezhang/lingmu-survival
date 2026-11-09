@@ -15,6 +15,7 @@ import * as TW from '../systems/town.js';
 import { NPCS } from '../data/npcs.js';
 import { QUEST_BY_ID } from '../data/quests.js';
 import * as PG from '../systems/progress.js';
+import * as HS from '../systems/house.js';
 import { SKILLS } from '../data/skills.js';
 import { CROPS } from '../data/crops.js';
 import { removeItem } from '../systems/inventory.js';
@@ -301,7 +302,7 @@ export function mapPanel(scene, stack) {
   const d = scene.scene.get('play').mapData();
   const w = 760, h = 420;
   const c = woodPanel(scene, w, h);
-  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, { home: '地图 · 家园岛', town: '地图 · 风铃小镇' }[d.area] ?? '地图 · 雾林浮岛', 26));
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, { home: '地图 · 家园岛', town: '地图 · 风铃小镇', house: '地图 · 我的小屋' }[d.area] ?? '地图 · 雾林浮岛', 26));
   const cell = Math.floor(Math.min(440 / d.cols, 320 / d.rows));
   const ox = -w / 2 + 40, oy = -h / 2 + 70;
   const g = scene.add.graphics();
@@ -515,6 +516,81 @@ export function bridgePanel(scene, stack) {
       stack.clear();
       scene.game.events.emit('world-changed', '断桥修好了！对面的星光岛……敬请期待');
     } });
+}
+
+// ---------- home decoration (T15) ----------
+// Top-down grid of the room: pick furniture from the bag, tap a cell to place;
+// tap a placed piece to rotate / move / put it away.
+export function decoratePanel(scene, stack) {
+  const w = 840, h = 460, cell = 38;
+  const c = woodPanel(scene, w, h);
+  const body = scene.add.container(0, 0);
+  c.add(body);
+  const gx = -w / 2 + 300, gy = -h / 2 + 80;
+  let pick = null, sel = -1, moving = false;
+  const NAME = Object.fromEntries(Object.keys(HS.FURNITURE).map((id) => [id, ITEMS[id].name]));
+  const COLOR = { item_furn_chair: 0xb07a48, item_furn_table: 0xc0905a, item_furn_plant: 0x5a9a3c, item_furn_rug: 0xf0a9a0, item_furn_shelf: 0x8a5a36, item_furn_lamp: 0xf5c84b };
+  const changed = () => { scene.game.session.markDirty(); scene.game.events.emit('house-changed'); };
+  const tapCell = (x, y) => {
+    const st = stateOf(scene);
+    if (pick) {
+      const r = HS.place(st, pick, x, y, 0);
+      if (r.ok) { changed(); scene.showToast(`摆好了${NAME[pick]}`); if (!st.inventory.some((s) => s.id === pick)) pick = null; }
+      else scene.showToast({ overlap: '这里已经有东西了', reserved: '床边和门口要留出空位', outside: '放不下（超出房间）' }[r.reason] ?? '放不下');
+    } else if (moving && sel >= 0) {
+      const r = HS.move(st, sel, x, y);
+      if (r.ok) { changed(); moving = false; } else scene.showToast('那里放不下');
+    } else sel = HS.itemAt(st, x, y);
+    draw();
+  };
+  const draw = () => {
+    body.removeAll(true);
+    const st = stateOf(scene), items = HS.houseOf(st).items;
+    body.add(text(scene, -w / 2 + 36, -h / 2 + 22, '布置家具', 26));
+    // bag list
+    const owned = st.inventory.filter((s) => HS.isFurniture(s.id));
+    body.add(text(scene, -w / 2 + 36, -h / 2 + 66, owned.length ? '背包里的家具（点一下再点格子）' : '背包里没有家具\n（在「制作」里用木材做）', 14, { bold: false, lineSpacing: 4 }));
+    owned.slice(0, 6).forEach((s, i) => body.add(capsuleButton(scene, -w / 2 + 130, -h / 2 + 116 + i * 52, `${NAME[s.id]} ×${s.count}`, { w: 180, h: 44, style: pick === s.id ? 'green' : 'yellow', name: `furn-${s.id}`,
+      onClick: () => { pick = pick === s.id ? null : s.id; sel = -1; moving = false; draw(); } })));
+    // grid
+    const g = scene.add.graphics();
+    g.fillStyle(0xc0905a).fillRect(gx, gy, HS.ROOM_W * cell, HS.ROOM_H * cell);
+    g.lineStyle(1, 0x8a5a36, 0.6);
+    for (let x = 0; x <= HS.ROOM_W; x++) g.lineBetween(gx + x * cell, gy, gx + x * cell, gy + HS.ROOM_H * cell);
+    for (let y = 0; y <= HS.ROOM_H; y++) g.lineBetween(gx, gy + y * cell, gx + HS.ROOM_W * cell, gy + y * cell);
+    g.fillStyle(0xf0a9a0, 0.9).fillRect(gx + 2, gy + 2, cell * 2 - 4, cell * 2 - 4);   // bed
+    g.fillStyle(0x5b3d26, 0.25); for (const [x, y] of HS.RESERVED.slice(4)) g.fillRect(gx + x * cell, gy + y * cell, cell, cell);   // door path
+    body.add(g);
+    body.add(text(scene, gx + cell, gy + cell, '床', 14, { ox: 0.5, oy: 0.5, color: '#ffffff' }));
+    body.add(text(scene, gx + 6 * cell, gy + HS.ROOM_H * cell + 12, '门', 14, { ox: 0.5, oy: 0.5 }));
+    const order = items.map((it, i) => [it, i]).sort((a, b) => (HS.FURNITURE[b[0].id].floor ? 1 : 0) - (HS.FURNITURE[a[0].id].floor ? 1 : 0));
+    for (const [it, i] of order) {
+      const { w: fw, h: fh } = HS.footprint(it.id, it.rot);
+      const b = scene.add.graphics();
+      b.fillStyle(COLOR[it.id], HS.FURNITURE[it.id].floor ? 0.7 : 1).fillRoundedRect(gx + it.x * cell + 3, gy + it.y * cell + 3, fw * cell - 6, fh * cell - 6, 8);
+      if (i === sel) b.lineStyle(4, 0xffffff).strokeRoundedRect(gx + it.x * cell + 2, gy + it.y * cell + 2, fw * cell - 4, fh * cell - 4, 8);
+      body.add(b);
+      body.add(text(scene, gx + (it.x + fw / 2) * cell, gy + (it.y + fh / 2) * cell, NAME[it.id], 14, { ox: 0.5, oy: 0.5, color: '#ffffff', stroke: '#5b3d26', strokeThickness: 3 }));
+    }
+    for (let y = 0; y < HS.ROOM_H; y++) for (let x = 0; x < HS.ROOM_W; x++) {
+      const hit = scene.add.rectangle(gx + x * cell + cell / 2, gy + y * cell + cell / 2, cell, cell, 0xffffff, 0.001);
+      makeClickable(scene, hit, () => tapCell(x, y));
+      hit.setData({ name: `cell-${x}-${y}`, touchW: cell, touchH: cell });
+      body.add(hit);
+    }
+    // actions for the selected piece
+    const hint = pick ? `点格子摆放：${NAME[pick]}` : moving ? '点要移到的格子' : sel >= 0 ? `选中：${NAME[items[sel].id]}` : '点房间里的家具可以旋转、移动、收回';
+    body.add(text(scene, gx, gy + HS.ROOM_H * cell + 30, hint, 15, { oy: 0.5, bold: false }));
+    if (sel >= 0 && !pick) {
+      const bx = gx + HS.ROOM_W * cell - 330, by = gy + HS.ROOM_H * cell + 30;
+      body.add(capsuleButton(scene, bx + 50, by, '旋转', { w: 96, h: 44, style: 'yellow', name: 'deco-rotate', onClick: () => { const r = HS.rotate(stateOf(scene), sel); if (r.ok) changed(); else scene.showToast('转不过来（会挡住别的东西）'); draw(); } }));
+      body.add(capsuleButton(scene, bx + 160, by, moving ? '取消' : '移动', { w: 96, h: 44, style: 'yellow', name: 'deco-move', onClick: () => { moving = !moving; draw(); } }));
+      body.add(capsuleButton(scene, bx + 270, by, '收回', { w: 96, h: 44, name: 'deco-pickup', onClick: () => { const r = HS.pickUp(stateOf(scene), sel); if (r.ok) { changed(); sel = -1; moving = false; } else scene.showToast('背包满了'); draw(); } }));
+    }
+  };
+  draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
 }
 
 // ---------- daily tasks (T44) ----------

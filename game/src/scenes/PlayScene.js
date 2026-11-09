@@ -6,7 +6,7 @@ import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock
 import { survivalTick } from '../systems/survival.js';
 import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../systems/islandGen.js';
 import { wildLevel } from '../systems/petMath.js';
-import { depart, returnHome, faint as faintState, pickUpLostBag, lostBagCount, goTown, leaveTown } from '../systems/travel.js';
+import { depart, returnHome, faint as faintState, pickUpLostBag, lostBagCount, goTown, leaveTown, enterHouse, leaveHouse } from '../systems/travel.js';
 import { gather, gatherPreview, GATHER } from '../systems/crafting.js';
 import { createBattle, makeWildGroup, canStartBattle } from '../systems/battle.js';
 import { PETS } from '../data/pets.js';
@@ -26,6 +26,7 @@ import flowMethods from './play/flow.js';
 import interactionMethods from './play/interaction.js';
 import farmMethods from './play/farm.js';
 import townMethods from './play/town.js';
+import houseMethods from './play/house.js';
 
 // The world: either the home island (placeholder layout) or a generated
 // expedition island (systems/islandGen.js), chosen by state.player.area.
@@ -43,16 +44,16 @@ export default class PlayScene extends Phaser.Scene {
     this.fires = []; this.monsters = []; this.warnings = []; this.lastSpawn = null; this.fogWisps = []; this.torchFx = null;
     this.fireSprites = new Map(); this.chestSprites = new Map(); this.thornSprites = new Map(); this.water = null; this.storageSpot = null;
     this.wading = EX.canWade(this.state);
-    this.wicks = []; this.wicksNight = null; this.npcs = null; this.homeBridge = null; this.townBridge = null; this.northBridge = null; this.expandSpot = null;
+    this.wicks = []; this.wicksNight = null; this.npcs = null; this.homeBridge = null; this.townBridge = null; this.northBridge = null; this.expandSpot = null; this.cottageSpot = null; this.doorSpot = null; this.decorSpot = null; this.furnSprites = [];
     this.farmRect = null; this.plots = null; this.shipSpot = null; this.seedSpot = null;
     this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
     this.traveling = false; this.fainted = false; this.inBattle = null;
     const want = this.state.player.area;
-    this.area = want === 'expedition' && this.state.expedition ? 'expedition' : want === 'town' ? 'town' : 'home';
-    if (this.area === 'expedition') this.buildExpedition(); else if (this.area === 'town') this.buildTown(); else this.buildIsland();
+    this.area = want === 'expedition' && this.state.expedition ? 'expedition' : ['town', 'house'].includes(want) ? want : 'home';
+    if (this.area === 'expedition') this.buildExpedition(); else if (this.area === 'town') this.buildTown(); else if (this.area === 'house') this.buildHouse(); else this.buildIsland();
     this.buildBackdrop();
-    this.drawGround();
-    if (this.area === 'expedition') this.placeExpeditionProps(); else if (this.area === 'town') this.placeTownProps(); else this.placeObstacles();
+    if (this.area !== 'house') this.drawGround();
+    if (this.area === 'expedition') this.placeExpeditionProps(); else if (this.area === 'town') this.placeTownProps(); else if (this.area === 'house') this.placeHouseProps(); else this.placeObstacles();
     this.createPlayer();
     this.createPets();
     if (this.area === 'expedition') this.createWildPets();
@@ -89,14 +90,17 @@ export default class PlayScene extends Phaser.Scene {
     const onGoTown = () => this.travel(() => goTown(this.state), '来到了风铃小镇');
     const onLeaveTown = () => this.travel(() => leaveTown(this.state), '回到家园了');
     const onWorldChanged = (msg) => { this.travel(() => ({ ok: true }), msg); };
+    const onEnterHouse = () => this.travel(() => enterHouse(this.state));
+    const onLeaveHouse = () => this.travel(() => leaveHouse(this.state));
+    const onHouseChanged = () => this.refreshHouse();
     const onFarmRefresh = () => this.refreshFarm();
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh], ['pet-form', onPetForm], ['pet-happy', onPetHappy], ['pet-evolved', onPetEvolved], ['go-town', onGoTown], ['leave-town', onLeaveTown], ['world-changed', onWorldChanged]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh], ['pet-form', onPetForm], ['pet-happy', onPetHappy], ['pet-evolved', onPetEvolved], ['go-town', onGoTown], ['leave-town', onLeaveTown], ['world-changed', onWorldChanged], ['enter-house', onEnterHouse], ['leave-house', onLeaveHouse], ['house-changed', onHouseChanged]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, this.cols * TILE, this.rows * TILE + CLIFF + TILE);
+    if (this.area !== 'house') cam.setBounds(0, 0, this.cols * TILE, this.rows * TILE + CLIFF + TILE);
     cam.startFollow(this.player, true, 0.12, 0.12);
     cam.setRoundPixels(true);
     cam.fadeIn(400, 0, 0, 0);
@@ -166,4 +170,4 @@ export default class PlayScene extends Phaser.Scene {
 }
 
 // The rest of the scene lives in ./play/*.js, grouped by topic.
-Object.assign(PlayScene.prototype, worldMethods, actorsMethods, nightMethods, expeditionMethods, flowMethods, interactionMethods, farmMethods, townMethods);
+Object.assign(PlayScene.prototype, worldMethods, actorsMethods, nightMethods, expeditionMethods, flowMethods, interactionMethods, farmMethods, townMethods, houseMethods);

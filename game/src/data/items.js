@@ -42,6 +42,14 @@ export const ITEMS = {
   item_foxwick: { name: '狐火灯芯', tag: '材料', icon: 'item_foxwick', desc: '只在起雾的夜里出现的狐火。\n小镇的露米想要 3 个。', quip: '摸起来不烫。' },
   item_fox_bell: { name: '化形铃', tag: '道具', icon: 'item_fox_bell', desc: '让进化后、好感 100 的焰尾狐\n学会化形。在照顾面板使用。', quip: '叮铃——' },
 
+  // furniture (T15)
+  item_furn_chair: { name: '木椅', tag: '家具', icon: 'item_furn_chair', desc: '一把小木椅（1×1）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
+  item_furn_table: { name: '木桌', tag: '家具', icon: 'item_furn_table', desc: '长木桌（2×1，可以旋转）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
+  item_furn_plant: { name: '盆栽', tag: '家具', icon: 'item_furn_plant', desc: '绿油油的盆栽（1×1）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
+  item_furn_rug: { name: '小地毯', tag: '家具', icon: 'item_furn_rug', desc: '软软的地毯（2×2），可以踩，\n家具可以放在上面。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
+  item_furn_shelf: { name: '书架', tag: '家具', icon: 'item_furn_shelf', desc: '书架（2×1，可以旋转）。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
+  item_furn_lamp: { name: '台灯', tag: '家具', icon: 'item_furn_lamp', desc: '台灯（1×1），晚上会亮。\n在小屋的「布置家具」里摆放。', quip: '家里更温馨了。' },
+
   // food (icons are code-drawn placeholders until the art arrives)
   // farm crops (T11)
   item_strawberry: { name: '草莓', tag: '作物', icon: 'item_strawberry', food: 12, desc: '甜甜的草莓，月影狐猫最爱。\n饱食 +12　出货 40', quip: '一口一个！' },

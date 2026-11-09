@@ -66,6 +66,21 @@ export function leaveTown(state) {
   return { ok: true };
 }
 
+// The cottage door (T15): no time passes.
+export function enterHouse(state) {
+  if (state.player.area !== 'home') return { ok: false, reason: 'not-home' };
+  state.player.area = 'house';
+  state.player.x = null; state.player.y = null;
+  return { ok: true };
+}
+export function leaveHouse(state) {
+  if (state.player.area !== 'house') return { ok: false, reason: 'not-house' };
+  state.player.area = 'home';
+  state.player.x = null; state.player.y = null;
+  state.flags.arriveAt = 'house';
+  return { ok: true };
+}
+
 export function returnHome(state) {
   if (state.player.area !== 'expedition') return { ok: false, reason: 'not-away' };
   passTime(state, TRAVEL_MIN);

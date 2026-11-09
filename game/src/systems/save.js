@@ -11,7 +11,7 @@ import { PETS, PET_BY_ID } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { createStarter } from './petMath.js';
 
-export const SAVE_VERSION = 4;   // 2: farm (T11), 3: town (T13), 4: island progress (T14)
+export const SAVE_VERSION = 5;   // 2: farm (T11), 3: town (T13), 4: island progress (T14), 5: house (T15)
 export const KEYS = { main: 'lingmu.save.main', backup: 'lingmu.save.backup', future: 'lingmu.save.future' };
 export const PARTY_MAX = 3;
 
@@ -44,6 +44,7 @@ export function newGameState({ now = Date.now(), seed = 20261108 } = {}) {
     town: { friend: {}, talkDay: {}, giftDay: {}, quests: {} },
     recipes: [],
     world: { expanded: false, bridge: false },
+    house: { items: [] },
     pets,
     party: ['pet-pup', 'pet-fox', 'pet-acorn'],
     expedition: null, // { seed, biome, changes: {...} } while on an expedition island (T05)
@@ -76,6 +77,7 @@ export function validate(s) {
   if (ex?.changes?.thorns != null && !Array.isArray(ex.changes.thorns)) err.push('expedition.thorns');
   if (s.town != null && !(s.town.friend && s.town.quests && typeof s.town.quests === 'object' && Object.values(s.town.quests).every((v) => v === 'active' || v === 'done'))) err.push('town');
   if (s.recipes != null && !Array.isArray(s.recipes)) err.push('recipes');
+  if (s.house != null && !(Array.isArray(s.house.items) && s.house.items.every((it) => ITEMS[it?.id] && isInt(it.x) && isInt(it.y) && (it.rot === 0 || it.rot === 1)))) err.push('house');
   if (s.world != null && !(typeof s.world.expanded === 'boolean' && typeof s.world.bridge === 'boolean')) err.push('world');
   if (s.crystals != null && !(typeof s.crystals === 'object' && Object.values(s.crystals).every((n) => isInt(n) && n >= 0))) err.push('crystals');
   if (s.daily != null && !(isInt(s.daily.day) && Array.isArray(s.daily.tasks) && s.daily.base && typeof s.daily.base === 'object')) err.push('daily');
@@ -87,7 +89,7 @@ export function validate(s) {
   const lb = ex?.lostBag;
   if (lb != null && !(Number.isFinite(lb.x) && Number.isFinite(lb.y) && Array.isArray(lb.items) && lb.items.every((it) => ITEMS[it?.id] && isInt(it.count) && it.count > 0))) err.push('expedition.lostBag');
   if (p && p.area === 'expedition' && ex == null) err.push('player.area');
-  if (p && !['home', 'expedition', 'town'].includes(p.area)) err.push('player.area');
+  if (p && !['home', 'expedition', 'town', 'house'].includes(p.area)) err.push('player.area');
   if (!Array.isArray(s.party) || s.party.length > PARTY_MAX || !s.party.every((uid) => s.pets?.some?.((pet) => pet.uid === uid))) err.push('party');
   return err;
 }
@@ -106,6 +108,8 @@ export const MIGRATIONS = {
   2: (d) => ({ ...d, town: { friend: {}, talkDay: {}, giftDay: {}, quests: {} }, recipes: [] }),
   // 3 → 4 (T14): home expansion and the town bridge, both not done yet
   3: (d) => ({ ...d, world: { expanded: false, bridge: false } }),
+  // 4 → 5 (T15): an empty room in the cottage
+  4: (d) => ({ ...d, house: { items: [] } }),
 };
 
 export function migrate(data, migrations = MIGRATIONS, target = SAVE_VERSION) {

@@ -87,7 +87,7 @@ export default {
     const saved = this.state.player;
     if (saved.area === this.area && saved.x != null && this.footFits(saved.x, saved.y)) { x = saved.x; y = saved.y; }
     else if (this.area === 'home' && this.state.flags.arriveAt) {
-      const spot = { dock: this.dock, bridge: this.homeBridge && { x: this.homeBridge.x + 30, y: this.homeBridge.y - 20 } }[this.state.flags.arriveAt] ?? this.bed;
+      const spot = { dock: this.dock, bridge: this.homeBridge && { x: this.homeBridge.x + 30, y: this.homeBridge.y - 20 }, house: this.cottageSpot && { x: this.cottageSpot.x, y: this.cottageSpot.y + 4 } }[this.state.flags.arriveAt] ?? this.bed;
       if (spot && this.footFits(spot.x, spot.y + 20)) { x = spot.x; y = spot.y + 20; }
       delete this.state.flags.arriveAt;
     }
@@ -103,7 +103,7 @@ export default {
     const center = { x: m.x * TILE + TILE / 2, y: m.y * TILE + TILE / 2 };
     const slots = [[-110, -40], [-40, -70], [40, -55], [110, -30], [-70, 40], [60, 45]];
     // home: every owned pet lives here; expedition: only the party comes along. party[0] follows.
-    const owned = this.area === 'home' ? this.state.pets : this.state.pets.filter((x) => this.state.party.includes(x.uid));
+    const owned = this.area === 'home' ? this.state.pets : this.area === 'house' ? this.state.pets.filter((x) => x.uid === this.state.party[0]) : this.state.pets.filter((x) => this.state.party.includes(x.uid));
     this.pets = owned.map((inst, i) => {
       const slot = slots[i % slots.length];
       return this.addPetSprite(inst, { x: center.x + slot[0] + Math.floor(i / slots.length) * 24, y: center.y + slot[1] });

@@ -31,6 +31,7 @@ import * as DY from '../game/src/systems/daily.js';
 import * as GR from '../game/src/systems/growth.js';
 import * as TW from '../game/src/systems/town.js';
 import * as PG from '../game/src/systems/progress.js';
+import * as HS from '../game/src/systems/house.js';
 import { QUESTS } from '../game/src/data/quests.js';
 import { NPCS } from '../game/src/data/npcs.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
@@ -438,7 +439,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
 {
   check('配方的材料和产出都是已定义的物品', RECIPES.every((r) => ITEMS[r.out] && Object.keys(r.cost).every((id) => ITEMS[id])));
   check('配方数值与文档一致（石斧 木3石2、石镐 木3石3、火把 木2草2、营火 木4石4、草编网 草3木2、藤编网 布1草3雾晶1）',
-    JSON.stringify(RECIPES.map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
+    JSON.stringify(RECIPES.filter((r) => !r.id.startsWith('furn_')).map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
       ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }], ['soup', { item_carrot: 2, item_pumpkin: 1 }], ['bigbag', { item_cloth: 6, item_crystal: 2 }]]));
   check('只有斧、镐、锄头、水壶、帐篷、大背包算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).sort().join() === 'item_axe,item_bigbag,item_can,item_hoe,item_pickaxe,item_tent');
 
@@ -1160,6 +1161,33 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const v3 = { ...S.newGameState(), version: 3 }; delete v3.world;
   const m3 = S.decode(S.encode(v3));
   check('旧存档（版本 3）自动迁移：补上扩建 / 修桥状态', m3.ok && m3.state.world && m3.state.world.expanded === false && m3.state.version === S.SAVE_VERSION);
+}
+
+// ---------- home decoration (T15) ----------
+{
+  check('6 件家具都能在家园工作台做', ['chair', 'table', 'plant', 'rug', 'shelf', 'lamp'].every((k) => RECIPES.some((r) => r.out === `item_furn_${k}` && r.station === 'workbench') && ITEMS[`item_furn_${k}`]));
+  const s = S.newGameState();
+  s.inventory.push({ id: 'item_furn_table', count: 2 }, { id: 'item_furn_chair', count: 1 }, { id: 'item_furn_rug', count: 1 }, { id: 'item_furn_lamp', count: 1 });
+  let r = HS.place(s, 'item_furn_table', 4, 3);
+  check('摆木桌（2×1）：背包 −1，记进房间', r.ok && I.countOf(s.inventory, 'item_furn_table') === 1 && HS.houseOf(s).items.length === 1);
+  check('不能和别的家具重叠', HS.place(s, 'item_furn_chair', 5, 3).reason === 'overlap');
+  check('床和门口不能放', HS.place(s, 'item_furn_chair', 1, 1).reason === 'reserved' && HS.place(s, 'item_furn_chair', 5, 7).reason === 'reserved');
+  check('超出房间放不下', HS.place(s, 'item_furn_table', 11, 2).reason === 'outside');
+  check('地毯可以铺在家具下面（家具放在地毯上）', HS.place(s, 'item_furn_rug', 4, 3).ok && HS.place(s, 'item_furn_chair', 5, 4).ok);
+  check('地毯不挡路，家具挡路', !HS.solidCells(s).some(([x, y]) => x === 4 && y === 4) && HS.solidCells(s).some(([x, y]) => x === 5 && y === 4));
+  const tbl = HS.houseOf(s).items.findIndex((it) => it.id === 'item_furn_table');
+  check('旋转木桌：2×1 → 1×2', HS.rotate(s, tbl).ok && HS.footprint('item_furn_table', HS.houseOf(s).items[tbl].rot).h === 2);
+  check('旋转后会撞到别的东西就不让转', (() => { const x = S.newGameState(); x.inventory.push({ id: 'item_furn_table', count: 1 }, { id: 'item_furn_chair', count: 1 }); HS.place(x, 'item_furn_table', 3, 3); HS.place(x, 'item_furn_chair', 3, 4); return HS.rotate(x, 0).reason === 'overlap'; })());
+  check('移动到空位', HS.move(s, tbl, 8, 2).ok && HS.houseOf(s).items[tbl].x === 8);
+  check('移动到有东西的地方不行', HS.move(s, tbl, 5, 4).reason === 'overlap');
+  const n0 = HS.houseOf(s).items.length;
+  check('收回：回到背包', HS.pickUp(s, tbl).ok && HS.houseOf(s).items.length === n0 - 1 && I.countOf(s.inventory, 'item_furn_table') === 2);
+  check('点格子能找到上面的家具（家具优先于地毯）', HS.houseOf(s).items[HS.itemAt(s, 5, 4)].id === 'item_furn_chair' && HS.houseOf(s).items[HS.itemAt(s, 4, 4)].id === 'item_furn_rug');
+  check('布置存档合法、读回来一样', S.validate(s).length === 0 && JSON.stringify(S.decode(S.encode(s)).state.house) === JSON.stringify(s.house), S.validate(s).join());
+  const v4 = { ...S.newGameState(), version: 4 }; delete v4.house;
+  check('旧存档（版本 4）自动迁移：补上空房间', S.decode(S.encode(v4)).state.house?.items.length === 0);
+  const tv = S.newGameState();
+  check('进屋 / 出门不花时间，出门站在小屋门口', TR.enterHouse(tv).ok && tv.player.area === 'house' && tv.clock === 360 && TR.leaveHouse(tv).ok && tv.flags.arriveAt === 'house');
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

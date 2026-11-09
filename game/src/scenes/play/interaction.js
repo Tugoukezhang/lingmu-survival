@@ -65,7 +65,7 @@ export default {
     }
     if (this.shipSpot) spots.push({ at: this.shipSpot, verb: '出货', label: '出货箱 · 放进去的东西明早换成四叶草', tagY: 64, act: () => this.game.events.emit('ship-request') });
     if (this.seedSpot) spots.push({ at: this.seedSpot, verb: '买种子', label: '种子摊 · 买种子', tagY: 60, act: () => this.game.events.emit('seedshop-request') });
-    spots.push(...this.townSpots());
+    spots.push(...this.townSpots(), ...this.houseSpots());
     const plotSpot = this.farmSpot?.();
     if (plotSpot) spots.push(plotSpot);
     if (this.storageSpot) spots.push({ at: this.storageSpot, verb: '仓库', label: '仓库 · 点互动打开', tagY: 60, act: () => this.game.events.emit('storage-request') });

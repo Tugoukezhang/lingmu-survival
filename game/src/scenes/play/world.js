@@ -45,6 +45,8 @@ export default {
     this.farmRect = { x: this.spawnTile.x + 4, y: this.spawnTile.y + 2, w: 6, h: 4 };
     // the land you can buy (T14): becomes a second field
     this.expandRect = { x: this.spawnTile.x + 5, y: this.spawnTile.y - 7, w: 6, h: 4 };
+    // the cottage (T15), up-left of the spawn
+    this.cottageRect = { x: this.spawnTile.x - 4, y: this.spawnTile.y - 8, w: 4, h: 3 };
   },
 
   // Expedition island from the saved seed, minus what was already taken.
@@ -225,6 +227,7 @@ export default {
       || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2
       || Math.hypot(x - this.dockTile.x, y - this.dockTile.y) < 2.5
       || Math.hypot(x - this.bridgeTile.x, y - this.bridgeTile.y) < 2.5
+      || (x >= this.cottageRect.x - 1 && x <= this.cottageRect.x + this.cottageRect.w && y >= this.cottageRect.y - 1 && y <= this.cottageRect.y + this.cottageRect.h + 1)
       || (x >= this.farmRect.x - 1 && x <= this.farmRect.x + this.farmRect.w + 1 && y >= this.farmRect.y - 1 && y <= this.farmRect.y + this.farmRect.h)
       || (x >= this.expandRect.x - 1 && x <= this.expandRect.x + this.expandRect.w && y >= this.expandRect.y - 1 && y <= this.expandRect.y + this.expandRect.h + 1);
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
@@ -245,6 +248,7 @@ export default {
       }
     }
     this.placeFarm();
+    this.placeCottage();
   },
 
   placeExpeditionProps() {

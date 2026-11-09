@@ -43,6 +43,11 @@ export default {
     const t = tintAt(this.state.clock);
     this.tintColor = t.color;
     this.tintDark = t.dark;
+    if (this.area === 'house' && t.dark) {   // indoors: warm lamplight instead of the night blue
+      const mix = (c, k) => Math.round(((c >> k) & 255) * 0.35 + (k === 16 ? 255 : k === 8 ? 226 : 186) * 0.65);
+      this.tintColor = (mix(t.color, 16) << 16) | (mix(t.color, 8) << 8) | mix(t.color, 0);
+      this.tintDark = Math.max(0.01, t.dark * 0.4);
+    }
   },
 
   currentLights() { return N.lights(this.state, this.player, this.fires); },

@@ -971,6 +971,44 @@ try {
   await page.keyboard.press('KeyE');
   await waitArea('home'); await page.waitForTimeout(400);
 
+  // ---------- home decoration (T15) ----------
+  await page.evaluate(() => { const inv = window.__game.session.state.inventory; inv.push({ id: 'item_furn_table', count: 1 }, { id: 'item_furn_chair', count: 1 }, { id: 'item_furn_lamp', count: 1 }); });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.cottageSpot.x, sc.cottageSpot.y + 6); });
+  await page.waitForTimeout(250);
+  const houseVerb = await page.evaluate(() => window.__game.scene.getScene('ui').actionLabel.text);
+  await page.keyboard.press('KeyE');
+  await waitArea('house'); await page.waitForTimeout(500);
+  check('家园小屋按「进屋」→ 进到房间里', houseVerb === '进屋' && (await state()).area === 'house', houseVerb);
+  await page.screenshot({ path: join(OUT, '68-room.png') });
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.decorSpot.x, sc.decorSpot.y + 40); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('「布置家具」打开布置面板', (await ui()).stack.join() === 'decorate', (await ui()).stack.join());
+  await tapTarget('furn-item_furn_table');
+  await tapTarget('cell-6-3');
+  await tapTarget('furn-item_furn_chair');
+  await tapTarget('cell-6-3');
+  check('摆木桌成功；在同一格再摆木椅会被拒绝（不能重叠）', await page.evaluate(() => window.__game.session.state.house.items.length === 1) && (await toastText()).includes('已经有'), await toastText());
+  await tapTarget('cell-9-5');
+  await tapTarget('furn-item_furn_lamp');
+  await tapTarget('cell-3-2');
+  await tapTarget('cell-6-3');
+  await tapTarget('deco-rotate');
+  const rot = await page.evaluate(() => window.__game.session.state.house.items.find((it) => it.id === 'item_furn_table').rot);
+  check('选中木桌点「旋转」', rot === 1);
+  await page.screenshot({ path: join(OUT, '69-decorate.png') });
+  await tapTarget('close');
+  await page.waitForTimeout(300);
+  check('房间里出现家具，台灯算光源', await page.evaluate(() => { const sc = window.__game.scene.getScene('play'); return sc.furnSprites.length === 3 && sc.fires.length === 1; }));
+  await page.screenshot({ path: join(OUT, '70-room-furnished.png') });
+  await reload(); await waitArea('house');
+  check('刷新后布局还在', await page.evaluate(() => window.__game.session.state.house.items.length === 3 && window.__game.scene.getScene('play').furnSprites.length === 3));
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.doorSpot.x, sc.doorSpot.y - 20); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE');
+  await waitArea('home'); await page.waitForTimeout(400);
+  check('出门回到家园，站在小屋门口', await page.evaluate(() => { const sc = window.__game.scene.getScene('play'); return Math.hypot(sc.player.x - sc.cottageSpot.x, sc.player.y - sc.cottageSpot.y) < 40; }));
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);

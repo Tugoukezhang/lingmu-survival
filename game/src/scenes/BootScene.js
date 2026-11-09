@@ -45,6 +45,12 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('fogmonster', 84, 84, drawFogMonster);
     this.makeCanvas('thorn', 60, 56, drawThorn);
     this.makeCanvas('seedstand', 72, 60, drawSeedStand);
+    this.makeCanvas('bed', 92, 100, drawBed);
+    for (const k of ['chair', 'table', 'plant', 'rug', 'shelf', 'lamp']) {
+      const size = { chair: [48, 60], table: [96, 64], plant: [48, 64], rug: [96, 96], shelf: [96, 100], lamp: [48, 76] }[k];
+      this.makeCanvas(`furn_${k}`, size[0], size[1], (g, w, h) => drawFurniture(g, w, h, k));
+      this.makeCanvas(`item_furn_${k}`, 128, 128, (g) => { const [w, h] = size; const s = Math.min(110 / w, 110 / h); g.save(); g.translate(64 - (w * s) / 2, 64 - (h * s) / 2); g.scale(s, s); drawFurniture(g, w, h, k); g.restore(); });
+    }
     for (const [id, n] of Object.entries(NPCS)) this.makeCanvas(`npc_${id}`, 56, 84, (g, w, h) => drawNpc(g, w, h, id, n.look));
     this.makeCanvas('item_bigbag', 128, 128, (g) => { g.lineWidth = 4; g.strokeStyle = '#5b3d26'; g.fillStyle = '#c99a5a'; g.beginPath(); g.moveTo(30, 44); g.lineTo(98, 44); g.lineTo(106, 112); g.lineTo(22, 112); g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#f0a9a0'; g.fillRect(34, 60, 60, 14); g.strokeStyle = '#8a5a36'; g.beginPath(); g.arc(64, 44, 22, Math.PI, 0); g.stroke(); });
     this.makeCanvas('lightbrush', 256, 256, (g, w) => {   // soft round light: opaque core, fading edge
@@ -364,6 +370,25 @@ function drawNpc(g, w, h, id, c) {
   if (id === 'granny') { g.fillStyle = c.hair; g.beginPath(); g.arc(cx, 10, 8, 0, Math.PI * 2); g.fill(); g.fillStyle = c.accent; g.beginPath(); g.moveTo(cx + 10, 8); g.lineTo(cx + 16, 20); g.lineTo(cx + 4, 20); g.closePath(); g.fill(); g.stroke(); }
   else if (id === 'ali') { g.fillStyle = c.accent; g.beginPath(); g.arc(cx, 16, 15, Math.PI, 0); g.closePath(); g.fill(); g.stroke(); g.fillRect(cx - 2, 0, 4, 6); }
   else { g.strokeStyle = '#3b2a20'; g.lineWidth = 2; g.beginPath(); g.arc(cx - 6, 32, 5, 0, Math.PI * 2); g.stroke(); g.beginPath(); g.arc(cx + 6, 32, 5, 0, Math.PI * 2); g.stroke(); g.fillStyle = c.accent; g.fillRect(cx - 14, 46, 28, 6); }
+}
+
+function drawBed(g, w, h) {
+  g.lineWidth = 3; g.strokeStyle = '#5b3d26';
+  g.fillStyle = '#8a5a36'; g.fillRect(4, 4, w - 8, h - 8); g.strokeRect(4, 4, w - 8, h - 8);
+  g.fillStyle = '#fbf3dc'; g.fillRect(10, 10, w - 20, 26);
+  g.fillStyle = '#f0a9a0'; g.fillRect(10, 38, w - 20, h - 50);
+  g.fillStyle = 'rgba(255,255,255,0.35)'; for (let y = 44; y < h - 14; y += 12) g.fillRect(14, y, w - 28, 3);
+}
+
+// furniture placeholders (T15)
+function drawFurniture(g, w, h, k) {
+  g.lineWidth = 3; g.strokeStyle = '#5b3d26';
+  if (k === 'chair') { g.fillStyle = '#b07a48'; g.fillRect(8, 6, w - 16, 26); g.strokeRect(8, 6, w - 16, 26); g.fillRect(6, 30, w - 12, 12); g.strokeRect(6, 30, w - 12, 12); g.fillRect(8, 42, 6, h - 44); g.fillRect(w - 14, 42, 6, h - 44); }
+  else if (k === 'table') { g.fillStyle = '#c0905a'; g.fillRect(4, 10, w - 8, 22); g.strokeRect(4, 10, w - 8, 22); g.fillStyle = '#8a5a36'; g.fillRect(10, 32, 8, h - 34); g.fillRect(w - 18, 32, 8, h - 34); g.fillStyle = '#fbf3dc'; g.fillRect(w / 2 - 14, 4, 28, 8); }
+  else if (k === 'plant') { g.fillStyle = '#c97a4a'; g.beginPath(); g.moveTo(10, h - 26); g.lineTo(w - 10, h - 26); g.lineTo(w - 14, h - 2); g.lineTo(14, h - 2); g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#5a9a3c'; for (const [x, y, r] of [[w / 2, 20, 14], [w / 2 - 12, 30, 10], [w / 2 + 12, 30, 10]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); } }
+  else if (k === 'rug') { g.fillStyle = '#f0a9a0'; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2 - 4, h / 2 - 6, 0, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#fbf3dc'; g.lineWidth = 4; g.beginPath(); g.ellipse(w / 2, h / 2, w / 2 - 14, h / 2 - 16, 0, 0, Math.PI * 2); g.stroke(); }
+  else if (k === 'shelf') { g.fillStyle = '#8a5a36'; g.fillRect(4, 4, w - 8, h - 8); g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#6e4529'; for (const y of [32, 60]) g.fillRect(8, y, w - 16, 5); const cs = ['#d9572b', '#3d7fb8', '#6fae4a', '#f5c84b', '#7a4aa0']; for (let i = 0; i < 9; i++) { g.fillStyle = cs[i % 5]; g.fillRect(12 + (i % 5) * 15, i < 5 ? 12 : 40, 10, 20); } }
+  else if (k === 'lamp') { g.fillStyle = '#8a5a36'; g.fillRect(w / 2 - 3, 26, 6, h - 32); g.fillRect(w / 2 - 12, h - 8, 24, 6); g.fillStyle = '#fff0a0'; g.beginPath(); g.moveTo(w / 2 - 16, 28); g.lineTo(w / 2 + 16, 28); g.lineTo(w / 2 + 9, 6); g.lineTo(w / 2 - 9, 6); g.closePath(); g.fill(); g.stroke(); }
 }
 
 function drawSeedStand(g, w, h) {

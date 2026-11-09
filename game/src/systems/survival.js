@@ -9,7 +9,7 @@ export const STARVE_DAMAGE = 3;     // per tick once fullness is 0
 export const HUNGRY_AT = 20;        // warn when fullness drops to this
 
 // Home island and town are safe: health never goes below 1 there.
-export const isSafeArea = (area) => area === 'home' || area === 'town';
+export const isSafeArea = (area) => area === 'home' || area === 'town' || area === 'house';
 
 // One 10-minute tick. Mutates player; returns a list of events:
 // 'hungry' (fullness reached 20), 'empty' (fullness reached 0),
