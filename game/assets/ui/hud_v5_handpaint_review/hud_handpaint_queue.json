@@ -2700,12 +2700,21 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/furniture_slot_selected.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Furniture_Slot_Selected_Review/furniture_slot_selected_review_1024.png",
+      "candidate_sha256": "4420f542c624281482dc594c0e37460570749b76b50e07e7bfd7062971062ae7",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_binding_verified": false,
+      "qa_status": "Glowing selected furniture cell visual candidate; original screenshot does not clearly show selected state. Background checkerboard segmented, edge halo and 48/64/96/128px in-engine validation pending.",
+      "production_promoted": false
     },
     {
       "queue_number": 72,
@@ -3874,6 +3883,15 @@
       "task_id": "other96/home/furniture_tab_star",
       "action": "generated star tab visual candidate and segmented checkerboard background",
       "result": "One 1024 RGBA star icon candidate archived to Library, source fidelity and alpha edge QA pending; not approved or production-promoted",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/furniture_slot_selected",
+      "action": "single selected slot draft, alpha segmentation and multi-size QA preview",
+      "result": "One visual candidate archived, source fidelity and edge QA pending, not approved or promoted.",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
