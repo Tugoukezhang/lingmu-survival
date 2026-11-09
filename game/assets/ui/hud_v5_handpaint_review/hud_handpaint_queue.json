@@ -3157,12 +3157,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/status_bar_empty.png",
       "target_resolution": "1600x560",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Status_Bar_Empty_Review_20261109/map_status_bar_empty_1600x560_RGBA_candidate.png",
+      "reference_match": "Legacy V4 status bar visually verified: cool blue-grey empty rounded pill with light outer rim; source screenshot inspected, true generator crop not bound.",
+      "notes": "One generated ornate cream floral banner rejected. 1600x560 RGBA blue-grey status capsule rebuilt from source geometry via Pillow. Technical alpha and 160–800px previews checked; art/game QA pending. Not GPT Image handpainted final.",
+      "candidate_kind": "source-guided Pillow raster, not independently GPT Image handpainted final",
+      "candidate_sha256": "b89d2097026c314c03164fea7963d2fb544b0c17a6e2f36c7e0d47ba39cae2fa",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_status_bar_empty_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 86,
@@ -4449,9 +4453,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_zoom_rail_20261109/QA.json",
       "next_focus": "other96/map/status_bar_empty",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/status_bar_empty",
+      "action": "Verified simple blue-grey V4 map status capsule, rejected unrelated floral ImageGen result, rendered 1600x560 transparent blue-grey pill, QA light/dark & 160–800px",
+      "result": "Reference candidate uploaded Library and QA GitHub. Art and engine QA pending, no production promotion",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_status_bar_empty_20261109/QA.json",
+      "next_focus": "other96/map/location_label_blank",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/status_bar_empty",
+  "current_focus": "other96/map/location_label_blank",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
