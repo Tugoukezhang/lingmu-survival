@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 art/raw/
 tools/out/
+# 参考游戏 wiki 原文（负责人用浏览器另存的网页）：只在本地，不上传公开仓库（版权）
+docs/参考资料/wiki原文/*
+!docs/参考资料/wiki原文/README.md
