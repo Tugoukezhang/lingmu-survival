@@ -3222,12 +3222,16 @@
       "source_reference": "07_世界地图(1).jpg",
       "target_png": "PNG_Transparent/07_world_map/location_label_blank.png",
       "target_resolution": "1180x390",
-      "state": "not_generated",
+      "state": "source_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": "Location name text intentionally omitted for engine localization."
+      "attempts": 1,
+      "delivered_file": "/Lingmu_HUD_Exports/Map_Location_Label_Blank_Review_20261109/location_label_blank_1180x390_RGBA_candidate.png",
+      "reference_match": "V4 dusty clay-rose location label with plum pin badge visually inspected; original screenshot single crop not bound to ImageGen",
+      "notes": "One unrelated ornate floral ImageGen output rejected. Built 1180x390 RGBA empty localizable location badge with pink map pin from source-guide SVG, checked alpha and 118–590px previews; art and engine QA pending. Not independent AI handpaint.",
+      "candidate_kind": "Source-guided SVG/Pillow shape reconstruction; NOT an independent GPT Image handpainted final",
+      "candidate_sha256": "a079ea1b0d06acde854931a26abb6e777e4fb0a44db726b0ed4878c22389d8e9",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_location_label_blank_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 89,
@@ -4462,9 +4466,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_status_bar_empty_20261109/QA.json",
       "next_focus": "other96/map/location_label_blank",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/map/location_label_blank",
+      "action": "Rejected ornate flower banner; drew exact-domain 1180x390 clay-pink location plaque with dark left seal and pink location pin; alpha QA and native-size previews",
+      "result": "SVG/PNG/QA bundle archived Library and GitHub. Unapproved, production untouched, counts unchanged.",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/map_location_label_blank_20261109/QA.json",
+      "next_focus": "other96/map/world_area_info_panel",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/map/location_label_blank",
+  "current_focus": "other96/map/world_area_info_panel",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
