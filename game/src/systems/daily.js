@@ -22,6 +22,7 @@ export const POOL = [
   { id: 'shipped', stat: 'shipped', n: 60, text: '往出货箱放价值 60 的东西', minDay: 2 },
   { id: 'harvest', stat: 'harvest', n: 2, text: '收获作物 2 次', minDay: 4 },
   { id: 'catches', stat: 'catches', n: 1, text: '抓到 1 只宠物', minDay: 3 },
+  { id: 'talk', stat: 'talk', n: 2, text: '和小镇居民聊天 2 次', minDay: 2 },
 ];
 
 // The day's tasks (created on first use each day).

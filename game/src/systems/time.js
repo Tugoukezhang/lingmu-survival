@@ -83,7 +83,7 @@ export class GameClock {
     this.carry += realMs;
     let mins = Math.floor(this.carry / this.msPerMin);
     this.carry -= mins * this.msPerMin;
-    const limit = state.player?.area === 'home' ? BEDTIME : DAWN_LIMIT;
+    const limit = state.player?.area === 'expedition' ? DAWN_LIMIT : BEDTIME;   // home and town: bedtime at 24:00
     while (mins-- > 0) {
       const before = state.clock;
       state.clock = before + 1;

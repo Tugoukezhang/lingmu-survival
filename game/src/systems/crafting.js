@@ -6,7 +6,7 @@ import { carryBonus } from './explore.js';
 import { bump } from './guide.js';
 
 // Bag size: 20, +4 while a 驮运 pet (冰蓝小狼) is in the party, +6 at affection 100 (docs/02 第 9 节, 07 第 7 节).
-export const bagSlots = (state) => BAG_SLOTS + carryBonus(state);
+export const bagSlots = (state) => BAG_SLOTS + carryBonus(state) + (countOf(state.inventory ?? [], 'item_bigbag') > 0 ? 8 : 0);
 
 // Would all these stacks fit? (existing stacks always fit; new ones need a free slot)
 export function fits(state, gains) {
@@ -64,11 +64,14 @@ export function canCraft(state, recipeId) {
 
 // Workbench recipes can only be made at home (the home workbench) 【建议】.
 export const stationOk = (state, recipeId) => RECIPE_BY_ID[recipeId].station !== 'workbench' || state.player.area === 'home';
+// Recipes taught by residents (T13) need to be unlocked first.
+export const unlocked = (state, recipeId) => !RECIPE_BY_ID[recipeId].unlock || (state.recipes ?? []).includes(RECIPE_BY_ID[recipeId].unlock);
 
 // Crafting is all-or-nothing: materials are only taken when the result fits.
 // Returns { ok } or { ok: false, reason: 'missing' | 'full' | 'station', missing? }.
 export function craft(state, recipeId) {
   const r = RECIPE_BY_ID[recipeId];
+  if (!unlocked(state, recipeId)) return { ok: false, reason: 'locked' };
   if (!stationOk(state, recipeId)) return { ok: false, reason: 'station' };
   const check = canCraft(state, recipeId);
   if (!check.ok) return { ok: false, reason: 'missing', missing: check.missing };

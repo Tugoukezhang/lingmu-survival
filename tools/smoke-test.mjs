@@ -491,7 +491,7 @@ try {
     `${e10.area} ${totalOf(e10.inv)} + ${totalOf(e10.bag?.items ?? [])} vs ${totalOf(invBefore)}`);
 
   // ---------- gathering & crafting (T19) ----------
-  const inv = (id) => page.evaluate((k) => window.__game.session.state.inventory.find((x) => x.id === k)?.count ?? 0, id);
+  const inv = (id) => page.evaluate((k) => window.__game.session.state.inventory.filter((x) => x.id === k).reduce((n, x) => n + x.count, 0), id);
   await page.evaluate(() => window.__game.registry.set({ hp: 100, hunger: 100 }));
   await scene(() => window.__game.scene.getScene('play').travelTo(20261108));
   await waitArea('expedition'); await page.waitForTimeout(600);
@@ -857,12 +857,8 @@ try {
   await tapTarget('learn-slot-0');
   check('选格子后学会「治愈之歌」，技能书 −1', (await petOf('pet-shark')).skills[0] === 'heal' && (await inv('item_book_heal')) === 0, await toastText());
   // human form: craft the bell at home, unlock, switch
-  await page.evaluate(() => { const st = window.__game.session.state; const f = st.pets.find((p) => p.uid === 'pet-fox'); f.evolved = true; f.affection = 100; f.canTransform = false; f.form = 'animal'; st.inventory.push({ id: 'item_foxwick', count: 3 }); });
-  await tapTarget('hud-craft');
-  await tapTarget('recipe-fox_bell');
-  await tapTarget('craft-do');
-  await tapTarget('close');
-  check('家园工作台用 3 个狐火灯芯做出化形铃', (await inv('item_fox_bell')) === 1);
+  // (the bell itself comes from 露米's wish quest in town — tested in the town section)
+  await page.evaluate(() => { const st = window.__game.session.state; const f = st.pets.find((p) => p.uid === 'pet-fox'); f.evolved = true; f.affection = 100; f.canTransform = false; f.form = 'animal'; st.inventory.push({ id: 'item_fox_bell', count: 1 }); });
   await careFor('pet-fox');
   await tapTarget('care-form');
   check('焰尾狐「学会化形」（化形铃 −1）', (await petOf('pet-fox')).canTransform && (await inv('item_fox_bell')) === 0, await toastText());
@@ -884,6 +880,58 @@ try {
   check('走过去捡到狐火灯芯', (await inv('item_foxwick')) === wick0 + 1, await toastText());
   await scene(() => window.__game.scene.getScene('play').goHome());
   await waitArea('home'); await page.waitForTimeout(400);
+
+  // ---------- 风铃小镇 (T13) ----------
+  await page.evaluate(() => window.__game.registry.set({ clover: 300, hp: 100, hunger: 100 }));
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.homeBridge.x + 20, sc.homeBridge.y); });
+  await page.waitForTimeout(250);
+  const bridgeVerb = await page.evaluate(() => window.__game.scene.getScene('ui').actionLabel.text);
+  await page.keyboard.press('KeyE');
+  await waitArea('town'); await page.waitForTimeout(500);
+  check('家园西边的吊桥：按钮显示「过桥」，过去到了风铃小镇', bridgeVerb === '过桥' && (await state()).area === 'town', bridgeVerb);
+  await page.screenshot({ path: join(OUT, '61-town.png') });
+  await scene(() => window.__game.scene.getScene('play').standByNpc('granny'));
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  check('走到铃奶奶面前按「聊天」→ 居民面板（好感 +1）', (await ui()).stack.join() === 'npc' && (await page.evaluate(() => window.__game.session.state.town.friend.granny)) >= 1);
+  await page.screenshot({ path: join(OUT, '62-npc.png') });
+  await tapTarget('npc-quests');
+  await tapTarget('quest-take-granny_carrot');
+  check('接下铃奶奶的任务', await page.evaluate(() => window.__game.session.state.town.quests.granny_carrot === 'active'));
+  await page.evaluate(() => { const inv = window.__game.session.state.inventory; const c = inv.find((s) => s.id === 'item_carrot'); if (c) c.count += 5; else inv.push({ id: 'item_carrot', count: 5 }); });
+  await tapTarget('npc-back'); await tapTarget('npc-quests');
+  const cl0t = await reg('clover');
+  await tapTarget('quest-done-granny_carrot');
+  check('交任务：四叶草 +60，任务完成', (await reg('clover')) === cl0t + 60 && await page.evaluate(() => window.__game.session.state.town.quests.granny_carrot === 'done'), `${cl0t} → ${await reg('clover')}`);
+  await page.screenshot({ path: join(OUT, '63-quest.png') });
+  await tapTarget('npc-back');
+  await tapTarget('npc-shop');
+  check('铃奶奶的商店', (await ui()).stack.join() === 'npc,shop');
+  await page.screenshot({ path: join(OUT, '64-shop.png') });
+  const clothBefore = await inv('item_cloth');
+  await tapTarget('shop-buy-item_cloth');
+  check('商店买布：布 +1、四叶草 −30', (await inv('item_cloth')) === clothBefore + 1);
+  await tapTarget('close'); await page.waitForTimeout(150);
+  await tapTarget('close');
+  // 露米's wish quest → 化形铃
+  await page.evaluate(() => { window.__game.session.state.inventory.push({ id: 'item_foxwick', count: 3 }); });
+  await scene(() => window.__game.scene.getScene('play').standByNpc('lumi'));
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE'); await page.waitForTimeout(350);
+  await tapTarget('npc-quests');
+  await tapTarget('quest-take-lumi_wish');
+  await tapTarget('npc-back'); await tapTarget('npc-quests');
+  const bells = await inv('item_fox_bell'), wicks = await inv('item_foxwick');
+  await tapTarget('quest-done-lumi_wish');
+  check('把 3 个狐火灯芯交给露米，换来化形铃（心愿任务）', (await inv('item_fox_bell')) === bells + 1 && (await inv('item_foxwick')) === wicks - 3, `铃 ${bells}→${await inv('item_fox_bell')} 灯芯 ${wicks}→${await inv('item_foxwick')} / ${await toastText()}`);
+  await tapTarget('close');
+  // back home over the bridge
+  await scene(() => { const sc = window.__game.scene.getScene('play'); sc.teleport(sc.townBridge.x - 30, sc.townBridge.y); });
+  await page.waitForTimeout(250);
+  await page.keyboard.press('KeyE');
+  await waitArea('home'); await page.waitForTimeout(500);
+  const backHome = await state();
+  check('从小镇过桥回到家园，出现在吊桥边', backHome.area === 'home' && await page.evaluate(() => { const sc = window.__game.scene.getScene('play'); return Math.hypot(sc.player.x - sc.homeBridge.x, sc.player.y - sc.homeBridge.y) < 60; }));
 
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });

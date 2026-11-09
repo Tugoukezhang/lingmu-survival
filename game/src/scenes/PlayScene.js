@@ -6,7 +6,7 @@ import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock
 import { survivalTick } from '../systems/survival.js';
 import { generateIsland, applyChanges, blockedGrid, emptyChanges } from '../systems/islandGen.js';
 import { wildLevel } from '../systems/petMath.js';
-import { depart, returnHome, faint as faintState, pickUpLostBag, lostBagCount } from '../systems/travel.js';
+import { depart, returnHome, faint as faintState, pickUpLostBag, lostBagCount, goTown, leaveTown } from '../systems/travel.js';
 import { gather, gatherPreview, GATHER } from '../systems/crafting.js';
 import { createBattle, makeWildGroup, canStartBattle } from '../systems/battle.js';
 import { PETS } from '../data/pets.js';
@@ -25,6 +25,7 @@ import expeditionMethods from './play/expedition.js';
 import flowMethods from './play/flow.js';
 import interactionMethods from './play/interaction.js';
 import farmMethods from './play/farm.js';
+import townMethods from './play/town.js';
 
 // The world: either the home island (placeholder layout) or a generated
 // expedition island (systems/islandGen.js), chosen by state.player.area.
@@ -42,15 +43,16 @@ export default class PlayScene extends Phaser.Scene {
     this.fires = []; this.monsters = []; this.warnings = []; this.lastSpawn = null; this.fogWisps = []; this.torchFx = null;
     this.fireSprites = new Map(); this.chestSprites = new Map(); this.thornSprites = new Map(); this.water = null; this.storageSpot = null;
     this.wading = EX.canWade(this.state);
-    this.wicks = []; this.wicksNight = null;
+    this.wicks = []; this.wicksNight = null; this.npcs = null; this.homeBridge = null; this.townBridge = null;
     this.farmRect = null; this.plots = null; this.shipSpot = null; this.seedSpot = null;
     this.lostBag = null; this.bed = null; this.dock = null; this.airship = null; this.island = null; this.wild = null; this.resourceSprites = null; this.lastCanAct = undefined;
     this.traveling = false; this.fainted = false; this.inBattle = null;
-    this.area = this.state.player.area === 'expedition' && this.state.expedition ? 'expedition' : 'home';
-    if (this.area === 'expedition') this.buildExpedition(); else this.buildIsland();
+    const want = this.state.player.area;
+    this.area = want === 'expedition' && this.state.expedition ? 'expedition' : want === 'town' ? 'town' : 'home';
+    if (this.area === 'expedition') this.buildExpedition(); else if (this.area === 'town') this.buildTown(); else this.buildIsland();
     this.buildBackdrop();
     this.drawGround();
-    if (this.area === 'expedition') this.placeExpeditionProps(); else this.placeObstacles();
+    if (this.area === 'expedition') this.placeExpeditionProps(); else if (this.area === 'town') this.placeTownProps(); else this.placeObstacles();
     this.createPlayer();
     this.createPets();
     if (this.area === 'expedition') this.createWildPets();
@@ -84,9 +86,11 @@ export default class PlayScene extends Phaser.Scene {
     const onPetForm = (uid) => this.onPetForm(uid);
     const onPetHappy = (uid) => this.onPetHappy(uid);
     const onPetEvolved = (uid) => this.onPetEvolved(uid);
+    const onGoTown = () => this.travel(() => goTown(this.state), '来到了风铃小镇');
+    const onLeaveTown = () => this.travel(() => leaveTown(this.state), '回到家园了');
     const onFarmRefresh = () => this.refreshFarm();
     const ev = this.game.events;
-    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh], ['pet-form', onPetForm], ['pet-happy', onPetHappy], ['pet-evolved', onPetEvolved]];
+    const handlers = [['action-pressed', onAction], ['sleep-confirm', onSleep], ['depart', onDepart], ['return-home', onReturn], ['player-faint', onFaint], ['battle-end', onBattleEnd], ['party-changed', onParty], ['place-campfire', onPlaceFire], ['camp-add-wood', onWood], ['camp-sleep', onCampSleep], ['plant', onPlant], ['farm-changed', onFarmRefresh], ['pet-form', onPetForm], ['pet-happy', onPetHappy], ['pet-evolved', onPetEvolved], ['go-town', onGoTown], ['leave-town', onLeaveTown]];
     for (const [name, fn] of handlers) ev.on(name, fn);
     this.events.once('shutdown', () => { for (const [name, fn] of handlers) ev.off(name, fn); });
 
@@ -161,4 +165,4 @@ export default class PlayScene extends Phaser.Scene {
 }
 
 // The rest of the scene lives in ./play/*.js, grouped by topic.
-Object.assign(PlayScene.prototype, worldMethods, actorsMethods, nightMethods, expeditionMethods, flowMethods, interactionMethods, farmMethods);
+Object.assign(PlayScene.prototype, worldMethods, actorsMethods, nightMethods, expeditionMethods, flowMethods, interactionMethods, farmMethods, townMethods);

@@ -2,7 +2,7 @@ import { GAME_W, GAME_H, COLORS } from '../config.js';
 import VirtualJoystick from '../ui/VirtualJoystick.js';
 import PanelStack from '../ui/PanelStack.js';
 import { plaqueButton, statBar, drawIcon, text, MIN_TOUCH } from '../ui/widgets.js';
-import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel, dailyPanel } from '../ui/panels.js';
+import { bagPanel, petsPanel, settingsPanel, confirmDialog, summaryPanel, departPanel, craftPanel, campPanel, mapPanel, storagePanel, seedPanel, seedShopPanel, shipPanel, petCarePanel, dailyPanel, npcPanel } from '../ui/panels.js';
 import { phaseAt, formatClock } from '../systems/time.js';
 import { currentGoal, GOALS, guideState } from '../systems/guide.js';
 
@@ -42,11 +42,12 @@ export default class UIScene extends Phaser.Scene {
     ev.on('seedshop-request', this.openSeedShop, this);
     ev.on('ship-request', this.openShip, this);
     ev.on('petcare-request', this.openCare, this);
+    ev.on('npc-request', this.openNpc, this);
     this.events.once('shutdown', () => {
       ev.off('toast', this.showToast, this); ev.off('interact-available', this.setActionReady, this);
       ev.off('sleep-request', this.askSleep, this); ev.off('day-summary', this.showSummary, this);
       ev.off('dock-request', this.openDock, this); ev.off('airship-request', this.askReturn, this); ev.off('camp-request', this.openCamp, this); ev.off('storage-request', this.openStorage, this); ev.off('guide-changed', this.refreshGuide, this);
-      ev.off('seed-request', this.openSeeds, this); ev.off('seedshop-request', this.openSeedShop, this); ev.off('ship-request', this.openShip, this); ev.off('petcare-request', this.openCare, this);
+      ev.off('seed-request', this.openSeeds, this); ev.off('seedshop-request', this.openSeedShop, this); ev.off('ship-request', this.openShip, this); ev.off('petcare-request', this.openCare, this); ev.off('npc-request', this.openNpc, this);
     });
     this.refreshAll();
     const session = this.game.session;
@@ -73,6 +74,7 @@ export default class UIScene extends Phaser.Scene {
   openSeeds(info) { if (!this.stack.size) this.stack.push('seeds', (s, st) => seedPanel(s, st, info)); }
   openSeedShop() { if (!this.stack.size) this.stack.push('seedshop', seedShopPanel); }
   openCare(info) { if (!this.stack.size) this.stack.push('petcare', (s, st) => petCarePanel(s, st, info)); }
+  openNpc(info) { if (!this.stack.size) this.stack.push('npc', (s, st) => npcPanel(s, st, info)); }
   openShip() { if (!this.stack.size) this.stack.push('ship', shipPanel); }
 
   openStorage() {
@@ -98,6 +100,8 @@ export default class UIScene extends Phaser.Scene {
 
   onModal(open) {
     this.registry.set('uiModal', open);
+    // a message still on screen moves to the bottom edge so it doesn't cover the panel
+    if (open) for (const r of this.toastRows ?? []) if (r.t.alpha > 0.05 && r.t.y < GAME_H / 2) this.paintToast(r, r.t.text, GAME_H - 30, 900);
     this.joystick.release();
     this.joystick.setVisible(!open);
     this.actionGroup.setVisible(!open);

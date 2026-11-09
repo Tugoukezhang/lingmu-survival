@@ -21,6 +21,7 @@ export const ITEMS = {
   item_pickaxe: { name: '石镐', tag: '工具', tool: true, icon: 'item_pickaxe', desc: '敲石头一次得到 3 个石头，\n还能敲下雾晶。', quip: '叮！' },
   item_hoe: { name: '锄头', tag: '工具', tool: true, icon: 'item_hoe', desc: '在家园农田开垦土地。', quip: '一下一下，松松土。' },
   item_can: { name: '水壶', tag: '工具', tool: true, icon: 'item_can', desc: '给作物浇水。每块地每天浇一次，\n不浇水作物就不长。', quip: '咕嘟咕嘟～' },
+  item_bigbag: { name: '大背包', tag: '工具', tool: true, icon: 'item_bigbag', desc: '背在身上，背包 +8 格（20 → 28）。', quip: '能装好多好多。' },
   item_tent: { name: '帐篷', tag: '工具', tool: true, icon: 'item_tent', desc: '在营火旁按互动，可以睡到天亮。\n能反复使用，倒下也不会丢。', quip: '野外的小小家。' },
   item_torch: { name: '火把', tag: '照明', icon: 'item_torch', desc: '在背包里「使用」点亮，\n身边照亮 2 格，烧 3 小时。', quip: '小小的光。' },
 
@@ -38,7 +39,7 @@ export const ITEMS = {
   item_book_heal: { name: '技能书·治愈之歌', tag: '技能书', icon: 'item_book', book: 'heal', desc: '学会「治愈之歌」（状态）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
   item_book_shell: { name: '技能书·刺球', tag: '技能书', icon: 'item_book', book: 'shell', desc: '学会「刺球」（状态）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
   item_book_puff: { name: '技能书·毛茸茸', tag: '技能书', icon: 'item_book', book: 'puff', desc: '学会「毛茸茸」（状态）。\n本属性或状态技能才能学；\n不能替换进化技能。', quip: '翻开就会了。' },
-  item_foxwick: { name: '狐火灯芯', tag: '材料', icon: 'item_foxwick', desc: '只在起雾的夜里出现的狐火。\n3 个能在家园做成化形铃。', quip: '摸起来不烫。' },
+  item_foxwick: { name: '狐火灯芯', tag: '材料', icon: 'item_foxwick', desc: '只在起雾的夜里出现的狐火。\n小镇的露米想要 3 个。', quip: '摸起来不烫。' },
   item_fox_bell: { name: '化形铃', tag: '道具', icon: 'item_fox_bell', desc: '让进化后、好感 100 的焰尾狐\n学会化形。在照顾面板使用。', quip: '叮铃——' },
 
   // food (icons are code-drawn placeholders until the art arrives)

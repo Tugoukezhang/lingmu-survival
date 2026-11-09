@@ -29,6 +29,9 @@ import * as FM from '../game/src/systems/farm.js';
 import * as PC from '../game/src/systems/petcare.js';
 import * as DY from '../game/src/systems/daily.js';
 import * as GR from '../game/src/systems/growth.js';
+import * as TW from '../game/src/systems/town.js';
+import { QUESTS } from '../game/src/data/quests.js';
+import { NPCS } from '../game/src/data/npcs.js';
 import { CROPS, PRICES } from '../game/src/data/crops.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -435,8 +438,8 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('配方的材料和产出都是已定义的物品', RECIPES.every((r) => ITEMS[r.out] && Object.keys(r.cost).every((id) => ITEMS[id])));
   check('配方数值与文档一致（石斧 木3石2、石镐 木3石3、火把 木2草2、营火 木4石4、草编网 草3木2、藤编网 布1草3雾晶1）',
     JSON.stringify(RECIPES.map((r) => [r.id, r.cost])) === JSON.stringify([['axe', { item_wood: 3, item_stone: 2 }], ['pickaxe', { item_wood: 3, item_stone: 3 }], ['torch', { item_wood: 2, item_grass: 2 }],
-      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }], ['fox_bell', { item_foxwick: 3 }]]));
-  check('只有斧、镐、锄头、水壶、帐篷算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).sort().join() === 'item_axe,item_can,item_hoe,item_pickaxe,item_tent');
+      ['campfire', { item_wood: 4, item_stone: 4 }], ['net_grass', { item_grass: 3, item_wood: 2 }], ['net_vine', { item_cloth: 1, item_grass: 3, item_crystal: 1 }], ['tent', { item_cloth: 4, item_wood: 6 }], ['soup', { item_carrot: 2, item_pumpkin: 1 }], ['bigbag', { item_cloth: 6, item_crystal: 2 }]]));
+  check('只有斧、镐、锄头、水壶、帐篷、大背包算工具（倒下时保留），网是消耗品', Object.entries(ITEMS).filter(([, v]) => v.tool).map(([k]) => k).sort().join() === 'item_axe,item_bigbag,item_can,item_hoe,item_pickaxe,item_tent');
 
   const mk = (inv) => { const s = S.newGameState(); s.inventory = inv; s.expedition = { seed: 1, biome: 'mistwood', changes: G.emptyChanges() }; s.player.area = 'expedition'; return s; };
   let s = mk([]);
@@ -672,7 +675,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   // pick up with a nearly full bag
   s = mk(); TR.faint(s, { x: 5, y: 5 }); TR.depart(s, 'last');
   s.party = [];
-  while (s.inventory.length < 19) s.inventory.push({ id: Object.keys(ITEMS).filter((k) => !['item_wood', 'item_berry', 'item_crystal', 'item_axe'].includes(k))[s.inventory.length], count: 1 });
+  while (s.inventory.length < 19) s.inventory.push({ id: Object.keys(ITEMS).filter((k) => !['item_wood', 'item_berry', 'item_crystal', 'item_axe', 'item_bigbag'].includes(k))[s.inventory.length], count: 1 });
   const p2 = TR.pickUpLostBag(s);
   check('背包只剩 1 格：能放的先拿，放不下的留在失物包里', p2.took.length === 1 && p2.left.length === 2 && s.expedition.lostBag.items.length === 2);
   check('失物包坐标不合法的存档会被拒绝', S.validate({ ...S.newGameState(), expedition: { seed: 1, changes: G.emptyChanges(), lostBag: { x: 'a', y: 1, items: [] } } }).includes('expedition.lostBag'));
@@ -829,7 +832,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   // storage: 冰蓝小狼 leaves → nothing lost
   const s3 = S.newGameState();
   // only 17 kinds of items exist yet, so pad with test stacks to overflow a 20-slot bag
-  s3.inventory = [...Object.keys(ITEMS).map((id) => ({ id, count: 1 })), ...Array.from({ length: 23 - Object.keys(ITEMS).length }, (_, i) => ({ id: `test${i}`, count: 2 }))];
+  s3.inventory = [...Object.keys(ITEMS).filter((id) => id !== 'item_bigbag').slice(0, 17).map((id) => ({ id, count: 1 })), ...Array.from({ length: 6 }, (_, i) => ({ id: `test${i}`, count: 2 }))];
   const total = (inv) => inv.reduce((n, x) => n + x.count, 0);
   const before = total(s3.inventory), stacks = s3.inventory.length;
   const lv = PT.leaveParty(s3, 'pet-pup');
@@ -936,7 +939,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   // save migration 1 → 2
   const v1 = { ...S.newGameState(), version: 1 }; delete v1.farm; v1.inventory = v1.inventory.filter((x) => !['item_hoe', 'item_can', 'item_seed_carrot'].includes(x.id));
   const mig = S.decode(S.encode(v1));
-  check('旧存档（版本 1）读入时自动迁移：加上农田、锄头、水壶、萝卜种子', mig.ok && mig.state.version === 2 && mig.state.farm && ['item_hoe', 'item_can', 'item_seed_carrot'].every((id) => mig.state.inventory.some((x) => x.id === id)), JSON.stringify(mig.reason ?? ''));
+  check('旧存档（版本 1）读入时自动迁移：加上农田、锄头、水壶、萝卜种子', mig.ok && mig.state.version === S.SAVE_VERSION && mig.state.farm && ['item_hoe', 'item_can', 'item_seed_carrot'].every((id) => mig.state.inventory.some((x) => x.id === id)), JSON.stringify(mig.reason ?? ''));
 }
 
 // ---------- pet care & work (T12; docs/02 第 7 节, docs/07 第 7 节) ----------
@@ -1013,7 +1016,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const d2 = DY.ensureDaily(s);
   check('睡醒后任务刷新，进度从 0 开始', d2.day === s.day && d2.tasks.every((x) => !x.done && DY.progressOf(s, x) === 0));
   check('每日任务存档合法', S.validate(s).length === 0, S.validate(s).join());
-  check('任务池里的计数名都有系统在累加', DY.POOL.every((x) => ['water', 'feed', 'pet', 'gather', 'plant', 'craft', 'wins', 'chests', 'shipped', 'harvest', 'catches'].includes(x.stat)));
+  check('任务池里的计数名都有系统在累加', DY.POOL.every((x) => ['water', 'feed', 'pet', 'gather', 'plant', 'craft', 'wins', 'chests', 'shipped', 'harvest', 'catches', 'talk'].includes(x.stat)));
 }
 
 // ---------- growth: evolution, stars, skill books, human form (T27/T28/T29/T39; docs/07) ----------
@@ -1063,8 +1066,8 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('没有化形铃也不行', GR.formCheck(f2, 'pet-fox').missing.join() === 'bell');
   check('只有焰尾狐能化形', GR.formCheck(f2, 'pet-pup').missing.join() === 'species');
   f2.inventory.push({ id: 'item_foxwick', count: 3 });
-  f2.player.area = 'home';
-  check('3 个狐火灯芯在家园做成化形铃', CR.craft(f2, 'fox_bell').ok && I.countOf(f2.inventory, 'item_fox_bell') === 1);
+  TW.accept(f2, 'lumi_wish');
+  check('3 个狐火灯芯交给小镇的露米，换来化形铃（心愿任务）', TW.complete(f2, 'lumi_wish').ok && I.countOf(f2.inventory, 'item_fox_bell') === 1 && I.countOf(f2.inventory, 'item_foxwick') === 0);
   const before = JSON.stringify(M.calcStats(fx));
   check('学会化形：化形铃 −1，可以切换', GR.unlockForm(f2, 'pet-fox').ok && fx.canTransform && I.countOf(f2.inventory, 'item_fox_bell') === 0);
   check('P10 切换成人形态：所有数值与切换前完全相同', GR.toggleForm(f2, 'pet-fox').form === 'human' && JSON.stringify(M.calcStats(fx)) === before);
@@ -1077,6 +1080,62 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   for (let i = 0; i < 400; i++) { const L = CP.chestLoot(i, 'c0'); if (Object.keys(L.items).some((k) => GR.EVO_STONES.includes(k))) stones++; if (Object.keys(L.items).some((k) => ITEMS[k].book)) books++; }
   check('普通宝箱约 15% 进化石、约 20% 技能书', stones > 30 && stones < 95 && books > 50 && books < 115, `进化石 ${stones}/400 技能书 ${books}/400`);
   check('养成后的存档合法', S.validate(s).length === 0 && S.validate(f2).length === 0, S.validate(s).join());
+}
+
+// ---------- 风铃小镇: residents, quests, store (T13) ----------
+{
+  const s = S.newGameState();
+  check('3 位居民、6 个任务，任务要的东西和奖励都是已定义的物品', Object.keys(NPCS).length === 3 && QUESTS.length === 6
+    && QUESTS.every((q) => Object.keys(q.need).every((k) => k === 'party' || ITEMS[k]) && Object.keys(q.reward.items ?? {}).every((k) => ITEMS[k])));
+  const a = TW.talk(s, 'granny');
+  check('聊天：第一次 +1 好感，一天只加一次', a.gain === 1 && TW.talk(s, 'granny').gain === 0 && TW.friendOf(s, 'granny') === 1 && !!a.line);
+  s.inventory.push({ id: 'item_soup', count: 1 }, { id: 'item_stone', count: 1 }, { id: 'item_berry', count: 3 });
+  let r = TW.gift(s, 'granny', 'item_soup');
+  check('送最爱的东西（铃奶奶 ← 蔬菜汤）：+10', r.ok && r.taste === 'love' && TW.friendOf(s, 'granny') === 11);
+  check('同一位居民一天只能送一次', TW.gift(s, 'granny', 'item_berry').reason === 'gifted');
+  check('讨厌的东西会扣好感（阿栗 ← 草就会，铃奶奶 ← 石头）', TW.gift(s, 'ali', 'item_berry').taste === 'neutral' && (s.day++, TW.gift(s, 'granny', 'item_stone').gain === -3));
+  check('工具不能送', TW.gift(s, 'lumi', 'item_hoe').reason === 'not-giftable');
+  // quests
+  check('一开始铃奶奶只给第一个任务（第二个要先完成第一个）', TW.offers(s, 'granny').map((q) => q.id).join() === 'granny_carrot');
+  check('接任务', TW.accept(s, 'granny_carrot').ok && TW.questState(s, 'granny_carrot') === 'active' && TW.offers(s, 'granny').length === 0);
+  check('萝卜不够时列出还差多少', TW.missing(s, 'granny_carrot')[0]?.need === 5 && TW.complete(s, 'granny_carrot').reason === 'missing');
+  s.inventory.push({ id: 'item_carrot', count: 6 });
+  const cl = s.clover, fr = TW.friendOf(s, 'granny'), car = I.countOf(s.inventory, 'item_carrot');
+  r = TW.complete(s, 'granny_carrot');
+  check('交任务：扣 5 根萝卜、四叶草 +60、好感 +10', r.ok && I.countOf(s.inventory, 'item_carrot') === car - 5 && s.clover === cl + 60 && TW.friendOf(s, 'granny') === fr + 10);
+  check('任务不会重复领奖', TW.complete(s, 'granny_carrot').reason === 'done' && s.clover === cl + 60);
+  check('完成后解锁下一个任务', TW.offers(s, 'granny').map((q) => q.id).join() === 'granny_fish');
+  // recipe unlock
+  s.player.area = 'home'; s.inventory.push({ id: 'item_carrot', count: 2 }, { id: 'item_pumpkin', count: 1 }, { id: 'item_fish', count: 3 });
+  check('没学会之前做不了蔬菜汤', CR.craft(s, 'soup').reason === 'locked');
+  TW.accept(s, 'granny_fish'); TW.complete(s, 'granny_fish');
+  check('铃奶奶教会蔬菜汤后可以在家园做', s.recipes.includes('soup') && CR.craft(s, 'soup').ok && I.countOf(s.inventory, 'item_soup') === 1);
+  // party quest
+  s.party = ['pet-pup'];
+  TW.accept(s, 'lumi_shadecat');
+  check('「带月影狐猫来」：队伍里没有就交不了', TW.missing(s, 'lumi_shadecat')[0]?.party === 'shadecat');
+  s.party = ['pet-shadecat'];
+  check('带上月影狐猫就能交，得到暗影弹技能书', TW.complete(s, 'lumi_shadecat').ok && I.countOf(s.inventory, 'item_book_shadow') === 1);
+  // big bag
+  const b = S.newGameState(); b.party = []; b.player.area = 'home'; b.recipes = ['bigbag']; b.inventory = [{ id: 'item_cloth', count: 6 }, { id: 'item_crystal', count: 2 }];
+  check('做出大背包：背包 20 → 28 格', CR.bagSlots(b) === 20 && CR.craft(b, 'bigbag').ok && CR.bagSlots(b) === 28);
+  // store
+  const st0 = TW.stock(s);
+  check('杂货铺：种子、布、烤鱼等 + 每天 2 本轮换的技能书', st0.filter((x) => ITEMS[x.id].book).length === 2 && st0.some((x) => x.id === 'item_cloth'));
+  check('同一天商品固定', JSON.stringify(TW.stock(s)) === JSON.stringify(st0));
+  s.clover = 100;
+  check('买布：四叶草 −30', TW.buy(s, 'item_cloth').ok && s.clover === 70 && TW.buy(s, 'item_evo_fire').reason === 'not-sold');
+  check('进化石不卖（只能远征获得）', !st0.some((x) => GR.EVO_STONES.includes(x.id)));
+  // travel and bedtime
+  const tv = S.newGameState(); tv.clock = 9 * 60;
+  check('过吊桥去小镇：10 分钟', TR.goTown(tv).ok && tv.player.area === 'town' && tv.clock === 9 * 60 + 10);
+  check('从小镇回家园：10 分钟，出现在吊桥边', TR.leaveTown(tv).ok && tv.player.area === 'home' && tv.flags.arriveAt === 'bridge');
+  const bt = { day: 1, clock: 23 * 60 + 50, player: { area: 'town' } }, gc = new T.GameClock();
+  check('在小镇待到 24:00 也会睡着（小镇是安全区）', gc.advance(bt, 11 * T.MS_PER_GAME_MIN).some((e) => e.type === 'bedtime'));
+  check('小镇存档合法', S.validate(s).length === 0 && S.validate({ ...S.newGameState(), player: { ...S.newGameState().player, area: 'town' } }).length === 0, S.validate(s).join());
+  const v2 = { ...S.newGameState(), version: 2 }; delete v2.town; delete v2.recipes;
+  const m2 = S.decode(S.encode(v2));
+  check('旧存档（版本 2）自动迁移：补上小镇和配方记录', m2.ok && m2.state.town && Array.isArray(m2.state.recipes));
 }
 
 console.log(`\n${pass} 通过，${fail} 失败`);

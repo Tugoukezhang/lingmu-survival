@@ -87,7 +87,7 @@ export default {
     const saved = this.state.player;
     if (saved.area === this.area && saved.x != null && this.footFits(saved.x, saved.y)) { x = saved.x; y = saved.y; }
     else if (this.area === 'home' && this.state.flags.arriveAt) {
-      const spot = this.state.flags.arriveAt === 'dock' ? this.dock : this.bed;
+      const spot = { dock: this.dock, bridge: this.homeBridge && { x: this.homeBridge.x + 30, y: this.homeBridge.y - 20 } }[this.state.flags.arriveAt] ?? this.bed;
       if (spot && this.footFits(spot.x, spot.y + 20)) { x = spot.x; y = spot.y + 20; }
       delete this.state.flags.arriveAt;
     }

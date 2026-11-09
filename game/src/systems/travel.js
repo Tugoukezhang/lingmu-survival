@@ -48,6 +48,24 @@ export function depart(state, mode) {
   return { ok: true, seed: state.expedition.seed };
 }
 
+// Rope bridge between the home island and 风铃小镇 (T13): 10 game minutes.
+export const BRIDGE_MIN = 10;
+export function goTown(state) {
+  if (state.player.area !== 'home') return { ok: false, reason: 'not-home' };
+  passTime(state, BRIDGE_MIN);
+  state.player.area = 'town';
+  state.player.x = null; state.player.y = null;
+  return { ok: true };
+}
+export function leaveTown(state) {
+  if (state.player.area !== 'town') return { ok: false, reason: 'not-town' };
+  passTime(state, BRIDGE_MIN);
+  state.player.area = 'home';
+  state.player.x = null; state.player.y = null;
+  state.flags.arriveAt = 'bridge';
+  return { ok: true };
+}
+
 export function returnHome(state) {
   if (state.player.area !== 'expedition') return { ok: false, reason: 'not-away' };
   passTime(state, TRAVEL_MIN);

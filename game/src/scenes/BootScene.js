@@ -2,6 +2,7 @@ import { GAME_W, GAME_H, FONT, COLORS } from '../config.js';
 import { PETS, petTextureKey } from '../data/pets.js';
 import GameSession from '../systems/GameSession.js';
 import { CROPS } from '../data/crops.js';
+import { NPCS } from '../data/npcs.js';
 
 // Loads real art (pet sprites) and draws code-made placeholder textures for
 // everything that has no art yet (player, trees, rocks, clouds, shadows).
@@ -44,6 +45,8 @@ export default class BootScene extends Phaser.Scene {
     this.makeCanvas('fogmonster', 84, 84, drawFogMonster);
     this.makeCanvas('thorn', 60, 56, drawThorn);
     this.makeCanvas('seedstand', 72, 60, drawSeedStand);
+    for (const [id, n] of Object.entries(NPCS)) this.makeCanvas(`npc_${id}`, 56, 84, (g, w, h) => drawNpc(g, w, h, id, n.look));
+    this.makeCanvas('item_bigbag', 128, 128, (g) => { g.lineWidth = 4; g.strokeStyle = '#5b3d26'; g.fillStyle = '#c99a5a'; g.beginPath(); g.moveTo(30, 44); g.lineTo(98, 44); g.lineTo(106, 112); g.lineTo(22, 112); g.closePath(); g.fill(); g.stroke(); g.fillStyle = '#f0a9a0'; g.fillRect(34, 60, 60, 14); g.strokeStyle = '#8a5a36'; g.beginPath(); g.arc(64, 44, 22, Math.PI, 0); g.stroke(); });
     this.makeCanvas('lightbrush', 256, 256, (g, w) => {   // soft round light: opaque core, fading edge
       const grd = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
       grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.62, 'rgba(255,255,255,1)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
@@ -345,6 +348,22 @@ function drawChest(g, w, h) {
   roundRect(g, 4, 8, w - 8, 18, 8); g.fillStyle = '#a8703f'; g.fill(); g.stroke();
   g.fillStyle = '#f5c84b'; g.fillRect(w / 2 - 6, 18, 12, 14); g.strokeRect(w / 2 - 6, 18, 12, 14);
   g.fillStyle = '#f5c84b'; g.fillRect(10, 22, 4, h - 28); g.fillRect(w - 14, 22, 4, h - 28);
+}
+
+// chibi residents (placeholders): body, head, hair and one accessory each
+function drawNpc(g, w, h, id, c) {
+  const cx = w / 2;
+  g.lineWidth = 2; g.strokeStyle = '#5b3d26';
+  g.fillStyle = '#5b3d26'; g.fillRect(cx - 9, h - 14, 7, 12); g.fillRect(cx + 2, h - 14, 7, 12);
+  g.fillStyle = c.cloth; g.beginPath(); g.moveTo(cx - 16, h - 14); g.lineTo(cx + 16, h - 14); g.lineTo(cx + 12, 44); g.lineTo(cx - 12, 44); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = c.skin; g.beginPath(); g.arc(cx, 30, 16, 0, Math.PI * 2); g.fill(); g.stroke();
+  g.fillStyle = c.hair; g.beginPath(); g.arc(cx, 26, 17, Math.PI, 0); g.closePath(); g.fill();
+  g.fillStyle = '#3b2a20'; g.beginPath(); g.arc(cx - 6, 32, 2.2, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(cx + 6, 32, 2.2, 0, Math.PI * 2); g.fill();
+  g.fillStyle = 'rgba(240,120,110,0.5)'; g.beginPath(); g.arc(cx - 10, 36, 3, 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(cx + 10, 36, 3, 0, Math.PI * 2); g.fill();
+  g.fillStyle = c.accent;
+  if (id === 'granny') { g.fillStyle = c.hair; g.beginPath(); g.arc(cx, 10, 8, 0, Math.PI * 2); g.fill(); g.fillStyle = c.accent; g.beginPath(); g.moveTo(cx + 10, 8); g.lineTo(cx + 16, 20); g.lineTo(cx + 4, 20); g.closePath(); g.fill(); g.stroke(); }
+  else if (id === 'ali') { g.fillStyle = c.accent; g.beginPath(); g.arc(cx, 16, 15, Math.PI, 0); g.closePath(); g.fill(); g.stroke(); g.fillRect(cx - 2, 0, 4, 6); }
+  else { g.strokeStyle = '#3b2a20'; g.lineWidth = 2; g.beginPath(); g.arc(cx - 6, 32, 5, 0, Math.PI * 2); g.stroke(); g.beginPath(); g.arc(cx + 6, 32, 5, 0, Math.PI * 2); g.stroke(); g.fillStyle = c.accent; g.fillRect(cx - 14, 46, 28, 6); }
 }
 
 function drawSeedStand(g, w, h) {

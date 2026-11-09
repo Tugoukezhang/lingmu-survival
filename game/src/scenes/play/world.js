@@ -137,7 +137,14 @@ export default {
       g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 2;
       for (const [x, y] of wt) if (this.rand() < 0.5) { g.beginPath(); g.moveTo(x - 8, y + 4); g.quadraticCurveTo(x, y, x + 8, y + 4); g.stroke(); }
     }
-    if (this.area === 'home') {
+    if (this.area === 'town') {
+      // cobbled plaza in the middle of town
+      const px = (this.cols / 2) * TILE, py = (this.rows / 2) * TILE;
+      g.fillStyle = 'rgba(200,190,170,0.85)'; g.beginPath(); g.ellipse(px, py, TILE * 5, TILE * 3.2, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = 'rgba(160,150,135,0.6)';
+      for (let i = 0; i < 70; i++) { const a = i * 2.39, rr = Math.sqrt(i / 70); g.beginPath(); g.ellipse(px + Math.cos(a) * rr * TILE * 4.6, py + Math.sin(a) * rr * TILE * 2.9, 9, 6, 0, 0, Math.PI * 2); g.fill(); }
+      g.fillStyle = '#7cc4e0'; g.beginPath(); g.ellipse(px, py, TILE * 0.9, TILE * 0.6, 0, 0, Math.PI * 2); g.fill();
+    } else if (this.area === 'home') {
       // meadow patch for the pets
       const m = this.meadowTile;
       g.fillStyle = 'rgba(200,232,140,0.55)';
@@ -205,9 +212,17 @@ export default {
     this.dock = { x: dkx, y: dky - 30 };
     this.dockTile = { x: this.spawnTile.x, y: dy };
 
+    // rope bridge to 风铃小镇 on the west edge of the spawn row (T13)
+    let wx = this.spawnTile.x;
+    while (this.walk[this.spawnTile.y]?.[wx - 1]) wx--;
+    this.bridgeTile = { x: wx, y: this.spawnTile.y };
+    this.drawBridge(wx * TILE, this.spawnTile.y * TILE + TILE / 2, -1);
+    this.homeBridge = { x: wx * TILE + TILE / 2, y: this.spawnTile.y * TILE + TILE / 2 };
+
     const reserved = (x, y) => Math.hypot(x - this.spawnTile.x, y - this.spawnTile.y) < 3.5
       || Math.hypot((x - this.meadowTile.x) / 1.6, y - this.meadowTile.y) < 3.2
       || Math.hypot(x - this.dockTile.x, y - this.dockTile.y) < 2.5
+      || Math.hypot(x - this.bridgeTile.x, y - this.bridgeTile.y) < 2.5
       || (x >= this.farmRect.x - 1 && x <= this.farmRect.x + this.farmRect.w + 1 && y >= this.farmRect.y - 1 && y <= this.farmRect.y + this.farmRect.h);
     const inland = (x, y) => this.walk[y]?.[x] && this.walk[y - 1]?.[x] && this.walk[y + 1]?.[x] && this.walk[y]?.[x - 1] && this.walk[y]?.[x + 1];
     const forest = valueNoise2D(SEED + 23, 5);

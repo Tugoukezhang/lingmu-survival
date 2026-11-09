@@ -11,11 +11,14 @@ import * as FM from '../systems/farm.js';
 import * as PC from '../systems/petcare.js';
 import * as DY from '../systems/daily.js';
 import * as GR from '../systems/growth.js';
+import * as TW from '../systems/town.js';
+import { NPCS } from '../data/npcs.js';
+import { QUEST_BY_ID } from '../data/quests.js';
 import { SKILLS } from '../data/skills.js';
 import { CROPS } from '../data/crops.js';
 import { removeItem } from '../systems/inventory.js';
 import { RECIPES } from '../data/recipes.js';
-import { canCraft, craft, bagSlots, stationOk } from '../systems/crafting.js';
+import { canCraft, craft, bagSlots, stationOk, unlocked } from '../systems/crafting.js';
 import { woodPanel, plaqueButton, capsuleButton, slot, tag, text, makeClickable } from './widgets.js';
 
 // Panels read the saved game state (scene.game.session.state).
@@ -265,7 +268,9 @@ export function craftPanel(scene, stack) {
       detail.add(text(scene, cx - 100, y, ITEMS[id].name, 15, { oy: 0.5, bold: false }));
       detail.add(text(scene, cx + 120, y, `${have} / ${need}`, 16, { ox: 1, oy: 0.5, color: have >= need ? '#4f7d3a' : '#d9572b' }));
     });
-    if (!stationOk(st, r.id)) {
+    if (!unlocked(st, r.id)) {
+      detail.add(text(scene, cx, h / 2 - 54, `还没学会：去小镇找${r.teacher}`, 15, { ox: 0.5, oy: 0.5, color: '#d9572b' }));
+    } else if (!stationOk(st, r.id)) {
       detail.add(text(scene, cx, h / 2 - 54, '要在家园工作台做（回家园岛再来）', 15, { ox: 0.5, oy: 0.5, color: '#d9572b' }));
     } else if (chk.ok) {
       detail.add(capsuleButton(scene, cx, h / 2 - 54, '制作', { w: 170, onClick: doCraft, name: 'craft-do' }));
@@ -281,7 +286,7 @@ export function craftPanel(scene, stack) {
     const r = recipes[sel];
     const res = craft(stateOf(scene), r.id);
     if (res.ok) { scene.game.session.markDirty(); scene.showToast(`做好了：${ITEMS[r.out].name}！`); }
-    else scene.showToast({ full: '背包满了，先腾出一格', station: '要在家园工作台做' }[res.reason] ?? '材料不够');
+    else scene.showToast({ full: '背包满了，先腾出一格', station: '要在家园工作台做', locked: '还没学会这个配方' }[res.reason] ?? '材料不够');
     draw();
     scene.time.delayedCall(250, () => { busy = false; });
   }
@@ -295,7 +300,7 @@ export function mapPanel(scene, stack) {
   const d = scene.scene.get('play').mapData();
   const w = 760, h = 420;
   const c = woodPanel(scene, w, h);
-  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, d.area === 'home' ? '地图 · 家园岛' : '地图 · 雾林浮岛', 26));
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, { home: '地图 · 家园岛', town: '地图 · 风铃小镇' }[d.area] ?? '地图 · 雾林浮岛', 26));
   const cell = Math.floor(Math.min(440 / d.cols, 320 / d.rows));
   const ox = -w / 2 + 40, oy = -h / 2 + 70;
   const g = scene.add.graphics();
@@ -362,6 +367,102 @@ export function storagePanel(scene, stack) {
     } }));
   };
   draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// ---------- 风铃小镇 (T13) ----------
+// Resident: chat, gift, quests, (granny) the store.
+export function npcPanel(scene, stack, { id }) {
+  const w = 680, h = 400;
+  const c = woodPanel(scene, w, h);
+  const body = scene.add.container(0, 0);
+  c.add(body);
+  const n = NPCS[id], session = scene.game.session;
+  let mode = 'main', line = TW.talk(stateOf(scene), id);
+  session.markDirty();
+  if (line.gain) scene.game.events.emit('npc-talked');
+  const draw = () => {
+    body.removeAll(true);
+    const st = stateOf(scene), f = TW.friendOf(st, id);
+    const img = scene.add.image(-w / 2 + 100, 10, `npc_${id}`); img.setScale(170 / img.height);
+    body.add(img);
+    body.add(text(scene, -w / 2 + 190, -h / 2 + 28, `${n.name} · ${n.role}`, 22));
+    body.add(text(scene, -w / 2 + 190, -h / 2 + 60, `${'♥'.repeat(TW.hearts(f))}${'♡'.repeat(5 - TW.hearts(f))}  好感 ${f}`, 16, { color: '#d9572b' }));
+    const bubble = scene.add.graphics(); bubble.fillStyle(0xffffff, 0.9).fillRoundedRect(-w / 2 + 180, -h / 2 + 88, w - 220, 64, 14);
+    body.add(bubble);
+    body.add(text(scene, -w / 2 + 196, -h / 2 + 98, line.line, 15, { bold: false, wrap: w - 250, lineSpacing: 4 }));
+    const bx = -w / 2 + 270, by = -h / 2 + 196;
+    if (mode === 'gift') {
+      const items = st.inventory.filter((s) => !ITEMS[s.id].tool).slice(0, 8);
+      body.add(text(scene, bx - 80, by - 22, items.length ? '送什么？（每天一次）' : '没有能送的东西', 15));
+      items.forEach((s, i) => {
+        body.add(capsuleButton(scene, bx + (i % 3) * 132, by + 18 + Math.floor(i / 3) * 50, `${ITEMS[s.id].name}`, { w: 124, h: 44, style: 'yellow', name: `gift-${s.id}`, onClick: () => {
+          const r = TW.gift(stateOf(scene), id, s.id);
+          if (r.ok) { session.markDirty(); line = { line: { love: '这是我最喜欢的！太谢谢你了！', like: '哇，我很喜欢这个，谢谢！', neutral: '谢谢你的心意～', dislike: '呃……这个嘛……谢谢。' }[r.taste] }; scene.showToast(`${n.name}好感 ${r.gain >= 0 ? '+' : ''}${r.gain}`); }
+          else scene.showToast(r.reason === 'gifted' ? '今天已经送过了' : '这个不能送');
+          mode = 'main'; draw();
+        } }));
+      });
+      body.add(capsuleButton(scene, bx + 132, h / 2 - 44, '返回', { w: 110, h: 44, name: 'npc-back', onClick: () => { mode = 'main'; draw(); } }));
+      return;
+    }
+    if (mode === 'quests') {
+      const list = [...TW.activeOf(st, id), ...TW.offers(st, id)];
+      if (!list.length) body.add(text(scene, bx - 80, by, '现在没有要拜托你的事。', 15, { bold: false }));
+      list.slice(0, 2).forEach((q, i) => {
+        const y = by + i * 78, active = TW.questState(st, q.id) === 'active';
+        const miss = active ? TW.missing(st, q.id) : [];
+        const needText = Object.entries(q.need).map(([k, v]) => (k === 'party' ? `队伍里带着${v === 'shadecat' ? '月影狐猫' : v}` : `${ITEMS[k].name} ×${v}`)).join('、');
+        body.add(text(scene, bx - 80, y - 14, `${active ? '进行中' : '新任务'}：${q.title}`, 15));
+        body.add(text(scene, bx - 80, y + 8, active ? `需要：${needText}${miss.length ? '（还没凑齐）' : ''}` : q.ask, 14, { bold: false, wrap: 300, color: '#7a6450' }));
+        body.add(capsuleButton(scene, bx + 300, y, active ? '交任务' : '接受', { w: 110, h: 44, style: active && !miss.length ? 'green' : 'yellow', name: active ? `quest-done-${q.id}` : `quest-take-${q.id}`, onClick: () => {
+          const r = active ? TW.complete(stateOf(scene), q.id) : TW.accept(stateOf(scene), q.id);
+          if (r.ok) { session.markDirty(); session.pushToRegistry(); line = { line: active ? q.thanks : q.ask }; scene.showToast(active ? `完成任务「${q.title}」！${r.reward.clover ? `四叶草 +${r.reward.clover}` : ''}${r.reward.recipe ? ' 学会了新配方' : ''}` : `接受了任务「${q.title}」`); }
+          else scene.showToast({ missing: '东西还没凑齐', full: '背包满了', done: '已经完成了' }[r.reason] ?? '现在不行');
+          draw();
+        } }));
+      });
+      body.add(capsuleButton(scene, bx + 132, h / 2 - 44, '返回', { w: 110, h: 44, name: 'npc-back', onClick: () => { mode = 'main'; draw(); } }));
+      return;
+    }
+    body.add(capsuleButton(scene, bx, by, '聊天', { w: 150, h: 46, name: 'npc-talk', onClick: () => { line = TW.talk(stateOf(scene), id); session.markDirty(); draw(); } }));
+    body.add(capsuleButton(scene, bx + 160, by, '送礼', { w: 150, h: 46, style: 'yellow', name: 'npc-gift', onClick: () => { mode = 'gift'; draw(); } }));
+    const qn = TW.offers(st, id).length + TW.activeOf(st, id).length;
+    body.add(capsuleButton(scene, bx, by + 58, qn ? `任务（${qn}）` : '任务', { w: 150, h: 46, style: qn ? 'green' : 'yellow', name: 'npc-quests', onClick: () => { mode = 'quests'; draw(); } }));
+    if (n.shop) body.add(capsuleButton(scene, bx + 160, by + 58, '商店', { w: 150, h: 46, name: 'npc-shop', onClick: () => stack.push('shop', shopPanel) }));
+    body.add(text(scene, bx - 80, h / 2 - 34, `最爱：${n.loves.map((x) => ITEMS[x].name).join('、')}　喜欢：${n.likes.map((x) => ITEMS[x].name).join('、')}`, 14, { bold: false, color: '#9a8468' }));
+  };
+  draw();
+  c.add(closeBtn(scene, stack, w, h));
+  return c;
+}
+
+// The general store: two columns of goods; skill books rotate daily.
+export function shopPanel(scene, stack) {
+  const w = 760, h = 420;
+  const c = woodPanel(scene, w, h);
+  c.add(text(scene, -w / 2 + 36, -h / 2 + 22, '铃奶奶杂货铺', 26));
+  const money = text(scene, w / 2 - 70, -h / 2 + 30, '', 18, { ox: 1 });
+  c.add(money);
+  const refresh = () => money.setText(`四叶草 ${scene.registry.get('clover')}`);
+  const goods = TW.stock(stateOf(scene));
+  goods.slice(0, 12).forEach((g, i) => {
+    const x = -w / 2 + 60 + (i % 2) * 350, y = -h / 2 + 82 + Math.floor(i / 2) * 54;
+    const ic = scene.add.image(x, y, ITEMS[g.id].icon); ic.setScale(36 / Math.max(ic.width, ic.height));
+    c.add(ic);
+    c.add(text(scene, x + 28, y, ITEMS[g.id].name, 15, { oy: 0.5 }));
+    c.add(text(scene, x + 200, y, `${g.price}`, 15, { oy: 0.5, color: '#4f7d3a' }));
+    c.add(capsuleButton(scene, x + 270, y, '买', { w: 64, h: 44, style: 'yellow', name: `shop-buy-${g.id}`, onClick: () => {
+      const session = scene.game.session;
+      session.pullFromRegistry();
+      const r = TW.buy(session.state, g.id, 1);
+      if (r.ok) { session.pushToRegistry(); session.markDirty(); scene.showToast(`买了${ITEMS[g.id].name}（−${r.cost}）`); }
+      else scene.showToast(r.reason === 'clover' ? '四叶草不够' : '背包满了');
+      refresh();
+    } }));
+  });
+  refresh();
   c.add(closeBtn(scene, stack, w, h));
   return c;
 }
