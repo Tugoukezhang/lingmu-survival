@@ -12,7 +12,7 @@
   "attempts_this_round": 1,
   "generated": "portrait wood-framed cream blank panel with extra gold crests, pink ribbon and floral corners, checkerboard baked in",
   "identity": "correct vertical panel class",
-  "result": "visual_candidate_only_pending_rework",
+  "result": "manual_candidate_pending_user_and_engine_qa",
   "accepted_candidates": 0,
   "production_promoted": false,
   "queue_mutated": false,
@@ -21,5 +21,73 @@
     "RGB checkerboard background, no verified alpha",
     "target size 1260x1640 not delivered"
   ],
-  "next": "isolate border with true transparency and remove unrequested crest/ribbon before art QA"
+  "next": "review this single target; no arbitrary first-pass queue restart",
+  "previous_round_result": {
+    "generated": "portrait wood-framed cream blank panel with extra gold crests, pink ribbon and floral corners, checkerboard baked in",
+    "result": "visual_candidate_only_pending_rework",
+    "issues": [
+      "source frame simpler and darker, no pink ribbon or large top/bottom star crests",
+      "RGB checkerboard background, no verified alpha",
+      "target size 1260x1640 not delivered"
+    ],
+    "accepted_candidates": 0,
+    "production_promoted": false
+  },
+  "latest_manual_rework": {
+    "date": "2026-11-09",
+    "status": "manually_source_guided_candidate_pending_visual_and_engine_QA",
+    "original_reference": {
+      "file": "04_inventory.jpg",
+      "dimensions": [
+        1920,
+        1080
+      ],
+      "bbox_xyxy": [
+        238,
+        168,
+        684,
+        772
+      ],
+      "crop_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_actual_screenshot_crop.png"
+    },
+    "ai_generation": {
+      "attempts": 1,
+      "accepted": 0,
+      "reason": "wrong previous map fragment presentation; rejected"
+    },
+    "candidate": {
+      "file": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_1260x1640.png",
+      "format": "RGBA PNG",
+      "size": [
+        1260,
+        1640
+      ],
+      "sha256": "d66fef98f5a937fa689cdb823364a85b275fe85fd490713ab5a967af53b0c366",
+      "kind": "manual reconstructed portrait walnut/cream panel; NOT accepted GPT Image artwork"
+    },
+    "improvements": [
+      "portrait aspect and target size",
+      "no large gold crests, ribbon or floral overlays",
+      "no baked checkerboard",
+      "transparent outer region",
+      "separate dynamic UI contents"
+    ],
+    "qa": {
+      "shape": "structural candidate",
+      "alpha": "transparent exterior checked",
+      "small_scale": [
+        130,
+        169,
+        198,
+        257,
+        265,
+        345
+      ],
+      "user_visual": "pending",
+      "game_engine": "pending",
+      "production_promoted": false
+    },
+    "comparison_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_QA.jpg",
+    "bundle_library": "/Lingmu_HUD_Exports/Rework_Inventory_Detail_Wood_Panel_20261109/detail_wood_panel_rework_review_bundle.zip"
+  }
 }
