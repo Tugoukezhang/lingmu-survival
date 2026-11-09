@@ -1,0 +1,40 @@
+{
+  "task_id": "other96/inventory/item_potion",
+  "asset_id": "inventory/item_potion",
+  "status": "rejected_wrong_subject_twice",
+  "source": {
+    "file": "04_inventory.jpg",
+    "image_size": [1920, 1080],
+    "bbox_xyxy": [1244, 204, 1340, 291],
+    "crop_size": [96, 87],
+    "original_pixels_inspected": true,
+    "crop_displayed_before_generation": true,
+    "generator_reference_binding_verified": false,
+    "subject": "One squat pale-green glass bottle containing yellow potion, orange-brown cork, cream clover label and small green leaf; quantity 2 excluded."
+  },
+  "attempts": [
+    {
+      "generation_id": "0034496d-a123-44b9-a12b-1b8bed4de26d",
+      "file_id": "file_00000000c63081fd90d8c6258aff0203",
+      "sha256": "c77f7a7edf870f0caab2917cc02a64f10c6b7f824290095dc1ef3455f01749f5",
+      "size": [1536, 1024],
+      "mode": "RGBA",
+      "result": "Wrong subject and format: labelled mushroom inventory presentation sheet, not a single potion bottle. Rejected."
+    },
+    {
+      "generation_id": "f7079fc7-5b91-4e14-80a0-f97934fe1006",
+      "file_id": "file_00000000d22881fda7c18369180575d2",
+      "sha256": "53b6b8d2c885eb52dc5720136eca9724568a763f4d7169b3d67d45a2dac00931",
+      "size": [1536, 1024],
+      "mode": "RGBA",
+      "result": "Wrong subject and format: labelled scroll inventory presentation sheet, not a single potion bottle. Rejected despite redisplaying the authentic isolated potion crop immediately before generation."
+    }
+  ],
+  "accepted_candidates": 0,
+  "final_approved_delta": 0,
+  "production_promoted": false,
+  "main_queue_modified": false,
+  "retry_policy": "Stop this manual attempt after two wrong subjects. Defer potion for later retry rather than repeatedly generating presentation sheets. Do not count either output as a completed potion or as a new inventory component.",
+  "next_never_attempted_manual_target": "other96/inventory/item_map_fragment",
+  "queue_reconciliation": "Read the live queue and any concurrent automation results before changing focus; this QA record does not overwrite their state."
+}
