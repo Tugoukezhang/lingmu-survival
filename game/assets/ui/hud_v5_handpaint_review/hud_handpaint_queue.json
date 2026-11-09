@@ -2499,12 +2499,16 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/edit_move.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "reference_guided_raster_candidate_pending_art_qa",
       "approval": "pending",
-      "attempts": 0,
-      "delivered_file": null,
-      "reference_match": null,
-      "notes": ""
+      "attempts": 2,
+      "delivered_file": "/Lingmu_HUD_Exports/Home_Edit_Move_Single_Review_20261109/home_edit_move_reference_guided_1024_RGBA.png",
+      "reference_match": "Matches V4 simple four-way brown arrow glyph; screenshot visually inspected, exact original isolated crop not generator-bound",
+      "notes": "Both GPT Image generations produced ornate clover flower badges and were rejected. Shape-locked 1024 RGBA raster candidate is reference-only, not GPT Image; alpha 32–256px QA passed, art and game QA pending.",
+      "candidate_kind": "programmatic shape-locked reconstruction with subtle painterly tint; NOT GPT Image handpainted final",
+      "candidate_sha256": "12282e8b55938acb388f84c249dd689e977e8cd56ace98970fdc096ef1f4fc1b",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_edit_move_reference_guided_20261109/QA.json",
+      "production_replaced": false
     },
     {
       "queue_number": 55,
@@ -4267,9 +4271,18 @@
       "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/inventory_item_leaf_20261109/QA.json",
       "next_focus": "other96/home/edit_move",
       "new_approved": 0
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/edit_move",
+      "action": "Reject two ImageGen flower badge misroutes; create one exact functional four-way arrow in warm brown as 1024 RGBA reference candidate",
+      "result": "Candidate and comparison saved Library, QA recorded GitHub; no image_gen handpaint final, no approval and no production changes",
+      "review_record": "game/assets/ui/hud_v5_handpaint_review/Reviews/home_edit_move_reference_guided_20261109/QA.json",
+      "next_focus": "other96/home/category_furniture",
+      "new_approved": 0
     }
   ],
-  "current_focus": "other96/home/edit_move",
+  "current_focus": "other96/home/category_furniture",
   "reference_protocol": {
     "name": "One target sprite -> one tightly cropped original reference",
     "effective_from": "2026-11-08",
