@@ -1,0 +1,25 @@
+{
+  "task_id": "other96/inventory/detail_wood_panel",
+  "phase": "rework",
+  "source": "04_inventory.jpg",
+  "source_verified": true,
+  "source_panel_bbox_approx": [
+    260,
+    190,
+    810,
+    890
+  ],
+  "attempts_this_round": 1,
+  "generated": "portrait wood-framed cream blank panel with extra gold crests, pink ribbon and floral corners, checkerboard baked in",
+  "identity": "correct vertical panel class",
+  "result": "visual_candidate_only_pending_rework",
+  "accepted_candidates": 0,
+  "production_promoted": false,
+  "queue_mutated": false,
+  "issues": [
+    "source frame simpler and darker, no pink ribbon or large top/bottom star crests",
+    "RGB checkerboard background, no verified alpha",
+    "target size 1260x1640 not delivered"
+  ],
+  "next": "isolate border with true transparency and remove unrequested crest/ribbon before art QA"
+}
