@@ -2638,12 +2638,22 @@
       "source_reference": "06_家园布置(1).jpg",
       "target_png": "PNG_Transparent/06_home/furniture_tab_wall.png",
       "target_resolution": "1024x1024",
-      "state": "not_generated",
+      "state": "visual_candidate_pending_source_and_engine_qa",
       "approval": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "delivered_file": null,
       "reference_match": null,
-      "notes": ""
+      "notes": "",
+      "review_candidate_library": "/Lingmu_HUD_Exports/Home_Furniture_Tab_Wall_Single_Review/furniture_tab_wall_review_1024.png",
+      "review_bundle_library": "/Lingmu_HUD_Exports/Home_Furniture_Tab_Wall_Single_Review/furniture_tab_wall_review_bundle.zip",
+      "candidate_sha256": "c22f3fb5c8baa932f47b195484f32fcfaa7dea9daaacc034592a416d1f72f5ad",
+      "candidate_size": [
+        1024,
+        1024
+      ],
+      "source_crop_binding_verified": false,
+      "qa_status": "correct hanging wall picture category symbol on green-gold shield; checkerboard segmented, original fidelity and alpha edge/game QA pending",
+      "production_promoted": false
     },
     {
       "queue_number": 69,
@@ -3836,6 +3846,15 @@
       "task_id": "other96/home/furniture_tab_grid",
       "action": "created one grid icon and segmented checkerboard background",
       "result": "One RGBA review candidate saved in Library; source comparison and alpha edge QA pending; production unchanged",
+      "created_candidates": 1,
+      "approved": 0,
+      "counted_as_complete": false
+    },
+    {
+      "date": "2026-11-09",
+      "task_id": "other96/home/furniture_tab_wall",
+      "action": "single wall-tab art candidate, alpha segmentation, Library archive",
+      "result": "One review candidate, not approved; original source binding unverified; no production change.",
       "created_candidates": 1,
       "approved": 0,
       "counted_as_complete": false
