@@ -1,0 +1,15 @@
+{
+  "task_id": "other96/inventory/tab_clothing",
+  "stage": "constrained_pixel_refinement",
+  "size": [
+    1024,
+    1024
+  ],
+  "sha256": "830765c5dd00f39cf3390a6916565679b29afec64589c7df2d356e82234df9e5",
+  "library": "/Lingmu_HUD_Exports/Rework_Inventory_Tab_Clothing/tab_clothing_handpaint_refine_1024.png",
+  "silhouette_unchanged": true,
+  "alpha_unchanged": true,
+  "new_elements": false,
+  "approved": false,
+  "production_promoted": false
+}
