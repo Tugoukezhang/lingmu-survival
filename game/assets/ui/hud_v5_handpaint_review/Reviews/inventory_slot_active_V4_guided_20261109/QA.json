@@ -1,0 +1,52 @@
+{
+  "task_id": "other96/inventory/slot_active",
+  "date": "2026-11-09",
+  "source_reference": "04_背包(5).jpg",
+  "source_screenshot_available": false,
+  "original_screenshot_bbox_verified": false,
+  "verified_fallback": "game/assets/ui/hud_extra_five_screens/SVG_Editable/04_inventory/slot_active.svg",
+  "fallback_v4_production_asset": "game/assets/ui/hud_v4/production/PNG_Transparent/04_inventory/slot_active.png",
+  "fallback_v4_github_blob_sha": "b26fdd8d70579812c454129cfdc588dc8cf891de",
+  "visual_identity": "single blank warm-cream rounded square inventory selected-slot tile, one medium golden border; no symbols, text or accessory elements",
+  "generator": "GPT Image, single independent generation, PNG cleanup and padding adjustment",
+  "candidate_state": "unapproved_GPT_image_local_file_only",
+  "candidate_file": "slot_active_GPTImage_V4_guided_candidate_v1_1024.png",
+  "local_candidate_path": "/mnt/data/lingmu_slot_active_review_20261109/slot_active_GPTImage_V4_guided_candidate_v1_1024.png",
+  "candidate_sha256": "899fb18f3078f5e72d29c82fd24a6aa85168557742b27de0b44bcf3c4682c0da",
+  "candidate_size": [
+    1024,
+    1024
+  ],
+  "channels": "RGBA",
+  "alpha_bbox_xyxy": [
+    122,
+    126,
+    902,
+    898
+  ],
+  "qa": {
+    "shape": "pass_vs_V4_fallback_only",
+    "palette": "pass_broad_cream_gold_family",
+    "component_count": 1,
+    "alpha_edges": "passed automated boundary and stray-alpha cleanup",
+    "game_size_test": [
+      40,
+      64,
+      96,
+      128
+    ],
+    "game_size_result": "visually readable, not tested in live engine",
+    "original_screenshot_compare": "NOT COMPLETED - authentic screenshot inaccessible",
+    "final_art_approved": false,
+    "engine_approved": false,
+    "production_replaced": false
+  },
+  "limitations": [
+    "Original inventory screenshot 04_背包(5).jpg is not available in the accessible Library or GitHub repository.",
+    "The generating tool's direct binding to the V4 image is not verifiable; this is a text-guided GPT Image candidate informed by visually inspected isolated V4 asset, not a verified original-crop edit.",
+    "Complete PNG remains local; Library upload returned AccessDeny, GitHub binary not yet committed.",
+    "No QA approval / production replacement / complete-count change."
+  ],
+  "local_review_bundle": "/mnt/data/lingmu_slot_active_review_20261109.zip",
+  "review_preview": "slot_active_V3_vs_candidate_QA.jpg"
+}
