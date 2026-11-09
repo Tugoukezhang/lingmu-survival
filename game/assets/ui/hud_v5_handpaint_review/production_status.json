@@ -568,9 +568,10 @@
       "target_png": "PNG_Transparent/04_inventory/item_mushroom.png",
       "target_resolution": "1024x1024",
       "reference": "04_背包(5).jpg",
-      "status": "pending_individual_gpt_image",
-      "qa": "pending",
-      "notes": "Separated small inventory item graphic at increased render resolution; manually reconstructed icon."
+      "status": "recovered_misrouted_handpaint_review_candidate_pending_qa",
+      "qa": "art_and_engine_pending",
+      "notes": "One recovered red-spotted mushroom candidate from an attempted home bar. Original screenshot mushroom crop inspected only after generation, source binding to generator unverified; no shrub foliage; RGBA 1024 review candidate SHA 94d7725c35d10a6c2230fc5529985d90928e31ebf4ba60d8f8aeeb77b8aa64ea. Library AccessDeny, not production.",
+      "review_path": "Reviews/inventory_item_mushroom_recovered_20261109/QA.json"
     },
     {
       "index": 50,
