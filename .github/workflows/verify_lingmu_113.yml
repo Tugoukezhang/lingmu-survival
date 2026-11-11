@@ -1,0 +1,28 @@
+name: Verify Lingmu 113 Art PNGs
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify_lingmu_113.yml"
+      - "art/incoming/**"
+      - "art/qa/manifest.json"
+      - "art/qa/check_assets.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Require all 113 genuine RGBA PNG files
+        run: python art/qa/check_assets.py --require-complete --strict-alpha --output art/qa/delivery_audit_latest.json
+      - name: Upload complete audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lingmu-113-technical-audit
+          path: art/qa/delivery_audit_latest.json
+          if-no-files-found: warn
