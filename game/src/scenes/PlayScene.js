@@ -70,6 +70,7 @@ export default class PlayScene extends Phaser.Scene {
       s.player.y = Math.round(this.player.y);
     });
     this.events.once('shutdown', off);
+    this.events.once('shutdown', () => this.game.view3d?.detach());
 
     this.scene.launch('ui');
     this.actions = new InputActions(this, () => this.scene.get('ui')?.joystick?.vector);
@@ -123,6 +124,7 @@ export default class PlayScene extends Phaser.Scene {
     this.drawLighting();
     if (!this.sleeping && !this.fainted) this.checkLostBag(time);
     this.updateInteraction();
+    this.game.view3d?.update(this, time, dt);   // 3D trial (?3d=1): draws this scene's world in 3D
     for (const c of this.clouds) {
       c.x += c.speed * dt;
       if (c.x > this.cols * TILE * 0.5 + 200) c.x = -200;

@@ -1139,6 +1139,24 @@ try {
     await tctx.close();
   }
 
+  // ---------- 3D world view trial (?3d=1; docs/14) ----------
+  {
+    const c3 = await browser.newContext({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
+    const p3 = await c3.newPage();
+    p3.on('pageerror', (e) => errors.push(`3d: ${e.message}`));
+    await p3.goto(`${url}?demo=1&3d=1`);
+    await p3.waitForFunction(() => window.__game?.scene?.isActive('play') && window.__game.scene.isActive('ui') && window.__game.view3d?.ps, null, { timeout: 20000 });
+    await p3.waitForTimeout(1500);
+    const d3 = await p3.evaluate(() => ({ ...window.__game.view3d.debug(), cam2d: window.__game.scene.getScene('play').cameras.main.alpha, hud: window.__game.scene.getScene('ui').dayText.text }));
+    check('3D 试验模式：世界由 3D 画出（物件立在场景里），2D 世界隐藏，HUD 还在', d3.attached && d3.shown && d3.up > 20 && d3.cam2d === 0 && d3.hud.includes('第 1 天'), JSON.stringify(d3));
+    const x0 = await p3.evaluate(() => window.__game.scene.getScene('play').player.x);
+    await p3.keyboard.down('ArrowRight'); await p3.waitForTimeout(1500); await p3.keyboard.up('ArrowRight');
+    const x1 = await p3.evaluate(() => window.__game.scene.getScene('play').player.x);
+    check('3D 试验模式：照常移动', x1 > x0 + 10, `${x0} → ${x1}`);
+    await p3.screenshot({ path: join(OUT, '81-view3d.png') });
+    await c3.close();
+  }
+
   // portrait: rotate hint visible
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(300);
