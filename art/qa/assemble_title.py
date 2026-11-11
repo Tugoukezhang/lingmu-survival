@@ -38,7 +38,7 @@ prop('prop_airship.png',1295,300,120,muted=True)
 prop('prop_tree_01.png',465,654,314)
 prop('prop_tree_01.png',1085,658,272,flip=True,muted=True)
 # A tent behind pets; source artwork is the game's genuine painted scene prop.
-prop('prop_tent.png',805,690,237)
+prop('prop_tent.png',1160,660,205)
 # Small foliage/rock accents, slightly behind the character stage line.
 prop('prop_bush_berry.png',375,717,94)
 prop('prop_grass_tuft.png',1168,716,72,flip=True)
