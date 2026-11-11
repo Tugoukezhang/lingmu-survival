@@ -1,0 +1,41 @@
+name: Fix near-invisible outermost alpha fringe
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'art/qa/sanitize_alpha_border.py'
+      - '.github/workflows/sanitize-art-edges.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sanitize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check Pillow==11.2.1 numpy
+      - name: Clean transparent outermost pixel only
+        run: python art/qa/sanitize_alpha_border.py
+      - name: Validate every official asset after repair
+        run: python art/qa/check_assets.py --require-complete --strict-alpha --output alpha-edge-fix/after_qa.json
+      - name: Publish alpha-only fixes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add art/incoming
+          if ! git diff --cached --quiet; then
+            git commit -m "art: clear invisible alpha fringe on 34 sprites"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lingmu-edge-fix-report
+          path: alpha-edge-fix/
