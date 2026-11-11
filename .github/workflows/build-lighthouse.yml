@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/build-lighthouse.yml'
+      - 'art/qa/build_lighthouse_on.py'
   workflow_dispatch:
 permissions:
   contents: write
