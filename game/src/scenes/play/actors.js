@@ -2,7 +2,7 @@
 // Mixed into PlayScene.prototype (see ../PlayScene.js); `this` is the scene.
 /* eslint-disable no-unused-vars */
 import { GAME_W, GAME_H, TILE, COLORS, FONT, DEBUG, SEED, TIMESCALE } from '../../config.js';
-import { ELEMENT_COLORS, petTextureKey, species } from '../../data/pets.js';
+import { ELEMENT_COLORS, petTextureKey, petTextureOf, species } from '../../data/pets.js';
 import { mulberry32, valueNoise2D } from '../../systems/rng.js';
 import InputActions from '../../systems/input.js';
 import { GameClock, MS_PER_GAME_MIN, runSettlement, tintAt, phaseAt, formatClock } from '../../systems/time.js';
@@ -249,9 +249,9 @@ export default {
 
   applyPetTexture(pet) {
     const human = pet.inst.form === 'human' && !!pet.data.humanForm;
-    pet.sprite.setTexture(petTextureKey(human ? pet.data.humanForm : pet.data.id));
-    // evolved: a bit bigger and warmer; shiny: bluish (placeholders until the art arrives)
-    if (pet.inst.shiny) pet.sprite.setTint(0xb8d8ff); else if (pet.inst.evolved) pet.sprite.setTint(0xfff0cc); else pet.sprite.clearTint();
+    pet.sprite.setTexture(petTextureOf(pet.inst));
+    // evolved: its own art (T53), a bit bigger; shiny: bluish tint (until shiny art exists)
+    if (pet.inst.shiny) pet.sprite.setTint(0xb8d8ff); else pet.sprite.clearTint();
     const h = (human ? PET_HEIGHT * 1.15 : PET_HEIGHT) * (pet.inst.evolved ? 1.12 : 1);
     pet.sprite.setScale(h / pet.sprite.height);
   },

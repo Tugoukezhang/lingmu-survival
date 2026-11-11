@@ -20,6 +20,7 @@ export default {
     }
     if (!expanded) this.placeExpansionSign();
     this.farmLayer = this.add.graphics().setDepth(-5);
+    this.soilSprites = new Map();
     this.cropSprites = new Map();
     const prop = (tx, ty, key, tint) => {
       this.blocked[ty][tx] = true;
@@ -28,7 +29,7 @@ export default {
       if (tint) img.setTint(tint);
       return { x, y };
     };
-    this.shipSpot = prop(r.x + r.w, r.y, 'chest', 0xc0864a);
+    this.shipSpot = prop(r.x + r.w, r.y, 'shipbox');
     this.seedSpot = prop(r.x + r.w, r.y + 2, 'seedstand');
     this.add.text(this.shipSpot.x, this.shipSpot.y - 44, '出货箱', { fontFamily: FONT, fontSize: '13px', color: '#ffffff', backgroundColor: '#5b3d26', padding: { x: 4, y: 1 } }).setOrigin(0.5).setDepth(this.shipSpot.y);
     this.refreshFarm();
@@ -60,11 +61,16 @@ export default {
     for (const p of this.plots) {
       const s = FM.plotOf(this.state, p.key);
       const x = p.cx - TILE / 2 + 3, y = p.cy - TILE / 2 + 3, w = TILE - 6;
+      const soil = this.soilSprites.get(p.key);
       if (!s.tilled) {
+        if (soil) { soil.destroy(); this.soilSprites.delete(p.key); }
         g.fillStyle(0xd8f0a0, 0.28).fillRoundedRect(x, y, w, w, 8).lineStyle(2, 0xa88a5a, 0.55).strokeRoundedRect(x, y, w, w, 8);
       } else {
-        g.fillStyle(s.watered ? 0x5e3d24 : 0x8a5a36, 1).fillRoundedRect(x, y, w, w, 8);
-        g.fillStyle(0x000000, 0.12); for (let k = 1; k < 3; k++) g.fillRect(x + 4, y + (w * k) / 3, w - 8, 2);
+        // tilled earth (AI texture, T53); darker when watered
+        const key = s.watered ? 'soil_wet' : 'soil';
+        if (!soil) this.soilSprites.set(p.key, this.add.tileSprite(p.cx, p.cy, w, w, key).setTilePosition(x % 96, y % 96).setDepth(-5));
+        else if (soil.texture.key !== key) soil.setTexture(key);
+        g.lineStyle(2, 0x5b3d26, 0.35).strokeRoundedRect(x, y, w, w, 6);
       }
       const old = this.cropSprites.get(p.key);
       if (!s.crop) { if (old) { old.destroy(); this.cropSprites.delete(p.key); } continue; }

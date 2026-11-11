@@ -26,7 +26,7 @@ export default {
   // ---------- camping (T22) ----------
   addFireSprite(f) {
     const x = f.tx * TILE + TILE / 2, y = f.ty * TILE + TILE - 4;
-    const img = this.add.image(x, y, 'item_campfire').setOrigin(0.5, 0.85).setDepth(y);
+    const img = this.add.image(x, y, 'campfire_lit').setOrigin(0.5, 0.85).setDepth(y);
     img.setScale(64 / img.width);
     img.base = img.scaleY;
     this.blocked[f.ty][f.tx] = true;
@@ -41,8 +41,9 @@ export default {
       const lit = CP.fireLeft(this.state, s.f) > 0;
       if (lit) {
         this.fires.push({ x: s.x, y: s.y });
+        if (s.img.texture.key !== 'campfire_lit') s.img.setTexture('campfire_lit');
         s.img.clearTint().setScale(s.img.scaleX, s.img.base * (1 + Math.sin(time / 140) * 0.04));
-      } else s.img.setTint(0x777777);
+      } else if (s.img.texture.key !== 'campfire_out') s.img.setTexture('campfire_out').setScale(s.img.scaleX, s.img.base);
     }
   },
 
@@ -96,7 +97,8 @@ export default {
     this.island.chests = this.island.chests.filter((x) => x.id !== c.id);
     this.blocked[c.ty][c.tx] = false;
     const parts = this.chestSprites.get(c.id) ?? [];
-    this.tweens.add({ targets: parts, alpha: 0, y: '-=12', duration: 350, onComplete: () => parts.forEach((o) => o.destroy()) });
+    parts[1]?.setTexture('chest_open');   // the lid opens, then the chest fades away
+    this.tweens.add({ targets: parts, alpha: 0, y: '-=12', delay: 650, duration: 350, onComplete: () => parts.forEach((o) => o.destroy()) });
     this.session.save('chest');
     const names = Object.entries(r.loot.items).map(([id, n]) => `${ITEMS[id].name} ×${n}`).join('、');
     this.showToast(`打开了宝箱：${names}，四叶草 +${r.loot.clover}`);

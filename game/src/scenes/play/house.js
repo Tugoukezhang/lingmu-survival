@@ -80,12 +80,8 @@ export default {
     const r = this.cottageRect;
     for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) if (this.walk[y]?.[x]) this.blocked[y][x] = true;
     const px = r.x * TILE, py = r.y * TILE, pw = r.w * TILE, ph = r.h * TILE;
-    const h = this.add.graphics().setDepth(py + ph);
-    h.fillStyle(0x000000, 0.12).fillEllipse(px + pw / 2, py + ph + 4, pw + 10, 22);
-    h.fillStyle(0xfbf3dc).fillRect(px + 6, py + ph * 0.38, pw - 12, ph * 0.62).lineStyle(3, 0x5b3d26).strokeRect(px + 6, py + ph * 0.38, pw - 12, ph * 0.62);
-    h.fillStyle(0xd9572b).fillTriangle(px - 6, py + ph * 0.42, px + pw / 2, py - 16, px + pw + 6, py + ph * 0.42).lineStyle(3, 0x5b3d26).strokeTriangle(px - 6, py + ph * 0.42, px + pw / 2, py - 16, px + pw + 6, py + ph * 0.42);
-    h.fillStyle(0x8a5a36).fillRoundedRect(px + pw / 2 - 16, py + ph - 46, 32, 46, { tl: 14, tr: 14, bl: 0, br: 0 });
-    h.fillStyle(0xbfe3ef).fillRect(px + 18, py + ph * 0.5, 24, 20).fillRect(px + pw - 42, py + ph * 0.5, 24, 20);
+    this.add.image(px + pw / 2, py + ph + 4, 'shadow').setScale(3.2, 1.6).setDepth(py + ph - 1);
+    this.add.image(px + pw / 2, py + ph + 8, 'bld_cottage').setOrigin(0.5, 1).setDepth(py + ph);   // AI art (T53)
     this.cottageSpot = { x: px + pw / 2, y: py + ph + 18 };
   },
 };

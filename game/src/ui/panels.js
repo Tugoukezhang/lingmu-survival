@@ -1,5 +1,5 @@
 import { COLORS, DEMO } from '../config.js';
-import { ELEMENT_COLORS, petTextureKey, species } from '../data/pets.js';
+import { ELEMENT_COLORS, petTextureKey, petTextureOf, species } from '../data/pets.js';
 import { ITEMS } from '../data/items.js';
 import { calcStats, displayName, expToNext } from '../systems/petMath.js';
 import { NATURES } from '../data/natures.js';
@@ -149,7 +149,7 @@ export function petsPanel(scene, stack) {
       const g = scene.add.graphics();
       if (sel) g.fillStyle(COLORS.yellow).fillRoundedRect(x - 116, y - 64, 232, 128, 20);
       g.fillStyle(COLORS.creamDark).fillRoundedRect(x - 112, y - 60, 224, 120, 17);
-      const img = scene.add.image(x - 62, y + 6, petTextureKey(inst.form === 'human' && sp.humanForm ? sp.humanForm : sp.id));
+      const img = scene.add.image(x - 62, y + 6, petTextureOf(inst));
       img.setScale(98 / img.height);
       if (inst.hp === 0) img.setAlpha(0.45);
       petTint(img, inst);
@@ -397,7 +397,7 @@ export function npcPanel(scene, stack, { id }) {
   const draw = () => {
     body.removeAll(true);
     const st = stateOf(scene), f = TW.friendOf(st, id);
-    const img = scene.add.image(-w / 2 + 100, 10, `npc_${id}`); img.setScale(170 / img.height);
+    const img = scene.add.image(-w / 2 + 100, 10, scene.textures.exists(`npc_${id}_big`) ? `npc_${id}_big` : `npc_${id}`); img.setScale(170 / img.height);
     body.add(img);
     body.add(text(scene, -w / 2 + 190, -h / 2 + 28, `${n.name} · ${n.role}`, 22));
     body.add(text(scene, -w / 2 + 190, -h / 2 + 60, `${'♥'.repeat(TW.hearts(f))}${'♡'.repeat(5 - TW.hearts(f))}  好感 ${f}`, 16, { color: '#d9572b' }));
@@ -662,7 +662,7 @@ export function petCarePanel(scene, stack, { uid }) {
     const st = stateOf(scene), inst = st.pets.find((p) => p.uid === uid);
     if (!inst) { stack.pop(); return; }
     const sp = species(inst.species), care = PC.caredToday(st, inst), inParty = st.party.includes(uid);
-    const img = scene.add.image(-w / 2 + 110, 0, petTextureKey(inst.form === 'human' && sp.humanForm ? sp.humanForm : sp.id));
+    const img = scene.add.image(-w / 2 + 110, 0, petTextureOf(inst));
     img.setScale((inst.evolved ? 200 : 180) / img.height);
     petTint(img, inst);
     body.add(img);
@@ -760,10 +760,9 @@ export function petCarePanel(scene, stack, { uid }) {
   return c;
 }
 
-// Evolved pets look bigger and warmer, shiny pets bluish (placeholders until the evolved / shiny art arrives).
+// Shiny pets bluish (placeholder until shiny art exists); evolved pets have their own art (T53).
 export function petTint(img, inst) {
   if (inst.shiny) img.setTint(0xb8d8ff);
-  else if (inst.evolved) img.setTint(0xfff0cc);
   else img.clearTint();
 }
 

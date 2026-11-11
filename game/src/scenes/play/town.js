@@ -7,9 +7,9 @@ import { worldOf } from '../../systems/progress.js';
 const TOWN_W = 34, TOWN_H = 22;
 // house rectangles (tiles) and where each resident stands
 const HOUSES = [
-  { npc: 'granny', x: 7, y: 4, w: 5, h: 3, roof: 0xc96a7a, sign: '铃奶奶杂货铺', stand: { x: 9, y: 8 } },
-  { npc: 'ali', x: 21, y: 4, w: 5, h: 3, roof: 0x6fae4a, sign: '阿栗木工坊', stand: { x: 23, y: 8 } },
-  { npc: 'lumi', x: 14, y: 15, w: 5, h: 3, roof: 0x3d7fb8, sign: '露米宠物研究所', stand: { x: 16, y: 13 } },
+  { npc: 'granny', x: 7, y: 4, w: 5, h: 3, art: 'bld_shop_granny', sign: '铃奶奶杂货铺', stand: { x: 9, y: 8 } },
+  { npc: 'ali', x: 21, y: 4, w: 5, h: 3, art: 'bld_workshop', sign: '阿栗木工坊', stand: { x: 23, y: 8 } },
+  { npc: 'lumi', x: 14, y: 15, w: 5, h: 3, art: 'bld_lab', sign: '露米宠物研究所', stand: { x: 16, y: 13 } },
 ];
 
 export default {
@@ -37,15 +37,9 @@ export default {
     for (const h of HOUSES) {
       for (let y = h.y; y < h.y + h.h; y++) for (let x = h.x; x < h.x + h.w; x++) this.blocked[y][x] = true;
       const px = h.x * TILE, py = h.y * TILE, pw = h.w * TILE, ph = h.h * TILE;
-      const house = this.add.graphics().setDepth(py + ph);
-      house.fillStyle(0x000000, 0.12).fillEllipse(px + pw / 2, py + ph + 4, pw + 10, 22);
-      house.fillStyle(0xfbf3dc).fillRect(px + 6, py + ph * 0.38, pw - 12, ph * 0.62);
-      house.lineStyle(3, 0x5b3d26).strokeRect(px + 6, py + ph * 0.38, pw - 12, ph * 0.62);
-      house.fillStyle(h.roof).fillTriangle(px - 6, py + ph * 0.42, px + pw / 2, py - 18, px + pw + 6, py + ph * 0.42);
-      house.lineStyle(3, 0x5b3d26).strokeTriangle(px - 6, py + ph * 0.42, px + pw / 2, py - 18, px + pw + 6, py + ph * 0.42);
-      house.fillStyle(0x8a5a36).fillRoundedRect(px + pw / 2 - 16, py + ph - 46, 32, 46, { tl: 14, tr: 14, bl: 0, br: 0 });
-      house.fillStyle(0xbfe3ef).fillRect(px + 20, py + ph * 0.5, 26, 22).fillRect(px + pw - 46, py + ph * 0.5, 26, 22);
-      this.add.text(px + pw / 2, py + ph * 0.38 - 4, h.sign, { fontFamily: FONT, fontSize: '14px', color: '#ffffff', backgroundColor: '#5b3d26', padding: { x: 6, y: 2 } }).setOrigin(0.5, 1).setDepth(py + ph + 1);
+      this.add.image(px + pw / 2, py + ph + 4, 'shadow').setScale(3.6, 1.6).setDepth(py + ph - 1);
+      const house = this.add.image(px + pw / 2, py + ph + 10, h.art).setOrigin(0.5, 1).setDepth(py + ph);   // AI art (T53)
+      this.add.text(px + pw / 2, house.y - house.displayHeight - 2, h.sign, { fontFamily: FONT, fontSize: '14px', color: '#ffffff', backgroundColor: '#5b3d26', padding: { x: 6, y: 2 } }).setOrigin(0.5, 1).setDepth(py + ph + 1);
       // the resident in front of the door
       const sx = h.stand.x * TILE + TILE / 2, sy = h.stand.y * TILE + TILE / 2;
       this.blocked[h.stand.y][h.stand.x] = true;
@@ -58,19 +52,19 @@ export default {
     const cxp = (TOWN_W / 2) * TILE, cyp = (TOWN_H / 2) * TILE;
     for (const [dx, dy] of [[-5.5, -3], [5.5, -3], [-5.5, 3], [5.5, 3]]) {
       const lx = cxp + dx * TILE, ly = cyp + dy * TILE;
-      const lamp = this.add.graphics().setDepth(ly);
-      lamp.fillStyle(0x5b3d26).fillRect(lx - 3, ly - 64, 6, 64).fillRect(lx - 10, ly - 4, 20, 6);
-      lamp.fillStyle(0xfff0a0).fillCircle(lx, ly - 70, 9).lineStyle(3, 0x5b3d26).strokeCircle(lx, ly - 70, 10);
+      this.add.image(lx, ly + 4, 'lamp').setOrigin(0.5, 1).setDepth(ly);
       this.blocked[Math.floor(ly / TILE)][Math.floor(lx / TILE)] = true;
       this.fires.push({ x: lx, y: ly - 30 });
     }
+    // fountain in the middle of the plaza
+    this.add.image(cxp, cyp + TILE * 0.9, 'fountain').setOrigin(0.5, 1).setDepth(cyp + TILE * 0.9);
+    for (const [fx, fy] of [[-1, -1], [0, -1], [-1, 0], [0, 0]]) this.blocked[Math.floor(cyp / TILE) + fy][Math.floor(cxp / TILE) + fx] = true;
     // broken bridge on the north edge (repaired in T14)
     const bx = Math.floor(TOWN_W / 2);
     let by = 0; while (!this.walk[by][bx]) by++;
     const fixed = worldOf(this.state).bridge;
-    g.setDepth(-4);
-    for (let i = 0; i < (fixed ? 6 : 3); i++) { g.fillStyle(i % 2 ? 0x8a5a36 : 0xa8703f).fillRect(bx * TILE + 6, (by - 1) * TILE + 30 - i * 22, TILE - 12, 18); }
-    if (fixed) g.lineStyle(3, 0xc99a5a).lineBetween(bx * TILE + 2, by * TILE, bx * TILE + 2, (by - 3) * TILE).lineBetween(bx * TILE + TILE - 2, by * TILE, bx * TILE + TILE - 2, (by - 3) * TILE);
+    // the bridge art is drawn sideways (east-west); turned to run north from the town edge
+    this.add.image(bx * TILE + TILE / 2, (by - 1) * TILE + 10, fixed ? 'bridge_fixed' : 'bridge_broken').setAngle(-90).setDepth(-4);
     this.add.text(bx * TILE + TILE / 2, by * TILE + 6, fixed ? '星光岛之桥' : '断桥（需要修理）', { fontFamily: FONT, fontSize: '13px', color: '#ffffff', backgroundColor: '#8a5a36', padding: { x: 4, y: 2 } }).setOrigin(0.5, 0).setDepth(by * TILE + 40);
     this.northBridge = { x: bx * TILE + TILE / 2, y: by * TILE + TILE / 2, fixed };
     // rope bridge back home (east edge)
@@ -79,14 +73,9 @@ export default {
     this.townBridge = { x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE / 2 };
   },
 
-  // planks + ropes reaching out over the clouds (dir 1 = east, -1 = west)
+  // rope bridge reaching out over the clouds (dir 1 = east, -1 = west); AI art (T53)
   drawBridge(x0, y, dir) {
-    const g = this.add.graphics().setDepth(y - 30);
-    for (let i = 0; i < 6; i++) {
-      const x = x0 + dir * (i * 22);
-      g.fillStyle(i % 2 ? 0x8a5a36 : 0xa8703f).fillRect(Math.min(x, x + dir * 18), y - 18, 18, 36);
-    }
-    g.lineStyle(3, 0xc99a5a).lineBetween(x0, y - 20, x0 + dir * 130, y - 16).lineBetween(x0, y + 20, x0 + dir * 130, y + 24);
+    this.add.image(x0 + dir * 62, y + 4, 'bridge_rope').setFlipX(dir < 0).setDepth(y - 30);
   },
 
   townSpots() {

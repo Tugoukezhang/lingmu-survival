@@ -147,7 +147,6 @@ export default {
       g.fillStyle = 'rgba(200,190,170,0.85)'; g.beginPath(); g.ellipse(px, py, TILE * 5, TILE * 3.2, 0, 0, Math.PI * 2); g.fill();
       g.fillStyle = 'rgba(160,150,135,0.6)';
       for (let i = 0; i < 70; i++) { const a = i * 2.39, rr = Math.sqrt(i / 70); g.beginPath(); g.ellipse(px + Math.cos(a) * rr * TILE * 4.6, py + Math.sin(a) * rr * TILE * 2.9, 9, 6, 0, 0, Math.PI * 2); g.fill(); }
-      g.fillStyle = '#7cc4e0'; g.beginPath(); g.ellipse(px, py, TILE * 0.9, TILE * 0.6, 0, 0, Math.PI * 2); g.fill();
     } else if (this.area === 'home') {
       // meadow patch for the pets
       const m = this.meadowTile;
@@ -179,11 +178,11 @@ export default {
   },
 
   placeObstacles() {
-    // campfire next to the spawn point (AI icon art used as a world prop)
+    // campfire next to the spawn point
     const fx = this.spawnTile.x - 2, fy = this.spawnTile.y - 2;
     this.blocked[fy][fx] = true;
     const cpx = fx * TILE + TILE / 2, cpy = fy * TILE + TILE - 4;
-    const fire = this.add.image(cpx, cpy, 'item_campfire').setOrigin(0.5, 0.85).setDepth(cpy);
+    const fire = this.add.image(cpx, cpy, 'campfire_lit').setOrigin(0.5, 0.85).setDepth(cpy);
     this.fires.push({ x: cpx, y: cpy - 12 });
     fire.setScale(64 / fire.width);
     this.tweens.add({ targets: fire, scaleY: fire.scaleY * 1.04, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
@@ -199,18 +198,14 @@ export default {
     const sx = this.spawnTile.x + 3, sy = this.spawnTile.y;
     this.blocked[sy][sx] = true;
     const spx = sx * TILE + TILE / 2, spy = sy * TILE + TILE - 6;
-    this.add.image(spx, spy, 'chest').setOrigin(0.5, 0.9).setDepth(spy).setScale(1.15).setTint(0xe8cfa0);
+    this.add.image(spx, spy, 'storage').setOrigin(0.5, 0.9).setDepth(spy);
     this.storageSpot = { x: spx, y: spy };
 
     // airship dock on the south edge below the spawn point
     let dy = this.spawnTile.y;
     while (this.walk[dy + 1]?.[this.spawnTile.x]) dy++;
     const dkx = this.spawnTile.x * TILE + TILE / 2, dky = dy * TILE + TILE;
-    const pier = this.add.graphics().setDepth(dky - 40);
-    pier.fillStyle(0x8a5a36).fillRect(dkx - 22, dky - 30, 44, 70);
-    pier.fillStyle(0x6e4529);
-    for (let i = 0; i < 5; i++) pier.fillRect(dkx - 22, dky - 28 + i * 14, 44, 3);
-    pier.fillRect(dkx - 24, dky + 36, 6, 22).fillRect(dkx + 18, dky + 36, 6, 22);
+    this.add.image(dkx - 20, dky + 36, 'dock').setOrigin(0.5, 1).setDepth(dky - 40);   // pier reaching out over the clouds; the airship waits at its end
     const ship = this.add.image(dkx + 92, dky + 40, 'airship').setOrigin(0.5, 0.7).setDepth(dky + 60);
     this.tweens.add({ targets: ship, y: ship.y - 6, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
     this.dock = { x: dkx, y: dky - 30 };
@@ -240,10 +235,10 @@ export default {
         if (roll < 0.03 + forest(x, y) * 0.12) {
           this.blocked[y][x] = true;
           this.add.image(px, py + 4, 'shadow').setScale(1.1, 1).setDepth(py - 1);
-          this.add.image(px, py, 'tree').setOrigin(0.5, 0.95).setDepth(py);
+          this.add.image(px, py, (x * 7 + y * 13) % 3 === 0 ? 'tree_b' : 'tree').setOrigin(0.5, 0.95).setDepth(py);
         } else if (roll > 0.985) {
           this.blocked[y][x] = true;
-          this.add.image(px, py, 'rock').setOrigin(0.5, 0.9).setDepth(py);
+          this.add.image(px, py, (x + y) % 2 ? 'rock_b' : 'rock').setOrigin(0.5, 0.9).setDepth(py);
         }
       }
     }
@@ -256,8 +251,8 @@ export default {
     this.resourceSprites = new Map();
     const at = (tx, ty, dy = -6) => ({ x: tx * TILE + TILE / 2, y: ty * TILE + TILE + dy });
     const look = {
-      tree: { key: 'tree', origin: [0.5, 0.95], tint: 0xa8c8b8, shadow: 1.1 },
-      rock: { key: 'rock', origin: [0.5, 0.9] },
+      tree: { key: 'tree', alt: 'tree_b', origin: [0.5, 0.95], tint: 0xdde9e2, shadow: 1.1 },
+      rock: { key: 'rock', alt: 'rock_b', origin: [0.5, 0.9] },
       bush: { key: 'bush', origin: [0.5, 0.9], shadow: 0.8 },
       grass: { key: 'grass_tuft', origin: [0.5, 0.9], depthBias: -20 },
       crystal: { key: 'crystal', origin: [0.5, 0.92], shadow: 0.6 },
@@ -266,7 +261,8 @@ export default {
       const L = look[r.type], { x, y } = at(r.tx, r.ty);
       const parts = [];
       if (L.shadow) parts.push(this.add.image(x, y + 4, 'shadow').setScale(L.shadow, 1).setDepth(y - 1));
-      const img = this.add.image(x, y, L.key).setOrigin(...L.origin).setDepth(y + (L.depthBias ?? 0));
+      const key = L.alt && (r.tx * 7 + r.ty * 13) % 3 === 0 ? L.alt : L.key;   // two looks per type (T53)
+      const img = this.add.image(x, y, key).setOrigin(...L.origin).setDepth(y + (L.depthBias ?? 0));
       if (L.tint) img.setTint(L.tint);
       if (r.type === 'crystal') this.tweens.add({ targets: img, alpha: 0.75, duration: 900 + (r.tx % 5) * 80, yoyo: true, repeat: -1 });
       parts.push(img);

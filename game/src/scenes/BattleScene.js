@@ -1,5 +1,5 @@
 import { GAME_W, GAME_H, COLORS } from '../config.js';
-import { petTextureKey, species, ELEMENT_COLORS } from '../data/pets.js';
+import { petTextureKey, petTextureOf, species, ELEMENT_COLORS } from '../data/pets.js';
 import { SKILLS } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
 import { woodPanel, capsuleButton, plaqueButton, text, tag, MIN_TOUCH } from '../ui/widgets.js';
@@ -77,12 +77,12 @@ export default class BattleScene extends Phaser.Scene {
   setSprite(side) {
     const m = active(this.battle, side);
     const sp = species(m.species);
-    const key = petTextureKey(m.form === 'human' && sp.humanForm ? sp.humanForm : sp.id);
+    const inst = m.src;
+    const key = inst ? petTextureOf(inst) : petTextureKey(m.form === 'human' && sp.humanForm ? sp.humanForm : sp.id);
     const { img } = this.sprites[side];
     img.setTexture(key).setAlpha(1).setFlipX(side === 'me');
-    const inst = m.src;
     img.setScale((SPOT[side].h * (inst?.evolved ? 1.12 : 1)) / img.height);
-    if (inst?.shiny) img.setTint(0xb8d8ff); else if (inst?.evolved) img.setTint(0xfff0cc); else img.clearTint();
+    if (inst?.shiny) img.setTint(0xb8d8ff); else img.clearTint();
     img.y = SPOT[side].y;
     img.baseScale = img.scaleX;
   }

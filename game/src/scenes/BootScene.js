@@ -3,6 +3,7 @@ import { PETS, petTextureKey } from '../data/pets.js';
 import GameSession from '../systems/GameSession.js';
 import { CROPS } from '../data/crops.js';
 import { NPCS } from '../data/npcs.js';
+import { ART } from '../data/art.js';
 
 // Loads real art (pet sprites) and draws code-made placeholder textures for
 // everything that has no art yet (player, trees, rocks, clouds, shadows).
@@ -16,6 +17,8 @@ export default class BootScene extends Phaser.Scene {
     this.load.on('progress', (p) => { bar.width = 320 * p; });
 
     this.load.image('tile_grass', 'assets/tiles/tile_grass.png');
+    // AI art (T53, tools/art/normalize.py): replaces the code-drawn placeholder with the same key
+    for (const [key, path] of Object.entries(ART)) this.load.image(key, path);
     for (const k of ['item_campfire', 'item_net_grass', 'item_net_vine']) this.load.image(k, `assets/items/${k}.png`);
     for (const p of PETS) {
       this.load.image(petTextureKey(p.id), `assets/pets/pet_${p.id}_idle_01.png`);
@@ -67,6 +70,7 @@ export default class BootScene extends Phaser.Scene {
   }
 
   makeCanvas(key, w, h, draw) {
+    if (this.textures.exists(key)) return;   // real art already loaded
     const tex = this.textures.createCanvas(key, w, h);
     draw(tex.getContext(), w, h);
     tex.refresh();

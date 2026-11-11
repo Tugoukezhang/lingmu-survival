@@ -46,3 +46,9 @@ export const species = (id) => {
 export const STARTERS = ['acorn', 'shark', 'fox'];
 
 export const petTextureKey = (id) => `pet_${id}`;
+// Texture for a pet instance: human form, evolved art (T53), or the normal idle image.
+export function petTextureOf(inst) {
+  const sp = PET_BY_ID[inst.species];
+  if (inst.form === 'human' && sp?.humanForm) return petTextureKey(sp.humanForm);
+  return inst.evolved ? `${petTextureKey(inst.species)}_evo` : petTextureKey(inst.species);
+}

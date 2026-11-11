@@ -15,6 +15,16 @@ python -E -P tools/art/cutout.py art/raw game/assets/pets preview.jpg pet_fox_id
   - `CUT_SIZE=128`：输出尺寸（物品图标用 128）。
   - `CUT_MODEL=flood`：不用模型，只用边缘连通判断（适合描边清楚、没有白毛的图）。
 
+## 已经是透明背景的出图：`normalize.py`（T53 起的主要流程）
+```
+python -E -P tools/art/normalize.py art/raw/incoming preview.jpg
+```
+- 输入：GPT 交付到 `main` 分支 `art/incoming/` 的 PNG（复制到本机 `art/raw/incoming/`，不提交）。
+- 脚本里的 `MANIFEST` 写着每张图的贴图名、文件夹、游戏里的尺寸、底部对齐还是居中。贴图尺寸沿用原来代码画的临时图，所以摆放代码不用改。
+- 处理：不透明度补满（≥245 → 255）、白底抠图留下的白边去掉（`fringe`）、裁掉空白、缩到尺寸；作物长条图切成 3 个生长阶段（同一个缩放，小苗保持小）；技能书染成 8 种颜色；耕地 / 沙地做无缝纹理。
+- 输出：`game/assets/world|items|npcs|pets|crops|furniture|tiles/`，并重写 `game/src/data/art.js`（BootScene 按它加载；同名的代码临时图自动跳过）。默认只出 1 倍图（游戏画布 960×540，只用 1 倍）；要 2 倍图设 `ART_2X=1`。
+- 新增素材：在 `MANIFEST` 加一行，重跑脚本。
+
 ## 无缝地块：`seamless.py`
 ```
 python -E -P tools/art/seamless.py art/raw/tile_grass_raw.png game/assets/tiles/tile_grass.png preview_3x3.jpg 384
