@@ -1,0 +1,31 @@
+name: Build review-only floating island title candidate
+on:
+  push:
+    paths:
+      - '.github/workflows/assemble-title.yml'
+      - 'art/qa/assemble_title.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install Pillow==11.2.1
+      - name: Compose from named in-repo props and original pet cutouts
+        run: python art/qa/assemble_title.py
+      - name: Save inspection candidate, not yet official title_bg.png
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add art/qa/title_candidate.png art/qa/preview_title_candidate.png art/qa/preview_title_candidate.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'art QA: title screen composition candidate for visual review'
+            git push origin HEAD:main
+          fi
