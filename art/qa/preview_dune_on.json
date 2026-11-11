@@ -1,0 +1,16 @@
+{
+  "source": "art/incoming/prop_lighthouse_dune_off.png",
+  "target": "art/incoming/prop_lighthouse_dune_on.png",
+  "size": [
+    1024,
+    1536
+  ],
+  "alpha_range": [
+    0,
+    254
+  ],
+  "sha256": "ceadce353d4d429b68959cb071da8957c09278ce9e4ff8d351730fb2d53b7a3d",
+  "bytes": 1206735,
+  "edit": "same-source geometry + in-glass gold relight + halo + reduced outer sand haze",
+  "note": "procedural relighting; requires visual signoff"
+}
