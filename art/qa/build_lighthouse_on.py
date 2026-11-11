@@ -47,8 +47,9 @@ def build(source, target, preview, report):
     pixels[:, :, :3] = pixels[:, :, :3] * (1 - mix_inner[:, :, None]) + np.array([255, 231, 156]) * mix_inner[:, :, None]
 
     # Low-opacity golden halo BEHIND the existing silhouette, never a new object.
-    halo_distance = ((xx - 514) / 272.0)**2 + ((yy - 548) / 278.0)**2
-    halo_alpha = 58 * np.exp(-2.0 * halo_distance)
+    halo_distance = ((xx - 514) / 184.0)**2 + ((yy - 548) / 188.0)**2
+    # Keep the halo extremely subtle: on dark backgrounds a larger halo reads as neon rings.
+    halo_alpha = 12 * np.exp(-3.2 * halo_distance)
     halo_alpha *= np.clip((850 - yy) / 150, 0, 1)
     halo = np.zeros((h,w,4), dtype=np.uint8)
     halo[:, :, :3] = (255, 196, 88)
