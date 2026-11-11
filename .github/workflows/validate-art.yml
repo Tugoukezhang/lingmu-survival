@@ -21,7 +21,7 @@ jobs:
       - name: Install image validator
         run: python -m pip install Pillow==11.2.1
       - name: Check file formats, dimensions, actual delivery counts and duplicates
-        run: python art/qa/check_assets.py --output art-qa-report.json
+        run: python art/qa/check_assets.py --require-complete --strict-alpha --output art-qa-report.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
