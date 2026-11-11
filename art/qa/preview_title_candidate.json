@@ -1,0 +1,23 @@
+{
+  "filename": "art/qa/title_candidate.png",
+  "bytes": 1485682,
+  "sha256": "87d07d8dacb1e4e8b91ad6e2dd174a6f63f76b97be9a837e410d7b0a23baa909",
+  "dimensions": [
+    1536,
+    1024
+  ],
+  "original_pets": 3,
+  "properties": [
+    "two actual tree PNG props",
+    "actual tent PNG prop",
+    "actual airship PNG prop",
+    "round floating grassy island",
+    "waterfall",
+    "background islands"
+  ],
+  "alpha_range": [
+    255,
+    255
+  ],
+  "status": "review_candidate_not_delivered"
+}
