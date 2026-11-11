@@ -1,0 +1,798 @@
+{
+  "schema_version": 1,
+  "source": "Lingmu_Art_113_Production/出图清单.md",
+  "published": "2026-11-11",
+  "items": [
+    {
+      "number": 1,
+      "filename": "player_down_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 2,
+      "filename": "mon_fog_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 3,
+      "filename": "boss_mistwood_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 4,
+      "filename": "prop_tree_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 5,
+      "filename": "prop_tree_02.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 6,
+      "filename": "prop_tree_03.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 7,
+      "filename": "prop_rock_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 8,
+      "filename": "prop_rock_02.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 9,
+      "filename": "prop_bush_berry.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 10,
+      "filename": "prop_grass_tuft.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 11,
+      "filename": "prop_crystal_ore.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 12,
+      "filename": "prop_thorn.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 13,
+      "filename": "prop_chest_closed.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 14,
+      "filename": "prop_chest_open.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/prop_chest_closed.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 15,
+      "filename": "prop_airship.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 16,
+      "filename": "prop_tent.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 17,
+      "filename": "prop_campfire_lit.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + 参考图/图标_营火.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 18,
+      "filename": "prop_campfire_out.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/prop_campfire_lit.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 19,
+      "filename": "prop_lostbag.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 20,
+      "filename": "prop_shipping_box.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 21,
+      "filename": "prop_seed_stand.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 22,
+      "filename": "prop_storage.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 23,
+      "filename": "prop_dock.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 24,
+      "filename": "prop_bridge_rope.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 25,
+      "filename": "prop_board.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 26,
+      "filename": "prop_fountain.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 27,
+      "filename": "prop_lamp.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 28,
+      "filename": "prop_lighthouse_off.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 29,
+      "filename": "prop_lighthouse_on.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/prop_lighthouse_off.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 30,
+      "filename": "bld_cottage.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 31,
+      "filename": "bld_shop_granny.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 32,
+      "filename": "bld_workshop_broken.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 33,
+      "filename": "bld_workshop.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/bld_workshop_broken.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 34,
+      "filename": "bld_lab_broken.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 35,
+      "filename": "bld_lab.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/bld_lab_broken.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 36,
+      "filename": "tile_soil.png",
+      "references": "参考图/纹理_草地.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 37,
+      "filename": "tile_soil_wet.png",
+      "references": "参考图/纹理_草地.png + art/incoming/tile_soil.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 38,
+      "filename": "npc_granny.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_焰尾狐人形.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 39,
+      "filename": "npc_ali.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_焰尾狐人形.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 40,
+      "filename": "npc_lumi.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_焰尾狐人形.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 41,
+      "filename": "item_wood.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 42,
+      "filename": "item_stone.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 43,
+      "filename": "item_grass.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 44,
+      "filename": "item_crystal.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 45,
+      "filename": "item_cloth.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 46,
+      "filename": "item_axe.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 47,
+      "filename": "item_pickaxe.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 48,
+      "filename": "item_hoe.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 49,
+      "filename": "item_can.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 50,
+      "filename": "item_torch.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 51,
+      "filename": "item_berry.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 52,
+      "filename": "item_berry_roast.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 53,
+      "filename": "item_fish.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 54,
+      "filename": "item_fish_roast.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 55,
+      "filename": "item_soup.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 56,
+      "filename": "item_carrot.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 57,
+      "filename": "item_strawberry.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 58,
+      "filename": "item_sunflower.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 59,
+      "filename": "item_starwheat.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 60,
+      "filename": "item_pumpkin.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 61,
+      "filename": "crop_carrot.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 62,
+      "filename": "crop_strawberry.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 63,
+      "filename": "crop_sunflower.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 64,
+      "filename": "crop_starwheat.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 65,
+      "filename": "crop_pumpkin.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 66,
+      "filename": "item_seed_carrot.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 67,
+      "filename": "item_seed_strawberry.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 68,
+      "filename": "item_seed_sunflower.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 69,
+      "filename": "item_seed_starwheat.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 70,
+      "filename": "item_seed_pumpkin.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 71,
+      "filename": "item_evo_forest.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 72,
+      "filename": "item_evo_water.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 73,
+      "filename": "item_evo_fire.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 74,
+      "filename": "item_evo_light.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 75,
+      "filename": "item_evo_dark.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 76,
+      "filename": "item_book.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 77,
+      "filename": "item_foxwick.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 78,
+      "filename": "item_fox_bell.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 79,
+      "filename": "item_bigbag.png",
+      "references": "参考图/风格_04_背包.jpg + 参考图/图标_草编网.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 80,
+      "filename": "furn_bed.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 81,
+      "filename": "furn_chair.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 82,
+      "filename": "furn_table.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 83,
+      "filename": "furn_plant.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 84,
+      "filename": "furn_rug.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 85,
+      "filename": "furn_shelf.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 86,
+      "filename": "furn_lamp.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 87,
+      "filename": "furn_chime.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 88,
+      "filename": "furn_horse.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 89,
+      "filename": "furn_petbed.png",
+      "references": "参考图/风格_06_家园布置.jpg + 参考图/风格_01_标题页.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 90,
+      "filename": "prop_bridge_broken.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 91,
+      "filename": "prop_bridge_fixed.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/prop_bridge_broken.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 92,
+      "filename": "prop_cactus.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 93,
+      "filename": "prop_sandrock.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 94,
+      "filename": "prop_palm.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 95,
+      "filename": "prop_lighthouse_dune_off.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 96,
+      "filename": "prop_lighthouse_dune_on.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/prop_lighthouse_dune_off.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 97,
+      "filename": "title_bg.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_橡果刺猬.png + 参考图/宠物_航海鲨.png + 参考图/宠物_焰尾狐.png",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "number": 98,
+      "filename": "pet_acorn_evo_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png + 参考图/宠物_橡果刺猬.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 99,
+      "filename": "pet_shark_evo_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png + 参考图/宠物_航海鲨.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 100,
+      "filename": "pet_pup_evo_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 101,
+      "filename": "pet_fox_evo_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png + 参考图/宠物_焰尾狐.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 102,
+      "filename": "pet_starbear_evo_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png + 参考图/宠物_星星熊仔.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 103,
+      "filename": "pet_shadecat_evo_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png + 参考图/宠物_月影狐猫.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 104,
+      "filename": "boss_dune_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 105,
+      "filename": "pet_new_camel_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 106,
+      "filename": "pet_new_cactusbunny_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 107,
+      "filename": "pet_new_sundial_idle_01.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_冰蓝小狼.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 108,
+      "filename": "tile_sand.png",
+      "references": "参考图/纹理_草地.png",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 109,
+      "filename": "npc_innkeeper.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/宠物_焰尾狐人形.png",
+      "width": 1024,
+      "height": 1536
+    },
+    {
+      "number": 110,
+      "filename": "bld_inn_broken.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 111,
+      "filename": "bld_inn.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/bld_inn_broken.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 112,
+      "filename": "bld_market_broken.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg",
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "number": 113,
+      "filename": "bld_market.png",
+      "references": "参考图/风格_01_标题页.jpg + 参考图/风格_06_家园布置.jpg + art/incoming/bld_market_broken.png（在 GitHub 仓库 Tugoukezhang/lingmu-survival 的 main 分支里，是你前面生成并上传的那张）",
+      "width": 1024,
+      "height": 1024
+    }
+  ]
+}
