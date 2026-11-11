@@ -1,0 +1,31 @@
+name: Build #96 lit dune lighthouse from #95
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build_lingmu_lighthouse.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Pillow and numpy
+        run: python -m pip install --disable-pip-version-check Pillow numpy
+      - name: Reuse original lighthouse PNG for lit state
+        run: python art/tools/build_lighthouse_on.py
+      - name: Validate exact output, commit only if changed
+        shell: bash
+        run: |
+          test -s art/incoming/prop_lighthouse_dune_on.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add art/incoming/prop_lighthouse_dune_on.png
+          if ! git diff --cached --quiet; then
+            git commit -m "art: generate #96 lit lighthouse preserving #95 geometry"
+            git push origin HEAD:main
+          fi
