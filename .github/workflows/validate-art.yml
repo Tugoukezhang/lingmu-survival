@@ -1,0 +1,29 @@
+name: Validate Lingmu art PNGs
+on:
+  push:
+    paths:
+      - 'art/incoming/**'
+      - 'art/qa/**'
+      - '.github/workflows/validate-art.yml'
+  pull_request:
+    paths:
+      - 'art/incoming/**'
+      - 'art/qa/**'
+  workflow_dispatch:
+jobs:
+  verify-art:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install image validator
+        run: python -m pip install Pillow==11.2.1
+      - name: Check file formats, dimensions, actual delivery counts and duplicates
+        run: python art/qa/check_assets.py --output art-qa-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lingmu-art-qa
+          path: art-qa-report.json
