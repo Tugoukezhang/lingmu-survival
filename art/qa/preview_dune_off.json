@@ -1,0 +1,22 @@
+{
+  "filename": "art/incoming/prop_lighthouse_dune_off.png",
+  "sha256": "299b20e0a52efdf77d776d9ed1284bc1bbedc80defc3220561bbf471c0101461",
+  "size": [
+    1024,
+    1536
+  ],
+  "bbox": [
+    0,
+    19,
+    1015,
+    1536
+  ],
+  "alpha_range": [
+    0,
+    254
+  ],
+  "preview_size": [
+    320,
+    480
+  ]
+}
