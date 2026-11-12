@@ -14,6 +14,8 @@ import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 import { HorizontalTiltShiftShader } from 'three/addons/shaders/HorizontalTiltShiftShader.js';
 import { VerticalTiltShiftShader } from 'three/addons/shaders/VerticalTiltShiftShader.js';
 import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { rng, rockGeometry, bigLeafPlant, leafTexture, daisyGeometry, cloverGeometry, tuftGeometry, smallFlowerGeometry } from './nature.js';
 import { makeHero, walkHero, makeFluff } from './hero.js';
 
@@ -180,7 +182,34 @@ scatter(smallFlowerGeometry(0xf6c33a), coverMat, 160, { ...area, path: 0.9, s0: 
 
 // ---------- hero and pet ----------
 const hero = makeHero(); scene.add(hero);
-const pet = makeFluff(); scene.add(pet);
+let pet = makeFluff(); scene.add(pet);
+// ?pet=<file> loads game/assets/models/<file>.glb (an AI image-to-3D model) instead of the fluff ball
+const PET_MODEL = params.get('pet');
+const PET_HEIGHT = Number(params.get('petH')) || 0.8;   // metres; the hero is about 1.2
+let petModelInfo = PET_MODEL ? { status: 'loading', file: PET_MODEL } : null;
+if (PET_MODEL) {
+  const loader = new GLTFLoader();
+  const draco = new DRACOLoader(); draco.setDecoderPath('vendor/three/addons/libs/draco/gltf/'); loader.setDRACOLoader(draco);
+  loader.load(`assets/models/${PET_MODEL}.glb`, (gltf) => {
+    const model = gltf.scene;
+    const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+    const s = PET_HEIGHT / Math.max(0.001, size.y);
+    model.position.set(-center.x * s, -box.min.y * s, -center.z * s);
+    model.scale.setScalar(s);
+    let tris = 0;
+    model.traverse((o) => {
+      if (!o.isMesh) return;
+      o.castShadow = o.receiveShadow = true;
+      tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3;
+      for (const m of [].concat(o.material)) if (m.map) m.map.anisotropy = 8;
+    });
+    const holder = new THREE.Group(); holder.add(model);
+    holder.position.copy(pet.position);
+    scene.remove(pet); pet = holder; scene.add(pet);
+    pet.userData.model = true;
+    petModelInfo = { status: 'ok', file: PET_MODEL, tris: Math.round(tris), size: size.toArray().map((v) => +v.toFixed(3)), animations: gltf.animations.length };
+  }, undefined, (e) => { petModelInfo = { status: 'error', file: PET_MODEL, error: String(e?.message ?? e) }; });
+}
 pet.traverse((o) => { if (o.isMesh) o.castShadow = true; });
 let heroT = 0.36;                           // position along the path (0 … 1) when walking automatically
 const heroPos = pathCurve.getPointAt(heroT);
@@ -264,7 +293,9 @@ function frame(now) {
   // pet trots behind
   const want = new THREE.Vector3(hero.position.x + 0.25, 0, hero.position.z + 1.55);
   pet.position.lerp(want, Math.min(1, dt * 2.5));
+  const step = want.clone().sub(pet.position);
   pet.position.y = groundY(pet.position.x, pet.position.z) + Math.abs(Math.sin(now / 160)) * 0.04;
+  if (pet.userData.model && step.lengthSq() > 0.0004) pet.rotation.y = Math.atan2(step.x, step.z);   // face where it trots
   // camera: low, behind the hero
   camTarget.lerp(hero.position, SHOT ? 1 : Math.min(1, dt * 4));
   camera.position.set(camTarget.x + 0.1, camTarget.y + 4.0, camTarget.z + 6.0);
@@ -273,7 +304,7 @@ function frame(now) {
   fill.position.set(camTarget.x - 6, 5, camTarget.z + 8);
   composer.render(dt);
   frames++; if (now - fpsT > 1000) { fps = frames; frames = 0; fpsT = now; }
-  window.__look = { ready: true, fps, calls: renderer.info.render.calls, tris: renderer.info.render.triangles };
+  window.__look = { ready: true, fps, calls: renderer.info.render.calls, tris: renderer.info.render.triangles, pet: petModelInfo };
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
