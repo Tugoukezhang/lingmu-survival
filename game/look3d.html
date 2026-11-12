@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>3D 样张</title>
+  <link rel="icon" href="data:,">
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #2c3a22; }
+    #c { position: absolute; display: block; }
+    #tip { position: fixed; left: 12px; bottom: 10px; color: #fff; font: 14px "Microsoft YaHei", sans-serif; opacity: 0.7; text-shadow: 0 1px 2px #000; }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/" } }
+  </script>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="tip">3D 样张（对照 风格示例 05）· WASD / 方向键 走动</div>
+  <script type="module" src="src/view3d/look/main.js"></script>
+</body>
+</html>
