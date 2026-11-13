@@ -18,7 +18,8 @@ import { GAME_W, GAME_H, TILE } from '../config.js';
 import { tintAt } from '../systems/time.js';
 import * as N from '../systems/night.js';
 import { TIME, rng } from './kit/shared.js';
-import { buildIsland } from './kit/terrain.js';
+import { buildIsland, WATER_LEVEL } from './kit/terrain.js';
+import { buildWater } from './kit/water.js';
 import { buildGrass } from './kit/grass.js';
 import { makeKit } from './kit/flora.js';
 import { makePost } from './kit/post.js';
@@ -27,9 +28,9 @@ import { smallFlowerGeometry } from './look/nature.js';
 const SKIP = new Set(['ground', 'sky', 'cloud', 'lightbrush', 'shadow']);   // sky and clouds are drawn here; real shadows replace the blobs
 const FLAT = new Set(['furn_rug', 'bridge_rope', 'bridge_broken', 'bridge_fixed', 'soil', 'soil_wet']);   // lie on the ground
 const SOFT = new Set(['fogmonster']);                                         // translucent edges: blend, no hard cut-out
-const NO_SHADOW = new Set(['fogmonster', 'item_torch', 'campfire_lit']);
+const NO_SHADOW = new Set(['fogmonster', 'item_torch']);
 const MODEL_SCALE = { tree: 1.28, tree_b: 1.22, tree_c: 1.15, bush: 1.1, grass_tuft: 1.2, rock: 1.25, rock_b: 1.2, crystal: 1.15 };   // 3D props a bit bigger than the sprites were
-const CAM = { back: 440, up: 292, look: 44, fov: 40 };                        // camera offset behind / above the player
+const CAM = { back: 392, up: 250, look: 46, fov: 42 };                        // camera offset behind / above the player
 const MAX_LIGHTS = 6;
 const QUALITY = new URLSearchParams(location.search).get('q') ?? 'high';
 
@@ -118,8 +119,9 @@ export default class World3D {
     const W = ps.cols * TILE, H = ps.rows * TILE;
     const seed = ps.cols * 131 + ps.rows * 17 + (ps.island?.seed ?? 0) % 9973;
     const groundCanvas = ps.textures.exists('ground') ? ps.textures.get('ground').getSourceImage() : null;
-    this.terrain = buildIsland({ walk: ps.walk, cols: ps.cols, rows: ps.rows, tile: TILE, groundCanvas, seed });
+    this.terrain = buildIsland({ walk: ps.walk, cols: ps.cols, rows: ps.rows, tile: TILE, groundCanvas, seed, water: ps.water, ...this.layoutHints(ps) });
     this.addStatic(this.terrain.group);
+    if (this.terrain.hasWater) { this.water = buildWater(this.terrain); this.addStatic(this.water.mesh); }
 
     // no grass on the field, under the fire, the tent, the buildings …
     const bare = new Set();
@@ -145,7 +147,55 @@ export default class World3D {
       this.clouds.push(m); this.addStatic(m);
     }
     const p = ps.player;
-    this.target.set(p.x, 0, p.y);
+    this.target.set(p.x, this.h(p.x, p.y), p.y);
+  }
+
+  // ground height under a spot of the 2D map (0 while no island is built)
+  h(x, y) { return this.terrain ? this.terrain.heightAt(x, y) : 0; }
+
+  // Where the ground must stay level (buildings, fields, camp) and where dirt paths run.
+  layoutHints(ps) {
+    const T = TILE, flats = [], paths = [];
+    const mid = (t) => ({ x: (t.x + 0.5) * T, y: (t.y + 0.5) * T });
+    const rect = (r, pad) => ({ x: (r.x + r.w / 2) * T, y: (r.y + r.h / 2) * T, w: r.w * T, h: r.h * T, pad });
+    const curve = (a, b, bend = 0.1, width = 38) => {
+      const mx = (a.x + b.x) / 2 - (b.y - a.y) * bend, my = (a.y + b.y) / 2 + (b.x - a.x) * bend, pts = [];
+      for (let i = 0; i <= 14; i++) { const t = i / 14, u = 1 - t; pts.push({ x: u * u * a.x + 2 * u * t * mx + t * t * b.x, y: u * u * a.y + 2 * u * t * my + t * t * b.y }); }
+      pts.width = width;
+      return pts;
+    };
+    const patch = (x, y, width) => { const pts = [{ x: x - 6, y }, { x: x + 6, y }]; pts.width = width; return pts; };
+    for (const o of ps.children.list) {   // every building stands on level ground
+      const key = o.type === 'Image' ? o.texture?.key : null;
+      if (key && (key.startsWith('bld_') || key === 'fountain')) flats.push({ x: o.x, y: o.y - 50, w: o.displayWidth * 0.9, h: 110, pad: 30 });
+    }
+    let relief = 26;
+    if (ps.area === 'home') {
+      const s = mid(ps.spawnTile);
+      flats.push({ x: s.x, y: s.y - T, pad: 150 }, rect(ps.farmRect, 44), rect(ps.expandRect, 44), { x: ps.dock.x, y: ps.dock.y, pad: 50 }, { x: ps.homeBridge.x, y: ps.homeBridge.y, pad: 40 });
+      paths.push(patch(s.x, s.y - T * 0.9, 150));
+      paths.push(curve(s, { x: ps.dock.x, y: ps.dock.y + 40 }, 0.06));
+      paths.push(curve(s, { x: ps.homeBridge.x - 20, y: ps.homeBridge.y }, -0.07));
+      if (ps.cottageSpot) paths.push(curve({ x: s.x - T * 0.6, y: s.y - T * 1.4 }, { x: ps.cottageSpot.x, y: ps.cottageSpot.y - 14 }, 0.12));
+      paths.push(curve({ x: s.x + T * 0.8, y: s.y }, { x: ps.farmRect.x * T - 10, y: (ps.farmRect.y + 1.5) * T }, -0.12, 34));
+    } else if (ps.area === 'town') {
+      relief = 15;
+      const c = { x: ps.cols * T / 2, y: ps.rows * T / 2 };
+      flats.push({ x: c.x, y: c.y, w: T * 9, h: T * 5.6, pad: 30 });
+      for (const n of ps.npcs ?? []) {
+        flats.push({ x: n.x, y: n.y, pad: 40 });
+        const k = 1 / Math.max(Math.abs(n.x - c.x) / (T * 4.4), Math.abs(n.y - c.y) / (T * 2.8));
+        paths.push(curve({ x: c.x + (n.x - c.x) * k, y: c.y + (n.y - c.y) * k }, { x: n.x, y: n.y + (n.y < c.y ? 34 : -34) }, 0.1, 44));
+      }
+      if (ps.townBridge) { flats.push({ x: ps.townBridge.x, y: ps.townBridge.y, pad: 40 }); paths.push(curve({ x: c.x + T * 4.2, y: c.y }, { x: ps.townBridge.x + 30, y: ps.townBridge.y }, 0.06, 44)); }
+      if (ps.northBridge) { flats.push({ x: ps.northBridge.x, y: ps.northBridge.y, pad: 40 }); paths.push(curve({ x: c.x, y: c.y - T * 2.6 }, { x: ps.northBridge.x, y: ps.northBridge.y - 24 }, 0.08, 44)); }
+    } else {
+      relief = 30;
+      const l = ps.island.landing;
+      flats.push({ ...mid({ x: l.tx, y: l.ty }), pad: 50 });
+      for (const c of ps.island.camps ?? []) flats.push({ ...mid({ x: c.tx, y: c.ty }), pad: 50 });
+    }
+    return { flats, paths, relief };
   }
 
   // small white / pink / yellow flowers dotted over the meadow (decoration only)
@@ -161,7 +211,7 @@ export default class World3D {
         const x = rand() * t.W, y = rand() * t.H;
         if (!t.isGrass(x, y, 235) || avoid(x, y)) continue;
         const sc = 34 + rand() * 22;
-        mesh.setMatrixAt(n++, m4.compose(p.set(x, 0, y), q.setFromEuler(e.set(0, rand() * 6.28, 0)), s.setScalar(sc)));
+        mesh.setMatrixAt(n++, m4.compose(p.set(x, t.heightAt(x, y), y), q.setFromEuler(e.set(0, rand() * 6.28, 0)), s.setScalar(sc)));
       }
       mesh.count = n; mesh.frustumCulled = false; mesh.receiveShadow = true;
       this.addStatic(mesh);
@@ -176,8 +226,8 @@ export default class World3D {
     this.map.clear();
     for (const m of this.statics) this.scene.remove(m);
     for (const m of [...this.rings, ...this.plotHints, ...(this.clouds ?? []), ...(this.sea ? [this.sea] : [])]) { this.scene.remove(m); m.material.dispose?.(); }
-    this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose();
-    this.terrain = this.grass = this.flowerMat = this.sea = null;
+    this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose(); this.water?.dispose();
+    this.terrain = this.grass = this.flowerMat = this.sea = this.water = null;
     this.statics = []; this.rings = []; this.plotHints = []; this.clouds = [];
     for (const t of this.texCache.values()) t.dispose();
     this.texCache.clear();
@@ -217,9 +267,9 @@ export default class World3D {
 
     // camera follows the player
     const p = ps.player;
-    this.target.lerp(new THREE.Vector3(p.x, 0, p.y), Math.min(1, dt * 7));
-    this.camera.position.set(this.target.x, CAM.up, this.target.z + CAM.back);
-    this.camera.lookAt(this.target.x, CAM.look, this.target.z);
+    this.target.lerp(new THREE.Vector3(p.x, this.h(p.x, p.y), p.y), Math.min(1, dt * 7));
+    this.camera.position.set(this.target.x, this.target.y + CAM.up, this.target.z + CAM.back);
+    this.camera.lookAt(this.target.x, this.target.y + CAM.look, this.target.z);
     this.camera.updateMatrixWorld();
     this.sky.position.copy(this.camera.position);
 
@@ -265,7 +315,7 @@ export default class World3D {
       if (!m.visible) continue;
       if (e.kind === 'model') {
         // a real 3D prop from the kit, standing where the sprite is
-        m.position.set(o.x, 0, o.y);
+        m.position.set(o.x, this.h(o.x, o.y), o.y);
         m.scale.setScalar((dh / m.userData.height) * (MODEL_SCALE[key] ?? 1));
         const front = o.y - pl.y;
         this.kit.setGhost(m, e.tall && front > 24 && front < 330 && Math.abs(o.x - pl.x) < 70 + dw * 0.5);
@@ -285,14 +335,15 @@ export default class World3D {
         if (a < 0.99) { if (!mat.transparent) { mat.transparent = true; mat.needsUpdate = true; } mat.opacity = a; }
       }
       if (e.kind === 'flat') {
-        m.position.set(o.x + (0.5 - o.originX) * dw, 0.6, o.y + (0.5 - o.originY) * dh);
+        const fx = o.x + (0.5 - o.originX) * dw, fz = o.y + (0.5 - o.originY) * dh;
+        m.position.set(fx, this.h(fx, fz) + 0.8, fz);
         m.scale.set(o.flipX ? -dw : dw, 1, dh);
         m.rotation.y = -o.rotation;
       } else {
         // feet on the ground at the object's position; a moving origin (pets bobbing) lifts it
         const below = (1 - o.originY) * dh;
         if (e.below0 == null || below > e.below0) e.below0 = below;
-        m.position.set(o.x + (0.5 - o.originX) * dw, 0, o.y).addScaledVector(this.up, e.below0 - below);
+        m.position.set(o.x + (0.5 - o.originX) * dw, Math.max(this.h(o.x, o.y), this.terrain?.isWater(o.x, o.y) ? WATER_LEVEL - 7 : -1e9), o.y).addScaledVector(this.up, e.below0 - below);
         m.scale.set(o.flipX ? -dw : dw, dh, 1);
         m.quaternion.copy(q);
         if (o.rotation) m.rotateZ(-o.rotation);
@@ -306,7 +357,7 @@ export default class World3D {
     const hash = (Math.round(o.x) * 73856093) ^ (Math.round(o.y) * 19349663);
     const mesh = this.kit.instantiate(key, Math.abs(hash));
     this.scene.add(mesh);
-    return { mesh, key, kind: 'model', tall: key.startsWith('tree') };
+    return { mesh, key, kind: 'model', tall: key.startsWith('tree') || key.startsWith('bld_') || key === 'tent' };
   }
 
   makeEntry(o, key, type) {
@@ -365,8 +416,8 @@ export default class World3D {
         const score = dx * 2 + dy * 0.3;
         if (score < bestScore) { bestScore = score; best = f; }
       }
-      if (best) m.position.set(lx, 0, best.y).addScaledVector(this.up, Math.max(8, best.y - ly));
-      else m.position.set(lx, 0, ly).addScaledVector(this.up, 26);
+      if (best) m.position.set(lx, this.h(best.x, best.y), best.y).addScaledVector(this.up, Math.max(8, best.y - ly));
+      else m.position.set(lx, this.h(lx, ly), ly).addScaledVector(this.up, 26);
       // same size on screen wherever it is (a sign near the camera must not fill the view)
       const k = Phaser.Math.Clamp(m.position.distanceTo(this.camera.position) / this.refDist, 0.5, 1.6);
       m.scale.set(o.displayWidth * k, o.displayHeight * k, 1);
@@ -393,7 +444,9 @@ export default class World3D {
     this.scene.fog.near = 1000 - dark * 560; this.scene.fog.far = 2600 - dark * 1000;
     this.sea.material.color.set(0xeef8fc).lerp(new THREE.Color(0x3a4668), Math.min(1, dark * 1.4));
     for (const c of this.clouds) c.material.color.copy(this.sea.material.color);
+    this.water?.setLight(new THREE.Color(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.55));
     this.post.look.uniforms.uNight.value = nightK;
+    this.kit.setNight(nightK);
     this.post.bloom.strength = 0.2 + nightK * 0.35;
     // ambient for the unlit sprites
     this.ambient.set(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.5);
@@ -405,7 +458,7 @@ export default class World3D {
       const l = ls[i];
       pl.visible = !!l;
       if (!l) { pl.intensity = 0; return; }
-      pl.position.set(l.x, 70, l.y);
+      pl.position.set(l.x, this.h(l.x, l.y) + 70, l.y);
       pl.distance = l.r * 2.3;
       pl.intensity = power * (4.4 + Math.sin(time / 130 + i) * 0.2);
     });
@@ -422,7 +475,7 @@ export default class World3D {
       const w = ws[i];
       m.visible = !!w;
       if (!w) return;
-      m.position.set(w.x, 1.2, w.y);
+      m.position.set(w.x, this.h(w.x, w.y) + 1.6, w.y);
       m.scale.set(w.r, 1, w.r);
       m.material.opacity = 0.3 + 0.2 * Math.sin(time / 90);
     });
@@ -439,7 +492,7 @@ export default class World3D {
     this.plotHints.forEach((m, i) => {
       const pl = plots[i];
       m.visible = !!pl && !ps.soilSprites?.has(pl.key);
-      if (m.visible) m.position.set(pl.cx, 0.4, pl.cy);
+      if (m.visible) m.position.set(pl.cx, this.h(pl.cx, pl.cy) + 0.5, pl.cy);
     });
   }
 

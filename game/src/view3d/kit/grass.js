@@ -58,11 +58,12 @@ export function buildGrass(terrain, { step = 6, chunk = 384, bladeH = 15, bladeW
       if (!terrain.isGrass(px, py) || avoid(px, py)) { rand(); continue; }
       const h = bladeH * (0.65 + rand() * 0.8);
       e.set((rand() - 0.5) * 0.5, rand() * Math.PI * 2, (rand() - 0.5) * 0.5);
-      m4.compose(p.set(px, 0, py), q.setFromEuler(e), s.set(bladeW * (0.8 + rand() * 0.5), h, bladeW));
+      m4.compose(p.set(px, terrain.heightAt(px, py) - 0.5, py), q.setFromEuler(e), s.set(bladeW * (0.8 + rand() * 0.5), h, bladeW));
       mats.push(m4.clone());
       terrain.colorAt(px, py, c);
       // a little brighter and yellower than the ground so the blades read as lit tips
       c.offsetHSL(0.012 * (rand() - 0.3), -0.04, -0.02 + rand() * 0.06);
+      c.multiplyScalar(terrain.shadeAt(px, py));     // slopes facing the sun are brighter, slopes facing away darker
       cols.push(c.r, c.g, c.b);
     }
     if (!mats.length) continue;

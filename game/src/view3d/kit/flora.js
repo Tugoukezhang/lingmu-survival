@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { TIME, rng, hex, paint, patchGhost, NOISE_GLSL } from './shared.js';
+import { buildingMaterials, buildingProtos } from './buildings.js';
 
 // ---------- textures ----------
 let clusterTex = null;
@@ -269,7 +270,7 @@ function crystal(rand) {
 // ---------- the kit ----------
 export function makeKit(seed = 20261112) {
   const rand = rng(seed);
-  const mats = { foliage: [foliageMaterial(false), foliageMaterial(true)], solid: [solidMaterial(false), solidMaterial(true)], rock: [rockMaterial(false), rockMaterial(true)], crystal: [crystalMaterial(), crystalMaterial()] };
+  const mats = { foliage: [foliageMaterial(false), foliageMaterial(true)], solid: [solidMaterial(false), solidMaterial(true)], rock: [rockMaterial(false), rockMaterial(true)], crystal: [crystalMaterial(), crystalMaterial()], ...buildingMaterials() };
   const protos = {
     tree: [roundTree(rand), roundTree(rand), roundTree(rand)],
     tree_b: [pineTree(rand), pineTree(rand)],
@@ -279,6 +280,7 @@ export function makeKit(seed = 20261112) {
     rock: [rock(rand, { w: 54, h: 36, d: 44 }), rock(rand, { w: 60, h: 30, d: 46 }), rock(rand, { w: 46, h: 40, d: 40 })],
     rock_b: [rockPile(rand), rockPile(rand)],
     crystal: [crystal(rand), crystal(rand)],
+    ...buildingProtos(seed + 7),
   };
   // a new object for one map prop; hash picks the variant and the turn
   function instantiate(key, hash) {
@@ -288,18 +290,23 @@ export function makeKit(seed = 20261112) {
     const g = new THREE.Group();
     for (const part of proto.parts) {
       const m = new THREE.Mesh(part.geo, mats[part.mat][0]);
-      m.castShadow = !!part.cast; m.receiveShadow = part.mat !== 'foliage';
-      m.userData.mat = part.mat;
+      m.castShadow = !!part.cast; m.receiveShadow = !['foliage', 'flame', 'glow', 'lampglow'].includes(part.mat);
+      m.userData.mat = part.mat; m.userData.cast = !!part.cast;
       g.add(m);
     }
-    g.rotation.y = ((hash >> 3) % 628) / 100;
+    if (!proto.fixed) g.rotation.y = ((hash >> 3) % 628) / 100;      // buildings keep their front to the camera
     g.userData = { height: proto.height, ghost: false };
     return g;
   }
   function setGhost(group, on) {
     if (group.userData.ghost === on) return;
     group.userData.ghost = on;
-    for (const m of group.children) { m.material = mats[m.userData.mat][on ? 1 : 0]; m.castShadow = !on && m.userData.mat !== 'foliage'; }
+    for (const m of group.children) { m.material = mats[m.userData.mat][on ? 1 : 0]; m.castShadow = !on && m.userData.cast; }
   }
-  return { protos, mats, instantiate, setGhost, has: (key) => !!protos[key] };
+  // windows and lanterns glow at night (k: 0 day … 1 night)
+  function setNight(k) {
+    for (const m of mats.glow) m.emissiveIntensity = 0.22 + k * 1.7;
+    for (const m of mats.lampglow) m.emissiveIntensity = 0.3 + k * 2.6;
+  }
+  return { protos, mats, instantiate, setGhost, setNight, has: (key) => !!protos[key] };
 }
