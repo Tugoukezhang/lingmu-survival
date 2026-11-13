@@ -24,6 +24,7 @@ import { buildRoom } from './kit/room.js';
 import { buildGrass } from './kit/grass.js';
 import { makeKit } from './kit/flora.js';
 import { makePost } from './kit/post.js';
+import { makePetKit } from './kit/pets.js';
 import { smallFlowerGeometry } from './look/nature.js';
 
 const SKIP = new Set(['ground', 'sky', 'cloud', 'lightbrush', 'shadow']);   // sky and clouds are drawn here; real shadows replace the blobs
@@ -84,6 +85,7 @@ export default class World3D {
 
     this.post = makePost(r, this.scene, this.camera, { width: GAME_W, height: GAME_H, quality: QUALITY });
     this.kit = makeKit();
+    this.pets = makePetKit();                 // 3D pets and people (loaded when first seen)
     this.upGeo = new THREE.PlaneGeometry(1, 1).translate(0, 0.5, 0);       // stands on its bottom edge
     this.flatGeo = new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2);     // lies on the ground
     this.ringGeo = new THREE.CircleGeometry(1, 40).rotateX(-Math.PI / 2);
@@ -314,7 +316,7 @@ export default class World3D {
 
   dropEntry(e) {
     this.scene.remove(e.mesh);
-    if (e.kind === 'model') return;                  // geometry and materials belong to the kit
+    if (e.kind === 'model' || e.kind === 'pet') return;   // geometry and materials belong to the kit
     if (e.kind === 'label') e.mesh.material.map?.dispose();
     e.mesh.material.dispose();
   }
@@ -340,6 +342,7 @@ export default class World3D {
     const fade = fe && (fe.isRunning || (fe.isComplete && fe.direction)) ? fe.alpha : 0;
     this.canvas.style.opacity = String(1 - fade);
     TIME.value = time / 1000;
+    this.time = time / 1000; this.dt = dt;
 
     // camera follows the player
     const p = ps.player;
@@ -387,14 +390,27 @@ export default class World3D {
       if (!key || SKIP.has(key) || o.scrollFactorX === 0) continue;
       seen.add(o);
       let e = this.map.get(o);
-      if (!e || e.key !== key) {
+      if (!e || e.key !== key || (e.kind === 'up' && this.pets.ready(key))) {      // (the 2D art stands in until the model has loaded)
         if (e) this.dropEntry(e);
-        e = this.kit.has(key) ? this.makeModel(o, key) : this.makeEntry(o, key, type);
+        e = this.kit.has(key) ? this.makeModel(o, key) : this.makePet(o, key) ?? this.makeEntry(o, key, type);
         this.map.set(o, e);
       }
       const m = e.mesh, dw = o.displayWidth, dh = o.displayHeight;
-      m.visible = o.visible && o.alpha > (e.kind === 'model' ? 0.35 : 0.01);
+      m.visible = o.visible && o.alpha > (e.kind === 'model' || e.kind === 'pet' ? 0.35 : 0.01);
       if (!m.visible) continue;
+      if (e.kind === 'pet') {
+        // a 3D pet: stands where the sprite is, as tall as the sprite; walks when the sprite moves, looks where it goes
+        const gy = Math.max(this.h(o.x, o.y), this.terrain?.isWater(o.x, o.y) ? WATER_LEVEL - 7 : -1e9);
+        const vx = o.x - (e.lx ?? o.x), vy = o.y - (e.ly ?? o.y), sp = Math.hypot(vx, vy) / Math.max(this.dt, 1e-3);
+        e.lx = o.x; e.ly = o.y;
+        if (sp > 12) e.face = Math.atan2(vx, vy);                       // toward where it walks
+        else if (e.face == null || Math.abs(Math.sin(e.face)) < 0.2 || Math.cos(e.face) < 0.3) e.face = (o.flipX ? 1 : -1) * 0.55;   // standing: turned a little, toward the camera
+        m.position.set(o.x, gy, o.y);
+        m.scale.setScalar(dh * 0.9 * m.userData.size);
+        this.pets.animate(m, this.time, this.dt, Math.min(1, sp / 60), e.face);
+        e.foot = { x: o.x, y: o.y, w: dw, h: dh };
+        continue;
+      }
       if (e.kind === 'model') {
         // a real 3D prop from the kit, standing where the sprite is
         const ud = m.userData, dz = ud.foot ? -4 - (o.flipX ? ud.foot : 1) * TILE / 2 : ud.dz ?? 0;     // furniture and crops are centred on their cells
@@ -444,6 +460,13 @@ export default class World3D {
     return { mesh, key, kind: 'model', tall: key.startsWith('tree') || key.startsWith('bld_') || key === 'tent' };
   }
 
+  makePet(o, key) {
+    const mesh = this.pets.has(key) ? this.pets.instance(key) : null;
+    if (!mesh) return null;
+    this.scene.add(mesh);
+    return { mesh, key, kind: 'pet' };
+  }
+
   makeEntry(o, key, type) {
     const flat = type === 'TileSprite' || FLAT.has(key);
     const soft = SOFT.has(key);
@@ -467,7 +490,7 @@ export default class World3D {
   syncLabels(ps) {
     const seen = new Set();
     const feet = [];
-    for (const e of this.map.values()) if ((e.kind === 'up' || e.kind === 'model') && e.foot && e.mesh.visible) feet.push(e.foot);
+    for (const e of this.map.values()) if ((e.kind === 'up' || e.kind === 'model' || e.kind === 'pet') && e.foot && e.mesh.visible) feet.push(e.foot);
     for (const o of ps.children.list) {
       if (o.type !== 'Text' || o.scrollFactorX === 0) continue;
       seen.add(o);
@@ -682,12 +705,25 @@ export default class World3D {
       const { img, shadow } = bs.sprites[side], e = A.sprites[side], m = e.mesh;
       img.visible = false; shadow.visible = false;          // the 2D picture stays hidden; its position, size, flash and fade are copied
       const key = img.texture.key;
-      if (e.key !== key) { m.material.map = this.tex(key); m.material.needsUpdate = true; e.key = key; }
-      m.visible = img.alpha > 0.01 && key !== '__DEFAULT';
-      if (!m.visible) continue;
+      if (e.key !== key) {
+        m.material.map = this.tex(key); m.material.needsUpdate = true; e.key = key;
+        if (e.pet) { A.scene.remove(e.pet); e.pet = null; }
+      }
+      if (!e.pet && this.pets.has(key) && this.pets.ready(key)) { e.pet = this.pets.instance(key); A.scene.add(e.pet); }
       const g = this.stagePoint(cam, img.x, img.y, e.groundY);
       const upp = g.clone().sub(cam.position).dot(fwd) / focal;          // world units per screen pixel at that depth
       const dw = img.displayWidth * upp, dh = img.displayHeight * upp;
+      if (e.pet) {
+        // 3D pet on the stage: mine looks up the field at the wild one, the wild one looks back; blinking when hit, gone when it faints
+        m.visible = false;
+        e.pet.visible = img.alpha > 0.45 && key !== '__DEFAULT';
+        e.pet.position.copy(g);
+        e.pet.scale.setScalar(dh * 0.9 * e.pet.userData.size);
+        this.pets.animate(e.pet, time / 1000, dt, 0, side === 'me' ? 2.2 : -0.75);
+        continue;
+      }
+      m.visible = img.alpha > 0.01 && key !== '__DEFAULT';
+      if (!m.visible) continue;
       m.position.copy(g).addScaledVector(upv, -(1 - img.originY) * dh);
       m.scale.set(img.flipX ? -dw : dw, dh, 1);
       m.quaternion.copy(cam.quaternion);
@@ -701,8 +737,9 @@ export default class World3D {
 
   debug() {
     let up = 0, flat = 0, label = 0, model = 0;
-    for (const e of this.map.values()) { if (e.kind === 'up') up++; else if (e.kind === 'flat') flat++; else if (e.kind === 'model') model++; else label++; }
-    return { attached: !!this.ps, shown: this.canvas.style.display !== 'none', room: !!this.room, arena: !!this.arena, water: !!this.water, up, flat, label, model, grass: this.grass?.count ?? 0,
+    let pet = 0;
+    for (const e of this.map.values()) { if (e.kind === 'up') up++; else if (e.kind === 'flat') flat++; else if (e.kind === 'model') model++; else if (e.kind === 'pet') pet++; else label++; }
+    return { attached: !!this.ps, shown: this.canvas.style.display !== 'none', room: !!this.room, arena: !!this.arena, water: !!this.water, up, flat, label, model, pet, grass: this.grass?.count ?? 0,
       lights: this.points.filter((p) => p.visible).length, calls: this.renderer.info.render.calls, tris: this.renderer.info.render.triangles, quality: QUALITY };
   }
 }
