@@ -20,6 +20,7 @@ import * as N from '../systems/night.js';
 import { TIME, rng } from './kit/shared.js';
 import { buildIsland, WATER_LEVEL } from './kit/terrain.js';
 import { buildWater } from './kit/water.js';
+import { buildRoom } from './kit/room.js';
 import { buildGrass } from './kit/grass.js';
 import { makeKit } from './kit/flora.js';
 import { makePost } from './kit/post.js';
@@ -31,6 +32,9 @@ const SOFT = new Set(['fogmonster']);                                         //
 const NO_SHADOW = new Set(['fogmonster', 'item_torch']);
 const MODEL_SCALE = { tree: 1.28, tree_b: 1.22, tree_c: 1.15, bush: 1.1, grass_tuft: 1.2, rock: 1.25, rock_b: 1.2, crystal: 1.15 };   // 3D props a bit bigger than the sprites were
 const CAM = { back: 392, up: 250, look: 46, fov: 42 };                        // camera offset behind / above the player
+const ROOM_CAM = { back: 455, up: 335, look: 30 };                              // the cottage room: the whole room in view
+const BATTLE = { fov: 36, h: 170, pitch: 0.3 };                                 // battle stage camera: height above the meadow, tilt down (radians)
+const CENTERED = new Set(['bed']);                                              // sprites whose 2D position is their middle, not their feet
 const MAX_LIGHTS = 6;
 const QUALITY = new URLSearchParams(location.search).get('q') ?? 'high';
 
@@ -74,13 +78,7 @@ export default class World3D {
     this.points = [];
     for (let i = 0; i < MAX_LIGHTS; i++) { const p = new THREE.PointLight(0xffc27a, 0, 300, 0); p.visible = false; this.points.push(p); this.scene.add(p); }
 
-    // sky dome: deeper blue overhead, pale at the horizon
-    const skyGeo = new THREE.SphereGeometry(5200, 24, 12);
-    const sp = skyGeo.attributes.position, scol = new Float32Array(sp.count * 3), ca = new THREE.Color(0x58aee6), cb = new THREE.Color(0xd4f0fa), cc = new THREE.Color();
-    for (let i = 0; i < sp.count; i++) { const t = Math.max(0, Math.min(1, sp.getY(i) / 5200 * 1.6 + 0.15)); cc.copy(cb).lerp(ca, t); scol.set([cc.r, cc.g, cc.b], i * 3); }
-    skyGeo.setAttribute('color', new THREE.BufferAttribute(scol, 3));
-    this.sky = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false }));
-    this.sky.renderOrder = -10;
+    this.sky = makeSky();
     this.scene.add(this.sky);
 
     this.post = makePost(r, this.scene, this.camera, { width: GAME_W, height: GAME_H, quality: QUALITY });
@@ -102,7 +100,7 @@ export default class World3D {
   tex(key) {
     let t = this.texCache.get(key);
     if (t) return t;
-    const src = this.ps.textures.get(key).getSourceImage();
+    const src = this.game.textures.get(key).getSourceImage();
     t = src instanceof HTMLCanvasElement ? new THREE.CanvasTexture(src) : new THREE.Texture(src);
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 4;
@@ -115,7 +113,17 @@ export default class World3D {
   attach(ps) {
     this.detach();
     this.ps = ps;
-    if (ps.area === 'house') return;                 // the room is still drawn in 2D
+    this.hemi.groundColor.set(ps.area === 'house' ? 0xa07850 : 0x86b24a);
+    this.sky.visible = ps.area !== 'house';
+    this.scene.background = ps.area === 'house' ? new THREE.Color(0x241812) : null;
+    if (ps.area === 'house') {
+      // the cottage room (scenes/play/house.js): floor = the walkable cells, one wall column left, two wall rows on top
+      const fx = TILE, fy = 2 * TILE, fw = (ps.cols - 2) * TILE, fh = (ps.rows - 3) * TILE;
+      this.room = buildRoom({ fx, fy, fw, fh, doorX: ps.doorSpot.x, boardX: ps.decorSpot.x, windowX: fx + fw - 120 });
+      this.addStatic(this.room.group);
+      this.target.set(fx + fw / 2, 0, fy + fh / 2);
+      return;
+    }
     const W = ps.cols * TILE, H = ps.rows * TILE;
     const seed = ps.cols * 131 + ps.rows * 17 + (ps.island?.seed ?? 0) % 9973;
     const groundCanvas = ps.textures.exists('ground') ? ps.textures.get('ground').getSourceImage() : null;
@@ -129,7 +137,7 @@ export default class World3D {
     const avoid = (x, y) => bare.has(`${Math.floor(x / TILE)},${Math.floor(y / TILE)}`);
     this.grass = buildGrass(this.terrain, { step: QUALITY === 'low' ? 11 : 6, bladeH: 11, bladeW: 5, seed, avoid });
     this.addStatic(this.grass.group);
-    this.addFlowers(seed, avoid);
+    this.flowerMat = this.addFlowers(seed, avoid);
 
     // sea of clouds far below the island
     const sea = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xeef8fc, depthWrite: false }));
@@ -199,8 +207,8 @@ export default class World3D {
   }
 
   // small white / pink / yellow flowers dotted over the meadow (decoration only)
-  addFlowers(seed, avoid) {
-    const rand = rng(seed + 31), t = this.terrain;
+  addFlowers(seed, avoid, t = this.terrain, add = (m) => this.addStatic(m)) {
+    const rand = rng(seed + 31);
     const mat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide });
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), e = new THREE.Euler();
     for (const [color, per] of [[0xfffaf0, 1 / 11000], [0xf7a8c2, 1 / 30000], [0xf8cf48, 1 / 28000]]) {
@@ -214,9 +222,9 @@ export default class World3D {
         mesh.setMatrixAt(n++, m4.compose(p.set(x, t.heightAt(x, y), y), q.setFromEuler(e.set(0, rand() * 6.28, 0)), s.setScalar(sc)));
       }
       mesh.count = n; mesh.frustumCulled = false; mesh.receiveShadow = true;
-      this.addStatic(mesh);
+      add(mesh);
     }
-    this.flowerMat = mat;
+    return mat;
   }
 
   addStatic(m) { this.statics.push(m); this.scene.add(m); }
@@ -226,8 +234,8 @@ export default class World3D {
     this.map.clear();
     for (const m of this.statics) this.scene.remove(m);
     for (const m of [...this.rings, ...this.plotHints, ...(this.clouds ?? []), ...(this.sea ? [this.sea] : [])]) { this.scene.remove(m); m.material.dispose?.(); }
-    this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose(); this.water?.dispose();
-    this.terrain = this.grass = this.flowerMat = this.sea = this.water = null;
+    this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose(); this.water?.dispose(); this.room?.dispose();
+    this.terrain = this.grass = this.flowerMat = this.sea = this.water = this.room = null;
     this.statics = []; this.rings = []; this.plotHints = []; this.clouds = [];
     for (const t of this.texCache.values()) t.dispose();
     this.texCache.clear();
@@ -255,10 +263,9 @@ export default class World3D {
   // ---------- every frame ----------
   update(ps, time, dt) {
     if (this.ps !== ps) this.attach(ps);
-    const on = ps.area !== 'house';
-    ps.cameras.main.setAlpha(on ? 0 : 1);         // hide the 2D world; the camera keeps running (fades, follow)
-    this.canvas.style.display = on ? 'block' : 'none';
-    if (!on) return;
+    ps.cameras.main.setAlpha(0);                  // hide the 2D world; the camera keeps running (fades, follow)
+    this.canvas.style.display = 'block';
+    this.post.setScene(this.scene, this.camera);  // (a battle shows its own stage; back to the world)
     this.layout();
     const fe = ps.cameras.main.fadeEffect;          // travel / sleep fades of the hidden 2D camera
     const fade = fe && (fe.isRunning || (fe.isComplete && fe.direction)) ? fe.alpha : 0;
@@ -267,9 +274,13 @@ export default class World3D {
 
     // camera follows the player
     const p = ps.player;
-    this.target.lerp(new THREE.Vector3(p.x, this.h(p.x, p.y), p.y), Math.min(1, dt * 7));
-    this.camera.position.set(this.target.x, this.target.y + CAM.up, this.target.z + CAM.back);
-    this.camera.lookAt(this.target.x, this.target.y + CAM.look, this.target.z);
+    const cam = this.room ? ROOM_CAM : CAM, r = this.room;
+    // outdoors the camera follows the player; in the room it stays near the middle and only leans toward the player
+    const goal = r ? new THREE.Vector3(r.fx + r.fw / 2 + (p.x - r.fx - r.fw / 2) * 0.22, 0, r.fy + r.fh / 2 + (p.y - r.fy - r.fh / 2) * 0.22) : new THREE.Vector3(p.x, this.h(p.x, p.y), p.y);
+    this.target.lerp(goal, Math.min(1, dt * 7));
+    this.camera.position.set(this.target.x, this.target.y + cam.up, this.target.z + cam.back);
+    this.camera.lookAt(this.target.x, this.target.y + cam.look, this.target.z);
+    this.up.set(0, 1, 0).applyQuaternion(this.camera.quaternion);
     this.camera.updateMatrixWorld();
     this.sky.position.copy(this.camera.position);
 
@@ -343,7 +354,7 @@ export default class World3D {
         // feet on the ground at the object's position; a moving origin (pets bobbing) lifts it
         const below = (1 - o.originY) * dh;
         if (e.below0 == null || below > e.below0) e.below0 = below;
-        m.position.set(o.x + (0.5 - o.originX) * dw, Math.max(this.h(o.x, o.y), this.terrain?.isWater(o.x, o.y) ? WATER_LEVEL - 7 : -1e9), o.y).addScaledVector(this.up, e.below0 - below);
+        m.position.set(o.x + (0.5 - o.originX) * dw, Math.max(this.h(o.x, o.y), this.terrain?.isWater(o.x, o.y) ? WATER_LEVEL - 7 : -1e9), o.y + (CENTERED.has(key) ? dh * 0.42 : 0)).addScaledVector(this.up, e.below0 - below);
         m.scale.set(o.flipX ? -dw : dw, dh, 1);
         m.quaternion.copy(q);
         if (o.rotation) m.rotateZ(-o.rotation);
@@ -416,7 +427,8 @@ export default class World3D {
         const score = dx * 2 + dy * 0.3;
         if (score < bestScore) { bestScore = score; best = f; }
       }
-      if (best) m.position.set(lx, this.h(best.x, best.y), best.y).addScaledVector(this.up, Math.max(8, best.y - ly));
+      if (this.room && ly < this.room.fy) m.position.set(lx, this.room.wallY, this.room.wallZ);      // signs on the back wall
+      else if (best) m.position.set(lx, this.h(best.x, best.y), best.y).addScaledVector(this.up, Math.max(8, best.y - ly));
       else m.position.set(lx, this.h(lx, ly), ly).addScaledVector(this.up, 26);
       // same size on screen wherever it is (a sign near the camera must not fill the view)
       const k = Phaser.Math.Clamp(m.position.distanceTo(this.camera.position) / this.refDist, 0.5, 1.6);
@@ -442,7 +454,7 @@ export default class World3D {
     const horizon = new THREE.Color(0xcdeaf5).lerp(new THREE.Color(0x1b2440), nightK);
     this.scene.fog.color.copy(horizon);
     this.scene.fog.near = 1000 - dark * 560; this.scene.fog.far = 2600 - dark * 1000;
-    this.sea.material.color.set(0xeef8fc).lerp(new THREE.Color(0x3a4668), Math.min(1, dark * 1.4));
+    this.sea?.material.color.set(0xeef8fc).lerp(new THREE.Color(0x3a4668), Math.min(1, dark * 1.4));
     for (const c of this.clouds) c.material.color.copy(this.sea.material.color);
     this.water?.setLight(new THREE.Color(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.55));
     this.post.look.uniforms.uNight.value = nightK;
@@ -451,6 +463,16 @@ export default class World3D {
     // ambient for the unlit sprites
     this.ambient.set(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.5);
 
+    if (this.room) {
+      // indoors: warm and never really dark; daylight comes in through the window
+      const d = Math.max(0, 1 - dark * 1.8);
+      this.hemi.color.set(0xfff0dc); this.hemi.intensity = 1.0 + 0.45 * d;
+      this.sun.intensity = 1.7 * d;
+      this.scene.fog.near = 5000; this.scene.fog.far = 9000;
+      this.ambient.set(0xfff4e6).multiplyScalar(0.82 + 0.18 * d);
+      this.room.setDay(d);
+      this.post.look.uniforms.uNight.value = 0;
+    }
     const ls = dark > 0.02 ? N.lights(ps.state, ps.player, ps.fires).slice().sort((a, b) => dist2(a, ps.player) - dist2(b, ps.player)).slice(0, MAX_LIGHTS) : [];
     const power = Math.min(1, dark * 2.4);
     this.lightList = ls.map((l) => ({ x: l.x, y: l.y, r: l.r, power: power * 0.75 }));
@@ -496,12 +518,131 @@ export default class World3D {
     });
   }
 
+  // ---------- battle stage ----------
+  // The ground point seen at a screen position (px of the 960×540 layout) by a camera.
+  stagePoint(camera, sx, sy, planeY = 0) {
+    const v = new THREE.Vector3((sx / GAME_W) * 2 - 1, -(sy / GAME_H) * 2 + 1, 0.5).unproject(camera).sub(camera.position).normalize();
+    return camera.position.clone().addScaledVector(v, (planeY - camera.position.y) / v.y);
+  }
+
+  // A small round meadow with a forest behind it; built once, used for every battle.
+  buildArena() {
+    const R = 17, n = R * 2 + 2, walk = [];
+    for (let y = 0; y < n; y++) { const row = []; for (let x = 0; x < n; x++) row.push(Math.hypot(x + 0.5 - n / 2, (y + 0.5 - n / 2) * 1.08) < R); walk.push(row); }
+    const size = n * TILE, ox = -size / 2, oz = -560 - size / 2;         // island (x, y) → stage (x + ox, 0, y + oz)
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0xcdeaf5, 900, 2600);
+    const hemi = new THREE.HemisphereLight(0xe6f4ff, 0x86b24a, 1.5), sun = new THREE.DirectionalLight(0xffe9c4, 3.3);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(QUALITY === 'low' ? 1024 : 2048, QUALITY === 'low' ? 1024 : 2048);
+    const sc = sun.shadow.camera; sc.left = -760; sc.right = 760; sc.top = 760; sc.bottom = -760; sc.near = 10; sc.far = 2600;
+    sun.shadow.bias = -0.0006; sun.shadow.normalBias = 1.2; sun.shadow.radius = 3;
+    sun.position.set(-460, 760, -560 + 320); sun.target.position.set(0, 0, -560);
+    const camera = new THREE.PerspectiveCamera(BATTLE.fov, GAME_W / GAME_H, 10, 7000);
+    camera.position.set(0, BATTLE.h, 0); camera.rotation.set(-BATTLE.pitch, 0, 0); camera.updateMatrixWorld();
+    const sky = makeSky(); sky.position.copy(camera.position);
+    scene.add(hemi, sun, sun.target, sky);
+    // where the two pets stand: the 2D layout of BattleScene (SPOT), seen through this camera
+    const spots = { me: this.stagePoint(camera, 250, 372), foe: this.stagePoint(camera, 700, 236) };
+    const terrain = buildIsland({ walk, cols: n, rows: n, tile: TILE, groundCanvas: null, seed: 4242, relief: 16,
+      flats: [{ x: spots.me.x - ox, y: spots.me.z - oz, pad: 80 }, { x: spots.foe.x - ox, y: spots.foe.z - oz, pad: 100 }] });
+    const holder = new THREE.Group(); holder.position.set(ox, 0, oz);
+    const grass = buildGrass(terrain, { step: QUALITY === 'low' ? 11 : 6.5, bladeH: 11, bladeW: 5, seed: 99 });
+    holder.add(terrain.group, grass.group);
+    this.addFlowers(505, () => false, terrain, (m) => holder.add(m));
+    // forest behind and at the sides; the fighting ground and the view from the camera stay open
+    const rand = rng(777), keys = ['tree', 'tree', 'tree', 'tree_b', 'tree_b', 'tree_c', 'bush', 'rock', 'rock_b', 'grass_tuft', 'grass_tuft'];
+    for (let i = 0; i < 150; i++) {
+      const x = rand() * size, y = rand() * size, sx = x + ox, sz = y + oz, key = keys[Math.floor(rand() * keys.length)];
+      if (terrain.maskAt(x, y) < 235) continue;
+      const big = key.startsWith('tree');
+      if (sz > (big ? -330 : -260) || (Math.abs(sx) < (big ? 300 : 210) - sz * 0.3 && sz > -840)) continue;
+      const m = this.kit.instantiate(key, Math.floor(rand() * 1e6));
+      m.position.set(x, terrain.heightAt(x, y), y);
+      m.scale.setScalar((MODEL_SCALE[key] ?? 1) * (0.9 + rand() * 0.35));
+      holder.add(m);
+    }
+    scene.add(holder);
+    const sea = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xeef8fc, depthWrite: false }));
+    sea.position.set(0, -460, -560); sea.renderOrder = -3; scene.add(sea);
+    const clouds = [];
+    for (let i = 0; i < 26; i++) {
+      const m = new THREE.Mesh(this.upGeo, new THREE.MeshBasicMaterial({ map: this.tex('cloud'), transparent: true, depthWrite: false, opacity: 0.92 }));
+      const s = 320 + rand() * 520;
+      m.position.set((rand() - 0.5) * 3600, -150 - rand() * 220, -1500 - rand() * 1500);
+      m.scale.set(s, s * 0.42, 1); m.renderOrder = -2; m.drift = 4 + rand() * 8;
+      m.quaternion.copy(camera.quaternion);
+      clouds.push(m); scene.add(m);
+    }
+    const sprite = (side) => {
+      const mesh = new THREE.Mesh(this.upGeo, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, alphaTest: 0.4, transparent: true }));
+      mesh.castShadow = true; mesh.visible = false; scene.add(mesh);
+      return { mesh, key: null, groundY: terrain.heightAt(spots[side].x - ox, spots[side].z - oz) };
+    };
+    this.arena = { scene, camera, hemi, sun, sky, sea, clouds, terrain, sprites: { me: sprite('me'), foe: sprite('foe') } };
+  }
+
+  // Called by BattleScene every frame: draws the stage and puts the two pets on it,
+  // exactly where (and as big as) the 2D layout has them — so cards, numbers and buttons still line up.
+  updateBattle(bs, time, dt) {
+    if (!this.arena) this.buildArena();
+    const A = this.arena, cam = A.camera;
+    this.layout();
+    this.canvas.style.display = 'block'; this.canvas.style.opacity = '1';
+    TIME.value = time / 1000;
+    // the light of the hour, but never too dark to see the pets
+    const t = tintAt(this.game.session.state.clock), dark = t.dark ?? 0, nightK = Math.min(1, dark * 1.5), night = new THREE.Color(t.color ?? 0x24305a);
+    A.hemi.intensity = 1.5 * Math.max(0.5, 1 - dark * 1.3);
+    A.hemi.color.set(0xe6f4ff).lerp(night, Math.min(0.7, dark));
+    A.sun.intensity = 3.3 * Math.max(0.12, 1 - dark * 2);
+    A.sky.material.color.set(0xffffff).lerp(new THREE.Color(0x232e58), nightK);
+    A.scene.fog.color.set(0xcdeaf5).lerp(new THREE.Color(0x1b2440), nightK);
+    A.sea.material.color.set(0xeef8fc).lerp(new THREE.Color(0x3a4668), Math.min(1, dark * 1.4));
+    for (const c of A.clouds) { c.material.color.copy(A.sea.material.color); c.position.x += c.drift * dt; }
+    this.post.look.uniforms.uNight.value = nightK * 0.6;
+    this.post.bloom.strength = 0.2 + nightK * 0.25;
+    this.kit.setNight(nightK);
+    const amb = new THREE.Color(0xffffff).lerp(night, Math.min(0.6, dark)).multiplyScalar(1 - dark * 0.3), tc = new THREE.Color();
+    const focal = (GAME_H / 2) / Math.tan(THREE.MathUtils.degToRad(BATTLE.fov / 2));
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion), upv = new THREE.Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
+    for (const side of ['me', 'foe']) {
+      const { img, shadow } = bs.sprites[side], e = A.sprites[side], m = e.mesh;
+      img.visible = false; shadow.visible = false;          // the 2D picture stays hidden; its position, size, flash and fade are copied
+      const key = img.texture.key;
+      if (e.key !== key) { m.material.map = this.tex(key); m.material.needsUpdate = true; e.key = key; }
+      m.visible = img.alpha > 0.01 && key !== '__DEFAULT';
+      if (!m.visible) continue;
+      const g = this.stagePoint(cam, img.x, img.y, e.groundY);
+      const upp = g.clone().sub(cam.position).dot(fwd) / focal;          // world units per screen pixel at that depth
+      const dw = img.displayWidth * upp, dh = img.displayHeight * upp;
+      m.position.copy(g).addScaledVector(upv, -(1 - img.originY) * dh);
+      m.scale.set(img.flipX ? -dw : dw, dh, 1);
+      m.quaternion.copy(cam.quaternion);
+      m.material.opacity = img.alpha;
+      m.material.color.copy(amb);
+      if (img.isTinted) m.material.color.multiply(tc.setHex(img.tintTopLeft));
+    }
+    this.post.setScene(A.scene, cam);
+    this.post.render(dt);
+  }
+
   debug() {
     let up = 0, flat = 0, label = 0, model = 0;
     for (const e of this.map.values()) { if (e.kind === 'up') up++; else if (e.kind === 'flat') flat++; else if (e.kind === 'model') model++; else label++; }
-    return { attached: !!this.ps, shown: this.canvas.style.display !== 'none', up, flat, label, model, grass: this.grass?.count ?? 0,
+    return { attached: !!this.ps, shown: this.canvas.style.display !== 'none', room: !!this.room, arena: !!this.arena, water: !!this.water, up, flat, label, model, grass: this.grass?.count ?? 0,
       lights: this.points.filter((p) => p.visible).length, calls: this.renderer.info.render.calls, tris: this.renderer.info.render.triangles, quality: QUALITY };
   }
 }
 
 const dist2 = (a, b) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+
+// sky dome: deeper blue overhead, pale at the horizon
+function makeSky() {
+  const skyGeo = new THREE.SphereGeometry(5200, 24, 12);
+  const sp = skyGeo.attributes.position, scol = new Float32Array(sp.count * 3), ca = new THREE.Color(0x58aee6), cb = new THREE.Color(0xd4f0fa), cc = new THREE.Color();
+  for (let i = 0; i < sp.count; i++) { const t = Math.max(0, Math.min(1, sp.getY(i) / 5200 * 1.6 + 0.15)); cc.copy(cb).lerp(ca, t); scol.set([cc.r, cc.g, cc.b], i * 3); }
+  skyGeo.setAttribute('color', new THREE.BufferAttribute(scol, 3));
+  const sky = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false }));
+  sky.renderOrder = -10;
+  return sky;
+}

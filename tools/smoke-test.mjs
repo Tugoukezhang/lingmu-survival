@@ -1154,6 +1154,26 @@ try {
     const x1 = await p3.evaluate(() => window.__game.scene.getScene('play').player.x);
     check('3D 模式：照常移动', x1 > x0 + 10, `${x0} → ${x1}`);
     await p3.screenshot({ path: join(OUT, '81-view3d.png'), timeout: 120000 });
+    // the cottage room is a 3D room
+    const goArea = async (area) => {
+      await p3.evaluate((a) => { const g = window.__game; g.session.state.player.area = a; g.session.state.player.x = null; g.scene.getScene('play').scene.restart(); }, area);
+      await p3.waitForFunction((a) => { const g = window.__game, s = g.scene.getScene('play'); return s?.area === a && g.scene.isActive('ui') && g.view3d?.ps === s; }, area, { timeout: 120000 });
+    };
+    await goArea('house');
+    const dh = await p3.evaluate(() => ({ ...window.__game.view3d.debug(), cam2d: window.__game.scene.getScene('play').cameras.main.alpha }));
+    check('3D 模式：小屋室内是 3D 房间（床和家具立在房间里）', dh.room && dh.shown && dh.cam2d === 0 && dh.up >= 3 && dh.grass === 0, JSON.stringify(dh));
+    await p3.screenshot({ path: join(OUT, '82-view3d-room.png'), timeout: 120000 });
+    // expedition island: pond water; battle on the 3D stage
+    await goArea('home');
+    await p3.evaluate(() => { const g = window.__game; g.session.state.clock = 9 * 60; g.registry.set('clock', 540); g.scene.getScene('play').travelTo(909090); });
+    await p3.waitForFunction(() => { const g = window.__game, s = g.scene.getScene('play'); return s?.area === 'expedition' && g.scene.isActive('ui') && !s.traveling && g.view3d?.ps === s && !s.cameras.main.fadeEffect.isRunning; }, null, { timeout: 240000 });
+    const dw = await p3.evaluate(() => window.__game.view3d.debug());
+    check('3D 模式：远征岛的池塘是水面，建筑和营火是 3D 模型', dw.water && dw.model > 20 && !dw.room, JSON.stringify(dw));
+    await p3.evaluate(() => { const s = window.__game.scene.getScene('play'); s.startBattle(s.wild[0]); });
+    await p3.waitForFunction(() => { const g = window.__game, a = g.view3d.arena, b = g.scene.getScene('battle'); return a && b?.sprites && a.sprites.me.mesh.visible && a.sprites.foe.mesh.visible; }, null, { timeout: 240000 });
+    const db = await p3.evaluate(() => { const g = window.__game, b = g.scene.getScene('battle'), a = g.view3d.arena; return { hidden2d: !b.sprites.me.img.visible && !b.sprites.foe.img.visible, me: a.sprites.me.key, foe: a.sprites.foe.key, msg: b.debugBattle().intro, far: a.sprites.foe.mesh.position.z < a.sprites.me.mesh.position.z }; });
+    check('3D 模式：对战在 3D 舞台上（两只宠物立在草地上，对方在远处），文字和按钮照常', db.hidden2d && db.me && db.foe && db.far && db.msg.includes('出现了'), JSON.stringify(db));
+    await p3.screenshot({ path: join(OUT, '83-view3d-battle.png'), timeout: 120000 });
     await c3.close();
   }
 

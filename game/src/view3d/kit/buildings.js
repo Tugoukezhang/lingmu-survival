@@ -54,9 +54,9 @@ export function buildingMaterials() {
 // ---------- geometry helpers (everything ends up non-indexed with position, normal, colour) ----------
 const clean = (g) => { for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'color'].includes(k)) g.deleteAttribute(k); return g.index ? g.toNonIndexed() : g; };
 const P = (g, color) => paint(clean(g), color);
-const at = (g, x, y, z) => { g.translate(x, y, z); return g; };
+export const at = (g, x, y, z) => { g.translate(x, y, z); return g; };
 // box with softened edges, centred
-function rbox(w, h, d, color, r = 2.5) {
+export function rbox(w, h, d, color, r = 2.5) {
   let g = new THREE.BoxGeometry(w, h, d, 3, 3, 3);
   g.deleteAttribute('normal'); g.deleteAttribute('uv');
   g = mergeVertices(g);

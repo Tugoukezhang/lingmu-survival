@@ -44,7 +44,8 @@ export function makePost(renderer, scene, camera, { width, height, quality = 'hi
   const composer = new EffectComposer(renderer, target);
   composer.setPixelRatio(renderer.getPixelRatio());
   composer.setSize(width, height);
-  composer.addPass(new RenderPass(scene, camera));
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
   const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.2, 0.55, 0.9);
   if (quality !== 'low') composer.addPass(bloom);
   const look = new ShaderPass(LookShader);
@@ -52,5 +53,7 @@ export function makePost(renderer, scene, camera, { width, height, quality = 'hi
   if (quality === 'low') look.uniforms.uBlur.value = 0;
   composer.addPass(look);
   composer.addPass(new OutputPass());
-  return { composer, bloom, look, render: (dt) => composer.render(dt), dispose: () => { target.dispose(); composer.dispose?.(); } };
+  // which scene is drawn (the world, or the battle stage)
+  const setScene = (s, c) => { renderPass.scene = s; renderPass.camera = c; };
+  return { composer, bloom, look, setScene, render: (dt) => composer.render(dt), dispose: () => { target.dispose(); composer.dispose?.(); } };
 }

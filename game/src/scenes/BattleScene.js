@@ -1,4 +1,4 @@
-import { GAME_W, GAME_H, COLORS } from '../config.js';
+import { GAME_W, GAME_H, COLORS, VIEW3D } from '../config.js';
 import { petTextureKey, petTextureOf, species, ELEMENT_COLORS } from '../data/pets.js';
 import { SKILLS } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
@@ -32,7 +32,7 @@ export default class BattleScene extends Phaser.Scene {
     const flags = this.game.session.state.flags;
     this.opts = flags.battle = { fast: false, auto: false, ...(flags.battle ?? {}) };
     if (!window.__battleFast) this.speed = this.opts.fast ? 0.5 : 1;
-    this.drawBackground();
+    if (!VIEW3D) this.drawBackground();        // in 3D the stage (meadow, trees, sky) is drawn by view3d/World3D.js
     this.sprites = { me: this.makeSprite('me'), foe: this.makeSprite('foe') };
     this.cards = { foe: this.makeCard('foe', 32, 28), me: this.makeCard('me', GAME_W - 352, 268) };
     this.panel = woodPanel(this, GAME_W - 40, 150).setPosition(GAME_W / 2, GAME_H - 88);
@@ -50,6 +50,9 @@ export default class BattleScene extends Phaser.Scene {
     this.cameras.main.fadeIn(300 * this.speed + 1, 0, 0, 0);
     this.time.delayedCall(700 * this.speed, () => this.showMain());
   }
+
+  // 3D view (?3d=1): the two pets stand on a 3D stage; this scene keeps the cards, texts and buttons
+  update(time, delta) { this.game.view3d?.updateBattle(this, time, Math.min(delta, 50) / 1000); }
 
   // ---------- layout ----------
   drawBackground() {

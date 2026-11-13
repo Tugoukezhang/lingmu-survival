@@ -101,6 +101,7 @@ export default {
 
   // Name tag above a thing, kept on screen and below the HUD buttons along the top edge.
   placeTag(x, y) {
+    if (this.game.view3d) { this.nameTag.setPosition(x, y); return; }   // 3D view: World3D floats the tag above its owner (the hidden 2D camera has no view rectangle)
     const v = this.cameras.main.worldView, t = this.nameTag, hw = t.width / 2;
     t.setPosition(Phaser.Math.Clamp(x, v.x + hw + 8, v.right - hw - 8), Math.max(y, v.y + 160 + t.height));
   },
