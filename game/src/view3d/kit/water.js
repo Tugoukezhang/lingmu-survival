@@ -6,20 +6,20 @@ import { TIME, NOISE_GLSL } from './shared.js';
 import { WATER_LEVEL } from './terrain.js';
 
 export function buildWater(terrain) {
-  const { W, H, waterMask, maskW: mw, maskH: mh } = terrain;
+  const { W, fullH: H, off, waterMask, maskW: mw, maskH: mh } = terrain;      // the mask covers the padded map (terrain.js)
   const data = new Uint8Array(mw * mh * 4);
   for (let i = 0; i < mw * mh; i++) { const v = Math.round(waterMask[i] * 255); data[i * 4] = data[i * 4 + 1] = data[i * 4 + 2] = v; data[i * 4 + 3] = 255; }
   const mask = new THREE.DataTexture(data, mw, mh, THREE.RGBAFormat);
   mask.magFilter = mask.minFilter = THREE.LinearFilter; mask.needsUpdate = true;
   const mat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
-    uniforms: { uMask: { value: mask }, uTime: TIME, uLight: { value: new THREE.Color(1, 1, 1) }, uSize: { value: new THREE.Vector2(W, H) } },
+    uniforms: { uMask: { value: mask }, uTime: TIME, uLight: { value: new THREE.Color(1, 1, 1) }, uSize: { value: new THREE.Vector2(W, H) }, uOff: { value: off } },
     vertexShader: 'varying vec3 vW; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
     fragmentShader: `
-      uniform sampler2D uMask; uniform float uTime; uniform vec3 uLight; uniform vec2 uSize; varying vec3 vW;
+      uniform sampler2D uMask; uniform float uTime, uOff; uniform vec3 uLight; uniform vec2 uSize; varying vec3 vW;
       ${NOISE_GLSL}
       void main() {
-        float m = texture2D(uMask, vW.xz / uSize).r;
+        float m = texture2D(uMask, (vW.xz + vec2(0.0, uOff)) / uSize).r;
         if (m < 0.4) discard;
         float depth = smoothstep(0.4, 0.95, m);
         vec2 p = vW.xz * 0.05;
@@ -40,7 +40,7 @@ export function buildWater(terrain) {
       }`,
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H).rotateX(-Math.PI / 2), mat);
-  mesh.position.set(W / 2, WATER_LEVEL, H / 2);
+  mesh.position.set(W / 2, WATER_LEVEL, H / 2 - off);
   mesh.renderOrder = 2;
   return { mesh, setLight: (c) => mat.uniforms.uLight.value.copy(c), dispose() { mask.dispose(); mat.dispose(); mesh.geometry.dispose(); } };
 }

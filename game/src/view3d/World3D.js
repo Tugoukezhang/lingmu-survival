@@ -35,6 +35,7 @@ const CAM = { back: 392, up: 250, look: 46, fov: 42 };                        //
 const ROOM_CAM = { back: 455, up: 335, look: 30 };                              // the cottage room: the whole room in view
 const BATTLE = { fov: 36, h: 170, pitch: 0.3 };                                 // battle stage camera: height above the meadow, tilt down (radians)
 const CENTERED = new Set(['bed']);                                              // sprites whose 2D position is their middle, not their feet
+const PAD_TOP = 6;                                                               // rows of room north of the map for the hills behind the island
 const MAX_LIGHTS = 6;
 const QUALITY = new URLSearchParams(location.search).get('q') ?? 'high';
 
@@ -127,9 +128,12 @@ export default class World3D {
     const W = ps.cols * TILE, H = ps.rows * TILE;
     const seed = ps.cols * 131 + ps.rows * 17 + (ps.island?.seed ?? 0) % 9973;
     const groundCanvas = ps.textures.exists('ground') ? ps.textures.get('ground').getSourceImage() : null;
-    this.terrain = buildIsland({ walk: ps.walk, cols: ps.cols, rows: ps.rows, tile: TILE, groundCanvas, seed, water: ps.water, ...this.layoutHints(ps) });
+    this.hints = this.layoutHints(ps, seed);
+    this.terrain = buildIsland({ walk: ps.walk, cols: ps.cols, rows: ps.rows, tile: TILE, groundCanvas, seed, water: ps.water, padTop: PAD_TOP, ...this.hints });
     this.addStatic(this.terrain.group);
     if (this.terrain.hasWater) { this.water = buildWater(this.terrain); this.addStatic(this.water.mesh); }
+    this.addHillDressing(this.hints.ridges, seed);
+    this.addFarIslands(W, H, seed);
 
     // no grass on the field, under the fire, the tent, the buildings …
     const bare = new Set();
@@ -162,7 +166,7 @@ export default class World3D {
   h(x, y) { return this.terrain ? this.terrain.heightAt(x, y) : 0; }
 
   // Where the ground must stay level (buildings, fields, camp) and where dirt paths run.
-  layoutHints(ps) {
+  layoutHints(ps, seed = 1) {
     const T = TILE, flats = [], paths = [];
     const mid = (t) => ({ x: (t.x + 0.5) * T, y: (t.y + 0.5) * T });
     const rect = (r, pad) => ({ x: (r.x + r.w / 2) * T, y: (r.y + r.h / 2) * T, w: r.w * T, h: r.h * T, pad });
@@ -177,7 +181,7 @@ export default class World3D {
       const key = o.type === 'Image' ? o.texture?.key : null;
       if (key && (key.startsWith('bld_') || key === 'fountain')) flats.push({ x: o.x, y: o.y - 50, w: o.displayWidth * 0.9, h: 110, pad: 30 });
     }
-    let relief = 26;
+    let relief = 26, terrace = 22;
     if (ps.area === 'home') {
       const s = mid(ps.spawnTile);
       flats.push({ x: s.x, y: s.y - T, pad: 150 }, rect(ps.farmRect, 44), rect(ps.expandRect, 44), { x: ps.dock.x, y: ps.dock.y, pad: 50 }, { x: ps.homeBridge.x, y: ps.homeBridge.y, pad: 40 });
@@ -187,7 +191,7 @@ export default class World3D {
       if (ps.cottageSpot) paths.push(curve({ x: s.x - T * 0.6, y: s.y - T * 1.4 }, { x: ps.cottageSpot.x, y: ps.cottageSpot.y - 14 }, 0.12));
       paths.push(curve({ x: s.x + T * 0.8, y: s.y }, { x: ps.farmRect.x * T - 10, y: (ps.farmRect.y + 1.5) * T }, -0.12, 34));
     } else if (ps.area === 'town') {
-      relief = 15;
+      relief = 15; terrace = 0;
       const c = { x: ps.cols * T / 2, y: ps.rows * T / 2 };
       flats.push({ x: c.x, y: c.y, w: T * 9, h: T * 5.6, pad: 30 });
       for (const n of ps.npcs ?? []) {
@@ -196,14 +200,79 @@ export default class World3D {
         paths.push(curve({ x: c.x + (n.x - c.x) * k, y: c.y + (n.y - c.y) * k }, { x: n.x, y: n.y + (n.y < c.y ? 34 : -34) }, 0.1, 44));
       }
       if (ps.townBridge) { flats.push({ x: ps.townBridge.x, y: ps.townBridge.y, pad: 40 }); paths.push(curve({ x: c.x + T * 4.2, y: c.y }, { x: ps.townBridge.x + 30, y: ps.townBridge.y }, 0.06, 44)); }
-      if (ps.northBridge) { flats.push({ x: ps.northBridge.x, y: ps.northBridge.y, pad: 40 }); paths.push(curve({ x: c.x, y: c.y - T * 2.6 }, { x: ps.northBridge.x, y: ps.northBridge.y - 24 }, 0.08, 44)); }
+      if (ps.northBridge) { flats.push({ x: ps.northBridge.x, y: ps.northBridge.y, pad: 40 }, { x: ps.northBridge.x, y: ps.northBridge.y - 120, pad: 90 }); paths.push(curve({ x: c.x, y: c.y - T * 2.6 }, { x: ps.northBridge.x, y: ps.northBridge.y - 24 }, 0.08, 44)); }
     } else {
-      relief = 30;
+      relief = 30; terrace = 24;
       const l = ps.island.landing;
       flats.push({ ...mid({ x: l.tx, y: l.ty }), pad: 50 });
+      if (ps.airship) flats.push({ x: ps.airship.sprite.x, y: ps.airship.sprite.y, pad: 110 });
       for (const c of ps.island.camps ?? []) flats.push({ ...mid({ x: c.tx, y: c.ty }), pad: 50 });
     }
-    return { flats, paths, relief };
+    // rocky hills behind the island: along its north edge, wherever nothing is built or moored
+    const ridges = [], rnd = rng(seed * 13 + 5), W = ps.cols * T, n = Math.round(W / 300);
+    for (let i = 0; i < n; i++) {
+      const x = W * (0.1 + 0.8 * (i + 0.5 + (rnd() - 0.5) * 0.5) / n), tx = Math.floor(x / T);
+      let ty = 0; while (ty < ps.rows && !ps.walk[ty][tx]) ty++;
+      const edge = ty * T, r = Math.min(150 + rnd() * 120, (edge + PAD_TOP * T) / 1.55), h = (0.55 + rnd() * 0.6) * r;
+      if (ty >= ps.rows || r < 90) continue;
+      if (flats.some((f) => Math.hypot(f.x - x, f.y - edge) < r * 0.8 + (f.pad ?? 30) + Math.max(f.w ?? 0, f.h ?? 0) / 2)) continue;
+      ridges.push({ x, y: edge - r * 0.52, r, h });
+    }
+    return { flats, paths, relief, terrace, ridges };
+  }
+
+  // Scenery on the hills: big sandstone boulders, pines and shrubs (none of it on walkable ground).
+  addHillDressing(ridges, seed) {
+    const t = this.terrain, ps = this.ps, rnd = rng(seed * 7 + 3), g = new THREE.Group();
+    for (const r of ridges) {
+      for (let i = 0, n = Math.round(r.r / 9); i < n; i++) {
+        const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * r.r * 0.86, x = r.x + Math.cos(a) * d, y = r.y + Math.sin(a) * d;
+        if (t.maskAt(x, y) < 235 || ps.isOnIsland(x, y) || ps.isOnIsland(x, y + 30) || t.slopeAt(x, y) > 0.55) continue;      // only on the ledges
+        const roll = rnd(), key = roll < 0.4 ? 'boulder' : roll < 0.68 ? 'tree_b' : roll < 0.8 ? 'tree' : roll < 0.92 ? 'tree_c' : 'rock';
+        const m = this.kit.instantiate(key, Math.floor(rnd() * 1e6));
+        m.position.set(x, t.heightAt(x, y) - (key === 'boulder' ? 5 : 0), y);
+        m.scale.setScalar(key === 'boulder' ? 0.7 + rnd() * 1.1 : (MODEL_SCALE[key] ?? 1) * (0.8 + rnd() * 0.5));
+        g.add(m);
+      }
+    }
+    this.addStatic(g);
+  }
+
+  // Other floating islands far off in the sea of clouds (backdrop only).
+  addFarIslands(W, H, seed) {
+    const rnd = rng(seed * 3 + 11), g = new THREE.Group();
+    const mat = this.farMat ??= new THREE.MeshLambertMaterial({ vertexColors: true });
+    this.farIslands = [];
+    for (let i = 0; i < 7; i++) {
+      const a = Math.PI * (1.08 + 0.84 * (i + rnd() * 0.8) / 7), d = Math.max(W, H) * 0.62 + 420 + rnd() * 900, r = 110 + rnd() * 210;
+      const isl = new THREE.Group();
+      // rock underside (upside-down cone, knobbly) and a grassy cap
+      const body = new THREE.ConeGeometry(r, r * (1.2 + rnd() * 0.8), 11, 4).rotateX(Math.PI);
+      const bp = body.attributes.position, col = new Float32Array(bp.count * 3), c = new THREE.Color(), hgt = body.parameters.height;
+      for (let k = 0; k < bp.count; k++) {
+        const y = bp.getY(k), tt = 0.5 - y / hgt, j = 1 + (rnd() - 0.5) * 0.3;          // tt: 0 at the top rim … 1 at the tip
+        bp.setXYZ(k, bp.getX(k) * j, y - hgt / 2, bp.getZ(k) * j);
+        c.setHex(0x9a7654).lerp(new THREE.Color(0x5a5560), Math.min(1, tt * 1.3)); col.set([c.r, c.g, c.b], k * 3);
+      }
+      body.setAttribute('color', new THREE.BufferAttribute(col, 3)); body.computeVertexNormals();
+      isl.add(new THREE.Mesh(body, mat));
+      const cap = new THREE.CylinderGeometry(r * 1.02, r * 0.96, 16, 14).translate(0, 4, 0);
+      const cp = cap.attributes.position, cc = new Float32Array(cp.count * 3);
+      for (let k = 0; k < cp.count; k++) { c.setHex(cp.getY(k) > 4 ? 0x8fcf58 : 0x6fa544); cc.set([c.r, c.g, c.b], k * 3); }
+      cap.setAttribute('color', new THREE.BufferAttribute(cc, 3));
+      isl.add(new THREE.Mesh(cap, mat));
+      for (let k = 0, n = 2 + Math.floor(rnd() * 5); k < n; k++) {
+        const key = ['tree', 'tree_b', 'tree_b', 'boulder', 'tree_c'][Math.floor(rnd() * 5)], m = this.kit.instantiate(key, Math.floor(rnd() * 1e6));
+        const ta = rnd() * 6.28, td = Math.sqrt(rnd()) * r * 0.75;
+        m.position.set(Math.cos(ta) * td, 11, Math.sin(ta) * td); m.scale.setScalar((0.9 + rnd() * 0.6) * (r / 150));
+        m.traverse((o) => { o.castShadow = false; });
+        isl.add(m);
+      }
+      isl.position.set(W / 2 + Math.cos(a) * d, -40 + rnd() * 240, H / 2 + Math.sin(a) * d * 0.9);
+      isl.userData = { y: isl.position.y, ph: rnd() * 6.28 };
+      this.farIslands.push(isl); g.add(isl);
+    }
+    this.addStatic(g);
   }
 
   // small white / pink / yellow flowers dotted over the meadow (decoration only)
@@ -236,7 +305,7 @@ export default class World3D {
     for (const m of [...this.rings, ...this.plotHints, ...(this.clouds ?? []), ...(this.sea ? [this.sea] : [])]) { this.scene.remove(m); m.material.dispose?.(); }
     this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose(); this.water?.dispose(); this.room?.dispose();
     this.terrain = this.grass = this.flowerMat = this.sea = this.water = this.room = null;
-    this.statics = []; this.rings = []; this.plotHints = []; this.clouds = [];
+    this.statics = []; this.rings = []; this.plotHints = []; this.clouds = []; this.farIslands = [];
     for (const t of this.texCache.values()) t.dispose();
     this.texCache.clear();
     this.ps = null;
@@ -277,7 +346,8 @@ export default class World3D {
     const cam = this.room ? ROOM_CAM : CAM, r = this.room;
     // outdoors the camera follows the player; in the room it stays near the middle and only leans toward the player
     const goal = r ? new THREE.Vector3(r.fx + r.fw / 2 + (p.x - r.fx - r.fw / 2) * 0.22, 0, r.fy + r.fh / 2 + (p.y - r.fy - r.fh / 2) * 0.22) : new THREE.Vector3(p.x, this.h(p.x, p.y), p.y);
-    this.target.lerp(goal, Math.min(1, dt * 7));
+    if (this.target.distanceTo(goal) > 360) this.target.copy(goal);      // teleport / travel: jump, don't glide across the map
+    else this.target.lerp(goal, Math.min(1, dt * 7));
     this.camera.position.set(this.target.x, this.target.y + cam.up, this.target.z + cam.back);
     this.camera.lookAt(this.target.x, this.target.y + cam.look, this.target.z);
     this.up.set(0, 1, 0).applyQuaternion(this.camera.quaternion);
@@ -290,6 +360,7 @@ export default class World3D {
     this.syncRings(ps, time);
     this.syncPlots(ps);
     for (const c of this.clouds) { c.position.x += c.drift * dt; c.quaternion.copy(this.camera.quaternion); }
+    for (const f of this.farIslands ?? []) f.position.y = f.userData.y + Math.sin(time / 2600 + f.userData.ph) * 7;      // they bob slowly
     this.post.render(dt);
   }
 
@@ -326,8 +397,10 @@ export default class World3D {
       if (!m.visible) continue;
       if (e.kind === 'model') {
         // a real 3D prop from the kit, standing where the sprite is
-        m.position.set(o.x, this.h(o.x, o.y), o.y);
-        m.scale.setScalar((dh / m.userData.height) * (MODEL_SCALE[key] ?? 1));
+        const ud = m.userData, dz = ud.foot ? -4 - (o.flipX ? ud.foot : 1) * TILE / 2 : ud.dz ?? 0;     // furniture and crops are centred on their cells
+        m.position.set(o.x, this.h(o.x, o.y + dz), o.y + dz);
+        m.scale.setScalar(ud.scale1 ? 1 : (dh / ud.height) * (MODEL_SCALE[key] ?? 1));
+        if (ud.foot) m.rotation.y = o.flipX ? Math.PI / 2 : 0;
         const front = o.y - pl.y;
         this.kit.setGhost(m, e.tall && front > 24 && front < 330 && Math.abs(o.x - pl.x) < 70 + dw * 0.5);
         e.foot = { x: o.x, y: o.y, w: dw, h: dh * 1.25 };

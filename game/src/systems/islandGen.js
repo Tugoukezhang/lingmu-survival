@@ -98,18 +98,19 @@ function attempt(seed, plain) {
   const free = (x, y) => isWalk(x, y) && !reserved.has(key(x, y));
   const far = (list, x, y, gap) => list.every((o) => Math.abs(o.tx - x) + Math.abs(o.ty - y) >= gap);
 
-  // 2b. shallow ponds (docs/02 第 9 节 涉水): 1–2 small ponds inland; bigger ones
-  //     may have a tiny islet with a rare crystal only a wading party can reach
+  // 2b. shallow ponds (docs/02 第 9 节 涉水): 1–2 ponds inland (about 5–8 tiles across; smaller only
+  //     when the island has no room); most have a tiny islet with a rare crystal only a wading party can reach
   const water = grid(ISLAND_W, ISLAND_H, false);
   const islets = [];
   const pondCount = rand() < 0.35 ? 2 : 1;
   for (let p = 0, tries = 0; p < pondCount && tries < 60; tries++) {
     const [px, py] = pick(rand, best);
     if (dist[py][px] < 7) continue;
-    const prx = 1.6 + rand() * 1.2, pry = 1.2 + rand() * 0.8;
+    const small = tries > 30 ? 0.62 : 1;                      // no room for a big pond after many tries → a small one
+    const prx = (2.6 + rand() * 1.4) * small, pry = (1.9 + rand() * 1.0) * small;
     const cells = [];
     let ok = true;
-    for (let y = py - 3; y <= py + 3 && ok; y++) for (let x = px - 4; x <= px + 4; x++) {
+    for (let y = py - 4; y <= py + 4 && ok; y++) for (let x = px - 5; x <= px + 5; x++) {
       if (((x - px) / prx) ** 2 + ((y - py) / pry) ** 2 > 1) continue;
       if (![[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => isWalk(x + dx, y + dy)) || reserved.has(key(x, y)) || water[y][x]) { ok = false; break; }
       cells.push([x, y]);

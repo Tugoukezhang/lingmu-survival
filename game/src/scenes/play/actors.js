@@ -41,7 +41,7 @@ export default {
       const alert = this.add.graphics();
       const mark = this.add.text(home.x, home.y, '!', { fontFamily: FONT, fontSize: '22px', fontStyle: 'bold', color: '#e8443a', stroke: '#ffffff', strokeThickness: 4 }).setOrigin(0.5, 1).setVisible(false);
       const a = this.rand() * Math.PI * 2;
-      return { ...w, data, level, sprite, shadow, tag, alert, mark, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: this.time.now + 2000,
+      return { ...w, data, level, sprite, shadow, tag, alert, mark, home, target: { ...home }, phase: this.rand() * 6, wanderAt: 0, cooldown: null,
         temper: ST.temperOf(data.id), meter: 0, mode: 'calm', modeUntil: 0, face: { x: Math.cos(a), y: Math.sin(a) } };
     });
     // grass tufts and bushes the player can hide next to
@@ -120,6 +120,9 @@ export default {
     const dark = N.isFoggy(this.state.clock);
     const calm = this.sleeping || this.traveling || this.fainted;
     for (const w of this.wild) {
+      // 3 seconds of peace after arriving or loading a save, counted from the first real frame
+      // (the scene clock is not running yet while the map is being built, so a save made next to a wild pet started a battle at once)
+      if (w.cooldown == null) w.cooldown = time + 3000;
       const s = w.sprite;
       // notice meter (T45)
       const look = this.stealthTo(w);

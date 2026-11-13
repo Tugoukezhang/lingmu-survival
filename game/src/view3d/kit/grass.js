@@ -51,7 +51,7 @@ export function buildGrass(terrain, { step = 6, chunk = 384, bladeH = 15, bladeW
   const group = new THREE.Group();
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), s = new THREE.Vector3(), p = new THREE.Vector3(), c = new THREE.Color();
   let total = 0;
-  for (let cy = 0; cy < terrain.H; cy += chunk) for (let cx = 0; cx < terrain.W; cx += chunk) {
+  for (let cy = terrain.y0 ?? 0; cy < terrain.H; cy += chunk) for (let cx = 0; cx < terrain.W; cx += chunk) {
     const mats = [], cols = [];
     for (let y = cy; y < cy + chunk; y += step) for (let x = cx; x < cx + chunk; x += step) {
       const px = x + rand() * step, py = y + rand() * step;

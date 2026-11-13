@@ -8,6 +8,8 @@ import * as THREE from 'three';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { TIME, rng, hex, paint, patchGhost, NOISE_GLSL } from './shared.js';
 import { buildingMaterials, buildingProtos } from './buildings.js';
+import { rockGeometry as roundRockGeometry } from '../look/nature.js';
+import { propProtos } from './props.js';
 
 // ---------- textures ----------
 let clusterTex = null;
@@ -253,6 +255,11 @@ function rockPile(rand) {
   for (const [x, z, s] of [[0, -4, 1], [-20, 8, 0.62], [19, 9, 0.55], [2, 14, 0.4]]) { const g = rockGeometry(rand, { w: 40 * s, h: 34 * s, d: 34 * s, cuts: 8 }); g.rotateY(rand() * 6.28); g.translate(x, 0, z); gs.push(g); }
   return { height: 34, parts: [{ geo: mergeGeometries(gs), mat: 'rock', cast: true }] };
 }
+// big rounded sandstone boulder (scenery on the hills; not something to gather)
+function boulder(rand, { w = 96, h = 46, d = 74 } = {}) {
+  const g = roundRockGeometry(rand, { w, h, d, color: [0xd9a56c, 0xcf9a62, 0xc9a878][Math.floor(rand() * 3)] });
+  return { height: h * 1.1, parts: [{ geo: g, mat: 'rock', cast: true }] };
+}
 function crystal(rand) {
   const cs = [];
   for (let i = 0; i < 6; i++) {
@@ -280,7 +287,9 @@ export function makeKit(seed = 20261112) {
     rock: [rock(rand, { w: 54, h: 36, d: 44 }), rock(rand, { w: 60, h: 30, d: 46 }), rock(rand, { w: 46, h: 40, d: 40 })],
     rock_b: [rockPile(rand), rockPile(rand)],
     crystal: [crystal(rand), crystal(rand)],
+    boulder: [boulder(rand), boulder(rand, { w: 80, h: 54, d: 70 }), boulder(rand, { w: 110, h: 40, d: 84 })],
     ...buildingProtos(seed + 7),
+    ...propProtos(seed + 9),
   };
   // a new object for one map prop; hash picks the variant and the turn
   function instantiate(key, hash) {
@@ -289,13 +298,14 @@ export function makeKit(seed = 20261112) {
     const proto = list[hash % list.length];
     const g = new THREE.Group();
     for (const part of proto.parts) {
-      const m = new THREE.Mesh(part.geo, mats[part.mat][0]);
-      m.castShadow = !!part.cast; m.receiveShadow = !['foliage', 'flame', 'glow', 'lampglow'].includes(part.mat);
+      const m = part.points ? new THREE.Points(part.geo, mats[part.mat][0]) : new THREE.Mesh(part.geo, mats[part.mat][0]);
+      if (part.points) m.frustumCulled = false;                    // the sparks rise far above their base
+      m.castShadow = !!part.cast; m.receiveShadow = !['foliage', 'flame', 'glow', 'lampglow', 'spark'].includes(part.mat);
       m.userData.mat = part.mat; m.userData.cast = !!part.cast;
       g.add(m);
     }
     if (!proto.fixed) g.rotation.y = ((hash >> 3) % 628) / 100;      // buildings keep their front to the camera
-    g.userData = { height: proto.height, ghost: false };
+    g.userData = { height: proto.height, ghost: false, scale1: proto.scale1, foot: proto.foot, dz: proto.dz };
     return g;
   }
   function setGhost(group, on) {

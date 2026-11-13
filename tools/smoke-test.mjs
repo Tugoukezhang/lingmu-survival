@@ -1161,7 +1161,7 @@ try {
     };
     await goArea('house');
     const dh = await p3.evaluate(() => ({ ...window.__game.view3d.debug(), cam2d: window.__game.scene.getScene('play').cameras.main.alpha }));
-    check('3D 模式：小屋室内是 3D 房间（床和家具立在房间里）', dh.room && dh.shown && dh.cam2d === 0 && dh.up >= 3 && dh.grass === 0, JSON.stringify(dh));
+    check('3D 模式：小屋室内是 3D 房间（床是 3D 模型，人和宠物立在房间里）', dh.room && dh.shown && dh.cam2d === 0 && dh.up >= 2 && dh.model >= 1 && dh.grass === 0, JSON.stringify(dh));
     await p3.screenshot({ path: join(OUT, '82-view3d-room.png'), timeout: 120000 });
     // expedition island: pond water; battle on the 3D stage
     await goArea('home');
