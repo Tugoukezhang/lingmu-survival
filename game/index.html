@@ -35,6 +35,10 @@
 <body>
   <div id="game"></div>
   <div id="rotate"><div class="phone"></div>请把手机横过来玩</div>
+  <!-- 3D world view (?3d=1): three.js is loaded only when asked for -->
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/addons/" } }
+  </script>
   <script src="vendor/phaser.min.js"></script>
   <script type="module" src="src/main.js"></script>
 </body>
