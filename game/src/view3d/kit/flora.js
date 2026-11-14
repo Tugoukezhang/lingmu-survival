@@ -10,6 +10,7 @@ import { TIME, rng, hex, paint, patchGhost, NOISE_GLSL } from './shared.js';
 import { buildingMaterials, buildingProtos } from './buildings.js';
 import { rockGeometry as roundRockGeometry } from '../look/nature.js';
 import { propProtos } from './props.js';
+import { sceneryProtos } from './scenery.js';
 
 // ---------- textures ----------
 let clusterTex = null;
@@ -290,6 +291,7 @@ export function makeKit(seed = 20261112) {
     boulder: [boulder(rand), boulder(rand, { w: 80, h: 54, d: 70 }), boulder(rand, { w: 110, h: 40, d: 84 })],
     ...buildingProtos(seed + 7),
     ...propProtos(seed + 9),
+    ...sceneryProtos(seed + 11),
   };
   // a new object for one map prop; hash picks the variant and the turn
   function instantiate(key, hash) {
@@ -305,7 +307,7 @@ export function makeKit(seed = 20261112) {
       g.add(m);
     }
     if (!proto.fixed) g.rotation.y = ((hash >> 3) % 628) / 100;      // buildings keep their front to the camera
-    g.userData = { height: proto.height, ghost: false, scale1: proto.scale1, foot: proto.foot, dz: proto.dz };
+    g.userData = { height: proto.height, ghost: false, scale1: proto.scale1, foot: proto.foot, dz: proto.dz, spin: proto.spin, hover: proto.hover };
     return g;
   }
   function setGhost(group, on) {

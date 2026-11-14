@@ -25,6 +25,8 @@ import { buildGrass } from './kit/grass.js';
 import { makeKit } from './kit/flora.js';
 import { makePost } from './kit/post.js';
 import { makePetKit } from './kit/pets.js';
+import { buildLife } from './kit/scenery.js';
+import { bigLeafPlant, leafTexture, cloverGeometry, daisyGeometry } from './look/nature.js';
 import { smallFlowerGeometry } from './look/nature.js';
 
 const SKIP = new Set(['ground', 'sky', 'cloud', 'lightbrush', 'shadow']);   // sky and clouds are drawn here; real shadows replace the blobs
@@ -135,6 +137,8 @@ export default class World3D {
     this.addStatic(this.terrain.group);
     if (this.terrain.hasWater) { this.water = buildWater(this.terrain); this.addStatic(this.water.mesh); }
     this.addHillDressing(this.hints.ridges, seed);
+    this.addDecor(seed);
+    this.life = buildLife(QUALITY === 'low' ? 24 : 46); this.addStatic(this.life.points);
     this.addFarIslands(W, H, seed);
 
     // no grass on the field, under the fire, the tent, the buildings …
@@ -240,6 +244,47 @@ export default class World3D {
     this.addStatic(g);
   }
 
+  // Undergrowth: broad-leaved plants and daisies around the trees and rocks, clover in patches on the grass.
+  // Decoration only — small enough to walk through, placed where nobody needs to stand.
+  addDecor(seed) {
+    const t = this.terrain, ps = this.ps, rnd = rng(seed * 5 + 1), low = QUALITY === 'low';
+    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(), p = new THREE.Vector3();
+    const put = (list, x, y, s) => list.push(m4.compose(p.set(x, t.heightAt(x, y) - 0.5, y), q.setFromEuler(e.set(0, rnd() * 6.28, 0)), sc.setScalar(s)).clone());
+    const leafy = [[], [], []], daisies = [[], []], clover = [];
+    const ok = (x, y) => t.maskAt(x, y) > 235 && !t.isWater(x, y) && t.isGrass(x, y, 235);
+    for (const o of ps.children.list) {
+      const key = o.type === 'Image' ? o.texture?.key : null;
+      if (!key || !(key.startsWith('tree') || key.startsWith('rock') || key === 'bush')) continue;
+      for (let i = 0, n = 1 + Math.floor(rnd() * (low ? 1.3 : 2.4)); i < n; i++) {
+        const a = rnd() * 6.28, d = 20 + rnd() * 20, x = o.x + Math.cos(a) * d, y = o.y - 6 + Math.sin(a) * d * 0.8;
+        if (!ok(x, y)) continue;
+        if (rnd() < 0.62) put(leafy[Math.floor(rnd() * 3)], x, y, 11 + rnd() * 9);
+        else for (let k = 0; k < 3; k++) put(daisies[k % 2], x + (rnd() - 0.5) * 16, y + (rnd() - 0.5) * 12, 9 + rnd() * 6);
+      }
+    }
+    for (let c = 0, n = Math.round(t.W * t.H / (low ? 90000 : 42000)); c < n; c++) {     // clover patches
+      const cx = rnd() * t.W, cy = rnd() * t.H;
+      if (!ok(cx, cy)) continue;
+      for (let i = 0; i < 14; i++) { const x = cx + (rnd() - 0.5) * 46, y = cy + (rnd() - 0.5) * 36; if (ok(x, y)) put(clover, x, y, 50 + rnd() * 26); }
+    }
+    const g = new THREE.Group(), mats = [];
+    const add = (geo, mat, list, cast) => {
+      if (!list.length) return;
+      const mesh = new THREE.InstancedMesh(geo, mat, list.length);
+      list.forEach((m, i) => mesh.setMatrixAt(i, m));
+      mesh.castShadow = cast; mesh.receiveShadow = true; mesh.frustumCulled = false;
+      g.add(mesh);
+    };
+    const leafMat = new THREE.MeshLambertMaterial({ map: leafTexture(), side: THREE.DoubleSide }), colMat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide });
+    mats.push(leafMat, colMat);
+    const r2 = rng(seed + 77);
+    leafy.forEach((list, i) => add(bigLeafPlant(r2, { size: 1.5 + i * 0.25, n: 6 + i }), leafMat, list, true));
+    daisies.forEach((list) => add(daisyGeometry(r2, { h: 1.5 + r2() * 0.6 }), colMat, list, true));
+    add(cloverGeometry(), colMat, clover, false);
+    this.decorMats = mats;
+    this.addStatic(g);
+  }
+
   // Other floating islands far off in the sea of clouds (backdrop only).
   addFarIslands(W, H, seed) {
     const rnd = rng(seed * 3 + 11), g = new THREE.Group();
@@ -305,7 +350,9 @@ export default class World3D {
     this.map.clear();
     for (const m of this.statics) this.scene.remove(m);
     for (const m of [...this.rings, ...this.plotHints, ...(this.clouds ?? []), ...(this.sea ? [this.sea] : [])]) { this.scene.remove(m); m.material.dispose?.(); }
-    this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose(); this.water?.dispose(); this.room?.dispose();
+    this.terrain?.dispose(); this.grass?.dispose(); this.flowerMat?.dispose(); this.water?.dispose(); this.room?.dispose(); this.life?.dispose();
+    for (const m of this.decorMats ?? []) m.dispose();
+    this.life = null; this.decorMats = null;
     this.terrain = this.grass = this.flowerMat = this.sea = this.water = this.room = null;
     this.statics = []; this.rings = []; this.plotHints = []; this.clouds = []; this.farIslands = [];
     for (const t of this.texCache.values()) t.dispose();
@@ -417,8 +464,9 @@ export default class World3D {
         if (sp > 12) e.face = Math.atan2(vx, vy);                       // toward where it walks
         else if (e.face == null || Math.abs(Math.sin(e.face)) < 0.2 || Math.cos(e.face) < 0.3) e.face = (o.flipX ? 1 : -1) * 0.55;   // standing: turned a little, toward the camera
         m.position.set(o.x, gy, o.y);
-        m.scale.setScalar(dh * 0.9 * m.userData.size);
-        this.pets.animate(m, this.time, this.dt, Math.min(1, sp / 60), e.face);
+        m.scale.setScalar(o.height * Math.sqrt(Math.abs(o.scaleX * o.scaleY)) * 0.9 * m.userData.size);      // (size without the squash of the 2D tweens)
+        // the 2D scene squashes the sprite when working, turns it when fainting, blinks it when hurt: read that and act it out
+        this.pets.animate(m, this.time, this.dt, { moving: Math.min(1, sp / 60), face: e.face, squash: Math.abs(o.scaleY / (o.scaleX || 1)), roll: -o.rotation, hurt: o === pl && o.alpha < 0.9 });
         e.foot = { x: o.x, y: o.y, w: dw, h: dh };
         continue;
       }
@@ -428,6 +476,8 @@ export default class World3D {
         m.position.set(o.x, this.h(o.x, o.y + dz), o.y + dz);
         m.scale.setScalar(ud.scale1 ? 1 : (dh / ud.height) * (MODEL_SCALE[key] ?? 1));
         if (ud.foot) m.rotation.y = o.flipX ? Math.PI / 2 : 0;
+        if (ud.spin) m.rotation.y = -o.rotation;                                        // bridges lie the way the 2D picture is turned
+        if (ud.hover) m.position.y += ud.hover + Math.sin(this.time * 1.4 + o.x * 0.01) * 5;   // the airship floats
         const front = o.y - pl.y;
         this.kit.setGhost(m, e.tall && front > 24 && front < 330 && Math.abs(o.x - pl.x) < 70 + dw * 0.5);
         e.foot = { x: o.x, y: o.y, w: dw, h: dh * 1.25 };
@@ -567,6 +617,7 @@ export default class World3D {
     this.post.look.uniforms.uNight.value = nightK;
     this.kit.setNight(nightK);
     this.pets.setDay(1 - nightK * 0.7);
+    this.life?.set(this.target, nightK, (this.rh ?? 540) / 540);
     this.post.bloom.strength = 0.2 + nightK * 0.35;
     // ambient for the unlit sprites
     this.ambient.set(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.5);
@@ -728,10 +779,13 @@ export default class World3D {
       if (e.pet) {
         // 3D pet on the stage: mine looks up the field at the wild one, the wild one looks back; blinking when hit, gone when it faints
         m.visible = false;
-        e.pet.visible = img.alpha > 0.45 && key !== '__DEFAULT';
+        const spot = side === 'me' ? { x: 250, y: 372 } : { x: 700, y: 236 };       // where it stands (BattleScene SPOT)
+        const down = img.y - spot.y > 3;                                                // the 2D picture sinks when it faints …
+        const hit = img.alpha < 0.95 && !down;                                          // … and blinks when it is hit
+        e.pet.visible = key !== '__DEFAULT' && img.alpha > 0.08;
         e.pet.position.copy(g);
-        e.pet.scale.setScalar(dh * 0.9 * e.pet.userData.size);
-        this.pets.animate(e.pet, time / 1000, dt, 0, side === 'me' ? 2.2 : -0.75);
+        e.pet.scale.setScalar(img.height * Math.sqrt(Math.abs(img.scaleX * img.scaleY)) * upp * 0.9 * e.pet.userData.size);
+        this.pets.animate(e.pet, time / 1000, dt, { face: side === 'me' ? 2.2 : -0.75, hurt: hit, roll: down ? (side === 'me' ? -1.35 : 1.35) : 0, lunge: Math.max(-1, Math.min(1, (img.x - spot.x) / 26)) });
         continue;
       }
       m.visible = img.alpha > 0.01 && key !== '__DEFAULT';

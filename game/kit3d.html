@@ -54,7 +54,7 @@ if (glb) {
   const yaws = (q.get('yaws') ?? '0.45,-2.5').split(',').map(Number);
   const glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, color: new THREE.Color(1.25, 1.15, 1.0) });
   for (const [n, name] of glbNames.entries()) new GLTFLoader().load(`./assets/models/${name}.glb`, (g) => {
-    g.scene.traverse((o) => { if (o.isMesh) { if (o.material.name.startsWith('glow')) o.material = glowMat; else { o.castShadow = true; o.receiveShadow = true; } } });
+    g.scene.traverse((o) => { if (o.isMesh) { if (o.material.name.startsWith('glow')) o.material = glowMat; else { o.castShadow = true; o.receiveShadow = true; if (o.material.map && !o.material.name.startsWith('eye')) o.material.side = THREE.DoubleSide; } } });
     yaws.forEach((yaw, i) => {
       const m = i ? g.scene.clone() : g.scene;
       m.scale.setScalar(150); m.rotation.y = yaw; m.position.set((n * yaws.length + i - (glbNames.length * yaws.length - 1) / 2) * 200, 0, 0);      // all in one row
