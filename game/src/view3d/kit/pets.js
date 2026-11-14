@@ -10,7 +10,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // (evolved forms use the same model a little bigger for now; the fox's human form and the townsfolk have no model yet)
 const MODELS = { player: ['player', 1.05] };
 for (const id of ['fox', 'pup', 'acorn', 'shark', 'starbear', 'shadecat']) { MODELS[`pet_${id}`] = [id, 1]; MODELS[`pet_${id}_evo`] = [id, 1.1]; }
-const PARTS = ['body', 'head', 'tail', 'earL', 'earR', 'armL', 'armR', 'legL', 'legR', 'orb'];
+const PARTS = ['body', 'head', 'tail', 'earL', 'earR', 'armL', 'armR', 'legL', 'legR', 'orb', 'eyeL', 'eyeR'];
+const DAY = { value: 1 };           // 1 by day … lower at night (how strong the fill and rim light are)
 
 export function makePetKit() {
   const loader = new GLTFLoader(), sources = new Map();      // file → scene | 'loading' | null (failed)
@@ -27,7 +28,21 @@ export function makePetKit() {
         g.scene.traverse((o) => {
           if (!o.isMesh) return;
           if (o.material.name.startsWith('glow')) o.material = glowMat;
-          else { o.castShadow = true; o.receiveShadow = true; o.material.roughness = Math.max(o.material.roughness, 0.7); o.material.metalness = 0; }
+          else {
+            o.castShadow = true; o.receiveShadow = !o.name.startsWith('eye');
+            const m = o.material; m.metalness = 0;
+            if (m.map) { m.roughness = 0.3; m.emissiveMap = m.map; m.emissive.set(0x4a4a4a); m.map.anisotropy = 8; return; }      // eyes: glossy, never murky
+            m.roughness = Math.max(m.roughness, 0.72);
+            // toy-like shading: shadows keep their colour (light seems to pass through the fluff) and the outline catches the light
+            m.onBeforeCompile = (shader) => {
+              shader.uniforms.uDay = DAY;
+              shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uDay;')
+                .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+                  float kRim = pow(1.0 - saturate(dot(normalize(vNormal), normalize(vViewPosition))), 2.4);
+                  totalEmissiveRadiance += (diffuseColor.rgb * (0.2 + 0.5 * kRim) + vec3(1.0, 0.93, 0.8) * 0.16 * kRim) * uDay;`);
+            };
+            m.customProgramCacheKey = () => 'pet-soft';
+          }
         });
         sources.set(def[0], g.scene);
       }, undefined, () => sources.set(def[0], null));
@@ -69,8 +84,11 @@ export function makePetKit() {
     set('legR', -Math.sin(step) * 0.7 * w, 0, 0);
     set('armL', -Math.sin(step) * 0.5 * w + Math.sin(t * 1.9 + s) * 0.04, 0, 0);
     set('armR', Math.sin(step) * 0.5 * w + Math.sin(t * 2.6 + s) * 0.1 * (1 - w), 0, 0);       // the raised paw waves a little
+    // blink: both eyes close for a moment every few seconds
+    const bl = (t * 0.31 + s) % 1, shut = bl > 0.965 ? 0.12 : 1;
+    for (const n of ['eyeL', 'eyeR']) if (p[n]) p[n].scale.y = (p[n].userData.sy ??= p[n].scale.y) * shut;      // (the model's up axis is y here)
     if (p.orb) { const o = p.orb, b = o.userData.pos; o.position.set(b.x + Math.cos(t * 1.4 + s) * 0.03, b.y + Math.sin(t * 2.3 + s) * 0.035, b.z + Math.sin(t * 1.4 + s) * 0.03); }
   }
 
-  return { has: (key) => !!MODELS[key], ready: (key) => !!source(key), instance, animate };
+  return { has: (key) => !!MODELS[key], ready: (key) => !!source(key), instance, animate, setDay: (k) => { DAY.value = k; } };
 }

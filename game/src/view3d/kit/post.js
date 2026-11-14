@@ -55,5 +55,7 @@ export function makePost(renderer, scene, camera, { width, height, quality = 'hi
   composer.addPass(new OutputPass());
   // which scene is drawn (the world, or the battle stage)
   const setScene = (s, c) => { renderPass.scene = s; renderPass.camera = c; };
-  return { composer, bloom, look, setScene, render: (dt) => composer.render(dt), dispose: () => { target.dispose(); composer.dispose?.(); } };
+  // drawing size in real pixels (the page tells us how big the picture is on screen)
+  const setSize = (w, h) => { composer.setPixelRatio(1); composer.setSize(w, h); look.uniforms.uTexel.value.set(1 / w, 1 / h); look.uniforms.uBlur.value = quality === 'low' ? 0 : 1.25 * Math.max(1, h / 540); };
+  return { composer, bloom, look, setScene, setSize, render: (dt) => composer.render(dt), dispose: () => { target.dispose(); composer.dispose?.(); } };
 }

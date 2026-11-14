@@ -211,25 +211,30 @@ def empty(name, at=(0, 0, 0), parent=None):
 
 
 # ---------- face ----------
-def eye_image(name, iris, size=128):
-    """Anime eye drawn into a texture: dark rim, iris lighter toward the bottom, pupil, two highlights."""
+def eye_image(name, iris, size=256):
+    """Anime eye drawn into a texture: dark lash line on top, iris dark at the top and glowing at the bottom,
+    big pupil, a bright crescent of reflected light, two white highlights. Soft edges (no jagged pixels)."""
     y, x = np.mgrid[0:size, 0:size].astype(np.float32)
     u, v = (x / (size - 1) - 0.5) * 2, (y / (size - 1) - 0.5) * 2          # v = +1 at the top (image rows go bottom-up in Blender)
     d = np.sqrt(u * u + v * v)
+    aa = 3.0 / size                                                           # width of a soft edge
+    def inside(dist, r):                                                      # 1 inside radius r, 0 outside, soft border
+        return np.clip((r - dist) / aa, 0, 1)[..., None]
     ir = np.array(srgb(iris)[:3], np.float32)
-    dark = ir * 0.22
+    dark = ir * 0.16
     t = np.clip((v + 1) / 2, 0, 1)[..., None]                               # 0 bottom … 1 top
-    col = ir * 1.25 * (1 - t) + dark * 1.6 * t                              # bright bottom → dark top
-    col = np.clip(col, 0, 1)
-    pupil = (np.sqrt(u * u + (v - 0.05) ** 2) < 0.38)[..., None]
-    col = np.where(pupil, dark * 0.5, col)
-    glint = (np.sqrt((u * 0.9) ** 2 + ((v + 0.52) * 1.5) ** 2) < 0.3)[..., None]        # soft light at the bottom of the iris
-    col = np.where(glint, np.clip(col + 0.35, 0, 1), col)
-    rim = (d > 0.84)[..., None]
-    col = np.where(rim, np.array(srgb(0x3a2620)[:3], np.float32), col)
-    for cx, cy, r in ((-0.34, 0.42, 0.24), (0.36, -0.2, 0.11)):               # white highlights
-        hl = (np.sqrt((u - cx) ** 2 + (v - cy) ** 2) < r)[..., None]
-        col = np.where(hl, 1.0, col)
+    col = np.clip(ir * 1.5, 0, 1) * (1 - t) ** 1.3 + dark * (1 - (1 - t) ** 1.3)
+    col = col * (1 - inside(np.sqrt(u * u + (v - 0.12) ** 2), 0.44)) + dark * 0.35 * inside(np.sqrt(u * u + (v - 0.12) ** 2), 0.44)      # pupil
+    cres = inside(np.sqrt((u * 0.8) ** 2 + ((v + 0.62) * 1.7) ** 2), 0.42)                                                                   # light pooling at the bottom
+    col = np.clip(col + cres * (np.clip(ir * 1.9, 0, 1) - col) * 0.85, 0, 1)
+    ink = np.array(srgb(0x2a1a18)[:3], np.float32)
+    rim = 1 - inside(d, 0.88)
+    col = col * (1 - rim) + ink * rim
+    lash = inside(np.sqrt(u * u + ((v - 1.25) * 1.0) ** 2), 0.78)                                                                           # thick lash line across the top
+    col = col * (1 - lash) + ink * lash
+    for cx, cy, r in ((-0.33, 0.36, 0.25), (0.34, -0.26, 0.12)):               # white highlights
+        hl = inside(np.sqrt((u - cx) ** 2 + (v - cy) ** 2), r)
+        col = col * (1 - hl) + hl
     rgba = np.concatenate([col, np.ones((size, size, 1), np.float32)], axis=2)
     img = bpy.data.images.new(name, size, size, alpha=False)
     img.pixels.foreach_set(rgba.ravel())
@@ -254,7 +259,7 @@ def eyes(head, x, y, z, rx, rz, iris, tilt=0.0, name='eye'):
     mat = eye_material(name + '_mat', iris)
     out = []
     for s in (-1, 1):
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=20, ring_count=10, radius=1)
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=28, ring_count=14, radius=1)
         obj = bpy.context.active_object
         me = obj.data
         uv = me.uv_layers.active or me.uv_layers.new()
@@ -274,14 +279,100 @@ def eyes(head, x, y, z, rx, rz, iris, tilt=0.0, name='eye'):
     return out
 
 
-def face(head, y, z, nose=0x4a2f28, mouth=0xe86a6a, blush=0xffb0a8, w=0.06, open_mouth=True):
+def face(head, y, z, nose=0x4a2f28, mouth=0xe86a6a, blush=0xffb0a8, w=0.06, open_mouth=True, muzzle=None):
     """Nose, little open mouth and blush marks; y = how far forward the face surface is at height z."""
-    ball('nose', (0, y - 0.014, z + w * 0.1), (w * 0.3, w * 0.2, w * 0.2), srgb(nose), head, detail=2)
+    if muzzle is not None:
+        for s in (-1, 1):
+            ball('muzzle', (s * w * 0.42, y + w * 0.16, z - w * 0.34), (w * 0.52, w * 0.3, w * 0.4), srgb(muzzle), head, detail=2)
+    ball('nose', (0, y - 0.016, z + w * 0.12), (w * 0.3, w * 0.2, w * 0.2), srgb(nose), head, detail=2)
     if open_mouth:
-        ball('mouth', (0, y + 0.002, z - w * 0.66), (w * 0.62, w * 0.2, w * 0.5), srgb(mouth), head, detail=2)
-        ball('tongue', (0, y - 0.008, z - w * 0.9), (w * 0.36, w * 0.12, w * 0.22), srgb(0xffa6a6), head, detail=2)
+        ball('mouth', (0, y + 0.006, z - w * 0.86), (w * 0.5, w * 0.2, w * 0.46), srgb(mouth), head, detail=2)
+        ball('tongue', (0, y - 0.004, z - w * 1.1), (w * 0.3, w * 0.12, w * 0.2), srgb(0xffa6a6), head, detail=2)
     for s in (-1, 1):
         ball('blush', (s * w * 2.6, y + w * 0.75, z - w * 0.2), (w * 0.62, w * 0.14, w * 0.36), srgb(blush), head, rot=(0, 0, s * 0.5), detail=2)
+
+
+# ---------- fur ----------
+def fluff(obj, n, size, where=None, seed=1, lift=0.35, tip=0.12, lean=(0, 0, 0.5), out=0.45):
+    """Tufts of fur growing out of the surface of obj (joined into its mesh): a fluffy outline instead of a smooth ball.
+    where: fn(Vector local position) → True where fur grows. lean: the tufts bend toward this direction (up by default).
+    Each tuft takes the colour of the fur under it, a little lighter at the tip."""
+    import random
+    rnd = random.Random(seed)
+    me = obj.data
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    layer = bm.verts.layers.float_color['Col']
+    bm.verts.ensure_lookup_table()
+    bm.normal_update()
+    pool = [v for v in bm.verts if where is None or where(v.co)]
+    picks = rnd.sample(pool, min(n, len(pool)))
+    L = Vector(lean)
+    segs, rings = 6, 3
+    made = []
+    for v in picks:
+        base, col = v.co.copy(), tuple(v[layer])
+        # the tuft lies along the flow of the fur (lean), only a little away from the body: soft overlapping locks, not spikes
+        d = (v.normal * out + L.normalized() * (0.8 + rnd.random() * 0.4) + Vector((rnd.uniform(-0.3, 0.3), rnd.uniform(-0.3, 0.3), rnd.uniform(-0.15, 0.15)))).normalized()
+        side = d.cross(v.normal)
+        side = side.normalized() if side.length > 1e-4 else d.orthogonal().normalized()
+        up = side.cross(d).normalized() * 0.5                             # flat lock: half as thick as it is wide
+        h = size * rnd.uniform(0.8, 1.4); r = size * rnd.uniform(0.3, 0.42)
+        base = base - v.normal * r * 0.5                                  # root sunk into the body
+        ring = []
+        for j in range(rings + 1):
+            t = j / rings
+            rr = r * (math.sin(math.pi * (0.25 + 0.75 * t)) ** 0.9 if t < 1 else 0.0) * 1.15      # widest a little above the root, pointed tip
+            c = tuple(col[k] + (1 - col[k]) * tip * t for k in range(3)) + (1.0,)
+            row = []
+            for i in range(segs):
+                a = i / segs * math.tau
+                nv = bm.verts.new(base + d * (h * t) + (side * math.cos(a) + up * math.sin(a)) * max(rr, 0.0008) + v.normal * (h * lift * t * t))
+                nv[layer] = c
+                row.append(nv)
+            ring.append(row)
+        for j in range(rings):
+            for i in range(segs):
+                f = bm.faces.new((ring[j][i], ring[j][(i + 1) % segs], ring[j + 1][(i + 1) % segs], ring[j + 1][i]))
+                f.smooth = True
+                made.append(f)
+    # every lock faces outward (otherwise it is lit from the inside and looks grey)
+    for f in made:
+        f.normal_update()
+        c = f.calc_center_median()
+        axis = (f.verts[0].co + f.verts[1].co) * 0.5
+    bm.normal_update()
+    by_lock = len(made) // max(1, len(picks))
+    for k in range(len(picks)):
+        fs = made[k * by_lock:(k + 1) * by_lock]
+        if not fs:
+            continue
+        mid = sum((f.calc_center_median() for f in fs), Vector()) / len(fs)
+        flip = sum(1 for f in fs if f.normal.dot(f.calc_center_median() - mid) < 0)
+        if flip > len(fs) / 2:
+            for f in fs:
+                f.normal_flip()
+    bm.to_mesh(me)
+    bm.free()
+    me.update()
+    return obj
+
+
+def attach(obj, parent):
+    """Parent obj to parent keeping it where it is in the world (for things placed in world coordinates, like paw pads)."""
+    bpy.context.view_layer.update()
+    obj.parent = parent
+    obj.matrix_parent_inverse = parent.matrix_world.inverted()
+    return obj
+
+
+def pads(root, arm, at, r=0.03, color=0xffa8b4):
+    """Pink paw pads on the front of a raised paw: one big, three small above it. at = centre of the paw (model coordinates)."""
+    c = srgb(color)
+    x, y, z = at
+    attach(ball('pad', (x, y - 0.062, z - 0.012), (r, r * 0.4, r * 0.85), c, root, detail=2), arm)
+    for i in (-1, 0, 1):
+        attach(ball('toe', (x + i * r * 0.95, y - 0.058, z + r * 1.05 - abs(i) * r * 0.3), (r * 0.42, r * 0.3, r * 0.42), c, root, detail=1), arm)
 
 
 # ---------- finishing ----------

@@ -57,13 +57,13 @@ if (glb) {
     g.scene.traverse((o) => { if (o.isMesh) { if (o.material.name.startsWith('glow')) o.material = glowMat; else { o.castShadow = true; o.receiveShadow = true; } } });
     yaws.forEach((yaw, i) => {
       const m = i ? g.scene.clone() : g.scene;
-      m.scale.setScalar(150); m.rotation.y = yaw; m.position.set((n - (glbNames.length - 1) / 2) * 200, 0, (i - (yaws.length - 1) / 2) * 230);
+      m.scale.setScalar(150); m.rotation.y = yaw; m.position.set((n * yaws.length + i - (glbNames.length * yaws.length - 1) / 2) * 200, 0, 0);      // all in one row
       scene.add(m);
     });
     window.__loaded = (window.__loaded ?? 0) + 1;
   });
 }
-const w = glb ? Math.max(520, glbNames.length * 200) : Math.max(cols * gap, rows * gap * 1.9), dist = (w * 0.62 + 120) * (Number(q.get('zoom')) || 1);
+const w = glb ? Math.max(420, glbNames.length * (q.get('yaws') ?? '0.45,-2.5').split(',').length * 200) : Math.max(cols * gap, rows * gap * 1.9), dist = (w * 0.62 + 120) * (Number(q.get('zoom')) || 1);
 const camera = new THREE.PerspectiveCamera(42, 1, 10, 9000);
 const yaw = Number(q.get('yaw')) || 0;
 camera.position.set(Math.sin(yaw) * dist * 0.84, dist * 0.53 + 40, Math.cos(yaw) * dist * 0.84);

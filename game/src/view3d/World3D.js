@@ -329,6 +329,17 @@ export default class World3D {
     if (s.top !== t) s.top = t;
     if (s.width !== w) s.width = w;
     if (s.height !== h) s.height = h;
+    // Draw at the size the picture really has on this screen (sharp), within a budget of pixels for weak devices.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), cap = QUALITY === 'low' ? 1280 * 720 : 2560 * 1440;
+    let rw = Math.max(320, c.clientWidth * dpr), rh = Math.max(180, c.clientHeight * dpr);
+    const k = Math.min(1, Math.sqrt(cap / (rw * rh)));
+    rw = Math.round(rw * k); rh = Math.round(rh * k);
+    if (rw !== this.rw || rh !== this.rh) {
+      this.rw = rw; this.rh = rh;
+      this.renderer.setPixelRatio(1);
+      this.renderer.setSize(rw, rh, false);
+      this.post.setSize(rw, rh);
+    }
   }
 
   // ---------- every frame ----------
@@ -555,6 +566,7 @@ export default class World3D {
     this.water?.setLight(new THREE.Color(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.55));
     this.post.look.uniforms.uNight.value = nightK;
     this.kit.setNight(nightK);
+    this.pets.setDay(1 - nightK * 0.7);
     this.post.bloom.strength = 0.2 + nightK * 0.35;
     // ambient for the unlit sprites
     this.ambient.set(0xffffff).lerp(night, Math.min(1, dark * 1.5)).multiplyScalar(1 - dark * 0.5);
