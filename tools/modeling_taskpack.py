@@ -92,8 +92,11 @@ for i, (pri, key, cn, src, faces) in enumerate(C, 1):
     add(tid, pri, '场景物件', cn, '图片生成模型 → 导出', up, faces, '标准或精细（1K–2K），不要 PBR', '不绑', '—', f'{key}.fbx', 110, NOTE.get(key, ''))
 
 cols = ['编号', '优先级', '类别', '名称', '做什么', '上传的文件', '面数上限', '贴图', '骨骼类型', '动作', '导出', '交付文件名', '参考积分', '备注', '状态']
-with io.open(OUT + '任务清单.csv', 'w', encoding='utf-8-sig', newline='') as f:
-    w = csv.DictWriter(f, fieldnames=cols); w.writeheader(); w.writerows(rows)
+try:
+    with io.open(OUT + '任务清单.csv', 'w', encoding='utf-8-sig', newline='') as f:
+        w = csv.DictWriter(f, fieldnames=cols); w.writeheader(); w.writerows(rows)
+except PermissionError:
+    print('任务清单.csv 正被别的程序打开（Excel / WPS），这次没有更新它；关掉后重新运行本脚本')
 
 def table(kind):
     rs = [r for r in rows if r['类别'] == kind]
