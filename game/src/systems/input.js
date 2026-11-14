@@ -9,6 +9,7 @@ export default class InputActions {
     this.keys = scene.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE');
     this.interactQueued = false;
     this.move = new Phaser.Math.Vector2();
+    this.yaw = 0;       // 3D view: how far the camera is turned (radians); "up" on the stick = away from the camera
     // Listen to key-down events instead of polling JustDown: a quick tap can
     // go down and up within one frame and would otherwise be missed.
     this.keys.E.on('down', () => this.queueInteract());
@@ -30,6 +31,7 @@ export default class InputActions {
       const v = this.getJoystickVector();
       if (v) this.move.copy(v); else this.move.set(0, 0);
     }
+    if (this.yaw) { const c = Math.cos(this.yaw), s = Math.sin(this.yaw), mx = this.move.x, my = this.move.y; this.move.set(c * mx + s * my, -s * mx + c * my); }
   }
 
   // Returns true once per press.

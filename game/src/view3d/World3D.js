@@ -35,6 +35,9 @@ const SOFT = new Set(['fogmonster']);                                         //
 const NO_SHADOW = new Set(['fogmonster', 'item_torch']);
 const MODEL_SCALE = { tree: 1.28, tree_b: 1.22, tree_c: 1.15, bush: 1.1, grass_tuft: 1.2, rock: 1.25, rock_b: 1.2, crystal: 1.15 };   // 3D props a bit bigger than the sprites were
 const CAM = { back: 392, up: 250, look: 46, fov: 42 };                        // camera offset behind / above the player
+// Outdoors: a third-person camera behind and above the player. Drag on the picture (or Z / C) turns it and tilts it;
+// the stick then moves the player relative to the camera. dist = how far behind, pitch = how steeply it looks down.
+const ORBIT = { dist: 330, pitch: 0.42, minPitch: 0.2, maxPitch: 0.95, look: 52, fov: 50 };
 const ROOM_CAM = { back: 455, up: 335, look: 30 };                              // the cottage room: the whole room in view
 const BATTLE = { fov: 36, h: 170, pitch: 0.3 };                                 // battle stage camera: height above the meadow, tilt down (radians)
 const CENTERED = new Set(['bed']);                                              // sprites whose 2D position is their middle, not their feet
@@ -166,6 +169,26 @@ export default class World3D {
     }
     const p = ps.player;
     this.target.set(p.x, this.h(p.x, p.y), p.y);
+    this.bindOrbit(ps);
+  }
+
+  // Turning the camera: drag on the picture where there is no button (right of the stick), or Z / C on a keyboard.
+  bindOrbit(ps) {
+    this.orbitKeys = ps.input.keyboard?.addKeys('Z,C') ?? null;
+    const ui = ps.scene.get('ui');
+    if (!ui?.input) return;
+    const H = this.orbitHandlers ??= {
+      down: (ptr, over) => { if (!this.room && !over.length && ptr.x > GAME_W * 0.45 && !this.ps?.registry.get('uiModal')) this.drag = { id: ptr.id, x: ptr.x, y: ptr.y }; },
+      move: (ptr) => {
+        const d = this.drag;
+        if (!d || ptr.id !== d.id || !ptr.isDown || !this.orbit) return;
+        this.orbit.yaw -= (ptr.x - d.x) * 0.0065;
+        this.orbit.pitch = Math.min(ORBIT.maxPitch, Math.max(ORBIT.minPitch, this.orbit.pitch + (ptr.y - d.y) * 0.004));
+        d.x = ptr.x; d.y = ptr.y;
+      },
+      up: (ptr) => { if (this.drag?.id === ptr.id) this.drag = null; },
+    };
+    for (const [ev, fn] of [['pointerdown', H.down], ['pointermove', H.move], ['pointerup', H.up], ['pointerupoutside', H.up]]) { ui.input.off(ev, fn); ui.input.on(ev, fn); }
   }
 
   // ground height under a spot of the 2D map (0 while no island is built)
@@ -290,8 +313,8 @@ export default class World3D {
     const rnd = rng(seed * 3 + 11), g = new THREE.Group();
     const mat = this.farMat ??= new THREE.MeshLambertMaterial({ vertexColors: true });
     this.farIslands = [];
-    for (let i = 0; i < 7; i++) {
-      const a = Math.PI * (1.08 + 0.84 * (i + rnd() * 0.8) / 7), d = Math.max(W, H) * 0.62 + 420 + rnd() * 900, r = 110 + rnd() * 210;
+    for (let i = 0; i < 11; i++) {                     // all around: the camera can look any way
+      const a = Math.PI * 2 * (i + rnd() * 0.8) / 11, d = Math.max(W, H) * 0.62 + 420 + rnd() * 900, r = 110 + rnd() * 210;
       const isl = new THREE.Group();
       // rock underside (upside-down cone, knobbly) and a grassy cap
       const body = new THREE.ConeGeometry(r, r * (1.2 + rnd() * 0.8), 11, 4).rotateX(Math.PI);
@@ -410,8 +433,33 @@ export default class World3D {
     const goal = r ? new THREE.Vector3(r.fx + r.fw / 2 + (p.x - r.fx - r.fw / 2) * 0.22, 0, r.fy + r.fh / 2 + (p.y - r.fy - r.fh / 2) * 0.22) : new THREE.Vector3(p.x, this.h(p.x, p.y), p.y);
     if (this.target.distanceTo(goal) > 360) this.target.copy(goal);      // teleport / travel: jump, don't glide across the map
     else this.target.lerp(goal, Math.min(1, dt * 7));
-    this.camera.position.set(this.target.x, this.target.y + cam.up, this.target.z + cam.back);
-    this.camera.lookAt(this.target.x, this.target.y + cam.look, this.target.z);
+    const ob = this.orbit ??= { yaw: 0, pitch: ORBIT.pitch, k: 1 };
+    if (r) {
+      this.camera.position.set(this.target.x, this.target.y + cam.up, this.target.z + cam.back);
+      this.camera.lookAt(this.target.x, this.target.y + cam.look, this.target.z);
+      this.cdx = 0; this.cdz = 1;
+    } else {
+      const keys = this.orbitKeys;
+      if (keys && !ps.registry.get('uiModal')) ob.yaw += ((keys.Z.isDown ? 1 : 0) - (keys.C.isDown ? 1 : 0)) * dt * 1.8;
+      const cp = Math.cos(ob.pitch), sp = Math.sin(ob.pitch), sy = Math.sin(ob.yaw), cy = Math.cos(ob.yaw), T = this.target;
+      // a hill between the camera and the player: come closer instead of looking at the hillside
+      let k = 1;
+      for (let i = 1; i <= 6; i++) {
+        const t = i / 6, x = T.x + sy * cp * ORBIT.dist * t, z = T.z + cy * cp * ORBIT.dist * t;
+        if (this.h(x, z) + 16 > T.y + ORBIT.look + sp * ORBIT.dist * t) { k = Math.max(0.28, (i - 1) / 6); break; }
+      }
+      ob.k += (k - ob.k) * Math.min(1, dt * (k < ob.k ? 12 : 3));
+      const d = ORBIT.dist * ob.k;
+      this.camera.position.set(T.x + sy * cp * d, T.y + ORBIT.look + sp * d, T.z + cy * cp * d);
+      this.camera.lookAt(T.x, T.y + ORBIT.look, T.z);
+      this.cdx = sy; this.cdz = cy;                       // on the ground: from the player toward the camera
+    }
+    const fov = r ? CAM.fov : ORBIT.fov;
+    if (this.camera.fov !== fov) { this.camera.fov = fov; this.camera.updateProjectionMatrix(); }
+    ps.actions.yaw = r ? 0 : ob.yaw;
+    // far things soften a little; nothing blurs in front (the old band of sharpness across the middle read as a 2D diorama)
+    const lk = this.post.look.uniforms;
+    lk.uFocus.value = r ? 0.5 : 0.36; lk.uBand.value = r ? 0.27 : 0.5; lk.uVig.value = r ? 0.26 : 0.16;
     this.up.set(0, 1, 0).applyQuaternion(this.camera.quaternion);
     this.camera.updateMatrixWorld();
     this.sky.position.copy(this.camera.position);
@@ -463,7 +511,7 @@ export default class World3D {
         const vx = o.x - (e.lx ?? o.x), vy = o.y - (e.ly ?? o.y), sp = Math.hypot(vx, vy) / Math.max(this.dt, 1e-3);
         e.lx = o.x; e.ly = o.y;
         if (sp > 12) e.face = Math.atan2(vx, vy);                       // toward where it walks
-        else if (e.face == null || Math.abs(Math.sin(e.face)) < 0.2 || Math.cos(e.face) < 0.3) e.face = (o.flipX ? 1 : -1) * 0.55;   // standing: turned a little, toward the camera
+        else if (e.face == null) e.face = (o.flipX ? 1 : -1) * 0.55 + (this.orbit?.yaw ?? 0);        // first seen: turned a little toward the camera; afterwards it keeps looking where it last went
         m.position.set(o.x, gy, o.y);
         m.scale.setScalar(o.height * Math.sqrt(Math.abs(o.scaleX * o.scaleY)) * 0.9 * m.userData.size);      // (size without the squash of the 2D tweens)
         // the 2D scene squashes the sprite when working, turns it when fainting, blinks it when hurt: read that and act it out
@@ -479,8 +527,8 @@ export default class World3D {
         if (ud.foot) m.rotation.y = o.flipX ? Math.PI / 2 : 0;
         if (ud.spin) m.rotation.y = -o.rotation;                                        // bridges lie the way the 2D picture is turned
         if (ud.hover) m.position.y += ud.hover + Math.sin(this.time * 1.4 + o.x * 0.01) * 5;   // the airship floats
-        const front = o.y - pl.y;
-        this.kit.setGhost(m, e.tall && front > 24 && front < 330 && Math.abs(o.x - pl.x) < 70 + dw * 0.5);
+        const rx = o.x - pl.x, rz = o.y - pl.y, front = rx * this.cdx + rz * this.cdz;      // how far it is from the player toward the camera
+        this.kit.setGhost(m, e.tall && front > 24 && front < 330 && Math.abs(rx * this.cdz - rz * this.cdx) < 70 + dw * 0.5);
         e.foot = { x: o.x, y: o.y, w: dw, h: dh * 1.25 };
         continue;
       }
@@ -492,7 +540,7 @@ export default class World3D {
       if (o.isTinted) tint.multiply(tc.setHex(o.tintTopLeft));
       mat.color.copy(tint);
       if (e.kind === 'up' && !e.soft && dh > 96 && o !== pl) {
-        const front = o.y - pl.y;                       // > 0: nearer to the camera than the player
+        const front = (o.x - pl.x) * this.cdx + (o.y - pl.y) * this.cdz;      // > 0: nearer to the camera than the player
         const a = front > 30 ? Math.max(0.28, 1 - (front - 30) / 150) * o.alpha : o.alpha;
         if (a < 0.99) { if (!mat.transparent) { mat.transparent = true; mat.needsUpdate = true; } mat.opacity = a; }
       }
