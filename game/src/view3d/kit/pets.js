@@ -67,8 +67,16 @@ export function makePetKit() {
           m.roughness = Math.max(m.roughness, 0.72);
           soften(m, true);
         });
-        g.scene.userData.clips = g.animations ?? [];           // a rigged model brings its own motions (idle, walk …)
-        sources.set(def[0], g.scene);
+        // Whatever the file's own size and offset (rigged models differ from plain ones): measure it as it will be drawn
+        // and make it exactly 1 unit tall, standing on the ground, centred.
+        const wrap = new THREE.Group();
+        wrap.add(g.scene);
+        wrap.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(wrap), k = 1 / Math.max(box.max.y - box.min.y, 1e-6);
+        g.scene.scale.multiplyScalar(k);
+        g.scene.position.multiplyScalar(k).add(new THREE.Vector3(-(box.min.x + box.max.x) / 2 * k, -box.min.y * k, -(box.min.z + box.max.z) / 2 * k));
+        wrap.userData.clips = g.animations ?? [];              // a rigged model brings its own motions (idle, walk …)
+        sources.set(def[0], wrap);
       }, undefined, () => sources.set(def[0], null));
       return null;
     }
