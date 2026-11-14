@@ -11,6 +11,7 @@
 // parts, when the model has them — tail, ears, arms, legs, blinking.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 // texture key of the 2D sprite → [model file, size compared with the sprite]
 // (evolved forms use the same model a little bigger for now; the fox's human form and the townsfolk have no model yet)
@@ -66,6 +67,7 @@ export function makePetKit() {
           m.roughness = Math.max(m.roughness, 0.72);
           soften(m, true);
         });
+        g.scene.userData.clips = g.animations ?? [];           // a rigged model brings its own motions (idle, walk …)
         sources.set(def[0], g.scene);
       }, undefined, () => sources.set(def[0], null));
       return null;
@@ -77,7 +79,8 @@ export function makePetKit() {
   function instance(key) {
     const src = source(key);
     if (!src) return null;
-    const m = src.clone(true);
+    const clips = src.userData.clips ?? [];
+    const m = clips.length ? cloneSkinned(src) : src.clone(true);          // bones need their own copy per instance
     const parts = {};
     const g = new THREE.Group();
     const fx = { root: new THREE.Vector4(0, 0, 0, 1), bend: new THREE.Vector2(), flash: 0 };
@@ -93,6 +96,16 @@ export function makePetKit() {
     });
     g.add(m);
     g.userData = { parts, inner: m, size: MODELS[key][1], yaw: 0, walk: 0, roll: 0, seed: Math.random() * 10, fx, wp: new THREE.Vector3() };
+    if (clips.length) {
+      // skeleton animation: one clip standing, one walking (picked by name; first clip if nothing matches), blended by how fast it moves
+      const mixer = new THREE.AnimationMixer(m), pick = (re) => clips.find((c) => re.test(c.name));
+      const idle = pick(/idle|stand|breath/i) ?? clips[0], walk = pick(/walk/i) ?? pick(/run/i) ?? null;
+      const act = { idle: mixer.clipAction(idle), walk: walk && walk !== idle ? mixer.clipAction(walk) : null };
+      act.idle.play(); act.walk?.play();
+      if (act.walk) act.walk.setEffectiveWeight(0);
+      m.traverse((o) => { if (o.isSkinnedMesh) o.frustumCulled = false; });      // the bones move it outside its resting box
+      g.userData.rig = { mixer, act };
+    }
     return g;
   }
 
@@ -105,7 +118,14 @@ export function makePetKit() {
     let d = face - u.yaw; d = Math.atan2(Math.sin(d), Math.cos(d));
     u.yaw += d * Math.min(1, dt * 9);
     u.roll += (roll - u.roll) * Math.min(1, dt * 7);
-    const w = u.walk, idle = (1 - w) * (roll ? 0 : 1), step = t * 11 + s, air = Math.abs(Math.sin(step));
+    const rig = u.rig;
+    if (rig) {
+      rig.act.idle.setEffectiveWeight(rig.act.walk ? 1 - u.walk : 1);
+      rig.act.walk?.setEffectiveWeight(u.walk);
+      rig.mixer.update(dt);
+    }
+    // with a skeleton the walk comes from the bones: no hopping and no stretching on top of it
+    const w = rig?.act.walk ? 0 : u.walk, idle = (1 - u.walk) * (roll ? 0 : 1), step = t * 11 + s, air = Math.abs(Math.sin(step));
     // now and then, standing around, a little happy hop
     const cyc = (t * 0.13 + s * 0.37) % 1, happy = cyc < 0.06 ? Math.sin((cyc / 0.06) * Math.PI) * idle : 0;
     m.rotation.set(0, u.yaw + Math.sin(t * 0.5 + s) * 0.22 * idle, u.roll);                      // looks around a little when idle; topples when fainting
@@ -116,7 +136,8 @@ export function makePetKit() {
     m.scale.set(sx, sy, sx);
     // lean: into the walk, a slow sway when idle, a push forward when attacking, a bow when pressed down
     const fwdX = Math.sin(u.yaw), fwdZ = Math.cos(u.yaw), bow = Math.max(0, 1 - squash) * 1.6, sway = Math.sin(t * 1.3 + s) * 0.014 * idle;
-    fx.bend.set(fwdX * (0.07 * w + bow) + fwdZ * sway + lunge * 0.22, fwdZ * (0.07 * w + bow) - fwdX * sway);
+    const sw = rig ? 0 : sway;                                              // (a rigged model already sways in its idle clip)
+    fx.bend.set(fwdX * (0.07 * w + bow) + fwdZ * sw + lunge * 0.22, fwdZ * (0.07 * w + bow) - fwdX * sw);
     fx.flash = hurt ? 0.9 : fx.flash * Math.exp(-dt * 9);
     if (hurt) fx.bend.x += Math.sin(t * 70) * 0.03;                                              // shudder
     g.getWorldPosition(u.wp);
