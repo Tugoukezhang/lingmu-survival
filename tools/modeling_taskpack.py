@@ -27,7 +27,7 @@ def picture(src, name):
 
 rows = []
 def add(tid, pri, kind, name, what, upload, faces, tex, rig, anims, deliver, credits, note=''):
-    rows.append(dict(编号=tid, 优先级=pri, 类别=kind, 名称=name, 做什么=what, 上传的文件=upload, 面数上限=faces, 贴图=tex, 骨骼类型=rig, 动作=anims, 导出=('GLB，带动画，原地播放' if rig != '不绑' else 'GLB'), 交付文件名=deliver, 参考积分=credits, 备注=note, 状态='待做'))
+    rows.append(dict(编号=tid, 优先级=pri, 类别=kind, 名称=name, 做什么=what, 上传的文件=upload, 面数上限=faces, 贴图=tex, 骨骼类型=rig, 动作=anims, 导出=('FBX（贴图打包在内），带动画，原地播放' if rig != '不绑' else 'FBX（贴图打包在内）'), 交付文件名=deliver, 参考积分=credits, 备注=note, 状态='待做'))
 
 # ---- A: models already generated, only need a skeleton and motions ----
 A = [('player', '主角'), ('pup', '冰蓝小狼'), ('acorn', '橡果刺猬'), ('shark', '航海鲨'), ('starbear', '星星熊仔'), ('shadecat', '月影狐猫')]
@@ -37,7 +37,7 @@ for i, (key, cn) in enumerate(A, 1):
     cands = [c for c in cands if 'rig' not in c.replace('\\', '/').split('/')[-2] and 'anim' not in c.replace('\\', '/').split('/')[-2]]
     if cands:
         shutil.copyfile(cands[0], MOD + f'A{i:02d}_{cn}.glb')
-    add(f'A{i:02d}', 'P0', '只绑骨骼', cn, '上传模型 → 绑骨骼 → 加动作 → 导出', f'模型/A{i:02d}_{cn}.glb', '不改（已是约 1.5 万面）', '不改', '两足（先点「检查」，以网页建议为准）', '待机 idle、走路 walk', f'{key}_rig.glb', 45,
+    add(f'A{i:02d}', 'P0', '只绑骨骼', cn, '上传模型 → 绑骨骼 → 加动作 → 导出', f'模型/A{i:02d}_{cn}.glb', '不改（已是约 1.5 万面）', '不改', '两足（先点「检查」，以网页建议为准）', '待机 idle、走路 walk', f'{key}_rig.fbx', 45,
         '航海鲨如果检查结果不是两足，按网页建议的类型绑；绑不上就告诉 AI' if key == 'shark' else '')
 
 # ---- B: new characters: picture → model → skeleton → motions ----
@@ -63,7 +63,7 @@ B = [
 for i, (pri, key, cn, src, faces, rig, anims, note) in enumerate(B, 1):
     tid = f'B{i:02d}'
     up = picture(src, f'{tid}_{cn.split("（")[0].replace("·", "")}.jpg') if os.path.exists(src) else '（缺原图）'
-    add(tid, pri, '新角色', cn, '图片生成模型 → 绑骨骼 → 加动作 → 导出', up, faces, '精细 / 高清（2K），不要 PBR', rig, anims, f'{key}.glb', 165, note)
+    add(tid, pri, '新角色', cn, '图片生成模型 → 绑骨骼 → 加动作 → 导出', up, faces, '精细 / 高清（2K），不要 PBR', rig, anims, f'{key}.fbx', 165, note)
 
 # ---- C: scenery that a generated model would improve (no skeleton) ----
 C = [
@@ -89,7 +89,7 @@ NOTE = {'campfire_lit': '火苗由程序做；模型里带火也可以，AI 会�
 for i, (pri, key, cn, src, faces) in enumerate(C, 1):
     tid = f'C{i:02d}'
     up = picture(src, f'{tid}_{cn.split("（")[0]}{"_开" if key == "chest_open" else ""}.jpg') if os.path.exists(src) else '（缺原图）'
-    add(tid, pri, '场景物件', cn, '图片生成模型 → 导出', up, faces, '标准或精细（1K–2K），不要 PBR', '不绑', '—', f'{key}.glb', 110, NOTE.get(key, ''))
+    add(tid, pri, '场景物件', cn, '图片生成模型 → 导出', up, faces, '标准或精细（1K–2K），不要 PBR', '不绑', '—', f'{key}.fbx', 110, NOTE.get(key, ''))
 
 cols = ['编号', '优先级', '类别', '名称', '做什么', '上传的文件', '面数上限', '贴图', '骨骼类型', '动作', '导出', '交付文件名', '参考积分', '备注', '状态']
 with io.open(OUT + '任务清单.csv', 'w', encoding='utf-8-sig', newline='') as f:
@@ -106,7 +106,7 @@ tA, rA = table('只绑骨骼'); tB, rB = table('新角色'); tC, rC = table('场
 def total(rs, pri=None): return sum(r['参考积分'] for r in rs if pri is None or r['优先级'] == pri)
 md = f"""# 16 建模任务包（给负责人在 Tripo 网页上做）
 
-更新：2026-11-14。这份清单由脚本生成（`tools/modeling_taskpack.py`），改任务请告诉 AI，不要手改表格。
+更新：2026-11-14（改为面向 Unity：FBX + Unity Humanoid 骨骼）。这份清单由脚本生成（`tools/modeling_taskpack.py`），改任务请告诉 AI，不要手改表格。
 
 ## 怎么用
 1. 按下面的顺序，一个任务一个任务做。每个任务要上传的图片或模型都在本文件夹里（`图片/`、`模型/`）。
@@ -118,8 +118,9 @@ md = f"""# 16 建模任务包（给负责人在 Tripo 网页上做）
 - 模型版本：选最新的。
 - **面数上限**：按表里写的填（三角面）。这是手机能不能流畅跑的关键，不要用默认的高面数。
 - 贴图：按表里写的；**不要勾 PBR**。
-- 导出格式：**GLB**。带骨骼的任务导出时要包含动画，动作选「原地播放 / in place」。
+- 导出格式：**FBX**，贴图选「打包在文件里 / embed」。游戏已决定转 Unity（2026-11-14），FBX 是 Unity 直接能用的格式；网页对照版需要的 GLB 由 AI 自己转。带骨骼的任务导出时要包含动画，动作选「原地播放 / in place」。
 - 一次生成不满意可以重新生成，挑最像原图的那个；重点看脸和背面。
+- 绑骨骼：绑定类型选「人形」（四条腿的选「其他」），**骨骼预设统一选「Unity Humanoid Compatible」**——Unity 能直接把它认成人形角色，所有角色可以共用一套动作。已经用别的预设（Mixamo、Tripo 自带）做好的不用重做，Unity 也能识别。
 - 绑骨骼前先点「检查 / 可绑定检测」，骨骼类型以网页给的建议为准。
 - 原图大多是坐姿或挥手，不是标准站姿：绑出来的走路幅度会偏小，这是已知情况，AI 会在游戏里补弹跳、前倾、拖尾和特效。
 
