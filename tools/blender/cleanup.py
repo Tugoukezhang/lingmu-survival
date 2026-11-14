@@ -42,9 +42,11 @@ for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
 bpy.ops.object.select_all(action='DESELECT')
 obj.select_set(True)
-if opt['turn']:
-    obj.rotation_euler.z += math.radians(opt['turn'])
 bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+if opt['turn']:      # turn about the up axis so the face looks at -y (imported objects use quaternions, so the vertices are turned directly)
+    ca, sa = math.cos(math.radians(opt['turn'])), math.sin(math.radians(opt['turn']))
+    for v in obj.data.vertices:
+        v.co = Vector((v.co.x * ca - v.co.y * sa, v.co.x * sa + v.co.y * ca, v.co.z))
 
 # 1 unit tall, feet on z = 0, centred
 pts = [v.co for v in obj.data.vertices]
