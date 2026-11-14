@@ -10,3 +10,7 @@ docs/参考资料/wiki原文/*
 # Python 运行时缓存
 __pycache__/
 *.pyc
+
+# Tripo 命令行在项目里留下的本地记录
+.tripo/
+tripo-out/
