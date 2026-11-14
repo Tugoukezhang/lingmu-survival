@@ -12,11 +12,15 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { TIME } from './shared.js';
 
 // texture key of the 2D sprite → [model file, size compared with the sprite]
 // (evolved forms use the same model a little bigger for now; the fox's human form and the townsfolk have no model yet)
-const MODELS = { player: ['player', 1.05] };
-for (const id of ['fox', 'pup', 'acorn', 'shark', 'starbear', 'shadecat']) { MODELS[`pet_${id}`] = [id, 1]; MODELS[`pet_${id}_evo`] = [id, 1.1]; }
+// third entry: the pet's element, for the little effect that drifts around it
+const MODELS = { player: ['player', 1.05, null] };
+for (const [id, el] of [['fox', 'fire'], ['pup', 'water'], ['acorn', 'forest'], ['shark', 'water'], ['starbear', 'light'], ['shadecat', 'dark']]) { MODELS[`pet_${id}`] = [id, 1, el]; MODELS[`pet_${id}_evo`] = [id, 1.1, el]; }
+const VIEW = { value: 540 };        // height of the picture in real pixels (for the size of the particles)
+const AURA = { fire: [1.9, 0.75, 0.2], water: [0.6, 1.25, 1.6], forest: [0.75, 1.45, 0.5], light: [1.8, 1.5, 0.6], dark: [1.35, 0.6, 1.75] };
 const PARTS = ['body', 'head', 'tail', 'earL', 'earR', 'armL', 'armR', 'legL', 'legR', 'orb', 'eyeL', 'eyeR'];
 const DAY = { value: 1 };           // 1 by day … lower at night (how strong the fill and rim light are)
 
@@ -24,14 +28,21 @@ const DAY = { value: 1 };           // 1 by day … lower at night (how strong t
 // the fur / skin material also gets the soft fill light, the bright rim and the hit flash.
 function soften(m, body) {
   m.onBeforeCompile = (shader) => {
-    Object.assign(shader.uniforms, { uDay: DAY, uRoot: { value: new THREE.Vector4(0, 0, 0, 1) }, uBend: { value: new THREE.Vector2() }, uFlash: { value: 0 } });
+    Object.assign(shader.uniforms, { uDay: DAY, uTime: TIME, uRoot: { value: new THREE.Vector4(0, 0, 0, 1) }, uBend: { value: new THREE.Vector2() }, uMove: { value: new THREE.Vector3() }, uFlash: { value: 0 } });
     m.userData.shader = shader;
-    shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nuniform vec4 uRoot;\nuniform vec2 uBend;')
+    shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nuniform vec4 uRoot;\nuniform vec2 uBend;\nuniform vec3 uMove;\nuniform float uTime;')
       .replace('#include <project_vertex>', `
         vec4 mvPosition = vec4(transformed, 1.0);
         vec4 kW = modelMatrix * mvPosition;
         float kH = clamp((kW.y - uRoot.y) / uRoot.w, 0.0, 1.4);          // 0 at the feet … 1 at the top of the head
         kW.xz += uBend * (kH * kH * uRoot.w);
+        // Whatever sticks out from the middle of the body — tail, ears, tufts, flames — has no bones of its own:
+        // it flutters all the time and trails behind when the pet moves (uMove: x, z = where it is going, y = how fast).
+        vec2 kR = (kW.xz - uRoot.xz) / uRoot.w;
+        float kLoose = smoothstep(0.2, 0.55, length(kR)) + smoothstep(0.95, 1.25, kH) * 0.6;
+        float kWave = sin(uTime * 5.0 + length(kR) * 9.0 + kH * 4.0 + uRoot.x * 0.05);
+        kW.xz += (vec2(-kR.y, kR.x) * kWave * (0.035 + 0.06 * uMove.y) - uMove.xz * 0.11 * uMove.y) * kLoose * uRoot.w;
+        kW.y += kWave * 0.022 * kLoose * uRoot.w * (0.5 + uMove.y);
         mvPosition = viewMatrix * kW;
         gl_Position = projectionMatrix * mvPosition;`);
     if (!body) return;
@@ -43,6 +54,52 @@ function soften(m, body) {
   };
   m.customProgramCacheKey = () => `pet-soft-${body}`;
   return m;
+}
+
+// Small effects around one pet: motes of its element drifting up (embers, droplets, leaves, sparkles, wisps)
+// and puffs of dust at its feet while it walks. One little cloud of points per pet.
+function makeAura(element) {
+  const nA = element ? 11 : 0, nD = 7, n = nA + nD;
+  const pos = new Float32Array(n * 3), data = new Float32Array(n * 4);
+  for (let i = 0; i < n; i++) {
+    const seed = (i * 0.618034) % 1, a = seed * 6.283, dust = i >= nA;
+    if (!dust) pos.set([Math.cos(a) * (0.18 + seed * 0.3), 0.15 + ((i * 0.37) % 1) * 0.6, Math.sin(a) * (0.18 + seed * 0.3)], i * 3);
+    data.set([seed, dust ? 1 : 0, dust ? 0.11 : 0.04 + seed * 0.045, (i * 0.413) % 1], i * 4);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('aData', new THREE.BufferAttribute(data, 4));
+  const mat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    uniforms: { uTime: TIME, uView: VIEW, uWalk: { value: 0 }, uColor: { value: new THREE.Vector3(...(AURA[element] ?? [1, 1, 1])) } },
+    vertexShader: `uniform float uTime, uWalk, uView; attribute vec4 aData; varying float vA; varying float vK;
+      void main() {
+        float seed = aData.x, kind = aData.y, t; vec3 p = position;
+        if (kind < 0.5) {                                   // a mote of the element: rises, wanders, fades in and out
+          t = fract(uTime * (0.22 + seed * 0.22) + aData.w);
+          p.y += t * 0.55; p.x += sin(t * 6.0 + seed * 30.0) * 0.07; p.z += cos(t * 5.0 + seed * 20.0) * 0.07;
+          vA = sin(t * 3.1416);
+        } else {                                            // dust kicked up by the feet: spreads, rises a little, thins out
+          t = fract(uTime * 1.7 + aData.w);
+          float a = seed * 6.283;
+          p = vec3(cos(a) * (0.1 + 0.32 * t), 0.03 + t * 0.15, sin(a) * (0.1 + 0.32 * t));
+          vA = (1.0 - t) * uWalk;
+        }
+        vK = kind;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_PointSize = aData.z * (kind < 0.5 ? 1.0 : 1.0 + 2.2 * t) * length(modelMatrix[0].xyz) * uView * projectionMatrix[1][1] * 0.5 / -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `uniform vec3 uColor; varying float vA; varying float vK;
+      void main() {
+        float d = length(gl_PointCoord - 0.5);
+        if (d > 0.5 || vA < 0.01) discard;
+        gl_FragColor = vec4(vK < 0.5 ? uColor : vec3(0.88, 0.82, 0.66), vA * smoothstep(0.5, 0.15, d) * (vK < 0.5 ? 0.95 : 0.6));
+      }`,
+  });
+  const points = new THREE.Points(g, mat);
+  points.frustumCulled = false; points.renderOrder = 4;
+  return { points, set: (walk) => { mat.uniforms.uWalk.value = walk; } };
 }
 
 export function makePetKit() {
@@ -91,19 +148,21 @@ export function makePetKit() {
     const m = clips.length ? cloneSkinned(src) : src.clone(true);          // bones need their own copy per instance
     const parts = {};
     const g = new THREE.Group();
-    const fx = { root: new THREE.Vector4(0, 0, 0, 1), bend: new THREE.Vector2(), flash: 0 };
+    const fx = { root: new THREE.Vector4(0, 0, 0, 1), bend: new THREE.Vector2(), move: new THREE.Vector3(), flash: 0 };
     m.traverse((o) => {
       if (PARTS.includes(o.name)) { parts[o.name] = o; o.userData.rot = o.rotation.clone(); o.userData.pos = o.position.clone(); }
       // the materials are shared by every pet of this kind: each one hands over its own lean / flash just before it is drawn
       if (o.isMesh) o.onBeforeRender = () => {
         const sh = o.material.userData.shader;
         if (!sh) return;
-        sh.uniforms.uRoot.value.copy(fx.root); sh.uniforms.uBend.value.copy(fx.bend); sh.uniforms.uFlash.value = fx.flash;
+        sh.uniforms.uRoot.value.copy(fx.root); sh.uniforms.uBend.value.copy(fx.bend); sh.uniforms.uMove.value.copy(fx.move); sh.uniforms.uFlash.value = fx.flash;
         o.material.uniformsNeedUpdate = true;
       };
     });
     g.add(m);
-    g.userData = { parts, inner: m, size: MODELS[key][1], yaw: 0, walk: 0, roll: 0, seed: Math.random() * 10, fx, wp: new THREE.Vector3() };
+    const aura = makeAura(MODELS[key][2]);
+    g.add(aura.points);
+    g.userData = { parts, inner: m, size: MODELS[key][1], yaw: 0, walk: 0, roll: 0, seed: Math.random() * 10, fx, aura, wp: new THREE.Vector3() };
     if (clips.length) {
       // skeleton animation: one clip standing, one walking (picked by name; first clip if nothing matches), blended by how fast it moves
       const mixer = new THREE.AnimationMixer(m), pick = (re) => clips.find((c) => re.test(c.name));
@@ -128,12 +187,14 @@ export function makePetKit() {
     u.roll += (roll - u.roll) * Math.min(1, dt * 7);
     const rig = u.rig;
     if (rig) {
-      rig.act.idle.setEffectiveWeight(rig.act.walk ? 1 - u.walk : 1);
-      rig.act.walk?.setEffectiveWeight(u.walk);
+      const ww = rig.act.walk ? Math.min(1, u.walk * 2.4) : 0;            // the walk takes over as soon as it moves
+      rig.act.idle.setEffectiveWeight(1 - ww);
+      rig.act.walk?.setEffectiveWeight(ww);
+      if (rig.act.walk) rig.act.walk.timeScale = 1.5 + u.walk;                // brisk little steps
       rig.mixer.update(dt);
     }
-    // with a skeleton the walk comes from the bones: no hopping and no stretching on top of it
-    const w = rig?.act.walk ? 0 : u.walk, idle = (1 - u.walk) * (roll ? 0 : 1), step = t * 11 + s, air = Math.abs(Math.sin(step));
+    // with a skeleton the steps come from the bones, but short legs barely show them: keep some of the bounce, lean and stretch on top
+    const w = u.walk * (rig?.act.walk ? 0.6 : 1), idle = (1 - u.walk) * (roll ? 0 : 1), step = t * 11 + s, air = Math.abs(Math.sin(step));
     // now and then, standing around, a little happy hop
     const cyc = (t * 0.13 + s * 0.37) % 1, happy = cyc < 0.06 ? Math.sin((cyc / 0.06) * Math.PI) * idle : 0;
     m.rotation.set(0, u.yaw + Math.sin(t * 0.5 + s) * 0.22 * idle, u.roll);                      // looks around a little when idle; topples when fainting
@@ -144,12 +205,14 @@ export function makePetKit() {
     m.scale.set(sx, sy, sx);
     // lean: into the walk, a slow sway when idle, a push forward when attacking, a bow when pressed down
     const fwdX = Math.sin(u.yaw), fwdZ = Math.cos(u.yaw), bow = Math.max(0, 1 - squash) * 1.6, sway = Math.sin(t * 1.3 + s) * 0.014 * idle;
-    const sw = rig ? 0 : sway;                                              // (a rigged model already sways in its idle clip)
+    const sw = rig ? sway * 0.5 : sway;                                     // (a rigged model already sways a little in its idle clip)
     fx.bend.set(fwdX * (0.07 * w + bow) + fwdZ * sw + lunge * 0.22, fwdZ * (0.07 * w + bow) - fwdX * sw);
     fx.flash = hurt ? 0.9 : fx.flash * Math.exp(-dt * 9);
     if (hurt) fx.bend.x += Math.sin(t * 70) * 0.03;                                              // shudder
     g.getWorldPosition(u.wp);
     fx.root.set(u.wp.x, u.wp.y, u.wp.z, g.scale.y);
+    fx.move.set(fwdX, roll ? 0 : u.walk, fwdZ);
+    u.aura.set(roll ? 0 : u.walk);
 
     // parts (models built in Blender)
     const set = (name, rx, ry, rz) => { const q = p[name]; if (q) q.rotation.set(q.userData.rot.x + rx, q.userData.rot.y + ry, q.userData.rot.z + rz); };
@@ -167,5 +230,5 @@ export function makePetKit() {
     if (p.orb) { const q = p.orb, b = q.userData.pos; q.position.set(b.x + Math.cos(t * 1.4 + s) * 0.03, b.y + Math.sin(t * 2.3 + s) * 0.035, b.z + Math.sin(t * 1.4 + s) * 0.03); }
   }
 
-  return { has: (key) => !!MODELS[key], ready: (key) => !!source(key), instance, animate, setDay: (k) => { DAY.value = k; } };
+  return { has: (key) => !!MODELS[key], ready: (key) => !!source(key), instance, animate, setDay: (k) => { DAY.value = k; }, setView: (h) => { VIEW.value = h; } };
 }

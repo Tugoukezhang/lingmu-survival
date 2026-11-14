@@ -17,6 +17,7 @@ import { makeKit } from './src/view3d/kit/flora.js';
 import { TIME } from './src/view3d/kit/shared.js';
 import { SUN_DIR } from './src/view3d/kit/terrain.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 const q = new URLSearchParams(location.search);
 const night = q.has('night');
@@ -55,9 +56,14 @@ if (glb) {
   const glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, color: new THREE.Color(1.25, 1.15, 1.0) });
   for (const [n, name] of glbNames.entries()) new GLTFLoader().load(`./assets/models/${name}.glb`, (g) => {
     g.scene.traverse((o) => { if (o.isMesh) { if (o.material.name.startsWith('glow')) o.material = glowMat; else { o.castShadow = true; o.receiveShadow = true; if (o.material.map && !o.material.name.startsWith('eye')) o.material.side = THREE.DoubleSide; } } });
+    // ?clip=walk : the same model at several moments of that animation (one per yaw entry), to judge the motion from stills
+    const clipName = q.get('clip'), clip = clipName ? g.animations.find((c) => c.name.toLowerCase().includes(clipName)) : null;
+    if (clipName) window.__clips = g.animations.map((c) => `${c.name} ${c.duration.toFixed(2)}s ${c.tracks.length} tracks`);
     yaws.forEach((yaw, i) => {
-      const m = i ? g.scene.clone() : g.scene;
-      m.scale.setScalar(150); m.rotation.y = yaw; m.position.set((n * yaws.length + i - (glbNames.length * yaws.length - 1) / 2) * 200, 0, 0);      // all in one row
+      const m = g.animations.length ? cloneSkinned(g.scene) : (i ? g.scene.clone() : g.scene);
+      if (clip) { const mixer = new THREE.AnimationMixer(m); mixer.clipAction(clip).play(); mixer.setTime(clip.duration * i / yaws.length); m.traverse((o) => { if (o.isSkinnedMesh) o.frustumCulled = false; }); }
+      const bx = new THREE.Box3().setFromObject(m), kk = 150 / Math.max(bx.max.y - bx.min.y, 1e-6);            // any file size → 150 tall, feet on the ground
+      m.scale.setScalar(kk); m.rotation.y = yaw; m.position.set((n * yaws.length + i - (glbNames.length * yaws.length - 1) / 2) * 200, -bx.min.y * kk, 0);      // all in one row
       scene.add(m);
     });
     window.__loaded = (window.__loaded ?? 0) + 1;

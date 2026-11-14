@@ -386,6 +386,7 @@ export default class World3D {
       this.renderer.setPixelRatio(1);
       this.renderer.setSize(rw, rh, false);
       this.post.setSize(rw, rh);
+      this.pets.setView(rh);
     }
   }
 
@@ -466,7 +467,7 @@ export default class World3D {
         m.position.set(o.x, gy, o.y);
         m.scale.setScalar(o.height * Math.sqrt(Math.abs(o.scaleX * o.scaleY)) * 0.9 * m.userData.size);      // (size without the squash of the 2D tweens)
         // the 2D scene squashes the sprite when working, turns it when fainting, blinks it when hurt: read that and act it out
-        this.pets.animate(m, this.time, this.dt, { moving: Math.min(1, sp / 60), face: e.face, squash: Math.abs(o.scaleY / (o.scaleX || 1)), roll: -o.rotation, hurt: o === pl && o.alpha < 0.9 });
+        this.pets.animate(m, this.time, this.dt, { moving: sp > 10 ? Math.min(1, 0.6 + sp / 150) : 0, face: e.face, squash: Math.abs(o.scaleY / (o.scaleX || 1)), roll: -o.rotation, hurt: o === pl && o.alpha < 0.9 });
         e.foot = { x: o.x, y: o.y, w: dw, h: dh };
         continue;
       }
