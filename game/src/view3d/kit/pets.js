@@ -31,7 +31,9 @@ export function makePetKit() {
           else {
             o.castShadow = true; o.receiveShadow = !o.name.startsWith('eye');
             const m = o.material; m.metalness = 0;
-            if (m.map) { m.roughness = 0.3; m.emissiveMap = m.map; m.emissive.set(0x4a4a4a); m.map.anisotropy = 8; return; }      // eyes: glossy, never murky
+            if (m.map) m.map.anisotropy = 8;
+            if (m.name.startsWith('eye')) { m.roughness = 0.3; m.emissiveMap = m.map; m.emissive.set(0x4a4a4a); return; }      // eyes: glossy, never murky
+            // (models made elsewhere — one textured mesh, no named parts — get the same soft light; they breathe, hop and turn as a whole)
             m.roughness = Math.max(m.roughness, 0.72);
             // toy-like shading: shadows keep their colour (light seems to pass through the fluff) and the outline catches the light
             m.onBeforeCompile = (shader) => {
