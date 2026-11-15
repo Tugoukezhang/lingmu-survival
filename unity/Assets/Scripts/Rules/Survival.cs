@@ -115,6 +115,36 @@ namespace Lingmu.Rules
             int m = (int)Math.Floor(clock);
             return $"{(m / 60) % 24:00}:{m % 60:00}";
         }
+
+        public static readonly Dictionary<string, string> PhaseNames = new Dictionary<string, string> { { "day", "白天" }, { "dusk", "黄昏" }, { "night", "夜晚" } };
+
+        // world colour by time of day (multiply layer, white = unchanged): keyframes, linear in between
+        static readonly (int min, int rgb)[] TintKeys =
+        {
+            (0, 0x5866a8), (4 * 60 + 30, 0x5866a8), (DayStart, 0xe6dcea), (6 * 60 + 40, 0xffffff), (17 * 60, 0xffffff),
+            (DuskStart, 0xffd2a8), (19 * 60, 0xd8a0b0), (NightStart, 0x7a86c0), (22 * 60, 0x5866a8), (Bedtime, 0x5866a8),
+        };
+        static int JsRound(double v) => (int)Math.Floor(v + 0.5);
+        static int Ch(int c, int sh) => (c >> sh) & 255;
+        static int LerpColor(int c1, int c2, double t)
+        {
+            int r = JsRound(Ch(c1, 16) + (Ch(c2, 16) - Ch(c1, 16)) * t), g = JsRound(Ch(c1, 8) + (Ch(c2, 8) - Ch(c1, 8)) * t), b = JsRound(Ch(c1, 0) + (Ch(c2, 0) - Ch(c1, 0)) * t);
+            return (r << 16) | (g << 8) | b;
+        }
+
+        // color = RGB multiply tint; dark = how much the picture is darkened (0 = none, 1 = black)
+        public static (int color, double dark) TintAt(int clock)
+        {
+            int m = ((clock % 1440) + 1440) % 1440;
+            int color = TintKeys[0].rgb;
+            for (int i = 0; i < TintKeys.Length - 1; i++)
+            {
+                var (m1, c1) = TintKeys[i]; var (m2, c2) = TintKeys[i + 1];
+                if (m >= m1 && m <= m2) { color = LerpColor(c1, c2, m2 == m1 ? 0 : (m - m1) / (double)(m2 - m1)); break; }
+            }
+            double mean = (Ch(color, 16) + Ch(color, 8) + Ch(color, 0)) / 765.0;
+            return (color, JsRound((1 - mean) * 1000) / 1000.0);
+        }
     }
 
     public class GameClock
@@ -179,11 +209,11 @@ namespace Lingmu.Rules
                     new ItemStack("item_berry", 5), new ItemStack("item_carrot", 2), new ItemStack("item_fish_roast", 1),
                     new ItemStack("item_hoe", 1), new ItemStack("item_can", 1), new ItemStack("item_seed_carrot", 6),
                 },
-                farm = Newtonsoft.Json.Linq.JObject.Parse("{\"plots\":{},\"shipping\":[]}"),
-                town = Newtonsoft.Json.Linq.JObject.Parse("{\"friend\":{},\"talkDay\":{},\"giftDay\":{},\"quests\":{}}"),
+                farm = new FarmState(),
+                town = new TownState(),
                 recipes = new List<string>(),
-                world = Newtonsoft.Json.Linq.JObject.Parse("{\"expanded\":false,\"bridge\":false}"),
-                house = Newtonsoft.Json.Linq.JObject.Parse("{\"items\":[]}"),
+                world = new WorldState(),
+                house = new HouseState(),
                 pets = pets,
                 party = starter != null ? new List<string> { "pet-" + starter } : new List<string> { "pet-pup", "pet-fox", "pet-acorn" },
                 expedition = null,

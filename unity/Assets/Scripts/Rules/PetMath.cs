@@ -133,7 +133,7 @@ namespace Lingmu.Rules
         // ---------- battle ----------
         public static double DamageRoll(Func<double> rng) => 0.9 + rng() * 0.2;
         // damage = floor(power × atk ÷ def × 0.4 × matchup × rand(0.9–1.1)) + 1
-        public static int CalcDamage(int power, int atk, int def, double mult = 1, double rand = 1) => power == 0 ? 0 : IFloor(power * (double)atk / def * 0.4 * mult * rand) + 1;
+        public static int CalcDamage(int power, double atk, double def, double mult = 1, double rand = 1) => power == 0 ? 0 : IFloor(power * atk / def * 0.4 * mult * rand) + 1;
 
         public static int SkillDamage(PetInstance attacker, PetInstance defender, string skillId, double rand = 1, int? atk = null, int? def = null)
         {

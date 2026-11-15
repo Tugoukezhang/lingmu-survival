@@ -44,6 +44,25 @@ namespace Lingmu.Rules
 
     public class NatureDef { public string id, name, up, down; }
 
+    public class RecipeDef { public string id, @out, station, unlock; public int n; public Dictionary<string, int> cost; }
+    public class CropDef { public string id, name, seed, crop, color; public int days, seedPrice; }
+    public class NpcDef
+    {
+        public string id, name, role; public bool shop;
+        public List<string> loves, likes, dislikes;
+        public Dictionary<string, List<string>> lines;
+    }
+    public class HeartGift { public Dictionary<string, int> items; public string line; }
+    public class QuestReward { public int? clover, friend; public string recipe; public Dictionary<string, int> items; }
+    public class QuestDef
+    {
+        public string id, npc, after, title, ask, thanks;
+        public int? hearts;
+        public Dictionary<string, JToken> need;       // item id → count, or "party" → species id
+        public QuestReward reward;
+    }
+    public class ShopEntry { public string id; public int price; }
+
     public static class GameData
     {
         static bool loaded;
@@ -54,6 +73,34 @@ namespace Lingmu.Rules
         static Dictionary<string, NatureDef> natures;
         static List<string> natureIds, starters, elements;
         static Dictionary<string, JObject> raw = new Dictionary<string, JObject>();
+        static List<RecipeDef> recipes;
+        static Dictionary<string, CropDef> crops;
+        static List<string> cropIds, npcIds, shopBooks;
+        static Dictionary<string, int> prices, giftGain;
+        static Dictionary<string, NpcDef> npcs;
+        static Dictionary<string, Dictionary<int, HeartGift>> heartGifts;
+        static List<QuestDef> quests;
+        static List<ShopEntry> shop;
+
+        public static IReadOnlyList<RecipeDef> Recipes { get { Load(); return recipes; } }
+        public static RecipeDef Recipe(string id) { Load(); return recipes.Find(r => r.id == id) ?? throw new ArgumentException("unknown recipe: " + id); }
+        public static IReadOnlyDictionary<string, CropDef> Crops { get { Load(); return crops; } }
+        public static IReadOnlyList<string> CropIds { get { Load(); return cropIds; } }
+        public static CropDef CropBySeed(string seedId) { Load(); return cropIds.Select(id => crops[id]).FirstOrDefault(c => c.seed == seedId); }
+        public static int? Price(string itemId) { Load(); return prices.TryGetValue(itemId, out var p) ? p : (int?)null; }
+        public static IReadOnlyDictionary<string, NpcDef> Npcs { get { Load(); return npcs; } }
+        public static IReadOnlyList<string> NpcIds { get { Load(); return npcIds; } }
+        public static int GiftGain(string taste) { Load(); return giftGain[taste]; }
+        static int talkGain, giftsPerWeek, weekDays, bookPrice;
+        public static int TalkGain { get { Load(); return talkGain; } }
+        public static int GiftsPerWeek { get { Load(); return giftsPerWeek; } }
+        public static int WeekDays { get { Load(); return weekDays; } }
+        public static int BookPrice { get { Load(); return bookPrice; } }
+        public static IReadOnlyDictionary<int, HeartGift> HeartGiftsOf(string npc) { Load(); return heartGifts.TryGetValue(npc, out var g) ? g : new Dictionary<int, HeartGift>(); }
+        public static IReadOnlyList<QuestDef> Quests { get { Load(); return quests; } }
+        public static QuestDef Quest(string id) { Load(); return quests.Find(q => q.id == id); }
+        public static IReadOnlyList<ShopEntry> Shop { get { Load(); return shop; } }
+        public static IReadOnlyList<string> ShopBooks { get { Load(); return shopBooks; } }
 
         public static IReadOnlyDictionary<string, ItemDef> Items { get { Load(); return items; } }
         public static IReadOnlyList<PetDef> Pets { get { Load(); return pets; } }
@@ -63,7 +110,7 @@ namespace Lingmu.Rules
         public static IReadOnlyList<string> Starters { get { Load(); return starters; } }
         public static IReadOnlyList<string> Elements { get { Load(); return elements; } }
 
-        // a table not yet typed (recipes, crops, npcs, quests): the whole file as JSON
+        // the whole file as JSON (for checks and tools)
         public static JObject Raw(string table) { Load(); return raw[table]; }
 
         public static PetDef Species(string id) { Load(); return petById.TryGetValue(id, out var p) ? p : throw new ArgumentException("unknown pet species: " + id); }
@@ -94,7 +141,24 @@ namespace Lingmu.Rules
             foreach (var kv in natures) kv.Value.id = kv.Key;
             natureIds = n["NATURE_IDS"].ToObject<List<string>>();
             elements = Read("elements")["ELEMENTS"].ToObject<List<string>>();
-            foreach (var t in new[] { "recipes", "crops", "npcs", "quests" }) Read(t);
+            recipes = Read("recipes")["RECIPES"].ToObject<List<RecipeDef>>();
+            var c = Read("crops");
+            crops = c["CROPS"].ToObject<Dictionary<string, CropDef>>();
+            foreach (var kv in crops) kv.Value.id = kv.Key;
+            cropIds = c["CROP_IDS"].ToObject<List<string>>();
+            prices = c["PRICES"].ToObject<Dictionary<string, int>>();
+            var npc = Read("npcs");
+            npcs = npc["NPCS"].ToObject<Dictionary<string, NpcDef>>();
+            foreach (var kv in npcs) kv.Value.id = kv.Key;
+            npcIds = npc["NPC_IDS"].ToObject<List<string>>();
+            giftGain = npc["GIFT"].ToObject<Dictionary<string, int>>();
+            heartGifts = npc["HEART_GIFTS"].ToObject<Dictionary<string, Dictionary<int, HeartGift>>>();
+            talkGain = (int)npc["TALK_GAIN"]; giftsPerWeek = (int)npc["GIFTS_PER_WEEK"]; weekDays = (int)npc["WEEK_DAYS"];
+            var q = Read("quests");
+            quests = q["QUESTS"].ToObject<List<QuestDef>>();
+            shop = q["SHOP"].ToObject<List<ShopEntry>>();
+            shopBooks = q["SHOP_BOOKS"].ToObject<List<string>>();
+            bookPrice = (int)q["BOOK_PRICE"];
         }
     }
 }
