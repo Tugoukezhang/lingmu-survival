@@ -1,0 +1,5 @@
+<!-- Keep code that is only reached by reflection (JSON saves and data tables) when builds strip unused code (WebGL / IL2CPP). -->
+<linker>
+  <assembly fullname="Lingmu.Runtime" preserve="all" />
+  <assembly fullname="Newtonsoft.Json" preserve="all" />
+</linker>
