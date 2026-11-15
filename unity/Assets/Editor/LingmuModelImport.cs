@@ -19,6 +19,7 @@ public class LingmuModelImport : AssetPostprocessor
         if (!IsArt(assetPath)) return;
         var mi = (ModelImporter)assetImporter;
         mi.importCameras = false;
+        mi.bakeAxisConversion = true;      // Tripo exports Z-up: bake the turn into the mesh, so the model's own rotation is plain (otherwise placing it with a yaw tips it over)
         mi.importLights = false;
         mi.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
         mi.materialSearch = ModelImporterMaterialSearch.Local;

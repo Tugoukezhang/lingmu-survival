@@ -151,5 +151,35 @@ public static class LingmuTools
     // while a picture scene is built; the project setting itself stays on (it helps phones).
     public static void Shoot(Camera cam) { for (int i = 0; i < 4; i++) cam.Render(); }
 
+    // Each model at yaw 0 / 90 / 180 / 270, seen from the south (-Z), one row per model: to find which way its front points.
+    public static void Turntable()
+    {
+        string[] names = { "C01_bld_cottage", "C07_tent", "C10_storage", "C11_shipbox", "C12_seedstand", "C13_dock", "C05_airship", "C15_campfire_lit", "C08_chest" };
+        bool batcher = GraphicsSettings.useScriptableRenderPipelineBatching; GraphicsSettings.useScriptableRenderPipelineBatching = false;
+        try
+        {
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var sun = new GameObject("Sun").AddComponent<Light>(); sun.type = LightType.Directional; sun.intensity = 1.5f; sun.transform.rotation = Quaternion.Euler(40, -20, 0);
+            RenderSettings.ambientLight = new Color(0.55f, 0.6f, 0.65f);
+            for (int r = 0; r < names.Length; r++)
+                for (int k = 0; k < 4; k++)
+                {
+                    var asset = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Art/Props/{names[r]}/{names[r]}.fbx");
+                    var g = (GameObject)PrefabUtility.InstantiatePrefab(asset);
+                    g.transform.rotation = Quaternion.Euler(0, k * 90, 0) * g.transform.rotation;
+                    var b = BoundsOf(g); g.transform.localScale *= 1f / Mathf.Max(b.size.x, b.size.z, b.size.y);
+                    b = BoundsOf(g); g.transform.position += new Vector3(k * 1.4f - b.center.x, -b.min.y, -r * 1.4f - b.center.z);
+                }
+            var cam = new GameObject("Cam").AddComponent<Camera>();
+            cam.transform.position = new Vector3(2.1f, 9f, -17f); cam.transform.LookAt(new Vector3(2.1f, 0, -5.6f));
+            cam.fieldOfView = 42; cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0.62f, 0.8f, 0.92f); cam.gameObject.AddComponent<UniversalAdditionalCameraData>();
+            var rt = new RenderTexture(900, 1400, 24); cam.targetTexture = rt; Shoot(cam);
+            RenderTexture.active = rt; var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false); tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0); tex.Apply();
+            File.WriteAllBytes(Out + "turntable.png", tex.EncodeToPNG()); RenderTexture.active = null;
+        }
+        finally { GraphicsSettings.useScriptableRenderPipelineBatching = batcher; }
+        Debug.Log("[Lingmu] turntable written");
+    }
+
     public static void ReportAndPreview() { AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate); LingmuModelImport.FixClips(); ImportReport(); PreviewShot(); }
 }
