@@ -41,6 +41,17 @@ public class LingmuModelImport : AssetPostprocessor
     // 1024 for every model texture, compressed, with mipmaps. The original file is left untouched.
     void OnPreprocessTexture()
     {
+        if (assetPath.StartsWith("Assets/Resources/Icons/"))
+        {
+            // UI icons (128 px): sprites, no mipmaps, crisp on phones
+            var ui = (TextureImporter)assetImporter;
+            ui.textureType = TextureImporterType.Sprite; ui.spriteImportMode = SpriteImportMode.Single;
+            ui.mipmapEnabled = false; ui.alphaIsTransparency = true; ui.maxTextureSize = 256;
+            var a = ui.GetPlatformTextureSettings("Android");
+            a.overridden = true; a.maxTextureSize = 256; a.format = TextureImporterFormat.ASTC_4x4;
+            ui.SetPlatformTextureSettings(a);
+            return;
+        }
         if (!IsArt(assetPath)) return;
         var ti = (TextureImporter)assetImporter;
         ti.maxTextureSize = 1024;

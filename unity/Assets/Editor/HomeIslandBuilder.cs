@@ -4,7 +4,9 @@
 // Menu: Lingmu ▸ Build Home Island. Batch: -executeMethod HomeIslandBuilder.BuildAndShoot (pictures in D:\ClaudeTools\unity\).
 using System.IO;
 using System.Linq;
+using Lingmu.Game;
 using Lingmu.Player;
+using Lingmu.UI;
 using Lingmu.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -99,6 +101,12 @@ public static class HomeIslandBuilder
         profile.Add<Vignette>(true).intensity.Override(0.18f);
         foreach (var comp in profile.components) AssetDatabase.AddObjectToAsset(comp, profile);
         volume.sharedProfile = profile;
+
+        // ---- the game: rules session, farm plots, the screen ----
+        var game = new GameObject("Game");
+        var session = game.AddComponent<GameSession>(); session.player = player.transform; session.sun = sun;
+        game.AddComponent<FarmField>();
+        new GameObject("UI").AddComponent<GameUI>();
 
         EditorSceneManager.SaveScene(scene, ScenePath);
         var scenes = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();

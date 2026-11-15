@@ -49,7 +49,7 @@ namespace Lingmu.Rules
         }
     }
 
-    public struct Light { public double x, y, r; public string kind; }
+    public struct NightLight { public double x, y, r; public string kind; }
 
     // fog monsters and light (night.js). Positions in web px (1 tile = 48 px).
     public static class Night
@@ -87,16 +87,16 @@ namespace Lingmu.Rules
             return Math.Max(r, Explore.GlowTiles(s));
         }
 
-        public static List<Light> Lights(GameState s, double px, double py, IEnumerable<(double x, double y)> fires = null)
+        public static List<NightLight> Lights(GameState s, double px, double py, IEnumerable<(double x, double y)> fires = null)
         {
-            var output = (fires ?? Enumerable.Empty<(double, double)>()).Select(f => new Light { x = f.x, y = f.y, r = LightCampfire * TilePx, kind = "campfire" }).ToList();
+            var output = (fires ?? Enumerable.Empty<(double, double)>()).Select(f => new NightLight { x = f.x, y = f.y, r = LightCampfire * TilePx, kind = "campfire" }).ToList();
             double pr = PlayerLightTiles(s);
-            if (pr > 0) output.Add(new Light { x = px, y = py, r = pr * TilePx, kind = "player" });
+            if (pr > 0) output.Add(new NightLight { x = px, y = py, r = pr * TilePx, kind = "player" });
             return output;
         }
 
         static double Hyp(double x, double y) => Math.Sqrt(x * x + y * y);
-        public static Light? LitBy(List<Light> ls, double x, double y, double margin = 0)
+        public static NightLight? LitBy(List<NightLight> ls, double x, double y, double margin = 0)
         {
             foreach (var l in ls) if (Hyp(x - l.x, y - l.y) < l.r + margin) return l;
             return null;
@@ -105,7 +105,7 @@ namespace Lingmu.Rules
         public class Monster { public double x, y; public bool stopped, retreating; public double nextAttack; public Monster With(double nx, double ny, bool st, bool re) => new Monster { x = nx, y = ny, stopped = st, retreating = re, nextAttack = nextAttack }; }
 
         // monsters walk toward the player, stop at the edge of any light, back out if inside one
-        public static Monster MonsterStep(Monster m, double px, double py, List<Light> ls, double dt, Func<double, double, bool> canStand = null)
+        public static Monster MonsterStep(Monster m, double px, double py, List<NightLight> ls, double dt, Func<double, double, bool> canStand = null)
         {
             var inside = LitBy(ls, m.x, m.y);
             double dx, dy;
@@ -119,11 +119,11 @@ namespace Lingmu.Rules
             return m.With(nx, ny, false, inside != null);
         }
 
-        public static bool CanAttack(Monster m, double px, double py, List<Light> ls, double now) => LitBy(ls, m.x, m.y) == null && now >= m.nextAttack && Hyp(px - m.x, py - m.y) <= AttackRange;
+        public static bool CanAttack(Monster m, double px, double py, List<NightLight> ls, double now) => LitBy(ls, m.x, m.y) == null && now >= m.nextAttack && Hyp(px - m.x, py - m.y) <= AttackRange;
         public static bool WarningHits(double wx, double wy, double wr, double px, double py) => Hyp(px - wx, py - wy) <= wr;
 
         // in the fog (unlit), walkable, 6–9 tiles from the player
-        public static (double x, double y)? PickSpawn(Func<double> rng, double px, double py, List<Light> ls, Func<double, double, bool> canStand, int tries = 40)
+        public static (double x, double y)? PickSpawn(Func<double> rng, double px, double py, List<NightLight> ls, Func<double, double, bool> canStand, int tries = 40)
         {
             for (int i = 0; i < tries; i++)
             {

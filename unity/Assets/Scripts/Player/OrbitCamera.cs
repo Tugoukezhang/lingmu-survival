@@ -17,7 +17,10 @@ namespace Lingmu.Player
         public LayerMask groundMask = ~0;
         [Range(0, 1)] public float dragZone = 0.45f;   // the left part of the screen belongs to the joystick
 
-        Vector3 focus; bool hasFocus; float k = 1; int dragTouch = -1;
+        Vector3 focus; bool hasFocus; float k = 1; int dragTouch = -1; bool mouseDrag;
+        // set by the UI: true when a screen point is over a button or panel (a drag starting there doesn't turn the camera)
+        public static System.Func<Vector2, bool> OverUi;
+        static bool Free(Vector2 p) => OverUi == null || !OverUi(p);
 
         public void Snap() { if (target) { focus = target.position; hasFocus = true; Place(); } }
 
@@ -54,12 +57,17 @@ namespace Lingmu.Player
                 {
                     if (!t.press.isPressed) { if (t.touchId.ReadValue() == dragTouch) dragTouch = -1; continue; }
                     int id = t.touchId.ReadValue();
-                    if (dragTouch == -1 && t.press.wasPressedThisFrame && t.startPosition.ReadValue().x > Screen.width * dragZone) dragTouch = id;
+                    if (dragTouch == -1 && t.press.wasPressedThisFrame && t.startPosition.ReadValue().x > Screen.width * dragZone && Free(t.startPosition.ReadValue())) dragTouch = id;
                     if (id == dragTouch) delta += t.delta.ReadValue();
                 }
             }
             var m = Mouse.current;
-            if (m != null && m.leftButton.isPressed && m.position.ReadValue().x > Screen.width * dragZone) delta += m.delta.ReadValue();
+            if (m != null)
+            {
+                if (m.leftButton.wasPressedThisFrame) mouseDrag = m.position.ReadValue().x > Screen.width * dragZone && Free(m.position.ReadValue());
+                if (!m.leftButton.isPressed) mouseDrag = false;
+                if (mouseDrag) delta += m.delta.ReadValue();
+            }
             if (delta == Vector2.zero) return;
             float scale = 960f / Mathf.Max(Screen.width, 1);          // same feel as the web version's 960-wide layout
             yaw -= delta.x * 0.0065f * scale;

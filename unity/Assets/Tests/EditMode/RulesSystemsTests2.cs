@@ -52,7 +52,7 @@ public class RulesSystemsTests2
         for (int i = 0; i < 20; i++) inside = Night.MonsterStep(inside, 1000, 1000, ls, 0.05);
         c.Ok("在光里的雾怪会往外退", Math.Sqrt((inside.x - 1000) * (inside.x - 1000) + (inside.y - 1000) * (inside.y - 1000)) > 50 && inside.retreating);
         c.Ok("站在光里的雾怪不能攻击，光外够近才攻击", !Night.CanAttack(new Night.Monster { x = 1050, y = 1000 }, 1000, 1000, ls, 0) && Night.CanAttack(new Night.Monster { x = 1000 + r + 20, y = 1000 }, 1000 + r - 100, 1000, ls, 0));
-        var none = new List<Light>();
+        var none = new List<NightLight>();
         c.Ok("攻击冷却 4 秒", !Night.CanAttack(new Night.Monster { nextAttack = 4000 }, 50, 0, none, 3999) && Night.CanAttack(new Night.Monster { nextAttack = 4000 }, 50, 0, none, 4000));
         c.Ok("预警圈：站在圈里被打中，走出 1.2 格就躲开", Night.WarningHits(0, 0, Night.WarnRadius, 50, 0) && !Night.WarningHits(0, 0, Night.WarnRadius, 58, 0));
         c.Near("1.2 秒内走出预警圈：玩家 1.2 秒能走 204 像素，圈半径 57.6", 170 * 1.2 - Night.WarnRadius, 146.4, 0.01);
