@@ -188,8 +188,8 @@ public static class SceneKit
         ("thorn", Props + "C42_thorn", false), ("chest", Props + "C08_chest", false), ("chest_open", Props + "C09_chest_open", false), ("airship", Props + "C05_airship", false),
         ("campfire", Props + "C15_campfire_lit", false), ("tent", Props + "C07_tent", false), ("lamp", Props + "C14_lamp", false), ("fountain", Props + "C06_fountain", false),
         ("bld_shop_granny", Props + "C02_bld_shop_granny", false), ("bld_workshop", Props + "C03_bld_workshop", false), ("bld_lab", Props + "C04_bld_lab", false),
-        ("pet_acorn", Chars + "A03_acorn_unrigged", false), ("pet_shark", Chars + "A04_shark_unrigged", false), ("pet_starbear", Chars + "A05_starbear_unrigged", false),
-        ("pet_shadecat", Chars + "A06_shadecat_unrigged", false), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "A00_fox_rig", true),
+        ("pet_acorn", Chars + "A03_acorn_unrigged", false), ("pet_shark", Chars + "A04_shark_rig", true), ("pet_starbear", Chars + "A05_starbear_rig", true),
+        ("pet_shadecat", Chars + "A06_shadecat_rig", true), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "A00_fox_rig", true),
         ("npc_granny", Chars + "B01_npc_granny", false), ("npc_ali", Chars + "B02_npc_ali", false), ("npc_lumi", Chars + "B03_npc_lumi", false), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
         ("player", Chars + "A01_player_rig", true),
     };

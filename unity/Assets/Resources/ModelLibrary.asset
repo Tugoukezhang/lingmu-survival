@@ -62,17 +62,17 @@ MonoBehaviour:
     model: {fileID: 919132149155446097, guid: a39367cb460567a489f897dc9bcc8026, type: 3}
     animator: {fileID: 0}
   - key: pet_shark
-    model: {fileID: 919132149155446097, guid: ccc8e579bc0694b41810b03b89172414, type: 3}
-    animator: {fileID: 0}
+    model: {fileID: 919132149155446097, guid: 0aad8f55bebc5b644bb08940bc1e2e64, type: 3}
+    animator: {fileID: 9100000, guid: 61c39a3129f18364e87aa9022b904504, type: 2}
   - key: pet_starbear
-    model: {fileID: 919132149155446097, guid: 25716b426e7d747488f8eb6f2cc6da2b, type: 3}
-    animator: {fileID: 0}
+    model: {fileID: 919132149155446097, guid: 40928956fbbe4134caf51dbd40a32bd4, type: 3}
+    animator: {fileID: 9100000, guid: 88dc32aa11e460049afe6aeddb545307, type: 2}
   - key: pet_shadecat
-    model: {fileID: 919132149155446097, guid: 1a731d382a81f8c46a3ee66265af899a, type: 3}
-    animator: {fileID: 0}
+    model: {fileID: 919132149155446097, guid: 73fa1a762bda17f4a926f3f6a24723b1, type: 3}
+    animator: {fileID: 9100000, guid: 2928e962406f88d41a922c29722c132f, type: 2}
   - key: pet_pup
     model: {fileID: 919132149155446097, guid: 255f8d04539515449b2f755e0d5523fc, type: 3}
-    animator: {fileID: 9100000, guid: 38dad837884a3fc4088c78ad62d37715, type: 2}
+    animator: {fileID: 0}
   - key: pet_fox
     model: {fileID: 919132149155446097, guid: 028f354bbf2cefe40882a4bc233ffec4, type: 3}
     animator: {fileID: 9100000, guid: 929dc4a3df38cd546aff6f4af5437538, type: 2}
