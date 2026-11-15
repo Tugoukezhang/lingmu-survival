@@ -14,6 +14,8 @@ namespace Lingmu.Player
         public Transform model;                 // the visible character (turned to face where it walks)
         public float speed = 170f / 48f;        // web SPEED 170 px/s → tiles (m) per second
         public static Vector2 Stick;            // set by the on-screen joystick (UI), -1..1
+        public static float LastPush;           // how hard the player pushes (0..1); below 0.6 counts as sneaking
+        public Vector3 Facing => Quaternion.Euler(0, yaw, 0) * Vector3.forward;
 
         float walk, bob, yaw;
         Animator animator;
@@ -39,6 +41,7 @@ namespace Lingmu.Player
             transform.position = p;
 
             float moving = Mathf.Clamp01(input.magnitude);
+            LastPush = moving;
             walk = Mathf.Lerp(walk, moving, 1 - Mathf.Exp(-Time.deltaTime * 10));
             if (moving > 0.1f) yaw = Mathf.LerpAngle(yaw, Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg, 1 - Mathf.Exp(-Time.deltaTime * 12));
             if (!model) return;

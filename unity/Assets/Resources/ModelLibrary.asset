@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 607f29860bbd92541beecd2059899299, type: 3}
+  m_Name: ModelLibrary
+  m_EditorClassIdentifier: Lingmu.Runtime::Lingmu.World.ModelLibrary
+  entries:
+  - key: tree
+    model: {fileID: 919132149155446097, guid: 94a46f23354a2d9418ab8287a5c0eff3, type: 3}
+    animator: {fileID: 0}
+  - key: pine
+    model: {fileID: 919132149155446097, guid: 5d0b8e5f63ebf7e42b61309412ef6124, type: 3}
+    animator: {fileID: 0}
+  - key: bush
+    model: {fileID: 919132149155446097, guid: b62aba2fd5382ab4abca038e6eb5d606, type: 3}
+    animator: {fileID: 0}
+  - key: shrub
+    model: {fileID: 919132149155446097, guid: 5e49da2f909425c458d3c9e3c0525179, type: 3}
+    animator: {fileID: 0}
+  - key: thorn
+    model: {fileID: 919132149155446097, guid: 9ce68cb2071743b47b8e8ce9387734fa, type: 3}
+    animator: {fileID: 0}
+  - key: chest
+    model: {fileID: 919132149155446097, guid: abba88c06090c844db74ac7d889febeb, type: 3}
+    animator: {fileID: 0}
+  - key: chest_open
+    model: {fileID: 919132149155446097, guid: 6e7b53f22113c4941baf219b109e0bec, type: 3}
+    animator: {fileID: 0}
+  - key: airship
+    model: {fileID: 919132149155446097, guid: bec2ea00c1e8fc04a93fc24d027edac5, type: 3}
+    animator: {fileID: 0}
+  - key: campfire
+    model: {fileID: 919132149155446097, guid: c26f361b7eb6668459e69b183fe62b2d, type: 3}
+    animator: {fileID: 0}
+  - key: tent
+    model: {fileID: 919132149155446097, guid: aebf108c9deca7b42ba32529cadbe712, type: 3}
+    animator: {fileID: 0}
+  - key: lamp
+    model: {fileID: 919132149155446097, guid: 3ecc5696f946a7a448665346a74483c7, type: 3}
+    animator: {fileID: 0}
+  - key: fountain
+    model: {fileID: 919132149155446097, guid: c5187ff098b06004e84482c4866ede74, type: 3}
+    animator: {fileID: 0}
+  - key: bld_shop_granny
+    model: {fileID: 919132149155446097, guid: e0ef17001e256df46839148e141f1bfa, type: 3}
+    animator: {fileID: 0}
+  - key: bld_workshop
+    model: {fileID: 919132149155446097, guid: 3f28b3dd519c7214bb906f2818e3aea6, type: 3}
+    animator: {fileID: 0}
+  - key: bld_lab
+    model: {fileID: 919132149155446097, guid: 1c2388a8940203947be55a1229edff38, type: 3}
+    animator: {fileID: 0}
+  - key: pet_acorn
+    model: {fileID: 919132149155446097, guid: a39367cb460567a489f897dc9bcc8026, type: 3}
+    animator: {fileID: 0}
+  - key: pet_shark
+    model: {fileID: 919132149155446097, guid: ccc8e579bc0694b41810b03b89172414, type: 3}
+    animator: {fileID: 0}
+  - key: pet_starbear
+    model: {fileID: 919132149155446097, guid: 25716b426e7d747488f8eb6f2cc6da2b, type: 3}
+    animator: {fileID: 0}
+  - key: pet_shadecat
+    model: {fileID: 919132149155446097, guid: 1a731d382a81f8c46a3ee66265af899a, type: 3}
+    animator: {fileID: 0}
+  - key: pet_pup
+    model: {fileID: 919132149155446097, guid: 255f8d04539515449b2f755e0d5523fc, type: 3}
+    animator: {fileID: 9100000, guid: 38dad837884a3fc4088c78ad62d37715, type: 2}
+  - key: pet_fox
+    model: {fileID: 919132149155446097, guid: 028f354bbf2cefe40882a4bc233ffec4, type: 3}
+    animator: {fileID: 0}
+  - key: npc_granny
+    model: {fileID: 919132149155446097, guid: 33d758efdd3ecbd47b2355a801c22557, type: 3}
+    animator: {fileID: 0}
+  - key: npc_ali
+    model: {fileID: 919132149155446097, guid: c6a333ee3b41b1f4fb01b08e8ff25512, type: 3}
+    animator: {fileID: 0}
+  - key: npc_lumi
+    model: {fileID: 919132149155446097, guid: 628ea4db5327d6043830e540eee936b6, type: 3}
+    animator: {fileID: 0}
+  - key: npc_innkeeper
+    model: {fileID: 919132149155446097, guid: ead702dfbf136b648aae4f6203001f57, type: 3}
+    animator: {fileID: 9100000, guid: 553fa15b1e6f0d149a5e5ff90bc1464e, type: 2}
+  - key: player
+    model: {fileID: 919132149155446097, guid: a23c948097f908b40902dfe97a07be9e, type: 3}
+    animator: {fileID: 9100000, guid: 892c35fd85951c9419b9081f70ded2b9, type: 2}

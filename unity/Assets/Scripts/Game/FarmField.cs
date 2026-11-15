@@ -26,22 +26,24 @@ namespace Lingmu.Game
         void Start()
         {
             soilDry = Mat(new Color(0.40f, 0.26f, 0.15f)); soilWet = Mat(new Color(0.24f, 0.15f, 0.09f)); leaf = Mat(new Color(0.45f, 0.78f, 0.3f));
-            var s = GameSession.I;
-            var f = s.Layout.FarmRect;
-            for (int y = f.y; y < f.y + f.h; y++)
-                for (int x = f.x; x < f.x + f.w; x++)
-                {
-                    var at = HomeIslandLayout.TileToWorld(x, y);
-                    var v = new PlotView();
-                    v.soil = GameObject.CreatePrimitive(PrimitiveType.Cube); v.soil.name = $"plot {x},{y}";
-                    v.soil.transform.SetParent(transform); v.soil.transform.position = at + new Vector3(0, 0.04f, 0); v.soil.transform.localScale = new Vector3(0.86f, 0.08f, 0.86f);
-                    Destroy(v.soil.GetComponent<Collider>()); v.soilR = v.soil.GetComponent<Renderer>();
-                    v.sprout = GameObject.CreatePrimitive(PrimitiveType.Capsule); v.sprout.transform.SetParent(transform, false);
-                    Destroy(v.sprout.GetComponent<Collider>()); v.sprout.GetComponent<Renderer>().sharedMaterial = leaf;
-                    v.fruit = GameObject.CreatePrimitive(PrimitiveType.Sphere); v.fruit.transform.SetParent(transform);
-                    Destroy(v.fruit.GetComponent<Collider>());
-                    views[Farm.PlotKey(x, y)] = v;
-                }
+            var home = FindAnyObjectByType<HomeArea>();
+            var L = home.Layout;
+            var tiles = new List<(int x, int y)>();
+            foreach (var r in new[] { L.FarmRect, L.ExpandRect })
+                for (int y = r.y; y < r.y + r.h; y++) for (int x = r.x; x < r.x + r.w; x++) tiles.Add((x, y));
+            foreach (var (x, y) in tiles)
+            {
+                var at = HomeIslandLayout.TileToWorld(x, y);
+                var v = new PlotView();
+                v.soil = GameObject.CreatePrimitive(PrimitiveType.Cube); v.soil.name = $"plot {x},{y}";
+                v.soil.transform.SetParent(transform); v.soil.transform.position = at + new Vector3(0, 0.04f, 0); v.soil.transform.localScale = new Vector3(0.86f, 0.08f, 0.86f);
+                Destroy(v.soil.GetComponent<Collider>()); v.soilR = v.soil.GetComponent<Renderer>();
+                v.sprout = GameObject.CreatePrimitive(PrimitiveType.Capsule); v.sprout.transform.SetParent(transform, false);
+                Destroy(v.sprout.GetComponent<Collider>()); v.sprout.GetComponent<Renderer>().sharedMaterial = leaf;
+                v.fruit = GameObject.CreatePrimitive(PrimitiveType.Sphere); v.fruit.transform.SetParent(transform);
+                Destroy(v.fruit.GetComponent<Collider>());
+                views[Farm.PlotKey(x, y)] = v;
+            }
             Refresh();
         }
 

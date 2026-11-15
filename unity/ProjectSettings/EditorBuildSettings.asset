@@ -6,8 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Title.unity
+    guid: 7d858bfceea5c884db34d9ef06379ff9
+  - enabled: 1
     path: Assets/Scenes/HomeIsland.unity
     guid: 6e0e93cb2cea32447b75ff7ac758e7af
+  - enabled: 1
+    path: Assets/Scenes/Expedition.unity
+    guid: 811f102b2ae187243a0f3801e580b9ab
+  - enabled: 1
+    path: Assets/Scenes/Town.unity
+    guid: 2d3a0acea0d365648a2e88895d3f94fd
+  - enabled: 1
+    path: Assets/Scenes/House.unity
+    guid: 5c34a034667c113468a1f718895fc1ac
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05

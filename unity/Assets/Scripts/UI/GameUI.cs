@@ -21,7 +21,7 @@ using static Lingmu.UI.UiKit;
 
 namespace Lingmu.UI
 {
-    public class GameUI : MonoBehaviour
+    public partial class GameUI : MonoBehaviour
     {
         public const float JoyZone = 0.45f;      // same split as OrbitCamera.dragZone
         const float JoyRadius = 110;
@@ -53,11 +53,12 @@ namespace Lingmu.UI
             session.Changed += RefreshHud;
             session.Toast += ShowToast;
             session.DayEnded += ShowReport;
+            session.BattleStarted += ShowBattle;
             OrbitCamera.OverUi = OverUi;
             RefreshHud();
         }
 
-        void OnDestroy() { if (session != null) { session.Changed -= RefreshHud; session.Toast -= ShowToast; session.DayEnded -= ShowReport; } if (OrbitCamera.OverUi == (Func<Vector2, bool>)OverUi) OrbitCamera.OverUi = null; }
+        void OnDestroy() { if (session != null) { session.Changed -= RefreshHud; session.Toast -= ShowToast; session.DayEnded -= ShowReport; session.BattleStarted -= ShowBattle; } if (OrbitCamera.OverUi == (Func<Vector2, bool>)OverUi) OrbitCamera.OverUi = null; }
 
         // ---------- building ----------
         void Build()
@@ -98,6 +99,7 @@ namespace Lingmu.UI
             cloverText = Label(clover, "", 34, WoodDark, true, TextAlignmentOptions.Right); cloverText.rectTransform.Fill(); cloverText.rectTransform.offsetMin = new Vector2(70, 0); cloverText.rectTransform.offsetMax = new Vector2(-22, 0);
             var bag = Button(safe, "背包", WoodMid, Cream, 32, () => Open("bag"), Circle); ((RectTransform)bag.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-28, -118), new Vector2(118, 118));
             var craft = Button(safe, "制作", WoodMid, Cream, 32, () => Open("craft"), Circle); ((RectTransform)craft.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-162, -118), new Vector2(118, 118));
+            var pets = Button(safe, "伙伴", WoodMid, Cream, 32, () => Open("party"), Circle); ((RectTransform)pets.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-296, -118), new Vector2(118, 118));
 
             // joystick (visual only; input is read in Update so it works anywhere in the left zone)
             joyRest = new Vector2(250, 250);
@@ -118,6 +120,8 @@ namespace Lingmu.UI
             modal = Rect("modal", transform).Fill();
             dim = modal.gameObject.AddComponent<Image>(); dim.color = new Color(0.08f, 0.05f, 0.03f, 0.66f);   // looks about half as dark after tone mapping
             modal.gameObject.SetActive(false);
+            battleView = BattleView.Create(transform);
+            battleView.Closed = () => { openPanel = null; RefreshHud(); };
         }
 
         void ApplySafeArea()
@@ -211,7 +215,8 @@ namespace Lingmu.UI
         {
             if (openPanel != null || spot == null) return;
             var panel = session.Act(spot);
-            if (panel != null) Open(panel);
+            if (panel == null || session.Area == null) return;
+            if (panel.StartsWith("talk:")) OpenNpc(panel.Substring(5)); else Open(panel);
         }
 
         // ---------- HUD ----------
@@ -233,7 +238,7 @@ namespace Lingmu.UI
             var goal = Guide.Current(s);
             goalCard.gameObject.SetActive(goal != null);
             if (goal != null) goalText.text = "目标：" + goal.text;
-            if (openPanel != null && openPanel != "report") Fill(openPanel);
+            if (openPanel != null && openPanel != "report" && openPanel != "battle") Fill(openPanel);
         }
 
         void ShowToast(string text)
@@ -255,7 +260,7 @@ namespace Lingmu.UI
 
         public void Open(string panel)
         {
-            if (openPanel == "report" && panel != "report") return;
+            if ((openPanel == "report" || openPanel == "battle") && panel != openPanel) return;
             openPanel = panel;
             modal.gameObject.SetActive(true);
             session.PauseFor("menu");
@@ -267,6 +272,7 @@ namespace Lingmu.UI
 
         public void Close()
         {
+            if (openPanel == "battle") return;
             if (openPanel == "report") { openPanel = null; modal.gameObject.SetActive(false); session.StartNewDay(); if (mover) mover.enabled = true; return; }
             openPanel = null;
             modal.gameObject.SetActive(false);
@@ -297,6 +303,7 @@ namespace Lingmu.UI
                 case "seeds": FillSeeds(); break;
                 case "ship": FillShip(); break;
                 case "storage": FillStorage(); break;
+                default: FillMore(panel); break;
             }
         }
 
@@ -332,10 +339,11 @@ namespace Lingmu.UI
             string extra = def.food != null ? $"\n饱食 +{def.food}" + (def.heal != null ? $"　生命 +{def.heal}" : "") : "";
             if (Farm.PriceOf(selectedItem) is int price) extra += $"\n出货价 {price}";
             var desc = Label(info, def.desc + extra, 27, Ink, false, TextAlignmentOptions.TopLeft); desc.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -350), new Vector2(430, 240));
-            if (def.food != null)
             {
                 var item = selectedItem;
-                var use = Button(info, "吃掉", Yellow, WoodDark, 34, () => { session.Eat(item); }); ((RectTransform)use.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(260, 90));
+                bool closes = item == "item_campfire" && session.Area is ExpeditionArea;
+                var use = Button(info, def.food != null ? "吃掉" : "使用", Yellow, WoodDark, 34, () => { if (closes) Close(); session.Use(item); });
+                ((RectTransform)use.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(260, 90));
             }
         }
 

@@ -8,10 +8,36 @@ using UnityEngine.Rendering;
 
 namespace Lingmu.World
 {
+    // what the terrain needs to know about an island: its tile grid, where the land is, paths and special ground
+    public class IslandShape
+    {
+        public int cols, rows, seed;
+        public System.Func<int, int, bool> land;
+        public List<(Vector2 a, Vector2 b, float bend, float w)> curves = new List<(Vector2, Vector2, float, float)>();   // w < 0: straight band of width -w
+        public RectInt? field;                      // tilled soil (home farm)
+        public Vector2? meadow;                     // lighter grass patch
+        public System.Func<int, int, bool> water;   // shallow ponds (expedition islands)
+
+        public static IslandShape Home(HomeIslandLayout L)
+        {
+            var s = new IslandShape { cols = HomeIslandLayout.Cols, rows = HomeIslandLayout.Rows, seed = L.Seed, land = (x, y) => L.IsLand(x, y),
+                field = new RectInt(L.FarmRect.x, L.FarmRect.y, L.FarmRect.w, L.FarmRect.h), meadow = new Vector2(L.Meadow.x, L.Meadow.y) };
+            var sp = new Vector2(L.Spawn.x + 0.5f, L.Spawn.y + 0.5f);
+            s.curves.Add((sp + new Vector2(-1.4f, -0.9f), sp + new Vector2(1.4f, -0.9f), 0, -1.6f));   // trampled ground around the camp
+            s.curves.Add((sp, new Vector2(L.DockTile.x + 0.5f, L.DockTile.y + 1.3f), 0.06f, 0.8f));                                       // to the dock
+            s.curves.Add((sp, new Vector2(L.BridgeTile.x, L.BridgeTile.y + 0.5f), -0.07f, 0.8f));                                         // to the rope bridge
+            s.curves.Add((sp + new Vector2(-0.6f, -1.4f), new Vector2(L.CottageRect.x + L.CottageRect.w / 2f, L.CottageRect.y + L.CottageRect.h + 0.7f), 0.12f, 0.8f));   // to the cottage door
+            s.curves.Add((sp + new Vector2(0.8f, 0), new Vector2(L.FarmRect.x - 0.2f, L.FarmRect.y + 1.5f), -0.12f, 0.7f));              // to the field
+            return s;
+        }
+    }
+
     [ExecuteAlways]
     public class IslandTerrain : MonoBehaviour
     {
         public int seed = HomeIslandLayout.DefaultSeed;
+        public IslandShape shape;          // set before enabling for any other island; null = the home island from `seed`
+        IslandShape S;
         const int MaskPerTile = 8;        // outline mask: 8 samples per tile
         const int PixPerTile = 32;        // ground painting: 32 pixels per tile
         const float Step = 0.25f;         // top mesh grid spacing (m)
@@ -32,9 +58,9 @@ namespace Lingmu.World
         public void Build()
         {
             Release();
-            var L = HomeIslandLayout.Generate(seed);
-            BuildMask(L);
-            ground = PaintGround(L);
+            S = shape ?? IslandShape.Home(HomeIslandLayout.Generate(seed));
+            BuildMask();
+            ground = PaintGround();
             top = TopMesh();
             cliffTex = CliffTexture();
             cliff = CliffMesh();
@@ -64,15 +90,15 @@ namespace Lingmu.World
         }
 
         // ---------- outline ----------
-        void BuildMask(HomeIslandLayout L)
+        void BuildMask()
         {
-            mw = HomeIslandLayout.Cols * MaskPerTile; mh = HomeIslandLayout.Rows * MaskPerTile;
+            mw = S.cols * MaskPerTile; mh = S.rows * MaskPerTile;
             var hard = new float[mw * mh];
             float r = 0.74f * MaskPerTile;
-            for (int ty = 0; ty < HomeIslandLayout.Rows; ty++)
-                for (int tx = 0; tx < HomeIslandLayout.Cols; tx++)
+            for (int ty = 0; ty < S.rows; ty++)
+                for (int tx = 0; tx < S.cols; tx++)
                 {
-                    if (!L.Walk[ty, tx]) continue;
+                    if (!S.land(tx, ty)) continue;
                     float cx = (tx + 0.5f) * MaskPerTile, cy = (ty + 0.5f) * MaskPerTile;
                     int x0 = Mathf.Max(0, (int)(cx - r - 1)), x1 = Mathf.Min(mw - 1, (int)(cx + r + 1));
                     int y0 = Mathf.Max(0, (int)(cy - r - 1)), y1 = Mathf.Min(mh - 1, (int)(cy + r + 1));
@@ -103,21 +129,16 @@ namespace Lingmu.World
         // ---------- ground painting ----------
         struct Seg { public Vector2 a, b; public float w; }
 
-        static List<Seg> Paths(HomeIslandLayout L)
+        List<Seg> Paths()
         {
-            var s = new Vector2(L.Spawn.x + 0.5f, L.Spawn.y + 0.5f);
             var segs = new List<Seg>();
-            void Curve(Vector2 a, Vector2 b, float bend, float w)
+            foreach (var (a, b, bend, w) in S.curves)
             {
+                if (w < 0) { segs.Add(new Seg { a = a, b = b, w = -w }); continue; }
                 var m = (a + b) / 2 + new Vector2(-(b.y - a.y), b.x - a.x) * bend;
                 Vector2 prev = a;
                 for (int i = 1; i <= 14; i++) { float t = i / 14f, u = 1 - t; var p = u * u * a + 2 * u * t * m + t * t * b; segs.Add(new Seg { a = prev, b = p, w = w }); prev = p; }
             }
-            segs.Add(new Seg { a = s + new Vector2(-1.4f, -0.9f), b = s + new Vector2(1.4f, -0.9f), w = 1.6f });             // trampled ground around the camp
-            Curve(s, new Vector2(L.DockTile.x + 0.5f, L.DockTile.y + 1.3f), 0.06f, 0.8f);                                       // to the dock
-            Curve(s, new Vector2(L.BridgeTile.x, L.BridgeTile.y + 0.5f), -0.07f, 0.8f);                                         // to the rope bridge
-            Curve(s + new Vector2(-0.6f, -1.4f), new Vector2(L.CottageRect.x + L.CottageRect.w / 2f, L.CottageRect.y + L.CottageRect.h + 0.7f), 0.12f, 0.8f);   // to the cottage door
-            Curve(s + new Vector2(0.8f, 0), new Vector2(L.FarmRect.x - 0.2f, L.FarmRect.y + 1.5f), -0.12f, 0.7f);              // to the field
             return segs;
         }
 
@@ -127,15 +148,15 @@ namespace Lingmu.World
             return Vector2.Distance(p, s.a + ab * t);
         }
 
-        Texture2D PaintGround(HomeIslandLayout L)
+        Texture2D PaintGround()
         {
-            int W = HomeIslandLayout.Cols * PixPerTile, H = HomeIslandLayout.Rows * PixPerTile;
+            int W = S.cols * PixPerTile, H = S.rows * PixPerTile;
             var px = new Color32[W * H];
-            var paths = Paths(L);
+            var paths = Paths();
+            var waterC = new Color(0.36f, 0.68f, 0.82f); var waterDeep = new Color(0.22f, 0.5f, 0.7f); var sand = new Color(0.86f, 0.78f, 0.55f);
             var grass = new Color(0.47f, 0.73f, 0.29f); var grassDark = new Color(0.27f, 0.55f, 0.26f); var grassLight = new Color(0.70f, 0.86f, 0.38f);
             var dirt = new Color(0.82f, 0.64f, 0.42f); var dirtRim = new Color(0.58f, 0.55f, 0.32f); var soil = new Color(0.45f, 0.30f, 0.19f);
-            var f = L.FarmRect; var m = L.Meadow;
-            float ox = seed % 97 * 3.1f, oy = seed % 89 * 2.3f;
+            float ox = Mathf.Abs(S.seed) % 97 * 3.1f, oy = Mathf.Abs(S.seed) % 89 * 2.3f;
             for (int py = 0; py < H; py++)
             {
                 float ty = (H - 1 - py + 0.5f) / PixPerTile;          // texture rows go up, tile y goes south
@@ -147,15 +168,25 @@ namespace Lingmu.World
                     c = Color.Lerp(c, grassLight, Mathf.SmoothStep(0.62f, 0.9f, mid) * 0.55f);
                     c *= 0.93f + 0.14f * fine;
                     // the pets' meadow: lighter
-                    float md = Mathf.Pow((tx - m.x - 0.5f) / 3.6f, 2) + Mathf.Pow((ty - m.y - 0.5f) / 2.4f, 2);
-                    if (md < 1) c = Color.Lerp(c, grassLight, (1 - md) * 0.45f);
+                    if (S.meadow is Vector2 m)
+                    {
+                        float md = Mathf.Pow((tx - m.x - 0.5f) / 3.6f, 2) + Mathf.Pow((ty - m.y - 0.5f) / 2.4f, 2);
+                        if (md < 1) c = Color.Lerp(c, grassLight, (1 - md) * 0.45f);
+                    }
                     // dirt paths: olive rim, warm body
                     float d = 99; foreach (var s in paths) d = Mathf.Min(d, DistToSeg(new Vector2(tx, ty), s) - s.w * 0.5f + 0.18f * Mathf.PerlinNoise(tx * 1.7f, ty * 1.7f));
                     if (d < 0.18f) c = Color.Lerp(c, dirtRim, Mathf.InverseLerp(0.18f, 0.05f, d) * 0.6f);
                     if (d < 0.05f) c = Color.Lerp(c, dirt * (0.92f + 0.16f * fine), Mathf.InverseLerp(0.05f, -0.05f, d));
                     // the field: tilled soil in rows
-                    if (tx >= f.x + 0.06f && tx <= f.x + f.w - 0.06f && ty >= f.y + 0.06f && ty <= f.y + f.h - 0.06f)
+                    if (S.field is RectInt f && tx >= f.x + 0.06f && tx <= f.x + f.width - 0.06f && ty >= f.y + 0.06f && ty <= f.y + f.height - 0.06f)
                         c = soil * (0.85f + 0.25f * Mathf.Abs(Mathf.Sin(ty * Mathf.PI * 2)) + 0.08f * fine);
+                    // shallow ponds: sandy rim, then water getting deeper towards the middle
+                    if (S.water != null)
+                    {
+                        float wd = WaterDepth(tx, ty);
+                        if (wd > 0) c = Color.Lerp(c, sand, Mathf.Clamp01(wd * 3f));
+                        if (wd > 0.3f) c = Color.Lerp(waterC, waterDeep, Mathf.Clamp01((wd - 0.3f) * 1.4f)) * (0.95f + 0.1f * mid);
+                    }
                     c.a = MaskAt(tx, ty);
                     px[py * W + pxl] = c;
                 }
@@ -165,10 +196,24 @@ namespace Lingmu.World
             return t;
         }
 
+        // 0 = dry … 1 = deep inside a pond (smooth, from the water tiles around the point)
+        float WaterDepth(float tx, float ty)
+        {
+            float sum = 0, wsum = 0;
+            int x0 = Mathf.FloorToInt(tx - 1.5f), y0 = Mathf.FloorToInt(ty - 1.5f);
+            for (int y = y0; y <= y0 + 3; y++) for (int x = x0; x <= x0 + 3; x++)
+            {
+                float d = Vector2.Distance(new Vector2(tx, ty), new Vector2(x + 0.5f, y + 0.5f));
+                float w = Mathf.Max(0, 1.6f - d);
+                sum += w * (S.water(x, y) ? 1 : 0); wsum += w;
+            }
+            return wsum > 0 ? sum / wsum : 0;
+        }
+
         // ---------- top surface ----------
         Mesh TopMesh()
         {
-            int nx = Mathf.RoundToInt(HomeIslandLayout.Cols / Step), ny = Mathf.RoundToInt(HomeIslandLayout.Rows / Step);
+            int nx = Mathf.RoundToInt(S.cols / Step), ny = Mathf.RoundToInt(S.rows / Step);
             var verts = new List<Vector3>(); var uvs = new List<Vector2>(); var tris = new List<int>();
             var index = new int[(nx + 1) * (ny + 1)];
             for (int j = 0; j <= ny; j++) for (int i = 0; i <= nx; i++)
@@ -176,7 +221,7 @@ namespace Lingmu.World
                 float tx = i * Step, ty = j * Step;
                 index[j * (nx + 1) + i] = verts.Count;
                 verts.Add(new Vector3(tx, 0, -ty));
-                uvs.Add(new Vector2(tx / HomeIslandLayout.Cols, 1 - ty / HomeIslandLayout.Rows));
+                uvs.Add(new Vector2(tx / S.cols, 1 - ty / S.rows));
             }
             for (int j = 0; j < ny; j++) for (int i = 0; i < nx; i++)
             {
@@ -245,7 +290,7 @@ namespace Lingmu.World
                     case 10: segs.Add((Lf(), B())); segs.Add((T(), R())); break;
                 }
             }
-            var centre = new Vector2(HomeIslandLayout.Cols / 2f, HomeIslandLayout.Rows / 2f);
+            var centre = new Vector2(this.S.cols / 2f, this.S.rows / 2f);
             Vector3 WallPoint(Vector2 p, int ring)
             {
                 var dir = centre - p; float len = Mathf.Max(dir.magnitude, 1e-3f);

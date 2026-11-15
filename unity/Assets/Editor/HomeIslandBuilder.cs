@@ -1,59 +1,33 @@
 // Builds the home island scene (Assets/Scenes/HomeIsland.unity) from the ported layout rules and the Tripo models:
 // ground and cliff (IslandTerrain), camp, cottage, farm stand, dock and airship, the 50 trees and 6 rocks at the web
-// version's tiles, the player and a pet, the third-person camera, sun, sky, sea of clouds and the colour grading.
+// version's tiles, the player, the third-person camera, sun, sky, sea of clouds, colour grading, the game and the screen.
 // Menu: Lingmu ▸ Build Home Island. Batch: -executeMethod HomeIslandBuilder.BuildAndShoot (pictures in D:\ClaudeTools\unity\).
 using System.IO;
-using System.Linq;
 using Lingmu.Game;
 using Lingmu.Player;
-using Lingmu.UI;
 using Lingmu.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
+using static SceneKit;
 
 public static class HomeIslandBuilder
 {
-    const string ScenePath = "Assets/Scenes/HomeIsland.unity";
-    const string Gen = "Assets/Generated/HomeIsland";
-    const string Props = "Assets/Art/Props/";
-    const string Chars = "Assets/Art/Characters/";
-
-    enum Fit { Width, Height }
-    // The Tripo props face -X after import; turned 270° their front looks south (toward the camera at the start). See LingmuTools.Turntable.
-    const float FrontSouth = 270;
-
     [MenuItem("Lingmu/Build Home Island")]
     public static void Build()
     {
         var L = HomeIslandLayout.Generate();
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        Directory.CreateDirectory(Gen);
-
-        // ---- light, sky, fog ----
-        var sun = new GameObject("Sun").AddComponent<Light>();
-        sun.type = LightType.Directional; sun.color = new Color(1f, 0.93f, 0.8f); sun.intensity = 1.9f; sun.shadows = LightShadows.Soft; sun.shadowStrength = 0.75f;
-        sun.transform.rotation = Quaternion.Euler(48, -32, 0);
-        var sky = SaveMat(new Material(Shader.Find("Skybox/Procedural")), "Sky");
-        sky.SetFloat("_SunSize", 0.035f); sky.SetFloat("_AtmosphereThickness", 0.75f); sky.SetColor("_SkyTint", new Color(0.55f, 0.72f, 0.95f));
-        sky.SetColor("_GroundColor", new Color(0.93f, 0.96f, 1f)); sky.SetFloat("_Exposure", 1.25f);
-        RenderSettings.skybox = sky; RenderSettings.sun = sun;
-        RenderSettings.ambientMode = AmbientMode.Trilight;
-        RenderSettings.ambientSkyColor = new Color(0.72f, 0.82f, 0.95f); RenderSettings.ambientEquatorColor = new Color(0.62f, 0.72f, 0.62f); RenderSettings.ambientGroundColor = new Color(0.4f, 0.47f, 0.33f);
-        RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 32; RenderSettings.fogEndDistance = 95; RenderSettings.fogColor = new Color(0.8f, 0.89f, 0.96f);
+        var gen = Folder("HomeIsland");
+        var sun = SkyAndSun(gen);
 
         // ---- ground ----
         var island = new GameObject("Island");
         island.AddComponent<IslandTerrain>().seed = L.Seed;
         var walk = island.AddComponent<IslandWalkMap>();
         walk.Init(L);
-        var sea = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        sea.name = "CloudSea"; Object.DestroyImmediate(sea.GetComponent<Collider>());
-        sea.transform.position = new Vector3(25, -8, -17); sea.transform.localScale = new Vector3(60, 1, 60);
-        var seaMat = SaveMat(new Material(Shader.Find("Universal Render Pipeline/Unlit")), "CloudSea"); seaMat.SetColor("_BaseColor", new Color(0.93f, 0.96f, 0.98f));
-        sea.GetComponent<Renderer>().sharedMaterial = seaMat;
+        CloudSea(gen, new Vector3(25, 0, -17));
 
         // ---- props at the web version's tiles ----
         var props = new GameObject("Props").transform;
@@ -75,86 +49,18 @@ public static class HomeIslandBuilder
             walk.Block(t.x, t.y);
         }
         foreach (var r in L.Rocks) { Place(props, Props + "C41_bush", r.x, r.y, 0.9f, Fit.Height, (float)rnd.NextDouble() * 360); walk.Block(r.x, r.y); }   // stand-in until the rock models arrive (C33 / C34)
+        LingmuScenes.RopeBridge(props, L.BridgeTile.x + 0.5f, L.BridgeTile.y, 1);
+        LingmuScenes.Fence(props, L.ExpandRect.x, L.ExpandRect.y, L.ExpandRect.w, L.ExpandRect.h);
 
-        // ---- player, pet, camera ----
-        var player = new GameObject("Player");
-        player.transform.position = HomeIslandLayout.TileToWorld(L.Spawn.x, L.Spawn.y);
-        var body = Place(player.transform, Chars + "A01_player_unrigged", L.Spawn.x, L.Spawn.y, 1.35f, Fit.Height, 0);
-        body.transform.localPosition = Vector3.zero;
-        var mover = player.AddComponent<PlayerMover>(); mover.map = walk; mover.model = body.transform;
-        Place(null, Chars + "A02_pup_rig", L.Spawn.x - 1.1f, L.Spawn.y + 0.5f, 0.8f, Fit.Height, 160);
-
-        var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
-        var cam = camGo.AddComponent<Camera>(); cam.fieldOfView = 50; cam.nearClipPlane = 0.1f; cam.farClipPlane = 300;
-        var data = camGo.AddComponent<UniversalAdditionalCameraData>(); data.renderPostProcessing = true; data.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
-        var orbit = camGo.AddComponent<OrbitCamera>(); orbit.target = player.transform;
-        mover.cameraTransform = camGo.transform;
-        orbit.Snap();
-
-        // ---- colour grading: soft bloom, neutral tone mapping, a little more saturation, light vignette ----
-        var volume = new GameObject("Grading").AddComponent<Volume>(); volume.isGlobal = true;
-        var profile = ScriptableObject.CreateInstance<VolumeProfile>();
-        AssetDatabase.CreateAsset(profile, Gen + "/Grading.asset");
-        var bloom = profile.Add<Bloom>(true); bloom.intensity.Override(0.45f); bloom.threshold.Override(0.95f); bloom.scatter.Override(0.7f);
-        profile.Add<Tonemapping>(true).mode.Override(TonemappingMode.Neutral);
-        var ca = profile.Add<ColorAdjustments>(true); ca.postExposure.Override(0.15f); ca.saturation.Override(14f); ca.contrast.Override(6f);
-        profile.Add<Vignette>(true).intensity.Override(0.18f);
-        foreach (var comp in profile.components) AssetDatabase.AddObjectToAsset(comp, profile);
-        volume.sharedProfile = profile;
-
-        // ---- the game: rules session, farm plots, the screen ----
-        var game = new GameObject("Game");
-        var session = game.AddComponent<GameSession>(); session.player = player.transform; session.sun = sun;
-        game.AddComponent<FarmField>();
-        new GameObject("UI").AddComponent<GameUI>();
-
-        EditorSceneManager.SaveScene(scene, ScenePath);
-        var scenes = EditorBuildSettings.scenes.Where(s => s.path != ScenePath).ToList();
-        scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
-        EditorBuildSettings.scenes = scenes.ToArray();
-        AssetDatabase.SaveAssets();
+        // ---- player, camera, grading, the game ----
+        var (player, mover) = MakePlayer(HomeIslandLayout.TileToWorld(L.Spawn.x, L.Spawn.y), walk);
+        MakeCamera(player, mover);
+        Grading(gen);
+        var area = new GameObject("Home").AddComponent<HomeArea>(); area.walk = walk;
+        var session = AddGame(player, sun);
+        session.gameObject.AddComponent<FarmField>();
+        SaveScene(scene, "HomeIsland");
         Debug.Log($"[Lingmu] home island built: {L.Trees.Count} trees, {L.Rocks.Count} rocks");
-    }
-
-    static Material SaveMat(Material m, string name)
-    {
-        var path = $"{Gen}/{name}.mat";
-        AssetDatabase.DeleteAsset(path);
-        AssetDatabase.CreateAsset(m, path);
-        return m;
-    }
-
-    // Puts a model on a tile (tile centre, web coordinates), scaled so its width or height is `size` metres, standing on the ground.
-    static GameObject Place(Transform parent, string folder, float tx, float ty, float size, Fit fit, float yaw)
-    {
-        var path = $"{folder}/{Path.GetFileName(folder)}.fbx";
-        var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-        if (!asset) { Debug.LogWarning("[Lingmu] missing model " + path); return new GameObject("missing " + folder); }
-        var g = (GameObject)PrefabUtility.InstantiatePrefab(asset, parent);
-        g.transform.rotation = Quaternion.Euler(0, yaw, 0) * g.transform.rotation;      // keep whatever turn the import gave it
-        var b = Bounds(g);
-        float now = fit == Fit.Height ? b.size.y : Mathf.Max(b.size.x, b.size.z);
-        g.transform.localScale *= size / Mathf.Max(now, 1e-4f);
-        b = Bounds(g);
-        var at = HomeIslandLayout.TileToWorld(tx, ty);
-        g.transform.position += new Vector3(at.x - b.center.x, -b.min.y, at.z - b.center.z);
-        return g;
-    }
-
-    // visible size, also for skinned characters (their renderer bounds include the whole skeleton)
-    static Bounds Bounds(GameObject g)
-    {
-        bool any = false; var bb = new Bounds();
-        void Add(Vector3 p) { if (!any) { bb = new Bounds(p, Vector3.zero); any = true; } else bb.Encapsulate(p); }
-        foreach (var mf in g.GetComponentsInChildren<MeshFilter>()) if (mf.sharedMesh) foreach (var v in mf.sharedMesh.vertices) Add(mf.transform.TransformPoint(v));
-        foreach (var s in g.GetComponentsInChildren<SkinnedMeshRenderer>())
-        {
-            if (!s.sharedMesh) continue;
-            var m = new Mesh(); s.BakeMesh(m, true);
-            foreach (var v in m.vertices) Add(s.transform.TransformPoint(v));
-            Object.DestroyImmediate(m);
-        }
-        return bb;
     }
 
     // ---------- pictures for checking from the command line ----------
@@ -171,7 +77,6 @@ public static class HomeIslandBuilder
             orbit.yaw = 2.6f; orbit.pitch = 0.5f; orbit.Snap();
             Save(cam, "home_player_back.png");
             orbit.yaw = 0; orbit.pitch = 0.42f; orbit.Snap();
-            // whole island from high up
             var t = cam.transform; var keep = (t.position, t.rotation); orbit.enabled = false;
             t.position = new Vector3(25, 26, -48); t.LookAt(new Vector3(25, 0, -18));
             Save(cam, "home_overview.png");

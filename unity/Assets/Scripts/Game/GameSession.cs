@@ -1,13 +1,14 @@
-// Runs the game rules (Lingmu.Rules) inside a scene: loads / saves the game, moves the clock, applies survival,
-// ends the day at bedtime, and offers the actions the UI calls (sleep, farm, eat, craft, buy, ship, storage).
-// Everything that changes the game state goes through here, so the UI only draws and calls.
+// Runs the game rules (Lingmu.Rules) inside a scene: keeps the one game state across scenes, loads / saves it, moves the
+// clock, applies survival, ends the day, switches areas (scenes), runs battles. What is special about a place
+// (home farm, expedition resources, town residents, the room) lives in that scene's Area component.
+// Everything that changes the game state goes through here or an Area, so the UI only draws and calls.
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Lingmu.Rules;
-using Lingmu.World;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Lingmu.Game
 {
@@ -22,99 +23,171 @@ namespace Lingmu.Game
         public void Remove(string key) { if (File.Exists(PathOf(key))) File.Delete(PathOf(key)); }
     }
 
-    public class Spot { public string kind, verb, label, key; public Vector3 pos; }
+    public class Spot { public string kind, verb, label, key; public Vector3 pos; public object data; }
+
+    // one per scene: what can be done where, and what the place does every 10 game minutes
+    public abstract class Area : MonoBehaviour
+    {
+        public abstract string Id { get; }                                  // home | expedition | town | house
+        public abstract Vector3 ArrivePoint(GameState s);                   // where the player appears when not restoring a position
+        public virtual bool CanStand(Vector3 p) => true;
+        public virtual Spot CurrentSpot(Vector3 p) => null;
+        public virtual string Act(Spot s) => null;                          // returns a panel for the UI to open, or null
+        public virtual void OnTick() { }
+        public virtual void OnDayEnded() { }
+        public virtual void OnBattleEnded(string wildId, string result) { }
+        protected GameSession Session => GameSession.I;
+        protected GameState S => GameSession.I.S;
+    }
 
     public class GameSession : MonoBehaviour
     {
         public static GameSession I { get; private set; }
-        public const float PxPerMeter = 48f;            // web saves positions in px (1 tile = 48 px = 1 m)
-        const float InteractRange = 70f / PxPerMeter;   // web INTERACT_RANGE
+        public const float PxPerMeter = 48f;                 // web saves positions in px (1 tile = 48 px = 1 m)
+        public static readonly Dictionary<string, string> Scenes = new Dictionary<string, string> { { "home", "HomeIsland" }, { "expedition", "Expedition" }, { "town", "Town" }, { "house", "House" } };
 
         public Transform player;
         public Light sun;
-        public float timeScale = 1;                     // > 1 for testing day / night
-        public bool demoStart;                          // no save yet: start with all six pets instead of the fox
-        public static string SaveDirOverride;           // tests: keep their saves away from the real one
+        public float timeScale = 1;                          // > 1 for testing day / night
+        public bool indoor;                                  // the room: warm lamplight instead of the night blue
+
+        public static string SaveDirOverride;                // tests: keep their saves away from the real one
+        static GameState shared;                             // survives scene changes
+        static SaveStore store;
+        static string storeDir;
+        public static SettlementReport PendingReport;        // to show after a scene change (fainting)
+        public static string PendingToast;
 
         public GameState S { get; private set; }
+        public Area Area { get; private set; }
         public readonly GameClock Clock = new GameClock();
-        public event Action Changed;                    // something the HUD shows changed
+        public event Action Changed;                         // something the HUD shows changed
         public event Action<string> Toast;
         public event Action<SettlementReport> DayEnded;
+        public event Action<BattleState> BattleStarted;
+        public event Action<BattleSummary> BattleFinished;
         public string LoadProblem { get; private set; }
+        public BattleState Battle { get; private set; }
+        string battleWild;
 
-        SaveStore store;
-        HomeIslandLayout L;
-        readonly List<Spot> spots = new List<Spot>();
-        Color sunColor; float sunIntensity; Color ambient;
+        Color sunColor; float sunIntensity; Color ambient, equator, groundAmb, fogColor; Material sky; float skyExposure;
         int ticksSinceSave;
+        bool leaving;
+
+        static string Dir => SaveDirOverride ?? System.IO.Path.Combine(Application.persistentDataPath, "save");
+        public static SaveStore Store
+        {
+            get
+            {
+                if (store == null || storeDir != Dir) { store = new SaveStore(new FileSaveStorage(Dir)); storeDir = Dir; shared = null; }
+                return store;
+            }
+        }
+
+        public static bool HasSave => Store.Load(() => null).source != "new";
+        public static void UseState(GameState s) { var _ = Store; shared = s; }   // the title page starts a new game with this
+        public static void ForgetState() { shared = null; }                       // tests
 
         void Awake()
         {
             I = this;
-            store = new SaveStore(new FileSaveStorage(SaveDirOverride ?? System.IO.Path.Combine(Application.persistentDataPath, "save")));
-            var loaded = store.Load(() => demoStart ? SaveRules.NewGameState() : SaveRules.NewGameState(starter: "fox"));
-            S = loaded.state;
-            LoadProblem = loaded.problem;
-            // only the home island exists in Unity so far: an expedition / town / house save wakes up at home
-            if (S.player.area != "home") { S.player.area = "home"; S.player.x = null; S.player.y = null; }
-            L = HomeIslandLayout.Generate();
-            BuildSpots();
+            Area = FindAnyObjectByType<Area>();
+            var st = Store;
+            if (shared == null)
+            {
+                var loaded = st.Load(() => SaveRules.NewGameState(starter: "fox"));
+                shared = loaded.state;
+                LoadProblem = loaded.problem;
+            }
+            S = shared;
+            if (Area != null && S.player.area != Area.Id)
+            {
+                // opened this scene directly (editor / tests): pretend we arrived here
+                if (Area.Id == "expedition" && S.expedition == null) S.expedition = new ExpeditionState { seed = Travel.NewIslandSeed(S) };
+                S.player.area = Area.Id; S.player.x = S.player.y = null;
+            }
             if (sun) { sunColor = sun.color; sunIntensity = sun.intensity; }
-            ambient = RenderSettings.ambientSkyColor;
+            ambient = RenderSettings.ambientSkyColor; equator = RenderSettings.ambientEquatorColor; groundAmb = RenderSettings.ambientGroundColor; fogColor = RenderSettings.fogColor;
+            if (RenderSettings.skybox) { sky = new Material(RenderSettings.skybox); RenderSettings.skybox = sky; skyExposure = sky.HasProperty("_Exposure") ? sky.GetFloat("_Exposure") : 1; }   // a copy: never change the saved asset
         }
 
         void Start()
         {
-            if (player && S.player.x != null && S.player.y != null)
-                player.position = new Vector3((float)S.player.x.Value / PxPerMeter, player.position.y, -(float)S.player.y.Value / PxPerMeter);
+            if (player && Area != null)
+            {
+                var at = Area.ArrivePoint(S);
+                if (S.player.x != null && S.player.y != null)
+                {
+                    var saved = new Vector3((float)S.player.x.Value / PxPerMeter, at.y, -(float)S.player.y.Value / PxPerMeter);
+                    if (Area.CanStand(saved)) at = saved;
+                }
+                player.position = new Vector3(at.x, player.position.y, at.z);
+                S.flags.arriveAt = null;
+            }
             if (LoadProblem != null) Say("存档读取有问题，已用备份或新存档继续");
+            if (PendingToast != null) { Say(PendingToast); PendingToast = null; }
             ApplyLight();
             Changed?.Invoke();
-        }
-
-        void BuildSpots()
-        {
-            void Add(string kind, string verb, string label, float tx, float ty) => spots.Add(new Spot { kind = kind, verb = verb, label = label, pos = HomeIslandLayout.TileToWorld(tx, ty) });
-            Add("tent", "睡觉", "帐篷 · 点互动睡觉", L.Tent.x, L.Tent.y);
-            Add("ship", "出货", "出货箱 · 放进去的东西明早换成四叶草", L.ShipBox.x, L.ShipBox.y);
-            Add("seeds", "买种子", "种子摊 · 买种子", L.SeedStand.x, L.SeedStand.y);
-            Add("storage", "仓库", "仓库 · 点互动打开", L.Storage.x, L.Storage.y);
-            Add("dock", "出发", "飞艇码头 · 坐飞艇去远征岛", L.DockTile.x, L.DockTile.y + 0.5f);
-            Add("door", "进屋", "小屋 · 进屋", L.CottageRect.x + L.CottageRect.w / 2f - 0.5f, L.CottageRect.y + L.CottageRect.h);
-            Add("campfire", "营火", "营火 · 家园的营火一直烧着", L.Campfire.x, L.Campfire.y);
+            if (PendingReport != null) { var r = PendingReport; PendingReport = null; Clock.Pause("report"); DayEnded?.Invoke(r); }
         }
 
         // ---------- the clock ----------
         void Update()
         {
+            if (leaving) return;
             foreach (var e in Clock.Advance(S, Time.deltaTime * 1000 * timeScale))
             {
                 if (e.type == "tick") OnTick();
-                else if (e.type == "phase") { ApplyLight(); if (e.to == "dusk") Say("黄昏了，天快黑了"); else if (e.to == "night") Say("天黑了，早点回帐篷睡觉吧"); }
-                else if (e.type == "bedtime") { Say("到 24 点了，你困得在帐篷里睡着了"); EndDay(true); }
+                else if (e.type == "phase") OnPhase(e.to);
+                else if (e.type == "bedtime") { Say("太晚了……你困得睡着了"); EndDay(true); }
+                else if (e.type == "dawn") { Say("天亮了，你一夜没睡"); EndDay(false); }
+                if (leaving) break;
             }
+        }
+
+        void OnPhase(string to)
+        {
+            ApplyLight();
+            bool away = S.player.area == "expedition";
+            Say(to switch
+            {
+                "dusk" => away ? "天黑了：20 点起雾。在岛上过夜大约要 8 份木材（营火 4 + 添柴 4），或者坐飞艇回家" : "天色暗下来了",
+                "night" => away ? "入夜了，小心雾怪" : "夜深了，早点去睡吧",
+                "day" => "天亮了",
+                _ => null,
+            });
         }
 
         void OnTick()
         {
             foreach (var ev in Survival.Tick(S.player, S.player.area))
-                Say(ev switch { "hungry" => "肚子饿了：打开背包吃点东西", "empty" => "饿坏了！再不吃东西会掉生命", "floor" => "饿得没力气了（在家园不会倒下）", _ => null });
+            {
+                Say(ev switch { "hungry" => "肚子有点饿了，记得吃东西", "empty" => "饿坏了！生命会慢慢减少，快吃点东西", "floor" => "快去吃点东西！再饿下去就走不动了", _ => null });
+                if (ev == "faint") { Faint(); return; }
+            }
+            Area?.OnTick();
             ApplyLight();
             AfterAction();
             if (++ticksSinceSave >= 6) Save();      // every game hour
         }
 
-        void ApplyLight()
+        // the world colour by time of day (web tintAt): the sun, the sky, the ambient light and the fog all follow it
+        public void ApplyLight()
         {
             var (rgb, dark) = GameTime.TintAt(S.clock);
             var tint = new Color(((rgb >> 16) & 255) / 255f, ((rgb >> 8) & 255) / 255f, (rgb & 255) / 255f);
-            if (sun) { sun.color = sunColor * tint; sun.intensity = sunIntensity * (1 - (float)dark * 0.75f); }
-            RenderSettings.ambientSkyColor = ambient * Color.Lerp(tint, Color.white, 0.3f);
+            float d = (float)dark;
+            if (indoor && d > 0) { tint = Color.Lerp(tint, new Color(1f, 0.89f, 0.73f), 0.65f); d *= 0.4f; }
+            float k = Mathf.Clamp01(d * 1.35f);                 // 0 day … 1 deep night
+            if (sun) { sun.color = sunColor * tint; sun.intensity = sunIntensity * Mathf.Lerp(1, 0.12f, k); }
+            var amb = Color.Lerp(tint, Color.white, 0.2f) * Mathf.Lerp(1, 0.38f, k);
+            RenderSettings.ambientSkyColor = ambient * amb; RenderSettings.ambientEquatorColor = equator * amb; RenderSettings.ambientGroundColor = groundAmb * amb;
+            RenderSettings.fogColor = Color.Lerp(fogColor * tint, new Color(0.16f, 0.19f, 0.32f), k * 0.85f);
+            if (sky) { sky.SetFloat("_Exposure", skyExposure * Mathf.Lerp(1, 0.18f, k)); if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", Color.Lerp(new Color(0.55f, 0.72f, 0.95f), new Color(0.2f, 0.25f, 0.5f), k)); }
         }
 
         // after anything that may finish a guide goal, a daily task or show a tip
-        void AfterAction()
+        public void AfterAction()
         {
             var goal = Guide.Check(S);
             if (goal != null) Say("完成目标：" + goal.text.Split('，', '：')[0]);
@@ -126,126 +199,169 @@ namespace Lingmu.Game
             Changed?.Invoke();
         }
 
-        void Say(string text) { if (!string.IsNullOrEmpty(text)) Toast?.Invoke(text); }
+        public void Say(string text) { if (!string.IsNullOrEmpty(text)) Toast?.Invoke(text); }
 
         public void Save()
         {
             ticksSinceSave = 0;
-            if (player) { S.player.x = Math.Round(player.position.x * PxPerMeter); S.player.y = Math.Round(-player.position.z * PxPerMeter); }
-            if (!store.Save(S)) Debug.LogWarning("[Lingmu] save failed: " + store.lastError);
+            if (player && !leaving) { S.player.x = Math.Round(player.position.x * PxPerMeter); S.player.y = Math.Round(-player.position.z * PxPerMeter); }
+            if (!Store.Save(S)) Debug.LogWarning("[Lingmu] save failed: " + Store.lastError);
         }
 
-        void OnApplicationPause(bool paused) { if (paused) Save(); }
-        void OnApplicationQuit() => Save();
+        void OnApplicationPause(bool paused) { if (paused && Battle == null) Save(); }
+        void OnApplicationQuit() { if (Battle == null && !leaving) Save(); }
 
         // ---------- panels pause the clock (web: menus stop time) ----------
         public void PauseFor(string reason) => Clock.Pause(reason);
         public void ResumeFor(string reason) => Clock.Resume(reason);
 
-        // ---------- what the action button would do here ----------
-        public Spot CurrentSpot()
-        {
-            if (!player) return null;
-            var p = player.position;
-            // a farm plot under your feet beats the box next to it
-            int tx = Mathf.FloorToInt(p.x / HomeIslandLayout.TileSize), ty = Mathf.FloorToInt(-p.z / HomeIslandLayout.TileSize);
-            var f = L.FarmRect;
-            if (tx >= f.x && tx < f.x + f.w && ty >= f.y && ty < f.y + f.h)
-            {
-                var key = Farm.PlotKey(tx, ty);
-                var act = Farm.PlotAction(S, key);
-                var plot = Farm.PlotOf(S, key);
-                string crop = plot.crop != null ? GameData.Crops[plot.crop].name : null;
-                var (verb, label) = act switch
-                {
-                    "till" => ("开垦", "农田 · 用锄头开垦"),
-                    "plant" => ("播种", "农田 · 播种（用背包里的种子）"),
-                    "water" => ("浇水", $"{crop} · 第 {plot.days}/{GameData.Crops[plot.crop].days} 天，今天还没浇水"),
-                    "harvest" => ("收获", $"{crop} · 成熟了！"),
-                    _ => ("等待", $"{crop} · 今天浇过水了，明天再长"),
-                };
-                return new Spot { kind = "plot", verb = verb, label = label, key = key, pos = HomeIslandLayout.TileToWorld(tx, ty) };
-            }
-            Spot best = null; float bestD = InteractRange;
-            foreach (var s in spots)
-            {
-                float d = Vector2.Distance(new Vector2(p.x, p.z), new Vector2(s.pos.x, s.pos.z));
-                if (d < bestD) { bestD = d; best = s; }
-            }
-            return best;
-        }
+        public Spot CurrentSpot() => player && Area != null && Battle == null ? Area.CurrentSpot(player.position) : null;
 
-        public IReadOnlyList<Spot> Spots => spots;
-        public HomeIslandLayout Layout => L;
-
-        // ---------- actions ----------
-        // returns the name of a panel the UI should open (bag, seeds, ship, storage, craft), or null
         public string Act(Spot s)
         {
-            if (s == null) return null;
-            switch (s.kind)
-            {
-                case "tent": EndDay(true); return null;
-                case "plot": FarmAt(s.key); return null;
-                case "ship": return "ship";
-                case "seeds": return "seeds";
-                case "storage": return "storage";
-                case "campfire": return "craft";
-                case "dock": Say("远征岛还在搬进 Unity，下一步就做"); return null;
-                case "door": Say("小屋内部还在搬进 Unity，下一步就做"); return null;
-            }
-            return null;
+            if (s == null || Area == null) return null;
+            var panel = Area.Act(s);
+            if (!leaving) AfterAction();
+            return panel;
         }
 
-        void FarmAt(string key)
-        {
-            switch (Farm.PlotAction(S, key))
-            {
-                case "till": { var r = Farm.Till(S, key); Say(r.ok ? "开垦好了，可以播种" : "要有锄头才能开垦"); break; }
-                case "plant":
-                {
-                    var seed = S.inventory.Select(x => x.id).FirstOrDefault(id => GameData.CropBySeed(id) != null);
-                    if (seed == null) { Say("背包里没有种子：去种子摊买"); break; }
-                    var r = Farm.Plant(S, key, seed);
-                    if (r.ok) Say($"种下了{GameData.Crops[r.crop].name}，记得每天浇水");
-                    break;
-                }
-                case "water": { var r = Farm.Water(S, key); Say(r.ok ? "浇好水了" : "要有水壶才能浇水"); break; }
-                case "harvest": { var r = Farm.Harvest(S, key); Say(r.ok ? $"收获了{GameData.Item(r.item).name}！" : "背包满了"); break; }
-                default: Say("今天浇过水了，睡一觉它就会长"); break;
-            }
-            AfterAction();
-        }
-
+        // ---------- the end of a day ----------
         public void EndDay(bool slept)
         {
-            if (player) S.player.x = S.player.y = null;
             var report = Settlement.Run(S, slept);
             Clock.Pause("report");
+            Area?.OnDayEnded();
+            if (player) S.player.x = S.player.y = null;
             Save();
             AfterAction();
             DayEnded?.Invoke(report);
         }
 
-        // the report panel was closed: wake up next to the tent and let the new day run
+        // the report panel was closed: the new day starts running
         public void StartNewDay()
         {
-            if (player)
-            {
-                player.position = HomeIslandLayout.TileToWorld(L.Tent.x, L.Tent.y + 1.2f);
-            }
+            if (player && Area != null) { var at = Area.ArrivePoint(S); player.position = new Vector3(at.x, player.position.y, at.z); }
             Clock.Restart();
             Clock.Resume("report");
+            ApplyLight();
             Changed?.Invoke();
         }
 
+        // fainting on an expedition: one state change, then wake up at home (docs/06 第 2 节)
+        public void Faint()
+        {
+            if (leaving) return;
+            double px = player ? player.position.x * PxPerMeter : 0, py = player ? -player.position.z * PxPerMeter : 0;
+            var r = Travel.Faint(S, px, py);
+            PendingReport = r.report;
+            PendingToast = r.isProtected ? "你晕倒了……新手保护期，东西都还在身上" : r.dropped.Count > 0 ? $"你晕倒了……背包里的 {r.dropped.Count} 样东西掉在了岛上，回去还能捡回来" : "你晕倒了……";
+            Store.Unblock("battle");
+            Store.Save(S);
+            LoadArea("home");
+        }
+
+        // ---------- going somewhere ----------
+        public void LoadArea(string area)
+        {
+            leaving = true;
+            Clock.Pause("travel");
+            SceneManager.LoadScene(Scenes[area]);
+        }
+
+        // rules first (time passes, records), then save, then the other scene
+        public void GoTo(string where, string mode = "new")
+        {
+            Res r = where switch
+            {
+                "expedition" => Travel.Depart(S, mode),
+                "home" when S.player.area == "expedition" => Travel.ReturnHome(S),
+                "home" when S.player.area == "town" => Travel.LeaveTown(S),
+                "home" when S.player.area == "house" => Travel.LeaveHouse(S),
+                "town" => Travel.GoTown(S),
+                "house" => Travel.EnterHouse(S),
+                _ => Res.No("where"),
+            };
+            if (!r.ok) { Say("现在去不了"); return; }
+            S.player.x = S.player.y = null;
+            Store.Save(S);
+            LoadArea(where);
+        }
+
+        // ---------- battles (docs/02 第 4 节): time stops, no saving until the one commit at the end ----------
+        public bool StartBattle(List<PetInstance> enemies, string wildId, bool ambush)
+        {
+            if (Battle != null) return false;
+            var party = S.party.Select(S.Pet).Where(p => p != null).ToList();
+            if (!Rules.Battle.CanStart(party)) { Say("伙伴们累了，回家休息吧"); return false; }
+            foreach (var e in enemies) Growth.DexSee(S, e.species);
+            Battle = Rules.Battle.Create(party, enemies, S.inventory, null, ambush);
+            battleWild = wildId;
+            Clock.Pause("battle");
+            Store.Block("battle");
+            PlayerMoverEnabled(false);
+            BattleStarted?.Invoke(Battle);
+            return true;
+        }
+
+        public BattleSummary FinishBattle()
+        {
+            var b = Battle;
+            if (b == null) return null;
+            var summary = Rules.Battle.Finish(S, b, battleWild);
+            Battle = null;
+            Store.Unblock("battle");
+            Clock.Resume("battle");
+            PlayerMoverEnabled(true);
+            Area?.OnBattleEnded(battleWild, summary.result);
+            Save();
+            AfterAction();
+            BattleFinished?.Invoke(summary);
+            return summary;
+        }
+
+        void PlayerMoverEnabled(bool on)
+        {
+            var m = player ? player.GetComponent<Player.PlayerMover>() : null;
+            if (m) m.enabled = on;
+            Player.PlayerMover.Stick = Vector2.zero;
+        }
+
+        // ---------- bag actions ----------
         public bool Eat(string itemId)
         {
             var r = Survival.Eat(S, itemId);
             Say(r.ok ? $"吃了{GameData.Item(itemId).name}：饱食 +{r.hunger}" + (r.hp > 0 ? $"，生命 +{r.hp}" : "")
-                : r.reason == "full" ? "吃不下了" : r.reason == "not-food" ? "这个不能吃" : "没有了");
+                : r.reason == "full" ? "已经吃饱了" : r.reason == "not-food" ? "这个不能吃" : "没有了");
             AfterAction();
             return r.ok;
+        }
+
+        // the 使用 button in the bag (web ui/panels.js)
+        public void Use(string itemId)
+        {
+            var def = GameData.Item(itemId);
+            if (def == null) return;
+            if (def.food != null) { Eat(itemId); return; }
+            switch (itemId)
+            {
+                case "item_torch":
+                    if (!Inventory.RemoveItem(S.inventory, "item_torch", 1)) return;
+                    Night.LightTorchNow(S);
+                    Say("点亮了火把：身边 2 格有光，能烧 3 小时");
+                    break;
+                case "item_campfire":
+                    if (Area is ExpeditionArea ex) ex.PlaceCampfireNear(); else Say("家园很安全，不需要营火");
+                    break;
+                case "item_fox_bell": Say("在焰尾狐的伙伴面板里点「学会化形」"); break;
+                case "item_tent": Say("在点着的营火旁按「互动」，就能用帐篷睡觉"); break;
+                default:
+                    if (def.netMult != null) Say("靠近野生宠物按「扔网」，或者在对战中使用");
+                    else if (def.book != null) Say("在伙伴面板里给宠物学技能");
+                    else if (House.IsFurniture(itemId)) Say("进小屋后可以摆放家具");
+                    else Say("这个不能直接使用");
+                    break;
+            }
+            AfterAction();
         }
 
         public bool Craft(string recipeId)
@@ -286,6 +402,20 @@ namespace Lingmu.Game
         {
             var (took, left) = Explore.WithdrawAll(S, Crafting.BagSlots(S));
             Say(took > 0 ? $"取回 {took} 格" + (left > 0 ? $"，还有 {left} 格放不下" : "") : "仓库是空的，或者背包满了");
+            AfterAction();
+        }
+
+        // ---------- pets (party panel) ----------
+        public void Feed(string uid, string food) { var r = PetCare.Feed(S, uid, food); Say(r.ok ? (r.favourite ? $"最爱吃的！好感 +{r.gain}" : $"好感 +{r.gain}") : r.reason switch { "fed" => "今天已经喂过了", "not-food" => "这个不能喂", _ => "没有了" }); AfterAction(); }
+        public void PetPet(string uid) { var r = PetCare.PetPet(S, uid); Say(r.ok ? $"摸摸～好感 +{r.gain}" : "今天已经摸过了"); AfterAction(); }
+        public void JoinParty(string uid) { var r = Party.Join(S, uid); Say(r.ok ? "加入了队伍" : r.reason switch { "full" => "队伍最多 3 只", "away" => "出门在外，换不了伙伴", _ => "加入不了" }); AfterAction(); }
+        public void LeaveParty(string uid) { var r = Party.Leave(S, uid); Say(r.ok ? "回家休息了" + (r.moved?.Count > 0 ? $"（背包变小，{r.moved.Count} 格放进了仓库）" : "") : r.reason switch { "last" => "队伍里至少留 1 只", "away" => "出门在外，换不了伙伴", _ => "做不到" }); AfterAction(); }
+        public void SetLead(string uid) { Party.SetLead(S, uid); AfterAction(); }
+        public void SetJob(string uid, bool on) { var r = PetCare.SetJob(S, uid, on); if (!r.ok) Say(r.reason == "party" ? "队伍里的伙伴不能打工" : "要在家园才能安排打工"); AfterAction(); }
+        public void Evolve(string uid)
+        {
+            var r = Growth.TryEvolve(S, uid);
+            Say(r.ok ? $"进化成了{PetMath.DisplayName(S.Pet(uid))}！" : "还不能进化：" + string.Join("、", r.missing.Select(m => m switch { "level" => $"要 {PetMath.EvolveLevel} 级", "affection" => $"好感要 {PetMath.EvolveAffection}", "stone" => "要进化石", "evolved" => "已经进化过了", _ => m })));
             AfterAction();
         }
     }

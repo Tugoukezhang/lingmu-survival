@@ -46,9 +46,9 @@ public class LingmuModelImport : AssetPostprocessor
             // UI icons (128 px): sprites, no mipmaps, crisp on phones
             var ui = (TextureImporter)assetImporter;
             ui.textureType = TextureImporterType.Sprite; ui.spriteImportMode = SpriteImportMode.Single;
-            ui.mipmapEnabled = false; ui.alphaIsTransparency = true; ui.maxTextureSize = 256;
+            ui.mipmapEnabled = false; ui.alphaIsTransparency = true; ui.maxTextureSize = 512;
             var a = ui.GetPlatformTextureSettings("Android");
-            a.overridden = true; a.maxTextureSize = 256; a.format = TextureImporterFormat.ASTC_4x4;
+            a.overridden = true; a.maxTextureSize = 512; a.format = TextureImporterFormat.ASTC_4x4;
             ui.SetPlatformTextureSettings(a);
             return;
         }
@@ -74,7 +74,7 @@ public class LingmuModelImport : AssetPostprocessor
             bool changed = false;
             foreach (var c in clips)
             {
-                var shortName = c.takeName.Split('|').Last().Replace(".001", "");
+                var shortName = c.takeName.Split('|').Last().Replace(".001", "").Replace("_Armature", "");
                 bool loop = Looping.Any(k => shortName.ToLowerInvariant().Contains(k));
                 if (c.name != shortName || c.loopTime != loop) { c.name = shortName; c.loopTime = loop; changed = true; }
             }

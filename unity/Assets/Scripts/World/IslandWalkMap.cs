@@ -10,12 +10,16 @@ namespace Lingmu.World
         [SerializeField] bool[] land, blocked;                 // row-major [y * cols + x]
         public static readonly Vector2 Foot = new Vector2(10f / 48f, 6f / 48f);   // web FOOT { hw: 10, hh: 6 } px → m
 
-        public void Init(HomeIslandLayout L)
+        public void Init(HomeIslandLayout L) => Init(HomeIslandLayout.Cols, HomeIslandLayout.Rows, (x, y) => L.Walk[y, x]);
+
+        public void Init(int c, int r, System.Func<int, int, bool> isLand)
         {
-            cols = HomeIslandLayout.Cols; rows = HomeIslandLayout.Rows;
+            cols = c; rows = r;
             land = new bool[cols * rows]; blocked = new bool[cols * rows];
-            for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++) land[y * cols + x] = L.Walk[y, x];
+            for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++) land[y * cols + x] = isLand(x, y);
         }
+
+        public void Unblock(int x, int y) { if (x >= 0 && y >= 0 && x < cols && y < rows) blocked[y * cols + x] = false; }
 
         public void Block(int x, int y) { if (x >= 0 && y >= 0 && x < cols && y < rows) blocked[y * cols + x] = true; }
         public void Block(TileRect r) { for (int y = r.y; y < r.y + r.h; y++) for (int x = r.x; x < r.x + r.w; x++) if (IsLand(x, y)) Block(x, y); }
