@@ -11,6 +11,7 @@ using UnityEngine;
 public class LingmuModelImport : AssetPostprocessor
 {
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
+    static bool IsPet(string p) => p.StartsWith("Assets/Art/Characters/A0") && !p.StartsWith("Assets/Art/Characters/A01_");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
     static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath" };
 
@@ -25,7 +26,8 @@ public class LingmuModelImport : AssetPostprocessor
         mi.materialSearch = ModelImporterMaterialSearch.Local;
         if (IsRigged(assetPath))
         {
-            mi.animationType = ModelImporterAnimationType.Human;
+            // pets are animals: their skeletons don't map to a human one, so they keep their own clips (Generic)
+            mi.animationType = IsPet(assetPath) ? ModelImporterAnimationType.Generic : ModelImporterAnimationType.Human;
             mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             mi.importAnimation = true;
             mi.animationCompression = ModelImporterAnimationCompression.Optimal;

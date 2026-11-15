@@ -29,5 +29,5 @@ if arms:
             tr.strips.new(act.name, int(act.frame_range[0]), act)
     a.animation_data.action = None
 bpy.ops.export_scene.fbx(filepath=out, path_mode='RELATIVE', embed_textures=False, add_leaf_bones=False,
-                         bake_anim=True, bake_anim_use_nla_strips=True, bake_anim_use_all_actions=False, apply_scale_options='FBX_SCALE_ALL')
+                         bake_anim=True, bake_anim_use_nla_strips=False, bake_anim_use_all_actions=True, bake_anim_force_startend_keying=True, apply_scale_options="FBX_SCALE_ALL")
 print('fbx written', out, 'bones', sum(len(x.data.bones) for x in arms), 'clips', [x.name for x in bpy.data.actions], 'textures', os.listdir(tex_dir))

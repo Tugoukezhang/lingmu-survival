@@ -14,8 +14,8 @@ public static class LingmuScenes
     [MenuItem("Lingmu/Build All Scenes")]
     public static void BuildAll()
     {
-        // the rigged player's texture was renamed to what the FBX asks for: import it again so the material finds it
-        AssetDatabase.ImportAsset(Chars + "A01_player_rig/A01_player_rig.fbx", ImportAssetOptions.ForceUpdate);
+        // models whose import settings or files changed: import them again (player texture name, pets as Generic)
+        foreach (var f in new[] { "A01_player_rig", "A00_fox_rig", "A02_pup_rig" }) AssetDatabase.ImportAsset($"{Chars}{f}/{f}.fbx", ImportAssetOptions.ForceUpdate);
         LingmuModelImport.FixClips();
         UpdateLibrary();
         BuildTitle();
