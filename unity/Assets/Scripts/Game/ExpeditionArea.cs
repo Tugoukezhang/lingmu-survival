@@ -116,6 +116,16 @@ namespace Lingmu.Game
         // ---------- what the action button does here ----------
         static readonly Dictionary<string, string> GatherVerb = new Dictionary<string, string> { { "tree", "砍树" }, { "rock", "敲石头" }, { "bush", "摘浆果" }, { "grass", "割草" }, { "crystal", "挖雾晶" } };
 
+        public override IEnumerable<Spot> MapSpots()
+        {
+            var isl = Island;
+            yield return new Spot { kind = "airship", pos = W(isl.airship.tx, isl.airship.ty) };
+            if (S.expedition.lostBag != null) { var lb = S.expedition.lostBag; yield return new Spot { kind = "lostbag", pos = new Vector3((float)lb.x / GameSession.PxPerMeter, 0, -(float)lb.y / GameSession.PxPerMeter) }; }
+            foreach (var f in Camp.Fires(S)) yield return new Spot { kind = "fire", pos = W(f.tx, f.ty) };
+            if (Explore.TreasureSense(S) >= 1) foreach (var c in isl.chests) yield return new Spot { kind = "chest", pos = W(c.tx, c.ty) };
+            foreach (var t in isl.thorns) yield return new Spot { kind = "thorn", pos = W(t.tx, t.ty) };
+        }
+
         public override Spot CurrentSpot(Vector3 p)
         {
             var spots = new List<(Spot s, float d)>();

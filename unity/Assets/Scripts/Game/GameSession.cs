@@ -36,6 +36,7 @@ namespace Lingmu.Game
         public virtual void OnTick() { }
         public virtual void OnDayEnded() { }
         public virtual void OnBattleEnded(string wildId, string result) { }
+        public virtual System.Collections.Generic.IEnumerable<Spot> MapSpots() => System.Array.Empty<Spot>();   // marks on the map panel
         protected GameSession Session => GameSession.I;
         protected GameState S => GameSession.I.S;
     }

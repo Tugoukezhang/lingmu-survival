@@ -125,7 +125,8 @@ namespace Lingmu.Game
             var fw = new Vector3(face.x, 0, -face.y);
             if (fw.sqrMagnitude > 0.01f) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(fw), 10 * dt);
             phase += dt * (moving ? 9 : 2.5f);
-            if (anim) anim.SetFloat("Speed", moving ? 1 : 0);
+            // blend idle → hop → run smoothly instead of snapping between clips
+            if (anim) anim.SetFloat("Speed", !moving ? 0 : mode == "calm" ? 1 : 2, 0.12f, dt);
             else if (model) model.localPosition = new Vector3(model.localPosition.x, baseY + Mathf.Abs(Mathf.Sin(phase)) * (moving ? 0.08f : 0.025f), model.localPosition.z);
             tag.SetMeter(meter > 0.02f && meter < 1 ? meter : 0, meter >= Stealth.Look);
             tag.SetAlert(mode != "calm");

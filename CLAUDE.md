@@ -11,7 +11,11 @@
 - 和负责人沟通用**中文**，少用术语；需要决策时给推荐项和理由。
 - 负责人授权（2026-11-08）：玩法细节和数值由 AI 判断，写进文档标【建议】并在汇报里说明；只有方向性问题（美术风格、商业化、范围取舍、花钱的事）才停下来问。
 
-## 当前状态（2026-11-09）
+## 当前状态（2026-11-16）
+- **主线已转 Unity（负责人 2026-11-14 决定）**：工程在 `unity/`（Unity 6000.3.28f1 + URP，编辑器在 `D:\Program Files\Unity 6000.3.28f1\Editor\Unity.exe`）。规则在 `Assets/Scripts/Rules`（从网页版逐项移植，`RulesParityTests` 对照）；5 个场景（标题、家园岛、远征岛、小镇、小屋）全部由代码生成：`-executeMethod LingmuScenes.BuildAll`。测试：EditMode 45 项、PlayMode 4 个流程（截图在 `D:\ClaudeTools\unity\ui_*.png`）。批处理命令和踩过的坑见 `docs/05_开发日志.md` 2026-11-15 / 16。
+- **宠物骨骼和动作由 AI 在 Blender 里做**（2026-11-16，负责人在 Tripo 网页绑的骨架放进 Unity 是倒的）：`tools/blender/rig_pet.py` + 每只宠物的关节文件 `tools/rig/<宠物>.json`（检查工具 `overlay.py`、`slices.py`、`sheet.py`）；Unity 里用菜单 Lingmu/Render Pet Previews 检查。导出时宠物在 Blender 里朝 +X（这样在 Unity 里朝前）。6 只宠物各有 idle / walk / run / happy。
+- **负责人看游戏**：用 Unity Hub 打开 `D:\lingmu-play\unity`（git worktree，分支 `play`，说明见 `docs/17_用Unity看游戏.md`）。AI 在桌面的工程里开发和跑批处理；提交后用 `git -C D:/lingmu-play merge --ff-only claude/sweet-mccarthy-tbgtnu` 更新副本（副本里不要有改动）。
+- 网页版 `game/` 保留作规则参照；下面网页版的条目是转 Unity 之前的记录。
 - 阶段：M1。**M1 开发任务全部实现（T02–T08、T10、T19、T20、T25），M2 开发任务全部实现（T21–T24），待负责人验收**：Phaser 4.2.1 横屏占位岛、摇杆/键盘移动、宠物跟随与切换、焰尾狐化形演示；界面框架（HUD、面板栈、演示面板）；宠物/技能/性格数据和属性、伤害、经验、捕捉、进化公式（`systems/petMath.js`）；存档（`systems/save.js` + `GameSession.js`：校验码、备份回退、版本迁移、自动存档）；时间昼夜与每日结算（`systems/time.js`，占位帐篷睡觉）；生命与饱食、吃东西（`systems/survival.js`、`inventory.js`）。远征岛随机生成（`systems/islandGen.js`）；飞艇出发与返回、倒下临时处理（`systems/travel.js`）；采集与制作（`systems/crafting.js`、`data/recipes.js`）；回合制宠物对战与捕捉（`systems/battle.js`、`scenes/BattleScene.js`）、队伍面板（`systems/party.js`）；倒下与失物包（`systems/travel.js`）；夜晚雾怪与光照（`systems/night.js`）；扎营、营火燃料、帐篷、开宝箱（`systems/camp.js`）；宠物探索技能、地图、家园仓库（`systems/explore.js`）；新手引导（`systems/guide.js`，T42）；M3：新手保护（前 3 天倒下不掉）、种田与出货（`systems/farm.js`、`data/crops.js`、`scenes/play/farm.js`，T11）；宠物照顾、打工、羁绊（`systems/petcare.js`，T12）；每日小任务（`systems/daily.js`，T44）；养成：进化、升星结晶异色图鉴、技能书、化形（`systems/growth.js`，T27/T28/T29/T39）。**M3 开发任务全部实现**。M4：风铃小镇（`systems/town.js`、`data/npcs.js`、`data/quests.js`、`scenes/play/town.js`，T13）；买地扩建与修桥（`systems/progress.js`，T14）；家园小屋与布置家具（`systems/house.js`、`scenes/play/house.js`，T15）；标题页与开局三选一（`scenes/TitleScene.js`，开局宠物 4 级，T16）。**M4 开发任务全部实现**。界面自动检查 166/166、逻辑检查 467/467、长测通过。存档版本 5。
 - 界面零件：main 分支上的 HUD V4 整包 + V5 手绘候选已逐张检查（`docs/13_出图包/出图清单.md` 附录一：可直接用 / 修一下能用 / 先留着 / 不能用），可用的由 T54 接入；main 上的界面零件队列有 48 张图只在 ChatGPT 临时文件夹、没上传。
 - **转 3D（负责人 2026-11-11 决定，路线 B）**：`docs/14_3D试验.md`。Three.js（`game/vendor/three/`，importmap 在 `index.html`），`?3d=1` 打开（`&q=low` 低画质），默认仍是 2D。`game/src/view3d/World3D.js` 只负责画世界（读 PlayScene 的数据），规则 / 存档 / Phaser 界面不动。**地图素材库** `game/src/view3d/kit/`（terrain 岛屿、悬崖、台阶地形、山、小路；water 池塘；grass 草叶；flora 树石灌木雾晶巨石；buildings 房子、帐篷、营火、路灯、喷泉、箱子，以及按材质种类加木纹 / 石纹的画法；props 家具和农作物；room 小屋室内；post 后期），预览页 `game/kit3d.html`。地形、植物、建筑、家具、农作物、室内、对战舞台、6 只宠物和主角已是真 3D；居民、焰尾狐人形、码头、飞艇、吊桥还是 2D 立牌。**宠物和人物模型由 AI 用 Blender 脚本建**（负责人 2026-11-14 定）：`tools/blender/`（`blender -b -P tools/blender/build.py -- <名字>` → `game/assets/models/<名字>.glb`，Blender 便携版在 `D:\ClaudeTools\blender\`），`kit/pets.js` 负责加载和动作；改造型改脚本，不要手改 GLB。**2026-11-14 起角色模型改用 Tripo 生成**（代码建的角色太圆润，负责人否决）：AI 可用命令行 `tripo`（已登录国际站，花积分前要负责人明确同意）；负责人在网页上按 `docs/16_建模任务包/任务清单.md` 做模型和绑骨骼，做好的放 `完成的模型放这里/`，AI 用 `tools/blender/cleanup.py`（无骨骼）或 `cleanup_rigged.py`（带骨骼和动作）整理后放进 `game/assets/models/`。地面高度只影响画面，行走格子不变。对战：`World3D.updateBattle` 按 `BattleScene` 的 2D 布局把宠物放到 3D 舞台上，规则和界面不动。负责人 2026-11-13：先把我们自己的地图做精细，AI 图片转 3D 和贴图（T55）因额度暂缓。**新功能继续写在规则层，不要绑死在 2D 画法上。**
@@ -39,10 +43,12 @@
 | `docs/08_商业化设计.md` | 付费原则（不卖数值）、货币、商品、活动、广告、国内上架清单 |
 | `docs/09_AI出图提示词.md` | GPT Image 出图流程、风格段落、第一批素材提示词 |
 | `docs/10_手游适配评估.md` | 当前玩法作为手游的逐项评估、必须改 / 要验证的事项和顺序 |
+| `docs/17_用Unity看游戏.md` | 负责人用 Unity Hub 打开游玩副本、操作说明 |
 | `docs/参考资料/风格示例/` | 负责人的 7 张风格示例图（画面和 UI 的标准） |
 | `docs/参考资料/README.md` | 外部资料说明（资料包原件不入库） |
 
 ## 技术约定
+- **2026-11-14 起主线是 Unity（`unity/`，见上面「当前状态」）。下面关于 Phaser 网页版的约定只适用于 `game/`。**
 - 引擎：Phaser 4.2（网页），库文件放进仓库本地引用，不依赖 CDN。后期用 Capacitor 打包安卓/iOS。
 - 视角：2.5D 固定 3/4 俯视角手绘风，按网格摆放；不做真 3D（2026-11-08 负责人看过实时 3D 方案后再次确认）。
 - 手工地图用整张背景；随机远征岛用拼接地块 + 摆件（见 `docs/03_素材规范.md`）。

@@ -19,6 +19,9 @@ namespace Lingmu.World
             for (int y = 0; y < rows; y++) for (int x = 0; x < cols; x++) land[y * cols + x] = isLand(x, y);
         }
 
+        public int Cols => cols;
+        public int Rows => rows;
+
         public void Unblock(int x, int y) { if (x >= 0 && y >= 0 && x < cols && y < rows) blocked[y * cols + x] = false; }
 
         public void Block(int x, int y) { if (x >= 0 && y >= 0 && x < cols && y < rows) blocked[y * cols + x] = true; }

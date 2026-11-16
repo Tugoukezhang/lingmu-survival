@@ -8,6 +8,12 @@ os.makedirs(tex_dir, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 base = os.path.splitext(os.path.basename(out))[0]
+# stray helper meshes some Tripo exports carry (an unskinned, material-less "Icosphere" 2 m across): they would make
+# the model's bounds huge, so the game scales the pet down to a dot inside a grey ball
+for o in [o for o in bpy.data.objects if o.type == 'MESH']:
+    skinned = any(m.type == 'ARMATURE' for m in o.modifiers) or (o.parent and o.parent.type == 'ARMATURE')
+    if not skinned and not any(o.data.materials):
+        print('dropping stray mesh', o.name); bpy.data.objects.remove(o, do_unlink=True)
 for i, img in enumerate(bpy.data.images):
     if img.type != 'IMAGE' or not img.has_data and not img.packed_file:
         continue

@@ -174,7 +174,8 @@ public static class SceneKit
         var clips = AssetDatabase.LoadAllAssetsAtPath(fbx).OfType<AnimationClip>().Where(c => !c.name.StartsWith("__preview")).ToList();
         if (clips.Count == 0) return null;
         AnimationClip Find(params string[] keys) => clips.FirstOrDefault(c => keys.Any(k => c.name.ToLowerInvariant().Contains(k)));
-        var walk = Find("walk", "run", "跑") ?? clips[0];
+        var walk = Find("walk") ?? Find("run", "跑") ?? clips[0];
+        var run = Find("run", "跑");
         var idle = Find("idle", "breath", "look");
         var path = $"{Folder("Animators")}/{Path.GetFileName(folder)}.controller";
         AssetDatabase.DeleteAsset(path);
@@ -184,6 +185,7 @@ public static class SceneKit
         tree.blendParameter = "Speed"; tree.useAutomaticThresholds = false;
         tree.AddChild(idle ?? walk, 0);
         tree.AddChild(walk, 1);
+        if (run != null && run != walk) tree.AddChild(run, 2);          // Speed 2: fleeing / charging pets
         if (idle == null) { var ch = tree.children; ch[0].timeScale = 0.12f; tree.children = ch; }
         return ctrl;
     }
@@ -258,7 +260,7 @@ public static class SceneKit
         ("thorn", Props + "C42_thorn", false), ("chest", Props + "C08_chest", false), ("chest_open", Props + "C09_chest_open", false), ("airship", Props + "C05_airship", false),
         ("campfire", Props + "C15_campfire_lit", false), ("tent", Props + "C07_tent", false), ("lamp", Props + "C14_lamp", false), ("fountain", Props + "C06_fountain", false),
         ("bld_shop_granny", Props + "C02_bld_shop_granny", false), ("bld_workshop", Props + "C03_bld_workshop", false), ("bld_lab", Props + "C04_bld_lab", false),
-        ("pet_acorn", Chars + "A03_acorn_unrigged", false), ("pet_shark", Chars + "A04_shark_rig", true), ("pet_starbear", Chars + "A05_starbear_rig", true),
+        ("pet_acorn", Chars + "A03_acorn_rig", true), ("pet_shark", Chars + "A04_shark_rig", true), ("pet_starbear", Chars + "A05_starbear_rig", true),
         ("pet_shadecat", Chars + "A06_shadecat_rig", true), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "A00_fox_rig", true),
         ("npc_granny", Chars + "B01_npc_granny", false), ("npc_ali", Chars + "B02_npc_ali", false), ("npc_lumi", Chars + "B03_npc_lumi", false), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
         ("player", Chars + "A01_player_rig", true),

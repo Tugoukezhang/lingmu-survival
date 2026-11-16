@@ -100,6 +100,9 @@ namespace Lingmu.UI
             var bag = Button(safe, "背包", WoodMid, Cream, 32, () => Open("bag"), Circle); ((RectTransform)bag.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-28, -118), new Vector2(118, 118));
             var craft = Button(safe, "制作", WoodMid, Cream, 32, () => Open("craft"), Circle); ((RectTransform)craft.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-162, -118), new Vector2(118, 118));
             var pets = Button(safe, "伙伴", WoodMid, Cream, 32, () => Open("party"), Circle); ((RectTransform)pets.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-296, -118), new Vector2(118, 118));
+            var tasks = Button(safe, "任务", WoodMid, Cream, 32, () => Open("daily"), Circle); ((RectTransform)tasks.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-430, -118), new Vector2(118, 118));
+            var map = Button(safe, "地图", WoodMid, Cream, 32, () => Open("map"), Circle); ((RectTransform)map.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-564, -118), new Vector2(118, 118));
+            var gear = Button(safe, "设置", WoodDark, Cream, 24, () => Open("settings"), Circle); ((RectTransform)gear.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-292, -24), new Vector2(76, 76));
 
             // joystick (visual only; input is read in Update so it works anywhere in the left zone)
             joyRest = new Vector2(250, 250);
@@ -209,6 +212,7 @@ namespace Lingmu.UI
             if (k.eKey.wasPressedThisFrame || k.spaceKey.wasPressedThisFrame) DoAction();
             if (k.bKey.wasPressedThisFrame) Open("bag");
             if (k.cKey.wasPressedThisFrame && !k.zKey.isPressed) Open("craft");
+            if (k.mKey.wasPressedThisFrame) Open("map");
         }
 
         void DoAction()

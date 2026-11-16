@@ -35,6 +35,8 @@ namespace Lingmu.Game
         public override bool CanStand(Vector3 p) => !walk || walk.FootFits(p);
         public override Vector3 ArrivePoint(GameState s) => Cell(5.5f, House.RoomH - 1.2f);
 
+        public override IEnumerable<Spot> MapSpots() => spots;
+
         public override Spot CurrentSpot(Vector3 p)
         {
             Spot best = null; float bestD = InteractRange;

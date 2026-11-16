@@ -15,7 +15,7 @@ public static class LingmuScenes
     public static void BuildAll()
     {
         // models whose import settings or files changed: import them again (player texture name, pets as Generic)
-        foreach (var f in new[] { "A01_player_rig", "A00_fox_rig", "A02_pup_rig", "A04_shark_rig", "A05_starbear_rig", "A06_shadecat_rig" }) AssetDatabase.ImportAsset($"{Chars}{f}/{f}.fbx", ImportAssetOptions.ForceUpdate);
+        foreach (var f in new[] { "A01_player_rig", "A00_fox_rig", "A02_pup_rig", "A03_acorn_rig", "A04_shark_rig", "A05_starbear_rig", "A06_shadecat_rig" }) AssetDatabase.ImportAsset($"{Chars}{f}/{f}.fbx", ImportAssetOptions.ForceUpdate);
         LingmuModelImport.FixClips();
         UpdateLibrary();
         BuildTitle();

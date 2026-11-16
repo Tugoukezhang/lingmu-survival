@@ -59,8 +59,8 @@ MonoBehaviour:
     model: {fileID: 919132149155446097, guid: 1c2388a8940203947be55a1229edff38, type: 3}
     animator: {fileID: 0}
   - key: pet_acorn
-    model: {fileID: 919132149155446097, guid: a39367cb460567a489f897dc9bcc8026, type: 3}
-    animator: {fileID: 0}
+    model: {fileID: 919132149155446097, guid: 5ff9be80c52d0a54dba876c4c51209d9, type: 3}
+    animator: {fileID: 9100000, guid: 325ab6cb3ebc5f74db6117b909eced9d, type: 2}
   - key: pet_shark
     model: {fileID: 919132149155446097, guid: 0aad8f55bebc5b644bb08940bc1e2e64, type: 3}
     animator: {fileID: 9100000, guid: 61c39a3129f18364e87aa9022b904504, type: 2}
@@ -72,7 +72,7 @@ MonoBehaviour:
     animator: {fileID: 9100000, guid: 2928e962406f88d41a922c29722c132f, type: 2}
   - key: pet_pup
     model: {fileID: 919132149155446097, guid: 255f8d04539515449b2f755e0d5523fc, type: 3}
-    animator: {fileID: 0}
+    animator: {fileID: 9100000, guid: 38dad837884a3fc4088c78ad62d37715, type: 2}
   - key: pet_fox
     model: {fileID: 919132149155446097, guid: 028f354bbf2cefe40882a4bc233ffec4, type: 3}
     animator: {fileID: 9100000, guid: 929dc4a3df38cd546aff6f4af5437538, type: 2}

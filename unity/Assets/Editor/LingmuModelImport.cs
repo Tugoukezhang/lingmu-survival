@@ -12,12 +12,13 @@ public class LingmuModelImport : AssetPostprocessor
 {
     // bump when the rules below change: Unity then imports the affected models and textures again by itself
     // 2: textures 2048 (was 1024), sky / ground textures, pets as Generic
-    public override uint GetVersion() => 2;
+    // 3: pets re-rigged in Blender (tools/blender/rig_pet.py): idle / walk / run / happy clips, "happy" loops
+    public override uint GetVersion() => 3;
 
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
     static bool IsPet(string p) => p.StartsWith("Assets/Art/Characters/A0") && !p.StartsWith("Assets/Art/Characters/A01_");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
-    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath" };
+    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "happy" };
 
     void OnPreprocessModel()
     {
@@ -102,9 +103,13 @@ public class LingmuModelImport : AssetPostprocessor
         foreach (var p in AssetDatabase.FindAssets("t:Model", new[] { "Assets/Art/Characters" }).Select(AssetDatabase.GUIDToAssetPath).Where(IsRigged))
         {
             var mi = (ModelImporter)AssetImporter.GetAtPath(p);
-            var clips = (mi.clipAnimations != null && mi.clipAnimations.Length > 0) ? mi.clipAnimations : mi.defaultClipAnimations;
+            var defaults = mi.defaultClipAnimations;
+            var clips = (mi.clipAnimations != null && mi.clipAnimations.Length > 0) ? mi.clipAnimations : defaults;
             if (clips == null || clips.Length == 0) continue;
             bool changed = false;
+            // the model was exported again with other takes: start from its own takes, not the old list
+            var takes = defaults.Select(d => d.takeName).ToList();
+            if (clips != defaults && (clips.Length != defaults.Length || clips.Any(c => !takes.Contains(c.takeName)))) { clips = defaults; changed = true; }
             foreach (var c in clips)
             {
                 var shortName = c.takeName.Split('|').Last().Replace(".001", "").Replace("_Armature", "");

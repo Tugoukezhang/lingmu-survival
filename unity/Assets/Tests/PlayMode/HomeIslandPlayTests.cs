@@ -102,6 +102,9 @@ public class HomeIslandPlayTests
         Stand(HomeIslandLayout.TileToWorld(home.Layout.DockTile.x, home.Layout.DockTile.y + 0.5f)); yield return null;
         Assert.AreEqual("dock", s.CurrentSpot()?.kind, "码头");
         ui.Open("dock"); yield return null; Shot("dock"); ui.Close();
+        ui.Open("daily"); yield return null; Shot("daily"); ui.Close();
+        ui.Open("map"); yield return null; Shot("map_home"); ui.Close();
+        ui.Open("settings"); yield return null; Shot("settings"); ui.Close();
         Stand(HomeIslandLayout.TileToWorld(home.Layout.Tent.x, home.Layout.Tent.y + 0.6f)); yield return null;
         Assert.AreEqual("tent", s.CurrentSpot()?.kind, "帐篷");
         s.Act(s.CurrentSpot()); yield return null;
@@ -124,6 +127,7 @@ public class HomeIslandPlayTests
         foreach (var w in Object.FindObjectsByType<WildPet>(FindObjectsSortMode.None)) w.cooldown = Time.time + 999;   // keep them calm for the pictures
         yield return new WaitForSeconds(0.3f);
         Shot("expedition");
+        var exUi = Object.FindAnyObjectByType<GameUI>(); exUi.Open("map"); yield return null; Shot("map_expedition"); exUi.Close();
         // gathering: stand next to a resource
         var res = ex.Island.resources.First(r => !r.rare && !ex.Island.water[r.ty][r.tx]);
         Stand(HomeIslandLayout.TileToWorld(res.tx, res.ty + 0.75f)); yield return null;

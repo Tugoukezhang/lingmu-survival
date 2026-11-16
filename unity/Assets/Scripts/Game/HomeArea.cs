@@ -65,6 +65,8 @@ namespace Lingmu.Game
             return In(Layout.FarmRect) || ((S.world?.expanded ?? false) && In(Layout.ExpandRect));
         }
 
+        public override IEnumerable<Spot> MapSpots() => spots;
+
         public override Spot CurrentSpot(Vector3 p)
         {
             // a farm plot under your feet beats the box next to it

@@ -39,6 +39,9 @@ namespace Lingmu.UI
                 case "expand": FillBuild("扩建家园", Progress.ExpandCost, "把家园岛东边的空地买下来，农田会变大", () => Progress.BuyExpansion(session.S), session.S.world?.expanded ?? false); break;
                 case "repair": FillBuild("修好小镇的桥", Progress.BridgeCost, "阿栗会帮你一起修，修好就能去更远的地方", () => Progress.RepairBridge(session.S), session.S.world?.bridge ?? false); break;
                 case "decorate": FillDecorate(); break;
+                case "daily": FillDaily(); break;
+                case "map": FillMap(); break;
+                case "settings": FillSettings(); break;
             }
         }
 
