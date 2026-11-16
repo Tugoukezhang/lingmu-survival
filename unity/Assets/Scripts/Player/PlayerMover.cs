@@ -46,7 +46,9 @@ namespace Lingmu.Player
             if (moving > 0.1f) yaw = Mathf.LerpAngle(yaw, Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg, 1 - Mathf.Exp(-Time.deltaTime * 12));
             if (!model) return;
             model.localRotation = Quaternion.Euler(0, yaw, 0) * baseRotation;
-            if (animator) { animator.SetFloat("Speed", walk); return; }
+            // half a push walks, a full push runs (Speed 1 = walk clip, 2 = run clip); the clips play faster with speed
+            // so the feet keep up with the ground
+            if (animator) { animator.SetFloat("Speed", walk * 2); animator.speed = Mathf.Lerp(1f, 1.45f, walk); return; }
             // no skeleton yet: little hops and a forward lean
             bob += Time.deltaTime * 11 * walk;
             model.localPosition = new Vector3(0, Mathf.Abs(Mathf.Sin(bob)) * 0.07f * walk, 0);

@@ -13,10 +13,12 @@ public class LingmuModelImport : AssetPostprocessor
     // bump when the rules below change: Unity then imports the affected models and textures again by itself
     // 2: textures 2048 (was 1024), sky / ground textures, pets as Generic
     // 3: pets re-rigged in Blender (tools/blender/rig_pet.py): idle / walk / run / happy clips, "happy" loops
-    public override uint GetVersion() => 3;
+    // 4: the player too (two-legged clips), so A01 is Generic as well
+    public override uint GetVersion() => 4;
 
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
-    static bool IsPet(string p) => p.StartsWith("Assets/Art/Characters/A0") && !p.StartsWith("Assets/Art/Characters/A01_");
+    // pets and the player (A0x) are rigged by tools/blender/rig_pet.py with their own skeleton: Generic; Tripo-rigged NPCs: Humanoid
+    static bool IsOwnRig(string p) => p.StartsWith("Assets/Art/Characters/A0") && !p.Contains("_unrigged");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
     static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "happy" };
 
@@ -32,7 +34,7 @@ public class LingmuModelImport : AssetPostprocessor
         if (IsRigged(assetPath))
         {
             // pets are animals: their skeletons don't map to a human one, so they keep their own clips (Generic)
-            mi.animationType = IsPet(assetPath) ? ModelImporterAnimationType.Generic : ModelImporterAnimationType.Human;
+            mi.animationType = IsOwnRig(assetPath) ? ModelImporterAnimationType.Generic : ModelImporterAnimationType.Human;
             mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             mi.importAnimation = true;
             mi.animationCompression = ModelImporterAnimationCompression.Optimal;

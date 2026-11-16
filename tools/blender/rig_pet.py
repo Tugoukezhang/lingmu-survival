@@ -1,6 +1,7 @@
 # Rigs and animates a chibi pet (an unrigged Tripo model) in Blender, so motion no longer depends on AI auto-rigging:
-#   1. normalise the model: 1 unit tall, on the ground, centred; it keeps facing +X as Tripo models come in (this
-#      exports to an FBX that faces +Z in Unity, like the earlier pet models)
+#   1. normalise the model: 1 unit tall, on the ground, centred; landmarks are read with it facing +X (as Tripo models
+#      come in), then it is turned to face +Y, which is what faces +Z (forward) in Unity after the FBX export
+#      (measured: an FBX facing Blender +X shows up facing Unity +X, sideways)
 #   2. skeleton from landmarks (tools/rig/<pet>.json, see tools/rig/skeleton.py): hips, spine, chest, head, ears
 #      (2 bones each), tail (3), arms, legs, optional swaying chains (cap tips, ribbons, fins)
 #   3. weights: voxel-remeshed watertight copy → Blender's heat weights → transferred to the real mesh; loose bits
@@ -50,11 +51,13 @@ lo, hi = co.min(0), co.max(0)
 s = 1.0 / (hi[2] - lo[2])
 body.data.transform(Matrix.Scale(s, 4) @ Matrix.Translation(Vector((-(lo[0] + hi[0]) / 2, -(lo[1] + hi[1]) / 2, -lo[2]))))
 body.data.update()
-P = np.array([v.co[:] for v in body.data.vertices])
+P = np.array([v.co[:] for v in body.data.vertices])            # landmark frame
 J = skeleton.joints(LM, P)
 B = skeleton.bones(J, LM)
-def M(p): return Vector(tuple(float(c) for c in p))
-F, L, U = Vector((1, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1))    # the pet's forward / left / up
+TURN = Matrix.Rotation(math.pi / 2, 4, 'Z')                     # facing +X → facing +Y
+body.data.transform(TURN); body.data.update()
+def M(p): return TURN @ Vector(tuple(float(c) for c in p))
+F, L, U = Vector((0, 1, 0)), Vector((-1, 0, 0)), Vector((0, 0, 1))   # the pet's forward / left / up after the turn
 
 # ---------- 2. skeleton ----------
 arm_data = bpy.data.armatures.new('Armature')
@@ -79,7 +82,8 @@ def has(n): return n in names
 # rivals share the vertex, then weights are smoothed along the surface, so joints bend softly. Unlike heat weights
 # this doesn't let a paw that touches the cheek drag the face along. "weights": "heat" in the json uses heat weights.
 deform = [b for b in arm_data.bones if b.use_deform]
-V = np.array([v.co[:] for v in body.data.vertices])
+V = np.array([v.co[:] for v in body.data.vertices])            # turned frame (bones are too)
+Vl = np.stack([V[:, 1], -V[:, 0], V[:, 2]], 1)                  # the same points in the landmark frame (boxes, head shape)
 _, same = np.unique(np.round(V, 5), axis=0, return_inverse=True)      # vertices split at UV seams: keep them together
 same = same.ravel()
 def seam_mean(W):
@@ -116,9 +120,28 @@ else:
         return THICK.get(n.split('.')[0], 0.045)
     r = np.array([thick(b.name) for b in deform])
     S = D / r
+    # "force": {"LowerArm.R": [[x0, x1, y0, y1, z0, z1], …]}: vertices in these boxes belong to that bone outright
+    # (a hand modelled right next to the face would otherwise stay with the head when the arm moves)
+    # Then it spreads along the mesh's own edges to whatever is joined to it within 5 cm of the box: the rest of a hand
+    # that touches the hair joins the hand, the hair (not joined to it) stays with the head.
+    E = np.array([e.vertices[:] for e in body.data.edges])
+    def inbox(b, m=0.0):
+        x0, x1, y0, y1, z0, z1 = b
+        return (Vl[:, 0] > x0 - m) & (Vl[:, 0] < x1 + m) & (Vl[:, 1] > y0 - m) & (Vl[:, 1] < y1 + m) & (Vl[:, 2] > z0 - m) & (Vl[:, 2] < z1 + m)
+    for bn, boxes in (LM.get('force') or {}).items():
+        k = [b.name for b in deform].index(bn)
+        grow = np.zeros(len(V), bool); near = np.zeros(len(V), bool)
+        for b in boxes: grow |= inbox(b); near |= inbox(b, 0.05)
+        for _ in range(400):
+            nb = np.zeros(len(V), bool); nb[E[grow[E[:, 0]], 1]] = True; nb[E[grow[E[:, 1]], 0]] = True
+            g = np.zeros(same.max() + 1, bool); g[same[nb | grow]] = True; nb |= g[same]     # across UV seams too
+            new = nb & near & ~grow
+            if not new.any(): break
+            grow |= new
+        S[grow, k] = 0.0
     hs = LM.get('head_shape')       # a chibi head is a big ball, not a capsule: {"center": [x, y, z], "radii": [rx, ry, rz]}
     if hs and has('Head'):
-        S[:, [b.name for b in deform].index('Head')] = np.linalg.norm((V - np.array(hs['center'])) / np.array(hs['radii']), axis=1)
+        S[:, [b.name for b in deform].index('Head')] = np.linalg.norm((Vl - np.array(hs['center'])) / np.array(hs['radii']), axis=1)
     # far from every bone (cape corners, a flared coat): the trunk takes it, not the head or a limb
     limb = np.array([b.name not in ('Hips', 'Spine', 'Chest') for b in deform])
     S[:, limb] = np.where(S[:, limb] > 1, S[:, limb] ** 1.5, S[:, limb])
@@ -146,6 +169,10 @@ for rn, (x0, x1, y0, y1, z0, z1) in (LM.get('check') or {}).items():
         gs = body.data.vertices[int(i)].groups
         if len(gs): g = max(gs, key=lambda g: g.weight); own[gi[g.group]] = own.get(gi[g.group], 0) + 1
     print('CHECK', rn, len(idx), ', '.join(f'{k} {100 * v // max(1, len(idx))}%' for k, v in sorted(own.items(), key=lambda kv: -kv[1])[:4]))
+    if len(own) > 1 and LM.get('check_detail'):                 # where the second owner's vertices are (to aim a "force" box)
+        second = sorted(own.items(), key=lambda kv: -kv[1])[1][0]
+        pts = np.array([P[i] for i in idx if (lambda gs: len(gs) and gi[max(gs, key=lambda g: g.weight).group] == second)(body.data.vertices[int(i)].groups)])
+        print('   ', second, 'min', np.round(pts.min(0), 3), 'max', np.round(pts.max(0), 3))
 body.modifiers.new('rig', 'ARMATURE').object = arm
 share = {g.name: 0 for g in body.vertex_groups}
 for v in body.data.vertices:
@@ -165,10 +192,20 @@ def roll(d): return (F, d)
 def turn(d): return (U, d)
 SIDES = (('L', 1), ('R', -1))
 
+# "pose": {"UpperArm.R": [x, y, z], …} turns bones to point that way before any clip moves them (a model made waving
+# gets its arm down to walk); each bone's turn is worked out in its parent's already-turned frame
+POSE, posed, acc = LM.get('pose') or {}, {}, {}
+for b in arm_data.bones:                                        # parents come before children
+    pa = acc[b.parent.name] if b.parent else Quaternion()
+    q = Quaternion()
+    if b.name in POSE:
+        q = (b.tail_local - b.head_local).normalized().rotation_difference(pa.inverted() @ (TURN.to_3x3() @ Vector(POSE[b.name])).normalized())
+    posed[b.name], acc[b.name] = q, pa @ q
+
 def key(frame, rots, root_up=0.0, squash=0.0):
     """rots: bone → [(axis, degrees)…]; root_up: hop height; squash: + flattens the whole body (about the ground), − stretches it."""
     for pb in arm.pose.bones:
-        q = Quaternion()
+        q = posed[pb.name]
         for ax, deg in rots.get(pb.name, []): q = Quaternion(ax, math.radians(deg)) @ q
         r = rest[pb.name]
         pb.rotation_quaternion = r.inverted() @ q @ r
@@ -261,6 +298,55 @@ def happy(t):
     chains(rots, t, 8, 10, 2)
     return rots, 0.1 * h, 0.12 * sq
 
+# ---- two-legged characters (the player): legs take turns instead of hopping ----
+def stride(t, thigh, knee, arm_swing, elbow, bob, lean, turn_hips, run=False):
+    ph = 2 * math.pi * t
+    s, c = math.sin(ph), math.cos(ph)                           # left leg forward when s > 0, swinging forward when c > 0
+    up = bob * (0.5 - 0.5 * math.cos(2 * ph)) if run else bob * (0.5 + 0.5 * math.cos(2 * ph))   # walk: high when the legs pass; run: high in the air
+    rots = {
+        'Hips': [turn(-turn_hips * s), roll(-3 * c), pitch(lean)],
+        'Spine': [turn(turn_hips * 0.45 * s), pitch(lean * 0.3)],
+        'Chest': [turn(turn_hips * 0.55 * s)],
+        'Head': [turn(-turn_hips * 0.2 * s), pitch(-lean * 1.1 + 1.5 * math.cos(2 * ph)), roll(1.5 * c)],
+    }
+    for S, sg in SIDES:
+        k = sg                                                  # the right leg is half a cycle behind
+        ls, lc = s * k, c * k
+        rots[f'Thigh.{S}'] = [pitch(-thigh * ls)]
+        rots[f'Shin.{S}'] = [pitch(knee * max(0.0, lc) + 5)]
+        rots[f'Foot.{S}'] = [pitch(-knee * 1.05 * max(0.0, lc) - 8 * max(0.0, -ls))]   # foot level while it swings through, less toe-down at push-off
+        rots[f'UpperArm.{S}'] = [pitch(arm_swing * ls), roll(sg * 6)]                    # arms swing against the legs
+        rots[f'LowerArm.{S}'] = [pitch(-(elbow + 12 * max(0.0, -ls)))]
+    chains(rots, t, 4, 10 if run else 6, 2)
+    squash = 0.03 * max(0.0, math.cos(2 * ph)) if run else 0.015 * max(0.0, -math.cos(2 * ph))   # lowest point: run mid-stance, walk at heel strike
+    return rots, up, squash
+
+def biped_idle(t):
+    ph = 2 * math.pi * t; s1 = math.sin(ph)
+    rots = {
+        'Hips': [roll(2 * s1)],                                 # weight shifts from foot to foot
+        'Spine': [roll(-1.2 * s1), pitch(1.0 * math.sin(2 * ph))],
+        'Chest': [pitch(1.5 * math.sin(2 * ph))],              # breathing
+        'Head': [turn(8 * math.sin(ph + 1.2)), pitch(-2 * math.sin(2 * ph)), roll(-1.5 * s1 + 1.5 * math.sin(ph + 2))],
+    }
+    for S, sg in SIDES:
+        rots[f'Thigh.{S}'] = [roll(-2 * s1)]
+        rots[f'UpperArm.{S}'] = [pitch(2.5 * math.sin(2 * ph + sg)), roll(sg * (5 + 1.5 * math.sin(2 * ph)))]
+        rots[f'LowerArm.{S}'] = [pitch(-8 - 3 * math.sin(2 * ph))]
+    chains(rots, t, 3, 2)
+    return rots, 0.0, 0.01 * -math.sin(2 * ph)
+
+def biped_happy(t):
+    ph = 2 * math.pi * t; h = max(0.0, math.sin(2 * ph)); sq = max(0.0, -math.sin(2 * ph))
+    rots = {'Hips': [pitch(4 * sq)], 'Spine': [pitch(-4 * h)], 'Head': [pitch(-8 * h), roll(6 * math.sin(ph))]}
+    for S, sg in SIDES:
+        rots[f'UpperArm.{S}'] = [pitch(-120 * h - 20), roll(sg * (12 + 22 * h))]           # cheer: both arms up
+        rots[f'LowerArm.{S}'] = [pitch(-25 * h - 10)]
+        rots[f'Thigh.{S}'] = [pitch(-18 * h + 8 * sq)]
+        rots[f'Shin.{S}'] = [pitch(30 * h + 10 * sq)]
+    chains(rots, t, 6, 12, 2)
+    return rots, 0.08 * h, 0.08 * sq - 0.03 * h
+
 def make(name, frames, fn):
     act = bpy.data.actions.new(name); act.use_fake_user = True
     arm.animation_data.action = act
@@ -271,7 +357,13 @@ def make(name, frames, fn):
         key(f, rots, up, squash)
     return act
 
-clips = [make('idle', 48, idle), make('walk', 12, hop(0.07, 6, 20)), make('run', 8, hop(0.11, 10, 30, 0.65)), make('happy', 24, happy)]
+if LM.get('gait') == 'biped':
+    clips = [make('idle', 48, biped_idle),
+             make('walk', 16, lambda t: stride(t, thigh=28, knee=40, arm_swing=24, elbow=12, bob=0.02, lean=3, turn_hips=6)),
+             make('run', 12, lambda t: stride(t, thigh=42, knee=65, arm_swing=38, elbow=70, bob=0.045, lean=10, turn_hips=9, run=True)),
+             make('happy', 24, biped_happy)]
+else:
+    clips = [make('idle', 48, idle), make('walk', 12, hop(0.07, 6, 20)), make('run', 8, hop(0.11, 10, 30, 0.65)), make('happy', 24, happy)]
 
 # ---------- 5. textures, check renders, FBX ----------
 tex_dir = os.path.join(os.path.dirname(os.path.abspath(out)), 'Textures'); os.makedirs(tex_dir, exist_ok=True)
@@ -313,18 +405,28 @@ if render_dir:
     bpy.context.view_layer.material_override = wm
     arm.animation_data.action = None
     for pb in arm.pose.bones: pb.matrix_basis = Matrix.Identity(4)
-    for view, loc in (('q', (4.2, 2.6, 2.2)), ('b', (-3.6, -3.4, 1.6)), ('f', (5, 0, 1.2))):
+    for view, loc in (('q', (-2.6, 4.2, 2.2)), ('b', (3.4, -3.6, 1.6)), ('f', (0, 5, 1.2))):
         cam.location = loc
         sc.render.filepath = os.path.join(render_dir, f'{base}_w_{view}.png')
         bpy.ops.render.render(write_still=True)
     bpy.context.view_layer.material_override = None
-    shots = [('idle', 0), ('idle', 12), ('idle', 30), ('walk', 0), ('walk', 2), ('walk', 4), ('walk', 8), ('happy', 3)]
-    for view, loc in (('q', (4.2, 2.6, 2.2)), ('b', (-3.6, -3.4, 1.6))):
+    wl = int(bpy.data.actions['walk'].frame_range[1])
+    shots = [('idle', 0), ('idle', 12), ('idle', 30), ('walk', 0), ('walk', wl // 6), ('walk', wl // 3), ('walk', 2 * wl // 3), ('happy', 3)]
+    for view, loc in (('q', (-2.6, 4.2, 2.2)), ('b', (3.4, -3.6, 1.6))):
         cam.location = loc
         for name, f in shots:
             arm.animation_data.action = bpy.data.actions[name]
             sc.frame_set(f)
             sc.render.filepath = os.path.join(render_dir, f'{base}_{view}_{name}_{f:02d}.png')
+            bpy.ops.render.render(write_still=True)
+
+if render_dir and LM.get('strip'):                              # "strip": ["walk", "run"]: 8 moments of each clip from the side
+    cam.location = (5, 0.4, 0.9)
+    for name in LM['strip']:
+        act = bpy.data.actions[name]; arm.animation_data.action = act; n = int(act.frame_range[1])
+        for j in range(8):
+            sc.frame_set(round(j * n / 8))
+            sc.render.filepath = os.path.join(render_dir, f'{base}_strip_{name}_{j}.png')
             bpy.ops.render.render(write_still=True)
 
 arm.animation_data.action = clips[0]
