@@ -49,6 +49,7 @@ namespace Lingmu.Game
             props = new GameObject("Props").transform;
             BuildProps();
             RefreshBlocking();
+            var grass = ground.AddComponent<GrassField>(); grass.seed = isl.seed; grass.flowersPerTile = 0.12f;   // wild meadow
             var mover = FindAnyObjectByType<Player.PlayerMover>(); if (mover) mover.map = walk;
         }
 

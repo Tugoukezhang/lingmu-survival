@@ -10,6 +10,10 @@ using UnityEngine;
 
 public class LingmuModelImport : AssetPostprocessor
 {
+    // bump when the rules below change: Unity then imports the affected models and textures again by itself
+    // 2: textures 2048 (was 1024), sky / ground textures, pets as Generic
+    public override uint GetVersion() => 2;
+
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
     static bool IsPet(string p) => p.StartsWith("Assets/Art/Characters/A0") && !p.StartsWith("Assets/Art/Characters/A01_");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
@@ -40,7 +44,8 @@ public class LingmuModelImport : AssetPostprocessor
     }
 
     // Tripo delivers 4096 x 4096 textures. Phones (and the dev PC's 1 GB integrated GPU) want far less:
-    // 1024 for every model texture, compressed, with mipmaps. The original file is left untouched.
+    // 2048 for every model texture (ASTC 6×6 on Android), compressed, with mipmaps. The original file is left untouched.
+    // Ground detail textures (Art/Ground) tile across the islands: grayscale detail and a normal map.
     void OnPreprocessTexture()
     {
         if (assetPath.StartsWith("Assets/Resources/Icons/"))
@@ -54,14 +59,40 @@ public class LingmuModelImport : AssetPostprocessor
             ui.SetPlatformTextureSettings(a);
             return;
         }
+        if (assetPath.StartsWith("Assets/Art/Sky/"))
+        {
+            // the panorama: full width, no mipmaps (mipmaps show a seam where its ends meet); cloud textures tile
+            var k = (TextureImporter)assetImporter;
+            bool pano = assetPath.Contains("sky_");
+            k.textureType = TextureImporterType.Default; k.sRGBTexture = true; k.alphaIsTransparency = !pano;
+            k.mipmapEnabled = !pano; k.maxTextureSize = pano ? 4096 : 1024; k.wrapModeU = TextureWrapMode.Repeat; k.wrapModeV = pano ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
+            k.textureCompression = TextureImporterCompression.Compressed;
+            var ka = k.GetPlatformTextureSettings("Android");
+            ka.overridden = true; ka.maxTextureSize = pano ? 4096 : 1024; ka.format = TextureImporterFormat.ASTC_6x6;
+            k.SetPlatformTextureSettings(ka);
+            return;
+        }
+        if (assetPath.StartsWith("Assets/Art/Ground/"))
+        {
+            var g = (TextureImporter)assetImporter;
+            bool normal = assetPath.EndsWith("_n.png");
+            g.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
+            g.sRGBTexture = !normal && !assetPath.EndsWith("_mask.png");
+            g.wrapMode = TextureWrapMode.Repeat; g.mipmapEnabled = true; g.anisoLevel = 4; g.maxTextureSize = 1024;
+            g.textureCompression = TextureImporterCompression.Compressed;
+            var ga = g.GetPlatformTextureSettings("Android");
+            ga.overridden = true; ga.maxTextureSize = 1024; ga.format = TextureImporterFormat.ASTC_6x6;
+            g.SetPlatformTextureSettings(ga);
+            return;
+        }
         if (!IsArt(assetPath)) return;
         var ti = (TextureImporter)assetImporter;
-        ti.maxTextureSize = 1024;
+        ti.maxTextureSize = 2048;          // 2048: sharp up close (1024 looked soft on buildings in the web build)
         ti.textureCompression = TextureImporterCompression.Compressed;
         ti.mipmapEnabled = true;
         ti.sRGBTexture = true;
         var android = ti.GetPlatformTextureSettings("Android");
-        android.overridden = true; android.maxTextureSize = 1024; android.format = TextureImporterFormat.ASTC_6x6;
+        android.overridden = true; android.maxTextureSize = 2048; android.format = TextureImporterFormat.ASTC_6x6;
         ti.SetPlatformTextureSettings(android);
     }
 

@@ -41,25 +41,95 @@ public static class SceneKit
         var sun = new GameObject("Sun").AddComponent<Light>();
         sun.type = LightType.Directional; sun.color = new Color(1f, 0.93f, 0.8f); sun.intensity = indoor ? 1.1f : 1.9f; sun.shadows = LightShadows.Soft; sun.shadowStrength = 0.75f;
         sun.transform.rotation = Quaternion.Euler(indoor ? 62 : 48, -32, 0);
-        var sky = SaveMat(new Material(Shader.Find("Skybox/Procedural")), folder, "Sky");
-        sky.SetFloat("_SunSize", 0.035f); sky.SetFloat("_AtmosphereThickness", 0.75f); sky.SetColor("_SkyTint", new Color(0.55f, 0.72f, 0.95f));
-        sky.SetColor("_GroundColor", new Color(0.93f, 0.96f, 1f)); sky.SetFloat("_Exposure", 1.25f);
+        var shared = EnsureSharedMaterials();
+        Material sky = shared.sky;
+        if (!sky)
+        {
+            sky = SaveMat(new Material(Shader.Find("Skybox/Procedural")), folder, "Sky");
+            sky.SetFloat("_SunSize", 0.035f); sky.SetFloat("_AtmosphereThickness", 0.75f); sky.SetColor("_SkyTint", new Color(0.55f, 0.72f, 0.95f));
+            sky.SetColor("_GroundColor", new Color(0.93f, 0.96f, 1f)); sky.SetFloat("_Exposure", 1.25f);
+        }
         RenderSettings.skybox = sky; RenderSettings.sun = sun;
         RenderSettings.ambientMode = AmbientMode.Trilight;
         if (indoor) { RenderSettings.ambientSkyColor = new Color(0.85f, 0.78f, 0.68f); RenderSettings.ambientEquatorColor = new Color(0.7f, 0.6f, 0.5f); RenderSettings.ambientGroundColor = new Color(0.45f, 0.36f, 0.28f); }
         else { RenderSettings.ambientSkyColor = new Color(0.72f, 0.82f, 0.95f); RenderSettings.ambientEquatorColor = new Color(0.62f, 0.72f, 0.62f); RenderSettings.ambientGroundColor = new Color(0.4f, 0.47f, 0.33f); }
-        RenderSettings.fog = !indoor; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 32; RenderSettings.fogEndDistance = 95; RenderSettings.fogColor = new Color(0.8f, 0.89f, 0.96f);
+        RenderSettings.fog = !indoor; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 40; RenderSettings.fogEndDistance = 170; RenderSettings.fogColor = new Color(0.8f, 0.88f, 0.95f);
         return sun;
     }
 
-    public static void CloudSea(string folder, Vector3 centre)
+    // the sea of clouds and the cloud cards around an island (Lingmu.World.Backdrop, built at runtime)
+    public static void CloudSea(string folder, Vector3 centre, float islandRadius = 22)
     {
-        var sea = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        sea.name = "CloudSea"; Object.DestroyImmediate(sea.GetComponent<Collider>());
-        sea.transform.position = centre + new Vector3(0, -8, 0); sea.transform.localScale = new Vector3(60, 1, 60);
-        var m = SaveMat(new Material(Shader.Find("Universal Render Pipeline/Unlit")), folder, "CloudSea"); m.SetColor("_BaseColor", new Color(0.93f, 0.96f, 0.98f));
-        sea.GetComponent<Renderer>().sharedMaterial = m;
+        var b = new GameObject("Backdrop").AddComponent<Backdrop>();
+        b.centre = centre; b.islandRadius = islandRadius;
     }
+
+    // ---------- shared materials (Resources/Materials): their shader variants are always in the build ----------
+    public struct Shared { public Material sky; }
+
+    [MenuItem("Lingmu/Update Shared Materials")]
+    public static Shared EnsureSharedMaterials()
+    {
+        const string dir = "Assets/Resources/Materials";
+        Directory.CreateDirectory(dir);
+        var lit = Shader.Find("Universal Render Pipeline/Lit"); var unlit = Shader.Find("Universal Render Pipeline/Unlit");
+        Texture2D Tex(string path) => AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        Material Make(string name, Shader sh, System.Action<Material> setup)
+        {
+            var path = $"{dir}/{name}.mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (!m) { m = new Material(sh); AssetDatabase.CreateAsset(m, path); }
+            if (m.shader != sh) m.shader = sh;
+            setup(m);
+            EditorUtility.SetDirty(m);
+            return m;
+        }
+        void Cutout(Material m) { m.SetFloat("_AlphaClip", 1); m.SetFloat("_Cutoff", 0.5f); m.EnableKeyword("_ALPHATEST_ON"); m.SetOverrideTag("RenderType", "TransparentCutout"); m.renderQueue = 2450; }
+        void Transparent(Material m)
+        {
+            m.SetFloat("_Surface", 1); m.SetFloat("_Blend", 0); m.SetFloat("_ZWrite", 0);
+            m.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha); m.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            m.SetFloat("_SrcBlendAlpha", (float)BlendMode.One); m.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT"); m.SetOverrideTag("RenderType", "Transparent"); m.renderQueue = 3000;
+        }
+        var detail = Tex("Assets/Art/Ground/grass_detail.png"); var detailN = Tex("Assets/Art/Ground/grass_detail_n.png");
+        Make("IslandTop", lit, m =>
+        {
+            Cutout(m); m.SetFloat("_Smoothness", 0.08f);
+            if (detail) { m.SetTexture("_DetailAlbedoMap", detail); m.SetFloat("_DetailAlbedoMapScale", 1f); m.EnableKeyword("_DETAIL_MULX2"); }
+            if (detailN) { m.SetTexture("_DetailNormalMap", detailN); m.SetFloat("_DetailNormalMapScale", 0.6f); }
+        });
+        Make("IslandCliff", lit, m => { m.SetFloat("_Smoothness", 0.05f); m.SetFloat("_Cull", (float)CullMode.Off); });
+        var seaTex = Tex("Assets/Art/Sky/cloud_sea.png");
+        Make("CloudSea", unlit, m => { if (seaTex) m.SetTexture("_BaseMap", seaTex); m.SetTextureScale("_BaseMap", new Vector2(26, 26)); m.SetColor("_BaseColor", new Color(0.97f, 0.98f, 1f)); });
+        var puff = Tex("Assets/Art/Sky/cloud_puff.png");
+        Make("CloudCard", unlit, m => { Transparent(m); if (puff) m.SetTexture("_BaseMap", puff); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.92f)); });
+        Make("TransparentUnlit", unlit, m => { Transparent(m); });
+        Make("LitEmissive", lit, m => { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", Color.white); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; });
+        var grassShader = Shader.Find("Lingmu/Grass");
+        if (grassShader)
+        {
+            Material Grass(string name, string tex, float cutoff, float root, float wind)
+                => Make(name, grassShader, m => { var t = Tex(tex); if (t) m.SetTexture("_BaseMap", t); m.SetFloat("_Cutoff", cutoff); m.SetFloat("_RootShade", root); m.SetFloat("_Wind", wind); m.enableInstancing = true; });
+            Grass("Grass", "Assets/Art/Ground/grass_tuft.png", 0.45f, 0.55f, 0.07f);
+            Grass("FlowerDaisy", "Assets/Art/Ground/flower_daisy.png", 0.5f, 1f, 0.03f);
+            Grass("FlowerYellow", "Assets/Art/Ground/flower_yellow.png", 0.5f, 1f, 0.03f);
+            Grass("FlowerBlue", "Assets/Art/Ground/flower_blue.png", 0.5f, 1f, 0.03f);
+        }
+        var skyTex = Tex("Assets/Art/Sky/sky_day.jpg");
+        Material sky = null;
+        if (skyTex)
+            sky = Make("SkyDay", Shader.Find("Skybox/Panoramic"), m =>
+            {
+                m.SetTexture("_MainTex", skyTex); m.SetFloat("_Mapping", 1); m.SetFloat("_ImageType", 0); m.SetFloat("_MirrorOnBack", 0);
+                m.SetFloat("_Exposure", 1.05f); m.SetFloat("_Rotation", SkyRotation); m.SetColor("_Tint", new Color(0.5f, 0.5f, 0.5f, 0.5f));
+            });
+        AssetDatabase.SaveAssets();
+        return new Shared { sky = sky };
+    }
+
+    // turns the panorama so its cloud banks and floating islands are in front of the starting camera (looking north)
+    public const float SkyRotation = 180;
 
     // ---------- models ----------
     public static GameObject Asset(string folder) => AssetDatabase.LoadAssetAtPath<GameObject>($"{folder}/{Path.GetFileName(folder)}.fbx");
@@ -136,11 +206,11 @@ public static class SceneKit
         return (player.transform, mover);
     }
 
-    public static Camera MakeCamera(Transform target, PlayerMover mover, float distance = 330f / 48f, float pitch = 0.42f)
+    public static Camera MakeCamera(Transform target, PlayerMover mover, float distance = 330f / 48f, float pitch = 0.34f)
     {
         var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
         var cam = camGo.AddComponent<Camera>(); cam.fieldOfView = 50; cam.nearClipPlane = 0.1f; cam.farClipPlane = 300;
-        var data = camGo.AddComponent<UniversalAdditionalCameraData>(); data.renderPostProcessing = true; data.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+        var data = camGo.AddComponent<UniversalAdditionalCameraData>(); data.renderPostProcessing = true; data.antialiasing = AntialiasingMode.None;   // edges are smoothed by 4× MSAA in the render pipeline asset (cheap on phone GPUs)
         var orbit = camGo.AddComponent<OrbitCamera>(); orbit.target = target; orbit.distance = distance; orbit.pitch = pitch;
         if (mover) mover.cameraTransform = camGo.transform;
         orbit.Snap();

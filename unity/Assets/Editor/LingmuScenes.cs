@@ -72,6 +72,7 @@ public static class LingmuScenes
         ground.SetActive(true);
         var walk = ground.AddComponent<IslandWalkMap>();
         walk.Init(W, H, TownArea.Land);
+        ground.AddComponent<GrassField>().seed = 777;
         CloudSea(gen, new Vector3(W / 2f, 0, -H / 2f));
         var props = new GameObject("Props").transform;
         foreach (var h in TownArea.Houses)

@@ -183,7 +183,16 @@ namespace Lingmu.Game
             var amb = Color.Lerp(tint, Color.white, 0.2f) * Mathf.Lerp(1, 0.38f, k);
             RenderSettings.ambientSkyColor = ambient * amb; RenderSettings.ambientEquatorColor = equator * amb; RenderSettings.ambientGroundColor = groundAmb * amb;
             RenderSettings.fogColor = Color.Lerp(fogColor * tint, new Color(0.16f, 0.19f, 0.32f), k * 0.85f);
-            if (sky) { sky.SetFloat("_Exposure", skyExposure * Mathf.Lerp(1, 0.18f, k)); if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", Color.Lerp(new Color(0.55f, 0.72f, 0.95f), new Color(0.2f, 0.25f, 0.5f), k)); }
+            if (sky)
+            {
+                sky.SetFloat("_Exposure", skyExposure * Mathf.Lerp(1, 0.2f, k));
+                if (sky.HasProperty("_SkyTint")) sky.SetColor("_SkyTint", Color.Lerp(new Color(0.55f, 0.72f, 0.95f), new Color(0.2f, 0.25f, 0.5f), k));   // procedural sky
+                if (sky.HasProperty("_Tint"))                                                                                                            // the panorama
+                {
+                    var warm = Color.Lerp(new Color(0.5f, 0.5f, 0.5f), new Color(0.5f, 0.5f, 0.5f) * tint, 0.7f);
+                    sky.SetColor("_Tint", Color.Lerp(warm, new Color(0.22f, 0.26f, 0.45f), k));
+                }
+            }
         }
 
         // after anything that may finish a guide goal, a daily task or show a tip

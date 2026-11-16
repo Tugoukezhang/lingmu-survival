@@ -27,7 +27,7 @@ public static class HomeIslandBuilder
         island.AddComponent<IslandTerrain>().seed = L.Seed;
         var walk = island.AddComponent<IslandWalkMap>();
         walk.Init(L);
-        CloudSea(gen, new Vector3(25, 0, -17));
+        CloudSea(gen, new Vector3(25, 0, -17), 26);
 
         // ---- props at the web version's tiles ----
         var props = new GameObject("Props").transform;
@@ -51,6 +51,7 @@ public static class HomeIslandBuilder
         foreach (var r in L.Rocks) { Place(props, Props + "C41_bush", r.x, r.y, 0.9f, Fit.Height, (float)rnd.NextDouble() * 360); walk.Block(r.x, r.y); }   // stand-in until the rock models arrive (C33 / C34)
         LingmuScenes.RopeBridge(props, L.BridgeTile.x + 0.5f, L.BridgeTile.y, 1);
         LingmuScenes.Fence(props, L.ExpandRect.x, L.ExpandRect.y, L.ExpandRect.w, L.ExpandRect.h);
+        var grass = island.AddComponent<GrassField>(); grass.seed = L.Seed;   // 3D grass and flowers (built when the game starts)
 
         // ---- player, camera, grading, the game ----
         var (player, mover) = MakePlayer(HomeIslandLayout.TileToWorld(L.Spawn.x, L.Spawn.y), walk);

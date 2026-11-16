@@ -41,8 +41,10 @@ namespace Lingmu.World
         const int MaskPerTile = 8;        // outline mask: 8 samples per tile
         const int PixPerTile = 32;        // ground painting: 32 pixels per tile
         const float Step = 0.25f;         // top mesh grid spacing (m)
+        const float DetailPerTile = 1.4f; // the grass detail texture repeats 1.4 times per metre
 
-        Texture2D ground, cliffTex;
+        Texture2D ground, cliffTex, detailMask;
+        float[] grassMap; int gw, gh;           // 1 = grass (for the scattered 3D grass), 0 = path, soil, water
         Mesh top, cliff;
         Material topMat, cliffMat;
         float[] mask; int mw, mh;
@@ -52,7 +54,7 @@ namespace Lingmu.World
 
         void Release()
         {
-            foreach (Object o in new Object[] { ground, cliffTex, top, cliff, topMat, cliffMat }) if (o) DestroyImmediate(o);
+            foreach (Object o in new Object[] { ground, cliffTex, detailMask, top, cliff, topMat, cliffMat }) if (o) DestroyImmediate(o);
         }
 
         public void Build()
@@ -64,12 +66,23 @@ namespace Lingmu.World
             top = TopMesh();
             cliffTex = CliffTexture();
             cliff = CliffMesh();
+            // materials come from templates in Resources (so their shader variants are in every build: alpha clip,
+            // the tiling grass detail and its normal map); without them (first import) plain Lit materials are made
             var lit = Shader.Find("Universal Render Pipeline/Lit");
-            topMat = new Material(lit) { name = "IslandTop", hideFlags = HideFlags.DontSave };
+            var topTpl = Resources.Load<Material>("Materials/IslandTop"); var cliffTpl = Resources.Load<Material>("Materials/IslandCliff");
+            topMat = topTpl ? new Material(topTpl) : new Material(lit);
+            topMat.name = "IslandTop"; topMat.hideFlags = HideFlags.DontSave;
             topMat.SetTexture("_BaseMap", ground);
             topMat.SetFloat("_Smoothness", 0.08f);
             topMat.SetFloat("_AlphaClip", 1); topMat.SetFloat("_Cutoff", 0.5f); topMat.EnableKeyword("_ALPHATEST_ON");
-            cliffMat = new Material(lit) { name = "IslandCliff", hideFlags = HideFlags.DontSave };
+            if (topTpl)
+            {
+                topMat.SetTexture("_DetailMask", detailMask);
+                var tiling = new Vector2(S.cols * DetailPerTile, S.rows * DetailPerTile);
+                topMat.SetTextureScale("_DetailAlbedoMap", tiling);
+            }
+            cliffMat = cliffTpl ? new Material(cliffTpl) : new Material(lit);
+            cliffMat.name = "IslandCliff"; cliffMat.hideFlags = HideFlags.DontSave;
             cliffMat.SetTexture("_BaseMap", cliffTex);
             cliffMat.SetFloat("_Smoothness", 0.05f);
             cliffMat.SetFloat("_Cull", (float)CullMode.Off);
@@ -152,6 +165,8 @@ namespace Lingmu.World
         {
             int W = S.cols * PixPerTile, H = S.rows * PixPerTile;
             var px = new Color32[W * H];
+            var detail = new byte[W * H];
+            gw = W; gh = H; grassMap = new float[W * H];
             var paths = Paths();
             var waterC = new Color(0.36f, 0.68f, 0.82f); var waterDeep = new Color(0.22f, 0.5f, 0.7f); var sand = new Color(0.86f, 0.78f, 0.55f);
             var grass = new Color(0.47f, 0.73f, 0.29f); var grassDark = new Color(0.27f, 0.55f, 0.26f); var grassLight = new Color(0.70f, 0.86f, 0.38f);
@@ -165,6 +180,7 @@ namespace Lingmu.World
                     float tx = (pxl + 0.5f) / PixPerTile;
                     float big = Mathf.PerlinNoise(ox + tx * 0.11f, oy + ty * 0.11f), mid = Mathf.PerlinNoise(ox + tx * 0.45f + 40, oy + ty * 0.45f), fine = Mathf.PerlinNoise(tx * 3.1f, ty * 3.1f);
                     Color c = Color.Lerp(grassDark, grass, Mathf.SmoothStep(0.2f, 0.62f, big));
+                    float det = 1, grassy = 1;      // grain strength; how much 3D grass may grow here
                     c = Color.Lerp(c, grassLight, Mathf.SmoothStep(0.62f, 0.9f, mid) * 0.55f);
                     c *= 0.93f + 0.14f * fine;
                     // the pets' meadow: lighter
@@ -177,24 +193,42 @@ namespace Lingmu.World
                     float d = 99; foreach (var s in paths) d = Mathf.Min(d, DistToSeg(new Vector2(tx, ty), s) - s.w * 0.5f + 0.18f * Mathf.PerlinNoise(tx * 1.7f, ty * 1.7f));
                     if (d < 0.18f) c = Color.Lerp(c, dirtRim, Mathf.InverseLerp(0.18f, 0.05f, d) * 0.6f);
                     if (d < 0.05f) c = Color.Lerp(c, dirt * (0.92f + 0.16f * fine), Mathf.InverseLerp(0.05f, -0.05f, d));
+                    det = Mathf.Lerp(0.45f, 1, Mathf.InverseLerp(-0.05f, 0.12f, d));
+                    grassy = Mathf.InverseLerp(0.06f, 0.4f, d);
                     // the field: tilled soil in rows
                     if (S.field is RectInt f && tx >= f.x + 0.06f && tx <= f.x + f.width - 0.06f && ty >= f.y + 0.06f && ty <= f.y + f.height - 0.06f)
-                        c = soil * (0.85f + 0.25f * Mathf.Abs(Mathf.Sin(ty * Mathf.PI * 2)) + 0.08f * fine);
+                    { c = soil * (0.85f + 0.25f * Mathf.Abs(Mathf.Sin(ty * Mathf.PI * 2)) + 0.08f * fine); det = 0.4f; grassy = 0; }
                     // shallow ponds: sandy rim, then water getting deeper towards the middle
                     if (S.water != null)
                     {
                         float wd = WaterDepth(tx, ty);
-                        if (wd > 0) c = Color.Lerp(c, sand, Mathf.Clamp01(wd * 3f));
-                        if (wd > 0.3f) c = Color.Lerp(waterC, waterDeep, Mathf.Clamp01((wd - 0.3f) * 1.4f)) * (0.95f + 0.1f * mid);
+                        if (wd > 0) { c = Color.Lerp(c, sand, Mathf.Clamp01(wd * 3f)); det = Mathf.Lerp(det, 0.3f, Mathf.Clamp01(wd * 3f)); grassy *= Mathf.Clamp01(1 - wd * 6f); }
+                        if (wd > 0.3f) { c = Color.Lerp(waterC, waterDeep, Mathf.Clamp01((wd - 0.3f) * 1.4f)) * (0.95f + 0.1f * mid); det = 0; }
                     }
                     c.a = MaskAt(tx, ty);
                     px[py * W + pxl] = c;
+                    detail[py * W + pxl] = (byte)(det * 255);
+                    grassMap[py * W + pxl] = grassy * Mathf.InverseLerp(0.82f, 0.97f, c.a);   // not on the crumbling edge
                 }
             }
             var t = new Texture2D(W, H, TextureFormat.RGBA32, true) { name = "IslandGround", wrapMode = TextureWrapMode.Clamp, anisoLevel = 4, hideFlags = HideFlags.DontSave };
             t.SetPixels32(px); t.Apply(true);
+            detailMask = new Texture2D(W, H, TextureFormat.Alpha8, true) { name = "IslandDetailMask", wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave };
+            detailMask.SetPixelData(detail, 0); detailMask.Apply(true);
             return t;
         }
+
+        // how much grass grows at a point (tile units, x east, y south): 1 on meadow, 0 on paths, soil, water, edges
+        public float GrassAt(float tx, float ty)
+        {
+            if (grassMap == null) return 0;
+            int x = Mathf.FloorToInt(tx * PixPerTile), y = gh - 1 - Mathf.FloorToInt(ty * PixPerTile);
+            if (x < 0 || y < 0 || x >= gw || y >= gh) return 0;
+            return grassMap[y * gw + x];
+        }
+        public int Cols => S?.cols ?? 0;
+        public int Rows => S?.rows ?? 0;
+        public Vector2? Meadow => S?.meadow;
 
         // 0 = dry … 1 = deep inside a pond (smooth, from the water tiles around the point)
         float WaterDepth(float tx, float ty)
@@ -231,7 +265,7 @@ namespace Lingmu.World
             }
             var mesh = new Mesh { name = "IslandTop", indexFormat = IndexFormat.UInt32, hideFlags = HideFlags.DontSave };
             mesh.SetVertices(verts); mesh.SetUVs(0, uvs); mesh.SetTriangles(tris, 0);
-            mesh.RecalculateNormals(); mesh.RecalculateBounds();
+            mesh.RecalculateNormals(); mesh.RecalculateTangents(); mesh.RecalculateBounds();
             return mesh;
         }
 
@@ -240,17 +274,26 @@ namespace Lingmu.World
 
         Texture2D CliffTexture()
         {
-            const int W = 64, H = 128;
+            const int W = 128, H = 256;
             var px = new Color[W * H];
-            var soil = new Color(0.55f, 0.38f, 0.24f); var rock = new Color(0.48f, 0.39f, 0.31f); var deep = new Color(0.32f, 0.30f, 0.33f);
+            var soil = new Color(0.46f, 0.32f, 0.2f);
+            var bands = new[] { new Color(0.80f, 0.64f, 0.45f), new Color(0.70f, 0.52f, 0.35f), new Color(0.86f, 0.73f, 0.55f), new Color(0.74f, 0.58f, 0.40f), new Color(0.64f, 0.47f, 0.32f) };
+            var deep = new Color(0.50f, 0.50f, 0.58f);
             for (int y = 0; y < H; y++) for (int x = 0; x < W; x++)
             {
-                float t = 1 - y / (H - 1f);                       // 0 at the top edge … 1 at the bottom
-                var c = Color.Lerp(soil, rock, Mathf.Clamp01(t * 2.2f));
-                c = Color.Lerp(c, deep, Mathf.Clamp01((t - 0.5f) * 1.6f));
-                float strata = Mathf.PerlinNoise(x * 0.06f, y * 0.45f), blot = Mathf.PerlinNoise(x * 0.25f + 9, y * 0.25f);
-                c *= 0.82f + 0.22f * strata + 0.12f * blot;
-                if (y > H - 6) c = Color.Lerp(c, new Color(0.42f, 0.62f, 0.27f), (y - (H - 6)) / 5f);   // grass lip at the very top
+                float t = 1 - y / (H - 1f);                       // 0 at the top edge … 1 at the bottom tip
+                float wob = (Mathf.PerlinNoise(x * 0.05f, 3.1f) - 0.5f) * 0.05f + (Mathf.PerlinNoise(x * 0.17f, 7.7f) - 0.5f) * 0.015f;
+                float layer = (t + wob) * 9f;                    // strata, slightly wavy
+                int li = Mathf.Abs(Mathf.FloorToInt(layer)) % bands.Length;
+                float edge = Mathf.Abs(layer - Mathf.Round(layer));
+                var c = Color.Lerp(bands[li], bands[(li + 1) % bands.Length], Mathf.SmoothStep(0.35f, 0.5f, layer - Mathf.Floor(layer)));
+                c *= edge < 0.06f ? 0.78f : 1f;                  // a dark line between layers
+                c *= 0.9f + 0.18f * Mathf.PerlinNoise(x * 0.3f, y * 0.06f);                 // grain
+                c *= 1 - 0.14f * Mathf.Clamp01(Mathf.PerlinNoise(x * 0.11f + 5, y * 0.012f) * 2 - 1);   // vertical streaks
+                if (t < 0.1f) c = Color.Lerp(soil, c, Mathf.SmoothStep(0.05f, 0.1f, t));   // soil under the grass
+                c = Color.Lerp(c, deep, Mathf.Clamp01((t - 0.45f) * 1.3f));               // cooler and darker in the cloud shade below
+                float lip = 0.035f + 0.02f * Mathf.PerlinNoise(x * 0.4f, 1.3f);           // grass hanging over the top
+                if (t < lip) c = Color.Lerp(new Color(0.36f, 0.6f, 0.24f), new Color(0.5f, 0.74f, 0.3f), t / lip);
                 c.a = 1; px[y * W + x] = c;
             }
             var tex = new Texture2D(W, H, TextureFormat.RGBA32, true) { name = "IslandCliff", wrapModeU = TextureWrapMode.Repeat, wrapModeV = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave };

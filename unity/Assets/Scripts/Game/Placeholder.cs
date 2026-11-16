@@ -12,7 +12,10 @@ namespace Lingmu.Game
         static Material Lit(string key, Color c, float smooth = 0.15f, Color? emit = null)
         {
             if (mats.TryGetValue(key, out var m) && m) return m;
-            m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = key };
+            // glowing ones start from the emissive template in Resources, so the emission variant is in the build
+            var tpl = emit != null ? Resources.Load<Material>("Materials/LitEmissive") : null;
+            m = tpl ? new Material(tpl) : new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            m.name = key;
             m.SetColor("_BaseColor", c); m.SetFloat("_Smoothness", smooth);
             if (emit != null) { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", emit.Value); }
             return mats[key] = m;
@@ -20,6 +23,8 @@ namespace Lingmu.Game
 
         public static Material Transparent(Color c, bool unlit = true)
         {
+            var tpl = unlit ? Resources.Load<Material>("Materials/TransparentUnlit") : null;   // transparent variant guaranteed in builds
+            if (tpl) { var t = new Material(tpl); t.SetColor("_BaseColor", c); return t; }
             var m = new Material(Shader.Find(unlit ? "Universal Render Pipeline/Unlit" : "Universal Render Pipeline/Lit"));
             m.SetFloat("_Surface", 1); m.SetFloat("_Blend", 0);
             m.SetOverrideTag("RenderType", "Transparent"); m.renderQueue = 3000;

@@ -11,7 +11,7 @@ namespace Lingmu.Player
         public Transform target;
         public float distance = 330f / 48f;     // web ORBIT.dist 330 px → m
         public float lookHeight = 52f / 48f;    // web ORBIT.look
-        [Range(0.2f, 0.95f)] public float pitch = 0.42f;
+        [Range(0.2f, 0.95f)] public float pitch = 0.34f;   // low enough that the sky and the far islands show at the top
         public float minPitch = 0.2f, maxPitch = 0.95f;
         public float yaw;                       // radians; 0 = looking north
         public LayerMask groundMask = ~0;
