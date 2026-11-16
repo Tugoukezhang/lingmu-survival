@@ -77,6 +77,28 @@ public class HomeIslandPlayTests
         Assert.AreEqual(1, GameSession.I.S.pets.Count);
     }
 
+    // every crop at every stage, ripe ones in front, for a close look at the farm (picture: ui_farm_showcase.png)
+    [UnityTest] public IEnumerator 农田展示()
+    {
+        var st = SaveRules.NewGameState(starter: "fox");
+        var f = HomeIslandLayout.Generate().FarmRect;
+        var crops = GameData.CropIds;
+        for (int row = 0; row < f.h; row++)
+            for (int col = 0; col < f.w; col++)
+            {
+                var p = new FarmPlot { tilled = true, watered = (col + row) % 2 == 0 };
+                if (col < crops.Count) { var c = crops[col]; int days = GameData.Crops[c].days; p.crop = c; p.days = row == 0 ? 0 : row == 1 ? days / 2 : row == 2 ? days - 1 : days; }
+                Farm.Of(st).plots[Farm.PlotKey(f.x + col, f.y + row)] = p;
+            }
+        GameSession.UseState(st);
+        yield return Load("HomeIsland");
+        Stand(HomeIslandLayout.TileToWorld(f.x + 2.5f, f.y + f.h + 1.2f));
+        yield return new WaitForSeconds(0.6f);
+        Shot("farm_showcase");
+        var shown = Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None).Where(r => r.name == "produce" && r.gameObject.activeInHierarchy).Select(r => r.transform.parent.name).OrderBy(n => n).ToList();
+        Assert.AreEqual(5, shown.Count, "五种成熟作物都显示出来：" + string.Join(" ", shown) + " day " + GameSession.I.S.day);
+    }
+
     [UnityTest] public IEnumerator 家园岛_种地与睡觉()
     {
         GameSession.UseState(SaveRules.NewGameState(starter: "fox"));

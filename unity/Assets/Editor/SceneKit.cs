@@ -130,7 +130,16 @@ public static class SceneKit
             Grass("FlowerDaisy", "Assets/Art/Ground/flower_daisy.png", 0.5f, 1f, 0.03f);
             Grass("FlowerYellow", "Assets/Art/Ground/flower_yellow.png", 0.5f, 1f, 0.03f);
             Grass("FlowerBlue", "Assets/Art/Ground/flower_blue.png", 0.5f, 1f, 0.03f);
+            // farm crops (tools/art/make_farm.py): leaves sway like the grass
+            Grass("CropLeaf", "Assets/Art/Farm/leaf.png", 0.45f, 0.8f, 0.05f);
+            Grass("CropLeafThin", "Assets/Art/Farm/leaf_thin.png", 0.45f, 0.75f, 0.06f);
+            Grass("CropHead", "Assets/Art/Farm/sunflower.png", 0.4f, 1f, 0.015f);
+            Grass("CropEar", "Assets/Art/Farm/wheat_ear.png", 0.4f, 0.85f, 0.05f);
         }
+        var soil = Tex("Assets/Art/Farm/soil.png"); var soilN = Tex("Assets/Art/Farm/soil_n.png");
+        Make("SoilDry", lit, m => { if (soil) m.SetTexture("_BaseMap", soil); if (soilN) { m.SetTexture("_BumpMap", soilN); m.SetFloat("_BumpScale", 1f); m.EnableKeyword("_NORMALMAP"); } m.SetFloat("_Smoothness", 0.05f); m.SetColor("_BaseColor", Color.white); });
+        Make("SoilWet", lit, m => { if (soil) m.SetTexture("_BaseMap", soil); if (soilN) { m.SetTexture("_BumpMap", soilN); m.SetFloat("_BumpScale", 0.7f); m.EnableKeyword("_NORMALMAP"); } m.SetFloat("_Smoothness", 0.42f); m.SetColor("_BaseColor", new Color(0.58f, 0.52f, 0.5f)); });
+        Make("Produce", lit, m => { m.SetFloat("_Smoothness", 0.35f); m.SetColor("_BaseColor", Color.white); m.enableInstancing = true; });
         var skyTex = Tex("Assets/Art/Sky/sky_day.jpg");
         Material sky = null;
         if (skyTex)
