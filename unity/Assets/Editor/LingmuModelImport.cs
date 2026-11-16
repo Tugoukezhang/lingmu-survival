@@ -89,6 +89,15 @@ public class LingmuModelImport : AssetPostprocessor
             g.SetPlatformTextureSettings(ga);
             return;
         }
+        if (assetPath.StartsWith("Assets/Art/Stone/"))
+        {
+            var st = (TextureImporter)assetImporter;
+            bool normal = assetPath.EndsWith("_n.png");
+            st.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default; st.sRGBTexture = !normal;
+            st.wrapModeU = TextureWrapMode.Repeat; st.wrapModeV = TextureWrapMode.Clamp; st.mipmapEnabled = true; st.anisoLevel = 4; st.maxTextureSize = 512;
+            st.textureCompression = TextureImporterCompression.CompressedHQ;
+            return;
+        }
         if (assetPath.StartsWith("Assets/Art/Farm/"))
         {
             var fm = (TextureImporter)assetImporter;

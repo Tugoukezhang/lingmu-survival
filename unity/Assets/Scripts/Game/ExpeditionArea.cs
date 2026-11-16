@@ -70,8 +70,8 @@ namespace Lingmu.Game
                     "tree" => ModelLibrary.Place(h % 3 == 0 ? "pine" : "tree", props, at, (h % 3 == 0 ? 3.4f : 2.8f) * (0.85f + h % 30 / 100f), true, h % 360),
                     "bush" => ModelLibrary.Place("bush", props, at, 0.95f, true, h % 360),
                     "grass" => ModelLibrary.Place("shrub", props, at, 0.55f, true, h % 360),
-                    "rock" => Placeholder.Rock(props, at, h),
-                    _ => Placeholder.Crystal(props, at, r.rare),
+                    "rock" => StoneKit.Rock(props, at, h, 0.85f + h % 25 / 100f),
+                    _ => StoneKit.Crystal(props, at, h, r.rare),
                 };
                 things[r.id] = g;
             }

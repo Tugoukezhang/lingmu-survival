@@ -55,7 +55,12 @@ public static class HomeIslandBuilder
             Place(props, Props + (pine ? "C39_tree_b" : "C38-C40_tree_round"), t.x, t.y, (pine ? 3.6f : 3.0f) * (0.88f + (float)rnd.NextDouble() * 0.3f), Fit.Height, (float)rnd.NextDouble() * 360);
             walk.Block(t.x, t.y);
         }
-        foreach (var r in L.Rocks.Where(OffPath)) { Place(props, Props + "C41_bush", r.x, r.y, 0.9f, Fit.Height, (float)rnd.NextDouble() * 360); walk.Block(r.x, r.y); }   // stand-in until the rock models arrive (C33 / C34)
+        foreach (var r in L.Rocks.Where(OffPath))                           // rocks made in code (StoneKit), built when the game starts
+        {
+            var rock = new GameObject("rock").AddComponent<RockView>(); rock.transform.SetParent(props, false);
+            rock.transform.position = HomeIslandLayout.TileToWorld(r.x, r.y); rock.seed = r.x * 131 + r.y * 17 + L.Seed % 97; rock.size = r.kind == "rock_b" ? 0.8f : 1.05f;
+            walk.Block(r.x, r.y);
+        }
         LingmuScenes.RopeBridge(props, L.BridgeTile.x + 0.5f, L.BridgeTile.y, 1);
         LingmuScenes.Fence(props, L.ExpandRect.x, L.ExpandRect.y, L.ExpandRect.w, L.ExpandRect.h);
         var grass = island.AddComponent<GrassField>(); grass.seed = L.Seed;   // 3D grass and flowers (built when the game starts)

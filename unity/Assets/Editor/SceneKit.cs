@@ -140,6 +140,11 @@ public static class SceneKit
         Make("SoilDry", lit, m => { if (soil) m.SetTexture("_BaseMap", soil); if (soilN) { m.SetTexture("_BumpMap", soilN); m.SetFloat("_BumpScale", 1f); m.EnableKeyword("_NORMALMAP"); } m.SetFloat("_Smoothness", 0.05f); m.SetColor("_BaseColor", Color.white); });
         Make("SoilWet", lit, m => { if (soil) m.SetTexture("_BaseMap", soil); if (soilN) { m.SetTexture("_BumpMap", soilN); m.SetFloat("_BumpScale", 0.7f); m.EnableKeyword("_NORMALMAP"); } m.SetFloat("_Smoothness", 0.42f); m.SetColor("_BaseColor", new Color(0.58f, 0.52f, 0.5f)); });
         Make("Produce", lit, m => { m.SetFloat("_Smoothness", 0.35f); m.SetColor("_BaseColor", Color.white); m.enableInstancing = true; });
+        var stoneTex = Tex("Assets/Art/Stone/stone.png"); var stoneN = Tex("Assets/Art/Stone/stone_n.png");     // StoneKit rocks (tools/art/make_stone.py)
+        Make("Stone", lit, m => { if (stoneTex) m.SetTexture("_BaseMap", stoneTex); if (stoneN) { m.SetTexture("_BumpMap", stoneN); m.SetFloat("_BumpScale", 1.2f); m.EnableKeyword("_NORMALMAP"); } m.SetFloat("_Smoothness", 0.12f); m.SetColor("_BaseColor", Color.white); m.enableInstancing = true; });
+        void Glow(Material m, Color c, Color e) { m.SetColor("_BaseColor", c); m.SetFloat("_Smoothness", 0.85f); m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", e); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; m.enableInstancing = true; }
+        Make("Crystal", lit, m => Glow(m, new Color(0.55f, 0.85f, 0.95f), new Color(0.15f, 0.45f, 0.55f)));
+        Make("CrystalRare", lit, m => Glow(m, new Color(0.75f, 0.6f, 1f), new Color(0.4f, 0.25f, 0.7f)));
         var skyTex = Tex("Assets/Art/Sky/sky_day.jpg");
         Material sky = null;
         if (skyTex)
