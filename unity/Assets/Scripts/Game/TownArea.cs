@@ -27,6 +27,19 @@ namespace Lingmu.Game
 
         public static bool Land(int x, int y) { float cx = W / 2f, cy = H / 2f; return x >= 0 && y >= 0 && x < W && y < H && Mathf.Pow((x + 0.5f - cx) / 15.6f, 2) + Mathf.Pow((y + 0.5f - cy) / 9.6f, 2) < 1; }
 
+        // the town's ground: an oval meadow, a paved plaza, paths to the bridges and to each house's door
+        public static IslandShape Shape()
+        {
+            var (east, north) = Bridges();
+            var plaza = new Vector2(W / 2f, H / 2f);
+            var shape = new IslandShape { cols = W, rows = H, seed = 777, land = Land, meadow = plaza - new Vector2(0.5f, 0.5f) };
+            shape.curves.Add((new Vector2(east.x + 0.5f, east.y + 0.5f), plaza, 0.04f, 1.0f));
+            shape.curves.Add((plaza + new Vector2(-2.2f, 0), plaza + new Vector2(2.2f, 0), 0, -3.6f));
+            shape.curves.Add((plaza, new Vector2(north.x + 0.5f, north.y + 0.5f), 0, 0.9f));
+            foreach (var h in Houses) shape.curves.Add((plaza, new Vector2(h.sx + 0.5f, h.sy + 0.5f), 0.1f, 0.9f));
+            return shape;
+        }
+
         public static (Vector2Int east, Vector2Int north) Bridges()
         {
             int row = H / 2, ex = W - 1; while (!Land(ex, row)) ex--;

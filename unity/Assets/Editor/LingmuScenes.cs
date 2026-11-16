@@ -62,13 +62,8 @@ public static class LingmuScenes
         int W = TownArea.W, H = TownArea.H;
         var (east, north) = TownArea.Bridges();
         var plaza = new Vector2(W / 2f, H / 2f);
-        var shape = new IslandShape { cols = W, rows = H, seed = 777, land = TownArea.Land, meadow = plaza - new Vector2(0.5f, 0.5f) };
-        shape.curves.Add((new Vector2(east.x + 0.5f, east.y + 0.5f), plaza, 0.04f, 1.0f));
-        shape.curves.Add((plaza + new Vector2(-2.2f, 0), plaza + new Vector2(2.2f, 0), 0, -3.6f));
-        shape.curves.Add((plaza, new Vector2(north.x + 0.5f, north.y + 0.5f), 0, 0.9f));
-        foreach (var h in TownArea.Houses) shape.curves.Add((plaza, new Vector2(h.sx + 0.5f, h.sy + 0.5f), 0.1f, 0.9f));
         var ground = new GameObject("Island"); ground.SetActive(false);
-        ground.AddComponent<IslandTerrain>().shape = shape;
+        ground.AddComponent<IslandTerrain>().preset = "town";      // the scene keeps the preset, so loading it builds the town's ground again
         ground.SetActive(true);
         var walk = ground.AddComponent<IslandWalkMap>();
         walk.Init(W, H, TownArea.Land);

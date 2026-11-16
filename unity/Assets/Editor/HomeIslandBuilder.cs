@@ -3,6 +3,7 @@
 // version's tiles, the player, the third-person camera, sun, sky, sea of clouds, colour grading, the game and the screen.
 // Menu: Lingmu ▸ Build Home Island. Batch: -executeMethod HomeIslandBuilder.BuildAndShoot (pictures in D:\ClaudeTools\unity\).
 using System.IO;
+using System.Linq;
 using Lingmu.Game;
 using Lingmu.Player;
 using Lingmu.World;
@@ -42,13 +43,18 @@ public static class HomeIslandBuilder
         var ship = Place(props, Props + "C05_airship", L.DockTile.x + 2.2f, L.DockTile.y + 2.2f, 3.4f, Fit.Width, 90);
         ship.transform.position += Vector3.up * 0.6f;
         var rnd = new System.Random(L.Seed);
-        foreach (var t in L.Trees)
+        // trees and rocks that the layout put on or right next to a path are left out: their blocked tile would stop
+        // the player in the middle of the path (the canopy hides the trunk, so it felt like an invisible wall)
+        var shape = IslandShape.Home(L);
+        bool OffPath(PlacedProp p) => shape.PathClearance(new Vector2(p.x + 0.5f, p.y + 0.5f)) > 0.9f;
+        int dropped = L.Trees.Count(t => !OffPath(t)) + L.Rocks.Count(r => !OffPath(r));
+        foreach (var t in L.Trees.Where(OffPath))
         {
             bool pine = t.kind == "pine";
             Place(props, Props + (pine ? "C39_tree_b" : "C38-C40_tree_round"), t.x, t.y, (pine ? 3.6f : 3.0f) * (0.88f + (float)rnd.NextDouble() * 0.3f), Fit.Height, (float)rnd.NextDouble() * 360);
             walk.Block(t.x, t.y);
         }
-        foreach (var r in L.Rocks) { Place(props, Props + "C41_bush", r.x, r.y, 0.9f, Fit.Height, (float)rnd.NextDouble() * 360); walk.Block(r.x, r.y); }   // stand-in until the rock models arrive (C33 / C34)
+        foreach (var r in L.Rocks.Where(OffPath)) { Place(props, Props + "C41_bush", r.x, r.y, 0.9f, Fit.Height, (float)rnd.NextDouble() * 360); walk.Block(r.x, r.y); }   // stand-in until the rock models arrive (C33 / C34)
         LingmuScenes.RopeBridge(props, L.BridgeTile.x + 0.5f, L.BridgeTile.y, 1);
         LingmuScenes.Fence(props, L.ExpandRect.x, L.ExpandRect.y, L.ExpandRect.w, L.ExpandRect.h);
         var grass = island.AddComponent<GrassField>(); grass.seed = L.Seed;   // 3D grass and flowers (built when the game starts)
@@ -61,7 +67,7 @@ public static class HomeIslandBuilder
         var session = AddGame(player, sun);
         session.gameObject.AddComponent<FarmField>();
         SaveScene(scene, "HomeIsland");
-        Debug.Log($"[Lingmu] home island built: {L.Trees.Count} trees, {L.Rocks.Count} rocks");
+        Debug.Log($"[Lingmu] home island built: {L.Trees.Count} trees, {L.Rocks.Count} rocks, {dropped} left out (on a path)");
     }
 
     // ---------- pictures for checking from the command line ----------

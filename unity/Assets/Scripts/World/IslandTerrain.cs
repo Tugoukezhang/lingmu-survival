@@ -30,13 +30,40 @@ namespace Lingmu.World
             s.curves.Add((sp + new Vector2(0.8f, 0), new Vector2(L.FarmRect.x - 0.2f, L.FarmRect.y + 1.5f), -0.12f, 0.7f));              // to the field
             return s;
         }
+
+        // the paths as short straight pieces (tile units, x east, y south): curves are bent by `bend` sideways
+        public List<(Vector2 a, Vector2 b, float w)> PathSegments()
+        {
+            var segs = new List<(Vector2, Vector2, float)>();
+            foreach (var (a, b, bend, w) in curves)
+            {
+                if (w < 0) { segs.Add((a, b, -w)); continue; }
+                var m = (a + b) / 2 + new Vector2(-(b.y - a.y), b.x - a.x) * bend;
+                Vector2 prev = a;
+                for (int i = 1; i <= 14; i++) { float t = i / 14f, u = 1 - t; var p = u * u * a + 2 * u * t * m + t * t * b; segs.Add((prev, p, w)); prev = p; }
+            }
+            return segs;
+        }
+
+        // how far a point is from the edge of the nearest path (negative = on the path); used to keep trees off paths
+        public float PathClearance(Vector2 p)
+        {
+            float d = float.MaxValue;
+            foreach (var (a, b, w) in PathSegments())
+            {
+                var ab = b - a; float t = Mathf.Clamp01(Vector2.Dot(p - a, ab) / Mathf.Max(ab.sqrMagnitude, 1e-6f));
+                d = Mathf.Min(d, Vector2.Distance(p, a + ab * t) - w * 0.5f);
+            }
+            return d;
+        }
     }
 
     [ExecuteAlways]
     public class IslandTerrain : MonoBehaviour
     {
         public int seed = HomeIslandLayout.DefaultSeed;
-        public IslandShape shape;          // set before enabling for any other island; null = the home island from `seed`
+        public IslandShape shape;          // set before enabling for an island made while playing (expeditions)
+        public string preset = "home";     // saved scenes: "home" (the home island from `seed`) or "town" — `shape` itself can't be saved
         IslandShape S;
         const int MaskPerTile = 8;        // outline mask: 8 samples per tile
         const int PixPerTile = 32;        // ground painting: 32 pixels per tile
@@ -60,7 +87,7 @@ namespace Lingmu.World
         public void Build()
         {
             Release();
-            S = shape ?? IslandShape.Home(HomeIslandLayout.Generate(seed));
+            S = shape ?? (preset == "town" ? Lingmu.Game.TownArea.Shape() : IslandShape.Home(HomeIslandLayout.Generate(seed)));
             BuildMask();
             ground = PaintGround();
             top = TopMesh();
@@ -142,18 +169,7 @@ namespace Lingmu.World
         // ---------- ground painting ----------
         struct Seg { public Vector2 a, b; public float w; }
 
-        List<Seg> Paths()
-        {
-            var segs = new List<Seg>();
-            foreach (var (a, b, bend, w) in S.curves)
-            {
-                if (w < 0) { segs.Add(new Seg { a = a, b = b, w = -w }); continue; }
-                var m = (a + b) / 2 + new Vector2(-(b.y - a.y), b.x - a.x) * bend;
-                Vector2 prev = a;
-                for (int i = 1; i <= 14; i++) { float t = i / 14f, u = 1 - t; var p = u * u * a + 2 * u * t * m + t * t * b; segs.Add(new Seg { a = prev, b = p, w = w }); prev = p; }
-            }
-            return segs;
-        }
+        List<Seg> Paths() => S.PathSegments().ConvertAll(s => new Seg { a = s.a, b = s.b, w = s.w });
 
         static float DistToSeg(Vector2 p, Seg s)
         {
