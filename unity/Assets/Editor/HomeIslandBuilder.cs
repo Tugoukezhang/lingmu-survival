@@ -35,7 +35,8 @@ public static class HomeIslandBuilder
         var c = L.CottageRect;
         Place(props, Props + "C01_bld_cottage", L.CottageRect.x + c.w / 2f - 0.5f, c.y + c.h / 2f - 0.5f, 4.4f, Fit.Width, FrontSouth); walk.Block(c);
         Place(props, Props + "C07_tent", L.Tent.x, L.Tent.y, 1.8f, Fit.Width, 90); walk.Block(L.Tent.x, L.Tent.y);
-        Place(props, Props + "C15_campfire_lit", L.Campfire.x, L.Campfire.y, 1.0f, Fit.Width, 0); walk.Block(L.Campfire.x, L.Campfire.y);
+        var fire = Place(props, Props + "C15_campfire_lit", L.Campfire.x, L.Campfire.y, 1.0f, Fit.Width, 0); walk.Block(L.Campfire.x, L.Campfire.y);
+        SceneKit.AddFire(fire);
         Place(props, Props + "C10_storage", L.Storage.x, L.Storage.y, 0.95f, Fit.Width, FrontSouth); walk.Block(L.Storage.x, L.Storage.y);
         Place(props, Props + "C11_shipbox", L.ShipBox.x, L.ShipBox.y, 0.95f, Fit.Width, FrontSouth); walk.Block(L.ShipBox.x, L.ShipBox.y);
         Place(props, Props + "C12_seedstand", L.SeedStand.x, L.SeedStand.y, 1.5f, Fit.Width, FrontSouth); walk.Block(L.SeedStand.x, L.SeedStand.y);

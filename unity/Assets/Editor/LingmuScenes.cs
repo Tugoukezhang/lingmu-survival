@@ -78,7 +78,11 @@ public static class LingmuScenes
             Place(props, Chars + who, h.sx, h.sy, 1.3f, Fit.Height, h.y < H / 2 ? 0 : 180);
             walk.Block(h.sx, h.sy);
         }
-        Place(props, Props + "C06_fountain", plaza.x - 0.5f, plaza.y - 0.5f, 2.2f, Fit.Width, 0);
+        var fountain = Place(props, Props + "C06_fountain", plaza.x - 0.5f, plaza.y - 0.5f, 2.2f, Fit.Width, 0);
+        var fb = Bounds(fountain);
+        var spray = new GameObject("fountain water").AddComponent<FxEmitter>(); spray.transform.SetParent(fountain.transform, true);
+        spray.transform.position = new Vector3(fb.center.x, fb.min.y + 0.29f * fb.size.y, fb.center.z);
+        spray.kind = "fountain"; spray.size = 0.42f * Mathf.Max(fb.size.x, fb.size.z); spray.spout = 0.6f * fb.size.y;
         foreach (var (fx, fy) in new[] { (-1, -1), (0, -1), (-1, 0), (0, 0) }) walk.Block((int)plaza.x + fx, (int)plaza.y + fy);
         foreach (var (dx, dy) in new[] { (-5.5f, -3f), (5.5f, -3f), (-5.5f, 3f), (5.5f, 3f) })
         {

@@ -53,7 +53,7 @@ public static class SceneKit
         RenderSettings.ambientMode = AmbientMode.Trilight;
         if (indoor) { RenderSettings.ambientSkyColor = new Color(0.85f, 0.78f, 0.68f); RenderSettings.ambientEquatorColor = new Color(0.7f, 0.6f, 0.5f); RenderSettings.ambientGroundColor = new Color(0.45f, 0.36f, 0.28f); }
         else { RenderSettings.ambientSkyColor = new Color(0.72f, 0.82f, 0.95f); RenderSettings.ambientEquatorColor = new Color(0.62f, 0.72f, 0.62f); RenderSettings.ambientGroundColor = new Color(0.4f, 0.47f, 0.33f); }
-        RenderSettings.fog = !indoor; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 40; RenderSettings.fogEndDistance = 170; RenderSettings.fogColor = new Color(0.8f, 0.88f, 0.95f);
+        RenderSettings.fog = !indoor; RenderSettings.fogMode = FogMode.Linear; RenderSettings.fogStartDistance = 30; RenderSettings.fogEndDistance = 150; RenderSettings.fogColor = new Color(0.8f, 0.88f, 0.95f);
         return sun;
     }
 
@@ -101,10 +101,25 @@ public static class SceneKit
         });
         Make("IslandCliff", lit, m => { m.SetFloat("_Smoothness", 0.05f); m.SetFloat("_Cull", (float)CullMode.Off); });
         var seaTex = Tex("Assets/Art/Sky/cloud_sea.png");
-        Make("CloudSea", unlit, m => { if (seaTex) m.SetTexture("_BaseMap", seaTex); m.SetTextureScale("_BaseMap", new Vector2(26, 26)); m.SetColor("_BaseColor", new Color(0.97f, 0.98f, 1f)); });
+        Make("CloudSea", unlit, m => { if (seaTex) m.SetTexture("_BaseMap", seaTex); m.SetTextureScale("_BaseMap", new Vector2(9, 9)); m.SetColor("_BaseColor", new Color(0.97f, 0.98f, 1f)); });
+        var layerTex = Tex("Assets/Art/Sky/cloud_layer.png");     // separate puffs a little above the sea (tools/art/make_clouds.py)
+        Make("CloudLayer", unlit, m => { Transparent(m); if (layerTex) m.SetTexture("_BaseMap", layerTex); m.SetTextureScale("_BaseMap", new Vector2(6, 6)); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.85f)); });
         var puff = Tex("Assets/Art/Sky/cloud_puff.png");
         Make("CloudCard", unlit, m => { Transparent(m); if (puff) m.SetTexture("_BaseMap", puff); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.92f)); });
         Make("TransparentUnlit", unlit, m => { Transparent(m); });
+        // particles (fire, embers, smoke, water): URP's particle shader, additive for light, alpha for smoke and water
+        var particle = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        var fxSoft = Tex("Assets/Art/FX/fx_soft.png"); var fxFlame = Tex("Assets/Art/FX/fx_flame.png"); var fxRing = Tex("Assets/Art/FX/fx_ring.png");
+        void Particle(Material m, Texture t, bool additive)
+        {
+            Transparent(m); m.SetFloat("_Blend", additive ? 2 : 0);
+            m.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha); m.SetFloat("_DstBlend", (float)(additive ? BlendMode.One : BlendMode.OneMinusSrcAlpha));
+            if (t) m.SetTexture("_BaseMap", t); m.SetColor("_BaseColor", Color.white);
+        }
+        Make("FxFlame", particle, m => Particle(m, fxFlame, true));
+        Make("FxAdd", particle, m => Particle(m, fxSoft, true));
+        Make("FxAlpha", particle, m => Particle(m, fxSoft, false));
+        Make("FxRing", particle, m => Particle(m, fxRing, false));
         Make("LitEmissive", lit, m => { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", Color.white); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; });
         var grassShader = Shader.Find("Lingmu/Grass");
         if (grassShader)
@@ -148,6 +163,16 @@ public static class SceneKit
         var at = HomeIslandLayout.TileToWorld(tx, ty);
         g.transform.position += new Vector3(at.x - b.center.x, -b.min.y, at.z - b.center.z);
         return g;
+    }
+
+    // flames, embers, smoke and a flickering light on a campfire model (its bed is about a fifth of the way up)
+    public static FxEmitter AddFire(GameObject campfire, bool light = true)
+    {
+        var b = Bounds(campfire);
+        var fx = new GameObject("fire").AddComponent<FxEmitter>(); fx.transform.SetParent(campfire.transform, true);
+        fx.transform.position = new Vector3(b.center.x, b.min.y + 0.22f * b.size.y, b.center.z);
+        fx.kind = "fire"; fx.size = 0.55f * b.size.y; fx.addLight = light;
+        return fx;
     }
 
     // visible size, also for skinned characters

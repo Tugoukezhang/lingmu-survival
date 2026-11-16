@@ -14,7 +14,8 @@ public class LingmuModelImport : AssetPostprocessor
     // 2: textures 2048 (was 1024), sky / ground textures, pets as Generic
     // 3: pets re-rigged in Blender (tools/blender/rig_pet.py): idle / walk / run / happy clips, "happy" loops
     // 4: the player too (two-legged clips), so A01 is Generic as well
-    public override uint GetVersion() => 4;
+    // 5: model textures 4096 on PC with Kaiser mips, mip bias and 8x aniso (2048 on phones / web)
+    public override uint GetVersion() => 5;
 
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
     // pets and the player (A0x) are rigged by tools/blender/rig_pet.py with their own skeleton: Generic; Tripo-rigged NPCs: Humanoid
@@ -88,15 +89,30 @@ public class LingmuModelImport : AssetPostprocessor
             g.SetPlatformTextureSettings(ga);
             return;
         }
+        if (assetPath.StartsWith("Assets/Art/FX/"))
+        {
+            var fx = (TextureImporter)assetImporter;
+            fx.textureType = TextureImporterType.Default; fx.alphaIsTransparency = true; fx.sRGBTexture = true;
+            fx.mipmapEnabled = true; fx.wrapMode = TextureWrapMode.Clamp; fx.maxTextureSize = 256;
+            fx.textureCompression = TextureImporterCompression.CompressedHQ;
+            return;
+        }
         if (!IsArt(assetPath)) return;
         var ti = (TextureImporter)assetImporter;
-        ti.maxTextureSize = 2048;          // 2048: sharp up close (1024 looked soft on buildings in the web build)
-        ti.textureCompression = TextureImporterCompression.Compressed;
-        ti.mipmapEnabled = true;
+        // Tripo textures are 4096 atlases cut into many small islands: at 2048 the props looked soft on a PC screen,
+        // and far mip levels smear neighbouring islands together. PC / editor: full 4096 with sharper (Kaiser) mips,
+        // a small negative mip bias and 8x anisotropic filtering. Phones keep 2048 (memory); they look sharp at that size.
+        ti.maxTextureSize = 4096;
+        ti.textureCompression = TextureImporterCompression.CompressedHQ;
+        ti.mipmapEnabled = true; ti.mipmapFilter = TextureImporterMipFilter.KaiserFilter; ti.mipMapBias = -0.4f;
+        ti.anisoLevel = 8;
         ti.sRGBTexture = true;
         var android = ti.GetPlatformTextureSettings("Android");
         android.overridden = true; android.maxTextureSize = 2048; android.format = TextureImporterFormat.ASTC_6x6;
         ti.SetPlatformTextureSettings(android);
+        var web = ti.GetPlatformTextureSettings("WebGL");
+        web.overridden = true; web.maxTextureSize = 2048;
+        ti.SetPlatformTextureSettings(web);
     }
 
     // Short clip names and looping, for every rigged character (run once after new models arrive; safe to repeat).

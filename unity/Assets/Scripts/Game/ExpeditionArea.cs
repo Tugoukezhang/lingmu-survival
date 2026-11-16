@@ -299,6 +299,10 @@ namespace Lingmu.Game
             l.transform.SetParent(go.transform, false); l.transform.position = W(f.tx, f.ty) + Vector3.up * 0.8f;
             l.type = LightType.Point; l.color = new Color(1f, 0.66f, 0.35f); l.range = (float)Night.LightCampfire * 1.6f; l.intensity = 2.2f; l.shadows = LightShadows.None;
             fireViews[f.id] = (go, l);
+            var b = ModelLibrary.Bounds(go);
+            var fx = new GameObject("fire").AddComponent<FxEmitter>(); fx.transform.SetParent(go.transform, true);
+            fx.transform.position = new Vector3(b.center.x, b.min.y + 0.22f * b.size.y, b.center.z);
+            fx.kind = "fire"; fx.size = 0.55f * b.size.y; fx.addLight = false;
             walk.Block(f.tx, f.ty);
         }
 
@@ -352,7 +356,7 @@ namespace Lingmu.Game
             playerLight.enabled = pr > 0 && dark;
             playerLight.transform.position = Player.position + Vector3.up * 1.2f;
             playerLight.range = pr * 1.7f; playerLight.intensity = 1.6f;
-            foreach (var f in Camp.Fires(S)) if (fireViews.TryGetValue(f.id, out var v)) { bool lit = Camp.FireLeft(S, f) > 0; v.light.enabled = lit; v.light.intensity = 2.2f + Mathf.Sin(Time.time * 9) * 0.25f; }
+            foreach (var f in Camp.Fires(S)) if (fireViews.TryGetValue(f.id, out var v)) { bool lit = Camp.FireLeft(S, f) > 0; v.light.enabled = lit; }   // FxEmitter flickers it and stops the flames while it's off
             if (Explore.CanWade(S) != wading) RefreshBlocking();
             UpdateNight();
         }
