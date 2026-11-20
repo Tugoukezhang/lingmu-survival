@@ -1,4 +1,5 @@
 {
+  "texture": "art/raw/models/tripo/shark/enhanced/shark_tex_v1.jpg",
   "pet": "A04 船长鲨 (shark): round body-head with captain hat, right fin forward, left fin holding a telescope, crescent tail round its right side, hat ribbons",
   "snap_amount": 0.4,
   "head_shape": {"center": [0.13, 0.03, 0.7], "radii": [0.33, 0.33, 0.29]},

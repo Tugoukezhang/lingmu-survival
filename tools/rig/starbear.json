@@ -1,4 +1,5 @@
 {
+  "texture": "art/raw/models/tripo/starbear/enhanced/starbear_tex_v1.jpg",
   "pet": "A05 星星熊 (starbear): sitting, body turned ~30° to its left, holds a star in both paws, curled horns, nightcap drooping to its right with a pom-pom, round ball tail",
   "hold": true,
   "snap_amount": 0.4,

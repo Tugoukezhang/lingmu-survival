@@ -1,4 +1,5 @@
 {
+  "texture": "art/raw/models/npc/B03_npc_lumi/enhanced/lumi_tex_v1.jpg",
  "pet": "B03 露米 (lumi): modelled in a T-pose (arms out), \"pose\" lets the arms hang standing, long purple hair, glasses, sailor dress",
  "gait": "biped",
  "snap_amount": 0.3,

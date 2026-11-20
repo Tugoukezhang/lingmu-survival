@@ -1,4 +1,5 @@
 {
+  "texture": "art/raw/models/npc/B01_npc_granny/enhanced/granny_tex_v1.jpg",
  "pet": "B01 铃奶奶 (granny): modelled in a T-pose (arms out), \"pose\" lets the arms hang standing, big bun of white hair, apron dress",
  "gait": "biped",
  "snap_amount": 0.3,
