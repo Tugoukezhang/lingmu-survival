@@ -72,8 +72,8 @@ namespace Lingmu.World
 
         Texture2D ground, cliffTex, detailMask;
         float[] grassMap; int gw, gh;           // 1 = grass (for the scattered 3D grass), 0 = path, soil, water
-        Mesh top, cliff;
-        Material topMat, cliffMat;
+        Mesh top, cliff, water;
+        Material topMat, cliffMat, waterMat;
         float[] mask; int mw, mh;
 
         void OnEnable() => Build();
@@ -81,7 +81,8 @@ namespace Lingmu.World
 
         void Release()
         {
-            foreach (Object o in new Object[] { ground, cliffTex, detailMask, top, cliff, topMat, cliffMat }) if (o) DestroyImmediate(o);
+            foreach (Object o in new Object[] { ground, cliffTex, detailMask, top, cliff, topMat, cliffMat, water, waterMat }) if (o) DestroyImmediate(o);
+            water = null; waterMat = null;
         }
 
         public void Build()
@@ -115,6 +116,16 @@ namespace Lingmu.World
             cliffMat.SetFloat("_Cull", (float)CullMode.Off);
             Show("Top", top, topMat);
             Show("Cliff", cliff, cliffMat);
+            // pond water: a rippling see-through surface just above the painted pond bed (Lingmu/Water)
+            var waterTpl = Resources.Load<Material>("Materials/Water");
+            var old = transform.Find("Water");
+            if (S.water != null && waterTpl)
+            {
+                water = WaterMesh();
+                waterMat = new Material(waterTpl) { name = "Water", hideFlags = HideFlags.DontSave };
+                Show("Water", water, waterMat);
+            }
+            else if (old) DestroyImmediate(old.gameObject);
         }
 
         void Show(string name, Mesh m, Material mat)
@@ -125,7 +136,7 @@ namespace Lingmu.World
             var mf = t.GetComponent<MeshFilter>(); if (!mf) mf = t.gameObject.AddComponent<MeshFilter>();
             var mr = t.GetComponent<MeshRenderer>(); if (!mr) mr = t.gameObject.AddComponent<MeshRenderer>();
             mf.sharedMesh = m; mr.sharedMaterial = mat;
-            mr.shadowCastingMode = ShadowCastingMode.On; mr.receiveShadows = true;
+            mr.shadowCastingMode = name == "Water" ? ShadowCastingMode.Off : ShadowCastingMode.On; mr.receiveShadows = true;
             if (name == "Top") { var mc = t.GetComponent<MeshCollider>(); if (!mc) mc = t.gameObject.AddComponent<MeshCollider>(); mc.sharedMesh = m; }   // the camera keeps clear of the ground
         }
 
@@ -282,6 +293,37 @@ namespace Lingmu.World
             var mesh = new Mesh { name = "IslandTop", indexFormat = IndexFormat.UInt32, hideFlags = HideFlags.DontSave };
             mesh.SetVertices(verts); mesh.SetUVs(0, uvs); mesh.SetTriangles(tris, 0);
             mesh.RecalculateNormals(); mesh.RecalculateTangents(); mesh.RecalculateBounds();
+            return mesh;
+        }
+
+        // ---------- pond water ----------
+        // a grid over the ponds, 3.5 cm above the ground; vertex colour red = how deep inside the pond (for the shader)
+        Mesh WaterMesh()
+        {
+            int nx = Mathf.RoundToInt(S.cols / Step), ny = Mathf.RoundToInt(S.rows / Step);
+            var depth = new float[(nx + 1) * (ny + 1)];
+            for (int j = 0; j <= ny; j++) for (int i = 0; i <= nx; i++) depth[j * (nx + 1) + i] = WaterDepth(i * Step, j * Step);
+            var verts = new List<Vector3>(); var cols = new List<Color32>(); var tris = new List<int>();
+            var index = new Dictionary<int, int>();
+            int V(int i, int j)
+            {
+                int k = j * (nx + 1) + i;
+                if (index.TryGetValue(k, out int v)) return v;
+                index[k] = verts.Count;
+                verts.Add(new Vector3(i * Step, 0.035f, -j * Step));
+                cols.Add(new Color32((byte)(Mathf.Clamp01(depth[k]) * 255), 0, 0, 255));
+                return verts.Count - 1;
+            }
+            for (int j = 0; j < ny; j++) for (int i = 0; i < nx; i++)
+            {
+                float m = Mathf.Max(Mathf.Max(depth[j * (nx + 1) + i], depth[j * (nx + 1) + i + 1]), Mathf.Max(depth[(j + 1) * (nx + 1) + i], depth[(j + 1) * (nx + 1) + i + 1]));
+                if (m < 0.2f) continue;
+                int a = V(i, j), b = V(i + 1, j), c = V(i, j + 1), d = V(i + 1, j + 1);
+                tris.AddRange(new[] { a, b, c, b, d, c });
+            }
+            var mesh = new Mesh { name = "PondWater", indexFormat = IndexFormat.UInt32, hideFlags = HideFlags.DontSave };
+            mesh.SetVertices(verts); mesh.SetColors(cols); mesh.SetTriangles(tris, 0);
+            mesh.RecalculateNormals(); mesh.RecalculateBounds();
             return mesh;
         }
 

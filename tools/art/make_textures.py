@@ -1,8 +1,7 @@
 # Procedural textures for the islands, drawn from scratch (no third-party art):
 #   Art/Ground/grass_detail.png, grass_detail_n.png  tiling grain + normal map laid over the painted ground (crisp up close)
-#   Art/Ground/grass_tuft.png                         a tuft of grass blades (alpha) for the scattered 3D grass
-#   Art/Ground/flower_daisy.png, flower_blue.png, flower_yellow.png   little flowers for the meadow
-#   Art/Sky/cloud_puff.png                            a soft cumulus puff (alpha) for cloud cards
+#   (grass tufts, flowers and cloud cards are now painted by the image model: tools/ai/prompts + tools/art/sprite_sheet.py;
+#    the old drawn versions below are kept only as a fallback and are no longer called)
 #   Art/Sky/cloud_sea.png                             tiling top-down cloud sea
 #   python tools/art/make_textures.py
 import math, os, random
@@ -171,10 +170,5 @@ def cloud_sea(n=1024):
 
 
 grass_detail()
-grass_tuft()
-flower('flower_daisy.png', (250, 250, 246), (246, 190, 40), 13)
-flower('flower_blue.png', (120, 160, 240), (250, 240, 200), 6, petal_len=0.36, petal_w=0.3)
-flower('flower_yellow.png', (250, 214, 70), (220, 130, 30), 8, petal_len=0.38, petal_w=0.24)
-cloud_puff()
 cloud_sea()
 print('textures written to', os.path.normpath(ROOT))

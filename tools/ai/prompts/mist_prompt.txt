@@ -1,0 +1,3 @@
+A sprite sheet of four soft banks of mist and low cloud for a bright, cute 3D mobile game with a hand-painted anime look, arranged in a 2 by 2 grid. Each mist bank sits alone in the middle of its own quarter of the image, much wider than tall, with a clear empty gap between the quarters.
+Very soft, airy, semi-transparent white mist with a few gentle rounded puffs along the top, pale blue-lavender shading underneath, the edges and the bottom fading out smoothly to fully transparent, painterly, no hard outlines.
+No sky, no background colour, no ground, no text. Transparent background.

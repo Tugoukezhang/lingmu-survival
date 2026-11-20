@@ -104,8 +104,9 @@ public static class SceneKit
         Make("CloudSea", unlit, m => { if (seaTex) m.SetTexture("_BaseMap", seaTex); m.SetTextureScale("_BaseMap", new Vector2(9, 9)); m.SetColor("_BaseColor", new Color(0.97f, 0.98f, 1f)); });
         var layerTex = Tex("Assets/Art/Sky/cloud_layer.png");     // separate puffs a little above the sea (tools/art/make_clouds.py)
         Make("CloudLayer", unlit, m => { Transparent(m); if (layerTex) m.SetTexture("_BaseMap", layerTex); m.SetTextureScale("_BaseMap", new Vector2(6, 6)); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.85f)); });
-        var puff = Tex("Assets/Art/Sky/cloud_puff.png");
-        Make("CloudCard", unlit, m => { Transparent(m); if (puff) m.SetTexture("_BaseMap", puff); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.92f)); });
+        var puff = Tex("Assets/Art/Sky/cloud_cards.png"); var mist = Tex("Assets/Art/Sky/mist_cards.png");   // 2×2 sheets painted by the image model (prompts in tools/ai/prompts)
+        Make("CloudCard", unlit, m => { Transparent(m); if (puff) m.SetTexture("_BaseMap", puff); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.95f)); });
+        Make("MistCard", unlit, m => { Transparent(m); if (mist) m.SetTexture("_BaseMap", mist); m.SetColor("_BaseColor", new Color(1, 1, 1, 0.9f)); });
         Make("TransparentUnlit", unlit, m => { Transparent(m); });
         // particles (fire, embers, smoke, water): URP's particle shader, additive for light, alpha for smoke and water
         var particle = Shader.Find("Universal Render Pipeline/Particles/Unlit");
@@ -124,12 +125,15 @@ public static class SceneKit
         var grassShader = Shader.Find("Lingmu/Grass");
         if (grassShader)
         {
-            Material Grass(string name, string tex, float cutoff, float root, float wind)
-                => Make(name, grassShader, m => { var t = Tex(tex); if (t) m.SetTexture("_BaseMap", t); m.SetFloat("_Cutoff", cutoff); m.SetFloat("_RootShade", root); m.SetFloat("_Wind", wind); m.enableInstancing = true; });
-            Grass("Grass", "Assets/Art/Ground/grass_tuft.png", 0.45f, 0.55f, 0.07f);
-            Grass("FlowerDaisy", "Assets/Art/Ground/flower_daisy.png", 0.5f, 1f, 0.03f);
-            Grass("FlowerYellow", "Assets/Art/Ground/flower_yellow.png", 0.5f, 1f, 0.03f);
-            Grass("FlowerBlue", "Assets/Art/Ground/flower_blue.png", 0.5f, 1f, 0.03f);
+            Material Grass(string name, string tex, float cutoff, float root, float wind, float cells = 1, float vary = 0)
+                => Make(name, grassShader, m => { var t = Tex(tex); if (t) m.SetTexture("_BaseMap", t); m.SetFloat("_Cutoff", cutoff); m.SetFloat("_RootShade", root); m.SetFloat("_Wind", wind); m.SetFloat("_Cells", cells); m.SetFloat("_Vary", vary); m.enableInstancing = true; });
+            // grass and flowers painted by the image model (tools/ai/prompts, cut with tools/art/sprite_sheet.py): four tuft shapes in one sheet
+            var tufts = Grass("Grass", "Assets/Art/Ground/grass_tufts.png", 0.45f, 0.6f, 0.07f, 2, 1);
+            tufts.SetColor("_Color", new Color(0.86f, 0.9f, 0.78f));       // the painted tufts are a bright lime: calm them to the ground's greens
+            Grass("FlowerDaisy", "Assets/Art/Ground/flower_daisy.png", 0.5f, 1f, 0.03f, 1, 0.3f);
+            Grass("FlowerYellow", "Assets/Art/Ground/flower_yellow.png", 0.5f, 1f, 0.03f, 1, 0.3f);
+            Grass("FlowerBlue", "Assets/Art/Ground/flower_blue.png", 0.5f, 1f, 0.03f, 1, 0.3f);
+            Grass("FlowerPink", "Assets/Art/Ground/flower_pink.png", 0.5f, 1f, 0.03f, 1, 0.3f);
             // farm crops (tools/art/make_farm.py): leaves sway like the grass
             Grass("CropLeaf", "Assets/Art/Farm/leaf.png", 0.45f, 0.8f, 0.05f);
             Grass("CropLeafThin", "Assets/Art/Farm/leaf_thin.png", 0.45f, 0.75f, 0.06f);
@@ -145,6 +149,12 @@ public static class SceneKit
         void Glow(Material m, Color c, Color e) { m.SetColor("_BaseColor", c); m.SetFloat("_Smoothness", 0.85f); m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", e); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; m.enableInstancing = true; }
         Make("Crystal", lit, m => Glow(m, new Color(0.55f, 0.85f, 0.95f), new Color(0.15f, 0.45f, 0.55f)));
         Make("CrystalRare", lit, m => Glow(m, new Color(0.75f, 0.6f, 1f), new Color(0.4f, 0.25f, 0.7f)));
+        var waterShader = Shader.Find("Lingmu/Water"); var waterN = Tex("Assets/Art/Water/water_normal.png");   // pond surface (tools/art/make_water.py)
+        if (waterShader) Make("Water", waterShader, m =>
+        {
+            if (waterN) m.SetTexture("_NormalMap", waterN);
+            m.SetColor("_Shallow", new Color(0.3f, 0.78f, 0.8f)); m.SetColor("_Deep", new Color(0.07f, 0.38f, 0.64f)); m.SetColor("_Sky", new Color(0.62f, 0.8f, 0.96f));
+        });
         var skyTex = Tex("Assets/Art/Sky/sky_day.jpg");
         Material sky = null;
         if (skyTex)

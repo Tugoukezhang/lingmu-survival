@@ -32,7 +32,7 @@ namespace Lingmu.World
             if (!terrain) terrain = GetComponent<IslandTerrain>();
             if (!walk) walk = GetComponent<IslandWalkMap>();
             grassMat = Resources.Load<Material>("Materials/Grass");
-            foreach (var n in new[] { "FlowerDaisy", "FlowerYellow", "FlowerBlue" }) { var m = Resources.Load<Material>("Materials/" + n); if (m) flowerMats.Add(m); }
+            foreach (var n in new[] { "FlowerDaisy", "FlowerYellow", "FlowerBlue", "FlowerPink" }) { var m = Resources.Load<Material>("Materials/" + n); if (m) flowerMats.Add(m); }
             if (!terrain || !grassMat || terrain.Cols == 0) return;
             tuft = TuftMesh(); petal = PetalMesh();
             var rnd = new System.Random(seed);

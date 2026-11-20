@@ -1,4 +1,5 @@
 {
+  "texture": "art/raw/models/tripo/acorn/enhanced/acorn_tex_v1.jpg",
   "pet": "A03 橡果刺猬 (acorn): sitting, face turned to its left, hugs an acorn in both paws, big quilled back, explorer hat with goggles, bedroll and pouches",
   "hold": true,
   "snap_amount": 0.4,

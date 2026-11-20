@@ -87,6 +87,10 @@ public static class LingmuScenes
         var spray = new GameObject("fountain water").AddComponent<FxEmitter>(); spray.transform.SetParent(fountain.transform, true);
         spray.transform.position = new Vector3(fb.center.x, fb.min.y + 0.29f * fb.size.y, fb.center.z);
         spray.kind = "fountain"; spray.size = 0.42f * Mathf.Max(fb.size.x, fb.size.z); spray.spout = 0.6f * fb.size.y;
+        // rippling water over the basin's painted water (inner radius measured on the model's top view: 0.43 of its width)
+        var pool = new GameObject("fountain pool").AddComponent<Lingmu.World.WaterDisc>(); pool.transform.SetParent(fountain.transform, true);
+        pool.transform.position = new Vector3(fb.center.x, fb.min.y + 0.3f * fb.size.y, fb.center.z);
+        pool.radius = 0.43f * Mathf.Max(fb.size.x, fb.size.z); pool.enabled = false; pool.enabled = true;   // rebuild at the new size
         foreach (var (fx, fy) in new[] { (-1, -1), (0, -1), (-1, 0), (0, 0) }) walk.Block((int)plaza.x + fx, (int)plaza.y + fy);
         foreach (var (dx, dy) in new[] { (-5.5f, -3f), (5.5f, -3f), (-5.5f, 3f), (5.5f, 3f) })
         {

@@ -69,13 +69,23 @@ public class LingmuModelImport : AssetPostprocessor
         {
             // the panorama: full width, no mipmaps (mipmaps show a seam where its ends meet); cloud textures tile
             var k = (TextureImporter)assetImporter;
-            bool pano = assetPath.Contains("sky_");
+            bool pano = assetPath.Contains("sky_"), cards = assetPath.Contains("_cards");   // cards: 2×2 sheets of separate clouds
             k.textureType = TextureImporterType.Default; k.sRGBTexture = true; k.alphaIsTransparency = !pano;
-            k.mipmapEnabled = !pano; k.maxTextureSize = pano ? 4096 : 1024; k.wrapModeU = TextureWrapMode.Repeat; k.wrapModeV = pano ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
+            k.mipmapEnabled = !pano; k.maxTextureSize = pano ? 4096 : cards ? 2048 : 1024;
+            k.wrapModeU = cards ? TextureWrapMode.Clamp : TextureWrapMode.Repeat; k.wrapModeV = pano || cards ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
             k.textureCompression = TextureImporterCompression.Compressed;
             var ka = k.GetPlatformTextureSettings("Android");
             ka.overridden = true; ka.maxTextureSize = pano ? 4096 : 1024; ka.format = TextureImporterFormat.ASTC_6x6;
             k.SetPlatformTextureSettings(ka);
+            return;
+        }
+        if (assetPath.StartsWith("Assets/Art/Water/"))
+        {
+            var w = (TextureImporter)assetImporter;
+            w.textureType = TextureImporterType.NormalMap; w.wrapMode = TextureWrapMode.Repeat; w.mipmapEnabled = true; w.anisoLevel = 2; w.maxTextureSize = 512;
+            var wa = w.GetPlatformTextureSettings("Android");
+            wa.overridden = true; wa.maxTextureSize = 512; wa.format = TextureImporterFormat.ASTC_6x6;
+            w.SetPlatformTextureSettings(wa);
             return;
         }
         if (assetPath.StartsWith("Assets/Art/Ground/"))
@@ -84,7 +94,9 @@ public class LingmuModelImport : AssetPostprocessor
             bool normal = assetPath.EndsWith("_n.png");
             g.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
             g.sRGBTexture = !normal && !assetPath.EndsWith("_mask.png");
-            g.wrapMode = TextureWrapMode.Repeat; g.mipmapEnabled = true; g.anisoLevel = 4; g.maxTextureSize = 1024;
+            bool tiles = assetPath.Contains("grass_detail");         // the rest are cut-out cards: grass tufts, flowers
+            g.wrapMode = tiles ? TextureWrapMode.Repeat : TextureWrapMode.Clamp; g.mipmapEnabled = true; g.anisoLevel = 4; g.maxTextureSize = 1024;
+            if (!tiles) { g.alphaIsTransparency = true; g.mipMapsPreserveCoverage = true; g.alphaTestReferenceValue = 0.45f; }   // far grass stays as full
             g.textureCompression = TextureImporterCompression.Compressed;
             var ga = g.GetPlatformTextureSettings("Android");
             ga.overridden = true; ga.maxTextureSize = 1024; ga.format = TextureImporterFormat.ASTC_6x6;

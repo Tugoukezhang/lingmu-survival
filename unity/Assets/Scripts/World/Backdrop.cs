@@ -21,9 +21,9 @@ namespace Lingmu.World
 
         class Cloud { public Transform t; public MeshRenderer r; public float angle, radius, y, speed, phase, alpha, size; public bool mist; }
         readonly List<Cloud> clouds = new List<Cloud>();
-        Material seaMat, layerMat, cardMat, sky;
-        Color seaBase, layerBase, cardBase;
-        Mesh quad;
+        Material seaMat, layerMat, cardMat, mistMat, sky;
+        Color seaBase, layerBase, cardBase, mistBase;
+        Mesh[] quads;                          // the card textures are 2×2 sheets: one quad per picture
         MaterialPropertyBlock mpb;
         bool mistBuilt;
         Vector3 mistCentre;
@@ -33,10 +33,12 @@ namespace Lingmu.World
         void Start()
         {
             mpb = new MaterialPropertyBlock();
-            quad = Quad();
+            quads = new Mesh[4]; for (int k = 0; k < 4; k++) quads[k] = Quad(k);
             var seaTpl = Resources.Load<Material>("Materials/CloudSea");
             var layerTpl = Resources.Load<Material>("Materials/CloudLayer");
             var cardTpl = Resources.Load<Material>("Materials/CloudCard");
+            var mistTpl = Resources.Load<Material>("Materials/MistCard");
+            if (mistTpl) { mistMat = new Material(mistTpl); mistBase = mistMat.GetColor(BaseColor); }
             if (seaTpl) { seaMat = new Material(seaTpl); seaBase = seaMat.GetColor(BaseColor); Plane("cloud sea", seaHeight, seaMat); }
             if (layerTpl) { layerMat = new Material(layerTpl); layerBase = layerMat.GetColor(BaseColor); Plane("cloud layer", seaHeight + 2.4f, layerMat); }
             if (cardTpl)
@@ -63,9 +65,9 @@ namespace Lingmu.World
         Cloud Add(float angleDeg, float radius, float y, float size, float speed, float phase, float alpha, bool mist)
         {
             var go = new GameObject(mist ? "mist" : "cloud"); go.transform.SetParent(transform, false);
-            go.AddComponent<MeshFilter>().sharedMesh = quad;
-            var r = go.AddComponent<MeshRenderer>(); r.sharedMaterial = cardMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
-            go.transform.localScale = new Vector3(size, size * 0.55f, 1);
+            go.AddComponent<MeshFilter>().sharedMesh = quads[clouds.Count % 4];
+            var r = go.AddComponent<MeshRenderer>(); r.sharedMaterial = mist && mistMat ? mistMat : cardMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+            go.transform.localScale = new Vector3(size, size / 1.5f, 1);     // the pictures are 3:2
             var c = new Cloud { t = go.transform, r = r, angle = angleDeg, radius = radius, y = y, speed = speed, phase = phase * 6.28f, alpha = alpha, size = size, mist = mist };
             clouds.Add(c);
             return c;
@@ -97,11 +99,12 @@ namespace Lingmu.World
             }
         }
 
-        static Mesh Quad()
+        static Mesh Quad(int k)
         {
-            var m = new Mesh { name = "cloud card" };
+            var m = new Mesh { name = "cloud card " + k };
+            float u0 = (k % 2) * 0.5f, v0 = (k < 2 ? 0.5f : 0), u1 = u0 + 0.5f, v1 = v0 + 0.5f;    // picture k of the 2×2 sheet (row by row from the top)
             m.SetVertices(new List<Vector3> { new Vector3(-0.5f, -0.5f, 0), new Vector3(0.5f, -0.5f, 0), new Vector3(0.5f, 0.5f, 0), new Vector3(-0.5f, 0.5f, 0) });
-            m.SetUVs(0, new List<Vector2> { new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1) });
+            m.SetUVs(0, new List<Vector2> { new Vector2(u0, v0), new Vector2(u1, v0), new Vector2(u1, v1), new Vector2(u0, v1) });
             m.SetTriangles(new[] { 0, 2, 1, 0, 3, 2 }, 0); m.RecalculateBounds();
             return m;
         }
@@ -140,7 +143,8 @@ namespace Lingmu.World
                 if (cam) { var d = c.t.position - cp; d.y = 0; if (d.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.LookRotation(d); }
                 float breathe = c.mist ? 0.85f + 0.15f * Mathf.Sin(t * 0.5f + c.phase * 1.7f) : 1;
                 float near = cam ? Mathf.SmoothStep(0, 1, (Vector3.Distance(c.t.position, cp) - c.size * 0.35f) / (c.size * 0.6f)) : 1;
-                var col = cardBase * tint; col.a = cardBase.a * c.alpha * breathe * near;
+                var bas = c.mist && mistMat ? mistBase : cardBase;
+                var col = bas * tint; col.a = bas.a * c.alpha * breathe * near;
                 mpb.SetColor(BaseColor, col);
                 c.r.SetPropertyBlock(mpb);
                 c.r.enabled = col.a > 0.01f;

@@ -1,0 +1,4 @@
+A sprite sheet of four big fluffy stylized cumulus clouds for a bright, cute 3D mobile game sky with a hand-painted anime look, arranged in a 2 by 2 grid. Each cloud sits alone in the middle of its own quarter of the image, wider than tall, filling most of its quarter, with a clear empty gap between the quarters.
+The four clouds: 1) a tall rounded heap of puffs, 2) a long low cloud with several bumps, 3) a medium cloud with one big puff on the left, 4) a small cluster of round puffs.
+Soft white tops lit warmly by the sun, gentle lavender-blue and light grey shading underneath, soft fluffy edges that fade out smoothly, painterly, no hard outlines.
+No sky, no background colour, no ground, no text. Transparent background.

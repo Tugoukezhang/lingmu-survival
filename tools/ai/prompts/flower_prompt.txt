@@ -1,0 +1,4 @@
+A sprite sheet of four small stylized flower heads for a cute, colourful 3D mobile game with a hand-painted look, arranged in a 2 by 2 grid. Each flower sits alone in the middle of its own quarter of the image, seen from the front and slightly above, filling about 70 percent of its quarter, with a clear empty gap between the quarters.
+The four flowers: 1) a white daisy with a golden yellow centre, 2) a glossy yellow buttercup with five round petals, 3) a small cluster of sky-blue five-petal flowers with pale yellow eyes, 4) a pink cosmos flower with a warm yellow centre.
+Soft painterly shading, gentle highlights, slightly darker petal bases, crisp clean edges, a couple of tiny green leaves peeking out behind each flower.
+No stem below the flower, no ground, no shadow, no outline, no text. Transparent background.

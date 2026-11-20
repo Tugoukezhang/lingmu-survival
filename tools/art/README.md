@@ -32,6 +32,21 @@ python -E -P tools/art/seamless.py art/raw/tile_grass_raw.png game/assets/tiles/
 - 取原图中间最大的正方形，先横向、再纵向和错开半张的自己做渐变混合，四边就能无缝拼接；输出指定尺寸，并拼一张 3×3 预览检查接缝。
 - 注意：横竖必须分两次做；同时做会在每块中间留下淡淡的十字线。
 
+## Unity 用的草丛、花、云、雾：`sprite_sheet.py`
+```
+python tools/ai/gpt.py make tools/ai/prompts/grass_prompt.txt art/raw/ai_env/grass_raw.png 1024x1024 transparent
+python tools/art/sprite_sheet.py art/raw/ai_env/grass_raw.png 2x2 bottom 512x512 6 unity/Assets/Art/Ground/grass_tufts.png
+python tools/art/sprite_sheet.py art/raw/ai_env/flower_raw.png 2x2 centre 256x256 8 a.png,b.png,c.png,d.png
+```
+- GPT 直接出透明背景的 2×2 图（提示词在 `tools/ai/prompts/`）。脚本把每格的图案裁出来、缩放后放进干净的格子（草丛站在格子底边，花和云居中），再把颜色铺进透明像素，远处缩小时边缘不会发黑。
+- 只给一个输出名 → 一张同样 2×2 的图集（草丛 `grass_tufts.png`、云 `cloud_cards.png`、雾 `mist_cards.png`，游戏里每丛草 / 每朵云挑其中一格）；给 4 个名字 → 每格单独一张（4 种花）。
+
+## 池塘水面波纹：`make_water.py`
+```
+python tools/art/make_water.py
+```
+- 代码画的无缝波纹法线贴图（`unity/Assets/Art/Water/water_normal.png`），给 `Lingmu/Water` 着色器用。
+
 ## 检查清单
 - 预览图上看：边缘有没有白边或残影、白色部位有没有被抠成半透明、3×3 拼接有没有接缝。
 - 放进游戏后跑 `tools/smoke-test.mjs`，看截图里的大小和画风是否协调。

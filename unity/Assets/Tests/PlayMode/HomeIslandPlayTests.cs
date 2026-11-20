@@ -209,6 +209,13 @@ public class HomeIslandPlayTests
         var s = GameSession.I; var ui = Object.FindAnyObjectByType<GameUI>();
         Assert.AreEqual(6 * 60 + 10, s.S.clock, "过吊桥 10 分钟");
         Shot("town");
+        var pool = GameObject.Find("fountain pool");                  // the fountain and its rippling pool, seen from a little above
+        Assert.IsNotNull(pool, "喷泉池水面");
+        yield return new WaitForSeconds(0.6f);
+        var cam = Camera.main.transform; var (camPos, camRot) = (cam.position, cam.rotation);
+        cam.position = pool.transform.position + new Vector3(0, 2.6f, -3.6f); cam.LookAt(pool.transform.position + Vector3.up * 0.5f);
+        Shot("town_fountain");
+        cam.SetPositionAndRotation(camPos, camRot);
         var granny = TownArea.Houses[0];
         Stand(HomeIslandLayout.TileToWorld(granny.sx, granny.sy + 2.5f)); yield return new WaitForSeconds(1.2f);   // she turns to look at the player
         Shot("town_granny");

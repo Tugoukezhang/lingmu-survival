@@ -2,7 +2,7 @@
 # variable OPENAI_API_KEY (or, on Windows, the user's saved environment in the registry) and never printed or stored.
 #   python tools/ai/gpt.py review <prompt.txt> <out.md> <image> [image…]        ask gpt-6.2-astra about pictures
 #   python tools/ai/gpt.py edit <prompt.txt> <out.png> <image> [mask.png]       repaint / enhance one picture
-#   python tools/ai/gpt.py make <prompt.txt> <out.png> [WxH]                    a new picture
+#   python tools/ai/gpt.py make <prompt.txt> <out.png> [WxH] [transparent]      a new picture (optionally with a see-through background)
 import sys, os, json, base64, mimetypes, urllib.request, uuid
 
 CHAT_MODEL = 'gpt-6.2-astra'
@@ -64,5 +64,7 @@ if __name__ == '__main__':
         print('image written', out, usage)
     elif cmd == 'make':
         size = sys.argv[4] if len(sys.argv) > 4 else '1024x1024'
-        usage = save_image(post_json('/v1/images/generations', {'model': IMAGE_MODEL, 'prompt': prompt, 'quality': 'high', 'size': size}), out)
+        body = {'model': IMAGE_MODEL, 'prompt': prompt, 'quality': 'high', 'size': size}
+        if 'transparent' in sys.argv[5:]: body.update(background='transparent', output_format='png')
+        usage = save_image(post_json('/v1/images/generations', body), out)
         print('image written', out, usage)

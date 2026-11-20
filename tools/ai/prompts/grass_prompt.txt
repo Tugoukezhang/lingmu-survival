@@ -1,0 +1,4 @@
+A sprite sheet of four different stylized grass tufts for a cute, colourful 3D mobile game with a hand-painted look, arranged in a 2 by 2 grid. Each tuft sits alone in the middle of its own quarter of the image, standing upright on the bottom edge of its quarter, seen from the side, filling most of its quarter's height, with a clear empty gap between the quarters.
+The four tufts: 1) a dense clump of short and long blades, 2) a tall slender clump with a few blades bending outward, 3) a wide low fan of soft rounded blades, 4) a clump with a couple of tiny seed heads.
+Lush fresh green blades, darker blue-green at the roots, lighter warm yellow-green tips, gentle painterly shading with soft highlights along each blade, crisp clean blade edges.
+No soil, no ground, no shadow, no outline, no text. Transparent background.
