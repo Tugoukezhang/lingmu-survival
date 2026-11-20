@@ -204,8 +204,9 @@ for b in arm_data.bones:                                        # parents come b
         q = (b.tail_local - b.head_local).normalized().rotation_difference(pa.inverted() @ (TURN.to_3x3() @ Vector(POSE[b.name])).normalized())
     posed[b.name], acc[b.name] = q, pa @ q
 
-def key(frame, rots, root_up=0.0, squash=0.0):
-    """rots: bone → [(axis, degrees)…]; root_up: hop height; squash: + flattens the whole body (about the ground), − stretches it."""
+def key(frame, rots, root_up=0.0, squash=0.0, root_side=0.0):
+    """rots: bone → [(axis, degrees)…]; root_up: hop height; squash: + flattens the whole body (about the ground), − stretches it;
+    root_side: the body's shift towards its left (+) / right (−), e.g. over the foot that carries the weight."""
     for pb in arm.pose.bones:
         q = posed[pb.name]
         for ax, deg in rots.get(pb.name, []): q = Quaternion(ax, math.radians(deg)) @ q
@@ -213,7 +214,7 @@ def key(frame, rots, root_up=0.0, squash=0.0):
         pb.rotation_quaternion = r.inverted() @ q @ r
         pb.keyframe_insert('rotation_quaternion', frame=frame)
         if pb.name == 'Root':
-            pb.location = r.inverted() @ (U * root_up)
+            pb.location = r.inverted() @ (U * root_up + L * root_side)
             pb.scale = (1 + squash * 0.5, 1 - squash, 1 + squash * 0.5)     # Root points up: local Y is the height
             pb.keyframe_insert('location', frame=frame); pb.keyframe_insert('scale', frame=frame)
 
@@ -300,43 +301,87 @@ def happy(t):
     chains(rots, t, 8, 10, 2)
     return rots, 0.1 * h, 0.12 * sq
 
-# ---- two-legged characters (the player): legs take turns instead of hopping ----
-def stride(t, thigh, knee, arm_swing, elbow, bob, lean, turn_hips, run=False):
-    ph = 2 * math.pi * t
-    s, c = math.sin(ph), math.cos(ph)                           # left leg forward when s > 0, swinging forward when c > 0
-    up = bob * (0.5 - 0.5 * math.cos(2 * ph)) if run else bob * (0.5 + 0.5 * math.cos(2 * ph))   # walk: high when the legs pass; run: high in the air
+# ---- two-legged characters (the player, residents): legs take turns instead of hopping ----
+# Each leg runs through its own gait phase p (0 = heel strike): stance while p < duty, then swing. The pelvis is lowest just
+# after a foot lands and highest when the legs pass (walk) / in the air (run), leans over the foot carrying the weight, and
+# turns with the forward leg while the chest turns against it; the head settles a frame or two after the body.
+def ease(x):
+    x = min(1.0, max(0.0, x)); return x * x * (3 - 2 * x)
+
+def leg(p, duty, run):
+    """one leg at gait phase p: (thigh, shin, foot) in degrees — thigh − = forward; shin + = knee bent; foot + = toe down (world)"""
+    p %= 1.0
+    if run:
+        if p < duty:                                            # lands under the hips, knee gives, pushes off behind
+            k = p / duty; thigh = -18 + 46 * k; shin = 15 + 25 * math.sin(math.pi * k); foot = -8 + 43 * ease((k - 0.6) / 0.4)
+        else:                                                   # heel comes up first, knee drives forward, foot paws back down
+            q = (p - duty) / (1 - duty)
+            thigh = 28 - 68 * ease(q / 0.75) + 22 * ease((q - 0.75) / 0.25)
+            shin = 15 + 85 * math.sin(math.pi * min(1.0, q / 0.7)) if q < 0.7 else 15 + 5 * (1 - (q - 0.7) / 0.3)
+            foot = 35 - 40 * ease(q / 0.3) - 3 * ease((q - 0.3) / 0.7)
+    else:
+        if p < duty:                                            # heel strike, knee takes the weight, rolls onto the toes
+            k = p / duty; thigh = -26 + 48 * k; shin = 4 + 14 * math.sin(math.pi * min(1.0, k / 0.55)) + 22 * ease((k - 0.8) / 0.2)
+            foot = -15 * (1 - ease(k / 0.18)) + 28 * ease((k - 0.75) / 0.25)
+        else:                                                   # swing: knee bends early so the foot clears, then reaches forward
+            q = (p - duty) / (1 - duty)
+            thigh = 22 - 48 * ease(q / 0.7)
+            shin = 26 + 26 * math.sin(math.pi * min(1.0, q / 0.8)) if q < 0.8 else 4 + 22 * (1 - ease((q - 0.8) / 0.2))
+            foot = 28 - 38 * ease(q / 0.3) - 5 * ease((q - 0.3) / 0.7)
+    return thigh, shin, foot
+
+def stride(t, run=False):
+    duty = 0.38 if run else 0.6
+    u = (2 * t) % 1.0                                           # step phase (0 = a foot lands)
+    bob, lean, hips_turn, arm_swing, elbow = (0.03, 7, 8, 32, 90) if run else (0.0, 3, 6, 22, 12)   # the height comes from the legs (see ground_clip)
+    if run:
+        up = bob * (0.5 - 0.5 * math.cos(2 * math.pi * (u - 0.19)))          # lowest mid-stance, highest in the air
+        squash = 0.03 * max(0.0, math.cos(2 * math.pi * (u - 0.19)))
+    else:
+        up = bob * (0.5 + 0.5 * math.cos(2 * math.pi * (u - 0.42)))          # highest as the legs pass
+        squash = 0.012 * math.exp(-((u - 0.1) / 0.08) ** 2)
+    side = (0.006 if run else 0.012) * math.sin(2 * math.pi * t)               # over the left foot at t = 0.25
+    c = math.cos(2 * math.pi * t); lag = math.cos(2 * math.pi * (t - 0.06)); arm = math.cos(2 * math.pi * (t - 0.035))
+    land = math.exp(-((u - 0.1) / 0.08) ** 2)                                 # the chest answers each landing
     rots = {
-        'Hips': [turn(-turn_hips * s), roll(-3 * c), pitch(lean)],
-        'Spine': [turn(turn_hips * 0.45 * s), pitch(lean * 0.3)],
-        'Chest': [turn(turn_hips * 0.55 * s)],
-        'Head': [turn(-turn_hips * 0.2 * s), pitch(-lean * 1.1 + 1.5 * math.cos(2 * ph)), roll(1.5 * c)],
+        'Hips': [turn(-hips_turn * c), roll(3 * math.sin(2 * math.pi * t)), pitch(lean)],
+        'Spine': [turn(hips_turn * 0.4 * c), roll(-1.5 * math.sin(2 * math.pi * t)), pitch(lean * 0.3)],
+        'Chest': [turn(hips_turn * 0.55 * lag), pitch(2.5 * land)],
+        'Head': [turn(-hips_turn * 0.3 * lag), pitch(-lean * 1.1 - 1.5 * land + 1.2 * math.cos(2 * math.pi * (u - 0.48))), roll(-1.2 * math.sin(2 * math.pi * (t - 0.06)))],
     }
     for S, sg in SIDES:
-        k = sg                                                  # the right leg is half a cycle behind
-        ls, lc = s * k, c * k
-        rots[f'Thigh.{S}'] = [pitch(-thigh * ls)]
-        rots[f'Shin.{S}'] = [pitch(knee * max(0.0, lc) + 5)]
-        rots[f'Foot.{S}'] = [pitch(-knee * 1.05 * max(0.0, lc) - 8 * max(0.0, -ls))]   # foot level while it swings through, less toe-down at push-off
-        rots[f'UpperArm.{S}'] = [pitch(arm_swing * ls), roll(sg * 6)]                    # arms swing against the legs
-        rots[f'LowerArm.{S}'] = [pitch(-(elbow + 12 * max(0.0, -ls)))]
-    chains(rots, t, 4, 10 if run else 6, 2)
-    squash = 0.03 * max(0.0, math.cos(2 * ph)) if run else 0.015 * max(0.0, -math.cos(2 * ph))   # lowest point: run mid-stance, walk at heel strike
-    return rots, up, squash
+        th, sh, ft = leg(t if S == 'L' else t + 0.5, duty, run)
+        rots[f'Thigh.{S}'] = [pitch(th)]
+        rots[f'Shin.{S}'] = [pitch(sh)]
+        rots[f'Foot.{S}'] = [pitch(-(th + sh) + ft)]                          # so the foot's world angle is `ft`
+        a = arm * sg                                                           # left arm forward when the right leg is (t = 0.5)
+        swing = arm_swing * a * (0.7 if a > 0 else 1.25) if run else arm_swing * a          # run: forward more than back
+        rots[f'UpperArm.{S}'] = [pitch(swing), roll(sg * (11 if run else 5))]
+        rots[f'LowerArm.{S}'] = [pitch(-(elbow + (8 if run else 14) * max(0.0, -a)))]
+    chains(rots, t, 0, 0)
+    return rots, up, squash, side
 
 def biped_idle(t):
-    ph = 2 * math.pi * t; s1 = math.sin(ph)
+    """six seconds: weight on the left foot (hip up, right knee easy, shoulders tilted against the hips), two slow breaths,
+    one look to the side, and a brief shift onto the right foot and back"""
+    w = 1 - 1.7 * math.exp(-((t - 0.7) / 0.09) ** 2)                         # 1 = on the left foot, −0.7 = mostly on the right
+    br = math.sin(2 * math.pi * 2 * t)                                          # two breaths
+    look = math.exp(-((t - 0.32) / 0.1) ** 2)
     rots = {
-        'Hips': [roll(2 * s1)],                                 # weight shifts from foot to foot
-        'Spine': [roll(-1.2 * s1), pitch(1.0 * math.sin(2 * ph))],
-        'Chest': [pitch(1.5 * math.sin(2 * ph))],              # breathing
-        'Head': [turn(8 * math.sin(ph + 1.2)), pitch(-2 * math.sin(2 * ph)), roll(-1.5 * s1 + 1.5 * math.sin(ph + 2))],
+        'Hips': [roll(3 * w)],
+        'Spine': [roll(-1.8 * w), pitch(0.6 * br)],
+        'Chest': [roll(-1.2 * w), pitch(-1.6 * br)],                           # chest lifts on the in-breath
+        'Head': [turn(20 * look + 3 * math.sin(2 * math.pi * t + 0.5)), roll(2.5 * look - 1.0 * w), pitch(-1.0 * br - 2 * look)],
     }
     for S, sg in SIDES:
-        rots[f'Thigh.{S}'] = [roll(-2 * s1)]
-        rots[f'UpperArm.{S}'] = [pitch(2.5 * math.sin(2 * ph + sg)), roll(sg * (5 + 1.5 * math.sin(2 * ph)))]
-        rots[f'LowerArm.{S}'] = [pitch(-8 - 3 * math.sin(2 * ph))]
-    chains(rots, t, 3, 2)
-    return rots, 0.0, 0.01 * -math.sin(2 * ph)
+        easy = max(0.0, w) if S == 'R' else max(0.0, -w)                       # this knee relaxes while the other leg carries
+        rots[f'Thigh.{S}'] = [roll(-3 * w), pitch(-4 * easy)]
+        rots[f'Shin.{S}'] = [pitch(10 * easy)]
+        rots[f'Foot.{S}'] = [pitch(-6 * easy)]
+        rots[f'UpperArm.{S}'] = [pitch(1.5 * br), roll(sg * (5 + 1.2 * br))]
+        rots[f'LowerArm.{S}'] = [pitch(-9 - 2 * br)]
+    chains(rots, t, 0, 0)
+    return rots, 0.0, 0.0, 0.012 * w
 
 def biped_happy(t):
     ph = 2 * math.pi * t; h = max(0.0, math.sin(2 * ph)); sq = max(0.0, -math.sin(2 * ph))
@@ -353,17 +398,98 @@ def make(name, frames, fn):
     act = bpy.data.actions.new(name); act.use_fake_user = True
     arm.animation_data.action = act
     for f in range(frames + 1):                                 # last frame = first: seamless loop
-        rots, up, squash = fn((f % frames) / frames)
+        out = fn((f % frames) / frames)
+        rots, up, squash = out[:3]; side = out[3] if len(out) > 3 else 0.0
         if LM.get('hold'):                                      # paws hold something together: arms ride with the chest
             rots = {k: v for k, v in rots.items() if not k.startswith(('UpperArm', 'LowerArm'))}
-        key(f, rots, up, squash)
+        key(f, rots, up, squash, side)
     return act
 
+# ---- ground contact: while a foot carries the weight, the lowest point of the posed mesh sits on the ground --------------
+# (a leg swung forward or bent is shorter, so without this the standing foot floats). In the air (run) the body follows
+# a short arc between take-off and landing.
+def ground_clip(act, frames, stance, lift=0.0):
+    arm.animation_data.action = act
+    dg = bpy.context.evaluated_depsgraph_get()
+    low = []
+    for f in range(frames):
+        sc.frame_set(f)
+        ev = body.evaluated_get(dg); me = ev.to_mesh()
+        zs = np.empty(len(me.vertices) * 3); me.vertices.foreach_get('co', zs)
+        low.append(float(zs[2::3].min())); ev.to_mesh_clear()
+    corr = [None] * frames
+    for f in range(frames):
+        if stance(f / frames): corr[f] = -low[f]
+    if all(c is None for c in corr): return
+    for f in range(frames):                                     # flight: arc between the neighbouring contact frames
+        if corr[f] is not None: continue
+        a = f; b = f
+        while corr[a % frames] is None: a -= 1
+        while corr[b % frames] is None: b += 1
+        s_ = (f - a) / (b - a)
+        base = corr[a % frames] + (corr[b % frames] - corr[a % frames]) * s_
+        corr[f] = base + 4 * lift * s_ * (1 - s_)
+    pb = arm.pose.bones['Root']; r = rest['Root']
+    orig = []
+    for f in range(frames): sc.frame_set(f); orig.append(r @ Vector(pb.location))     # read every key before changing any
+    for f in range(frames + 1):
+        pb.location = r.inverted() @ (orig[f % frames] + U * corr[f % frames])
+        pb.keyframe_insert('location', frame=f)
+
+# ---- follow-through: chains marked "spring" are simulated as damped springs driven by the body's own motion
+# (a bag swings round its strap, hair tips lag and bounce back); the result replaces their keyed rotations.
+def bake_springs(act, frames):
+    specs = [(name, ch) for name, ch in (LM.get('chains') or {}).items() if ch.get('spring')]
+    if not specs: return
+    arm.animation_data.action = act
+    dt = 1.0 / sc.render.fps
+    for name, ch in specs:
+        hz, zeta = ch['spring'].get('hz', 3.0), ch['spring'].get('damping', 0.35)
+        k, c = (2 * math.pi * hz) ** 2, 2 * zeta * 2 * math.pi * hz
+        for i in range(1, len(ch['points'])):
+            bn = f'{name}{i}'; pb = arm.pose.bones[bn]; b = arm_data.bones[bn]
+            length = b.length
+            heads, rigid, pdelta = [], [], []                   # where the bone would point moving rigidly with its parent
+            for f in range(frames):
+                sc.frame_set(f)
+                par = pb.parent
+                pm = (arm.matrix_world @ par.matrix) if par else arm.matrix_world
+                prest = par.bone.matrix_local if par else Matrix.Identity(4)
+                delta = (pm @ prest.inverted()).to_quaternion()
+                heads.append((pm @ (prest.inverted() @ b.matrix_local)).translation.copy())
+                rigid.append((delta @ (posed[bn] @ (b.tail_local - b.head_local).normalized())).normalized())
+                pdelta.append(delta)
+            x = heads[0] + rigid[0] * length; v = Vector((0, 0, 0)); out = [Quaternion()] * frames
+            for loop in range(4):                               # settle into a repeating swing, keep the last loop
+                for f in range(frames):
+                    h0 = heads[f - 1]; h1 = heads[f]; r0 = rigid[f - 1]; r1 = rigid[f]
+                    for j in range(4):                          # 4 sub-steps per frame
+                        a = (j + 1) / 4
+                        h = h0.lerp(h1, a); target = h + r0.lerp(r1, a).normalized() * length
+                        v += ((target - x) * k - v * c) * (dt / 4); x += v * (dt / 4)
+                        x = h + (x - h).normalized() * length   # keep the bone's length
+                    if loop == 3:
+                        w = rigid[f].rotation_difference((x - heads[f]).normalized())
+                        ang = min(w.angle, math.radians(ch['spring'].get('max', 35)))
+                        out[f] = Quaternion(w.axis, ang) if w.angle > 1e-5 else Quaternion()
+            for f in range(frames + 1):
+                g = f % frames
+                q_bone = pdelta[g].inverted() @ out[g] @ pdelta[g] @ posed[bn]
+                pb.rotation_quaternion = rest[bn].inverted() @ q_bone @ rest[bn]
+                pb.keyframe_insert('rotation_quaternion', frame=f)
+
 if LM.get('gait') == 'biped':
-    clips = [make('idle', 48, biped_idle),
-             make('walk', 16, lambda t: stride(t, thigh=28, knee=40, arm_swing=24, elbow=12, bob=0.02, lean=3, turn_hips=6)),
-             make('run', 12, lambda t: stride(t, thigh=42, knee=65, arm_swing=38, elbow=70, bob=0.045, lean=10, turn_hips=9, run=True)),
-             make('happy', 24, biped_happy)]
+    lengths = {'idle': 144, 'walk': 24, 'run': 16, 'happy': 24}
+    clips = [make('idle', 144, biped_idle), make('walk', 24, lambda t: stride(t)), make('run', 16, lambda t: stride(t, run=True)), make('happy', 24, biped_happy)]
+    ground_clip(clips[0], 144, lambda t: True)                                    # idle: both feet down
+    ground_clip(clips[1], 24, lambda t: True)                                     # walk: always a foot on the ground
+    ground_clip(clips[2], 16, lambda t: ((t % 1) < 0.38) or (((t + 0.5) % 1) < 0.38), lift=0.02)   # run: contact only in stance
+    for a in clips: bake_springs(a, lengths[a.name])
+    # how fast the stance foot slides back at 1x: Unity plays the clips faster or slower to match the ground speed
+    for a in clips[1:3]:
+        arm.animation_data.action = a; n = lengths[a.name]; xs = []
+        for f in range(n): sc.frame_set(f); xs.append((arm.matrix_world @ arm.pose.bones['Foot.L'].head).dot(F))
+        print('GROUND SPEED', a.name, round((max(xs) - min(xs)) / ((0.6 if a.name == 'walk' else 0.38) * n / sc.render.fps), 3), 'per second at height 1')
 else:
     clips = [make('idle', 48, idle), make('walk', 12, hop(0.07, 6, 20)), make('run', 8, hop(0.11, 10, 30, 0.65)), make('happy', 24, happy)]
 
@@ -424,6 +550,9 @@ if render_dir:
 
 if render_dir and LM.get('strip'):                              # "strip": ["walk", "run"]: 8 moments of each clip from the side
     cam.location = (5, 0.4, 0.9)
+    bpy.ops.mesh.primitive_plane_add(size=6, location=(0, 0, 0))   # a floor, so the feet's contact and shadows show
+    floor = bpy.context.object; fm = bpy.data.materials.new('floor'); fm.use_nodes = True
+    fm.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.45, 0.47, 0.5, 1); floor.data.materials.append(fm)
     for name in LM['strip']:
         act = bpy.data.actions[name]; arm.animation_data.action = act; n = int(act.frame_range[1])
         for j in range(8):

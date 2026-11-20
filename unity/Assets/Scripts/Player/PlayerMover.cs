@@ -46,9 +46,17 @@ namespace Lingmu.Player
             if (moving > 0.1f) yaw = Mathf.LerpAngle(yaw, Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg, 1 - Mathf.Exp(-Time.deltaTime * 12));
             if (!model) return;
             model.localRotation = Quaternion.Euler(0, yaw, 0) * baseRotation;
-            // half a push walks, a full push runs (Speed 1 = walk clip, 2 = run clip); the clips play faster with speed
-            // so the feet keep up with the ground
-            if (animator) { animator.SetFloat("Speed", walk * 2); animator.speed = Mathf.Lerp(1f, 1.45f, walk); return; }
+            // ground speed picks the clip (Speed 0 idle, 1 walk at 1 m/s, 2 run from 2.2 m/s) and its playback rate, so the
+            // feet keep pace with the ground: at 1x the walk covers 0.66 m/s and the run 1.8 m/s (measured in rig_pet.py, 1.35 m tall)
+            if (animator)
+            {
+                float v = walk * speed;
+                float param = v < 1f ? v : 1f + Mathf.Clamp01((v - 1f) / 1.2f);
+                animator.SetFloat("Speed", param);
+                float clip = param <= 1f ? 0.66f : Mathf.Lerp(0.66f, 1.8f, param - 1f);
+                animator.speed = v > 0.05f ? Mathf.Clamp(v / clip, 0.8f, 2.1f) : 1f;
+                return;
+            }
             // no skeleton yet: little hops and a forward lean
             bob += Time.deltaTime * 11 * walk;
             model.localPosition = new Vector3(0, Mathf.Abs(Mathf.Sin(bob)) * 0.07f * walk, 0);
