@@ -1,0 +1,17 @@
+A game UI kit presentation board for a cozy mobile game about a little floating island home in a sea of clouds, airship trips and cute pet companions. Theme name: "cloud-sea woodcraft".
+
+Style: hand-painted, soft and chunky, rounded shapes, gentle top-left light, soft inner shading, thin darker wood outlines, warm and friendly, high quality casual mobile game UI. Materials: warm honey-brown oak wood frames with visible soft grain, cream parchment paper surfaces, small polished brass rivets and brass corner caps, a few tiny airship details (a little brass propeller, a coil of rope, a stitched canvas strip), and small white puffy cloud and fresh green leaf ornaments on some corners. Palette: honey wood brown, cream, sky blue, leaf green, sunflower yellow, coral red, with soft pastel tints.
+
+Lay out these separate pieces neatly on a plain very light warm-grey background, each with generous empty space around it, no overlaps, like a sprite sheet for a designer:
+1. one large empty panel: oak wood frame around a cream parchment area, brass rivets at the corners, a small cloud ornament on the top-left corner and two leaves on the bottom-right corner
+2. one smaller empty detail card in the same style
+3. a row of four empty rounded pill buttons: sunflower yellow, leaf green, cream, coral red, each with a slightly darker bottom edge so it looks pressable
+4. two round wooden icon-button bases (empty), and one round wooden close button with a cream X, and one round wooden back button with a cream curved arrow
+5. two tabs: one cream normal tab and one sunflower yellow selected tab (empty)
+6. a row of square rounded inventory slots: an empty soft beige slot, a selected slot with a sunflower glow border, and five rarity borders in grey, green, blue, purple and gold
+7. a progress bar (wood track with a green fill), a toggle switch (on, green) and a slider with a brass knob
+8. a small red notification dot, a four-leaf clover coin chip and a sky-blue star-dew drop chip (both as small wooden pills with the icon on the left and an empty space for numbers)
+9. twelve simple bold icons drawn in the same hand-painted style, each on its own, no background: backpack, paw print (partners), hammer and saw (crafting), scroll with a tick (quests), folded map, open book with a paw (pet dex), gear (settings), three dots (more), shop awning, envelope, calendar, camera
+10. five round element badges: a green leaf (forest), a blue water drop (water), an orange flame (fire), a golden star (light), a purple crescent moon (dark)
+
+Absolutely no text, no letters, no numbers and no words anywhere. Original design; no logos, no watermark.
