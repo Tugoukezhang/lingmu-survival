@@ -29,7 +29,7 @@ namespace Lingmu.UI
                 var name = Label(row, t.text, 32, Ink, true, TextAlignmentOptions.Left); name.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(34, -12), new Vector2(760, 50));
                 var bar = MakeBar(row, "progress", t.done ? Grass : Orange); bar.root.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(34, 18), new Vector2(620, 34));
                 SetBar(bar, prog / (float)t.n, $"{prog}/{t.n}");
-                var reward = Label(row, t.done ? "✔ 已领" : $"+{Daily.TaskReward} 四叶草", 30, t.done ? GrassDark : Hex("c99a1e"), true, TextAlignmentOptions.Right);
+                var reward = Label(row, t.done ? "√ 已领" : $"+{Daily.TaskReward} 四叶草", 30, t.done ? GrassDark : Hex("c99a1e"), true, TextAlignmentOptions.Right);
                 reward.rectTransform.Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-34, 0), new Vector2(300, 60));
             }
             var note = Label(b, d.bonus ? "今天的奖励都领完了，明天再来！" : $"三个都完成：再得 {Daily.AllBonus} 四叶草 + 一包种子（睡醒后刷新任务）", 28, Hex("7a6450"));
@@ -92,7 +92,7 @@ namespace Lingmu.UI
             }
             if (session.Area.Id == "expedition" && Explore.TreasureSense(session.S) == 0)
             {
-                var hint = Label(legend, "带上会寻宝的宠物，地图上会标出宝箱", 24, Hex("9a8468"), false, TextAlignmentOptions.Left);
+                var hint = Label(legend, "带上会寻宝的宠物，地图上会标出宝箱", FsMin, Hex("9a8468"), false, TextAlignmentOptions.Left);
                 hint.rectTransform.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(380, 90));
             }
         }
@@ -101,21 +101,51 @@ namespace Lingmu.UI
         void FillSettings()
         {
             var s = session.S;
-            var b = NewBox("设置", new Vector2(1000, 640));
+            var b = NewBox("设置", new Vector2(1180, 900));
             var when = s.savedAt > 0 ? System.DateTimeOffset.FromUnixTimeMilliseconds(s.savedAt).ToLocalTime().ToString("HH:mm") : "--:--";
-            var t = Label(b, $"进度会自动保存（上次 {when}）\n音乐、音效、画质等选项以后加入", 30, Ink);
-            t.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -120), new Vector2(880, 140));
+            var saved = Label(b, $"进度会自动保存（上次 {when}）", FsSub, Hex("8a7458"));
+            saved.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -96), new Vector2(1000, 44));
+            float y = -156;
+            RectTransform Row(string label)
+            {
+                var row = Panel(b, "row " + label, CreamDark, RoundSmall, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, y), new Vector2(1060, 108));
+                var t = Label(row, label, FsBody, WoodDark, true, TextAlignmentOptions.Left); t.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(30, 0), new Vector2(300, 60));
+                y -= 120;
+                return row;
+            }
+            void Choice(RectTransform row, string[] options, int current, System.Action<int> pick)
+            {
+                for (int i = 0; i < options.Length; i++)
+                {
+                    int k = i;
+                    var bt = Button(row, options[i], i == current ? Yellow : Cream, WoodDark, FsSub, () => { pick(k); Fill("settings"); });
+                    ((RectTransform)bt.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-20 - (options.Length - 1 - i) * 232, 0), new Vector2(220, TouchMin));
+                }
+            }
+            void Volume(RectTransform row, float value, System.Action<float> set)
+            {
+                var bar = MakeBar(row, "volume", Grass); bar.root.Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-130, 0), new Vector2(330, 40));
+                SetBar(bar, value, Mathf.RoundToInt(value * 100) + "%");
+                var minus = Button(row, "−", Cream, WoodDark, 44, () => { set(Mathf.Max(0, Mathf.Round(value * 10 - 1) / 10)); Fill("settings"); }, Circle);
+                ((RectTransform)minus.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-474, 0), new Vector2(TouchMin, TouchMin));
+                var plus = Button(row, "+", Cream, WoodDark, 44, () => { set(Mathf.Min(1, Mathf.Round(value * 10 + 1) / 10)); Fill("settings"); }, Circle);
+                ((RectTransform)plus.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-20, 0), new Vector2(TouchMin, TouchMin));
+            }
+            Choice(Row("字号"), new[] { "标准", "大" }, Prefs.LargeText ? 1 : 0, k => { Prefs.LargeText = k == 1; ApplyTextScale(transform); });
+            Choice(Row("画质"), new[] { "流畅", "精美" }, Prefs.Quality, k => Prefs.Quality = k);
+            Choice(Row("帧率"), new[] { "省电 30", "流畅 60" }, Prefs.Fps60 ? 1 : 0, k => Prefs.Fps60 = k == 1);
+            Volume(Row("音乐"), Prefs.Music, v => { Prefs.Music = v; GameAudio.Refresh(); });
+            Volume(Row("音效"), Prefs.Sfx, v => { Prefs.Sfx = v; GameAudio.Refresh(); });
+
             bool guideLeft = !Guide.Done(s);
             if (guideLeft)
             {
                 bool off = Guide.State(s).off;
-                var g = Button(b, off ? "打开新手目标" : "关闭新手目标", Grass, Color.white, 32, () => { Guide.SetOff(s, !off); session.Save(); RefreshHud(); });
-                ((RectTransform)g.transform).Place(new Vector2(0.5f, 0), new Vector2(1, 0), new Vector2(-14, 50), new Vector2(330, 96));
+                var g = Button(b, off ? "打开新手目标" : "关闭新手目标", Grass, Color.white, FsBody, () => { Guide.SetOff(s, !off); session.Save(); RefreshHud(); Fill("settings"); });
+                ((RectTransform)g.transform).Place(new Vector2(0.5f, 0), new Vector2(1, 0), new Vector2(-14, 40), new Vector2(340, 96));
             }
-            var title = Button(b, "回到标题页", Yellow, WoodDark, 32, () => { session.Save(); Close(); SceneManager.LoadScene("Title"); });
-            ((RectTransform)title.transform).Place(new Vector2(0.5f, 0), new Vector2(guideLeft ? 0 : 0.5f, 0), new Vector2(guideLeft ? 14 : 0, 50), new Vector2(330, 96));
-            var tip = Label(b, "标题页可以继续游戏，也可以重新开始", 24, Hex("9a8468"));
-            tip.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 160), new Vector2(880, 50));
+            var title = Button(b, "回到标题页", Yellow, WoodDark, FsBody, () => { session.Save(); Close(); SceneManager.LoadScene("Title"); });
+            ((RectTransform)title.transform).Place(new Vector2(0.5f, 0), new Vector2(guideLeft ? 0 : 0.5f, 0), new Vector2(guideLeft ? 14 : 0, 40), new Vector2(340, 96));
         }
     }
 }

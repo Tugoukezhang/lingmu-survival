@@ -98,7 +98,7 @@ namespace Lingmu.UI
                 img.sprite = Resources.Load<Sprite>("Icons/Pets/pet_" + id); img.preserveAspect = true; img.raycastTarget = false;
                 var n = Label(card.transform, sp.name, 48, WoodDark, true); n.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -320), new Vector2(440, 64));
                 var chip = Panel(card.transform, "element", WildPet.ElementColor(sp.element), RoundSmall, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -392), new Vector2(120, 46));
-                var ct = Label(chip, sp.element + "属性", 24, Color.white, true); ct.rectTransform.Fill();
+                var ct = Label(chip, sp.element + "属性", FsMin, Color.white, true); ct.rectTransform.Fill();
                 var strong = GameData.Elements.Where(e => Elements.Multiplier(sp.element, e) > 1).ToList();
                 var weak = GameData.Elements.Where(e => Elements.Multiplier(e, sp.element) > 1).ToList();
                 string info = $"{Traits.GetValueOrDefault(id, "")}\n克制：{string.Join("、", strong)}　怕：{string.Join("、", weak)}\n探索：{Explore.SkillNames.GetValueOrDefault(sp.explore, sp.explore)}　打工：{PetCare.Work.GetValueOrDefault(sp.work)?.name}";

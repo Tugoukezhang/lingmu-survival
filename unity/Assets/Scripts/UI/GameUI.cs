@@ -33,7 +33,7 @@ namespace Lingmu.UI
 
         TextMeshProUGUI dayText, clockText, phaseText, goalText, cloverText, spotText;
         Bar hpBar, hungerBar;
-        RectTransform goalCard;
+        RectTransform goalCard; GameObject partyDot;
         Button actionBtn;
         RectTransform joyBase, joyKnob; Vector2 joyRest;
         RectTransform toastRoot;
@@ -80,29 +80,31 @@ namespace Lingmu.UI
             ApplySafeArea();
 
             // status card
-            var card = Panel(safe, "status", new Color(Cream.r, Cream.g, Cream.b, 0.94f), null, true, true).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -24), new Vector2(470, 176));
-            dayText = Label(card, "", 30, Ink, true, TextAlignmentOptions.Left); dayText.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(26, -14), new Vector2(150, 50));
-            clockText = Label(card, "", 46, WoodDark, true, TextAlignmentOptions.Left); clockText.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(150, -6), new Vector2(170, 62));
-            var chip = Panel(card, "phase", Yellow, RoundSmall, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-22, -20), new Vector2(110, 44));
-            phaseText = Label(chip, "", 24, WoodDark, true); phaseText.rectTransform.Fill();
-            var l1 = Label(card, "生命", 24, Ink, true, TextAlignmentOptions.Left); l1.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(26, -80), new Vector2(70, 36));
-            hpBar = MakeBar(card, "hp", Red); hpBar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(96, -82), new Vector2(348, 32));
-            var l2 = Label(card, "饱食", 24, Ink, true, TextAlignmentOptions.Left); l2.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(26, -124), new Vector2(70, 36));
-            hungerBar = MakeBar(card, "hunger", Orange); hungerBar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(96, -126), new Vector2(348, 32));
+            var card = Panel(safe, "status", new Color(Cream.r, Cream.g, Cream.b, 0.94f), null, true, true).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -24), new Vector2(490, 186));
+            dayText = Label(card, "", FsBody, Ink, true, TextAlignmentOptions.Left); dayText.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -14), new Vector2(150, 52));
+            clockText = Label(card, "", 46, WoodDark, true, TextAlignmentOptions.Left); clockText.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(160, -6), new Vector2(170, 64));
+            var chip = Panel(card, "phase", Yellow, RoundSmall, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-20, -18), new Vector2(124, 50));
+            phaseText = Label(chip, "", FsSub, WoodDark, true); phaseText.rectTransform.Fill();
+            var l1 = Label(card, "生命", FsSub, Ink, true, TextAlignmentOptions.Left); l1.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -84), new Vector2(76, 38));
+            hpBar = MakeBar(card, "hp", Red); hpBar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(102, -84), new Vector2(362, 36));
+            var l2 = Label(card, "饱食", FsSub, Ink, true, TextAlignmentOptions.Left); l2.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -132), new Vector2(76, 38));
+            hungerBar = MakeBar(card, "hunger", Orange); hungerBar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(102, -132), new Vector2(362, 36));
 
-            goalCard = Panel(safe, "goal", new Color(WoodDark.r, WoodDark.g, WoodDark.b, 0.78f), null, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -212), new Vector2(560, 92));
-            goalText = Label(goalCard, "", 25, Cream, false, TextAlignmentOptions.Left); goalText.rectTransform.Fill(16); goalText.overflowMode = TextOverflowModes.Truncate;
+            goalCard = Panel(safe, "goal", new Color(WoodDark.r, WoodDark.g, WoodDark.b, 0.8f), null, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -222), new Vector2(600, 100));
+            goalText = Label(goalCard, "", FsSub, Cream, false, TextAlignmentOptions.Left); goalText.rectTransform.Fill(16); goalText.overflowMode = TextOverflowModes.Ellipsis;
 
             // top right: clover and buttons
             var clover = Panel(safe, "clover", new Color(Cream.r, Cream.g, Cream.b, 0.94f), null, true, true).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-28, -24), new Vector2(250, 76));
             Clover(clover, 52).Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(16, 0), new Vector2(52, 52));
             cloverText = Label(clover, "", 34, WoodDark, true, TextAlignmentOptions.Right); cloverText.rectTransform.Fill(); cloverText.rectTransform.offsetMin = new Vector2(70, 0); cloverText.rectTransform.offsetMax = new Vector2(-22, 0);
-            var bag = Button(safe, "背包", WoodMid, Cream, 32, () => Open("bag"), Circle); ((RectTransform)bag.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-28, -118), new Vector2(118, 118));
-            var craft = Button(safe, "制作", WoodMid, Cream, 32, () => Open("craft"), Circle); ((RectTransform)craft.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-162, -118), new Vector2(118, 118));
-            var pets = Button(safe, "伙伴", WoodMid, Cream, 32, () => Open("party"), Circle); ((RectTransform)pets.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-296, -118), new Vector2(118, 118));
-            var tasks = Button(safe, "任务", WoodMid, Cream, 32, () => Open("daily"), Circle); ((RectTransform)tasks.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-430, -118), new Vector2(118, 118));
-            var map = Button(safe, "地图", WoodMid, Cream, 32, () => Open("map"), Circle); ((RectTransform)map.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-564, -118), new Vector2(118, 118));
-            var gear = Button(safe, "设置", WoodDark, Cream, 24, () => Open("settings"), Circle); ((RectTransform)gear.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-292, -24), new Vector2(76, 76));
+            var bag = Button(safe, "背包", WoodMid, Cream, FsBody, () => Open("bag"), Circle); ((RectTransform)bag.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-28, -118), new Vector2(118, 118));
+            var craft = Button(safe, "制作", WoodMid, Cream, FsBody, () => Open("craft"), Circle); ((RectTransform)craft.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-162, -118), new Vector2(118, 118));
+            var pets = Button(safe, "伙伴", WoodMid, Cream, FsBody, () => OpenParty("care"), Circle); ((RectTransform)pets.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-296, -118), new Vector2(118, 118));
+            partyDot = Panel(pets.transform, "dot", Red, Circle, false).rectTransform.Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-16, -16), new Vector2(28, 28)).gameObject;
+            var tasks = Button(safe, "任务", WoodMid, Cream, FsBody, () => Open("daily"), Circle); ((RectTransform)tasks.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-430, -118), new Vector2(118, 118));
+            var map = Button(safe, "地图", WoodMid, Cream, FsBody, () => Open("map"), Circle); ((RectTransform)map.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-564, -118), new Vector2(118, 118));
+            var gear = Button(safe, "设置", WoodDark, Cream, FsMin, () => Open("settings"), Circle); ((RectTransform)gear.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-292, -18), new Vector2(TouchMin, TouchMin));
+            var dex = Button(safe, "图鉴", Sky, Color.white, FsMin, () => Open("dex"), Circle); ((RectTransform)dex.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-394, -18), new Vector2(TouchMin, TouchMin));
 
             // joystick (visual only; input is read in Update so it works anywhere in the left zone)
             joyRest = new Vector2(250, 250);
@@ -114,7 +116,7 @@ namespace Lingmu.UI
             actionBtn = Button(safe, "互动", Yellow, WoodDark, 46, DoAction, Circle);
             ((RectTransform)actionBtn.transform).Place(new Vector2(1, 0), new Vector2(0.5f, 0.5f), new Vector2(-210, 200), new Vector2(230, 230));
             var spotChip = Panel(safe, "spot", new Color(WoodDark.r, WoodDark.g, WoodDark.b, 0.82f), null, false).rectTransform.Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 340), new Vector2(560, 64));
-            spotText = Label(spotChip, "", 26, Cream); spotText.rectTransform.Fill(10);
+            spotText = Label(spotChip, "", FsSub, Cream); spotText.rectTransform.Fill(10);
 
             toastRoot = Rect("toasts", safe).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -28), new Vector2(900, 400));
             var vl = toastRoot.gameObject.AddComponent<VerticalLayoutGroup>(); vl.spacing = 10; vl.childAlignment = TextAnchor.UpperCenter; vl.childControlHeight = true; vl.childControlWidth = false; vl.childForceExpandHeight = false;
@@ -239,6 +241,7 @@ namespace Lingmu.UI
             SetBar(hpBar, s.player.hp / (float)s.player.hpMax, $"{s.player.hp}/{s.player.hpMax}");
             SetBar(hungerBar, s.player.hunger / (float)s.player.hungerMax, $"{s.player.hunger}/{s.player.hungerMax}");
             cloverText.text = s.clover.ToString();
+            partyDot.SetActive(s.pets.Any(p => Attention(s, p)));
             var goal = Guide.Current(s);
             goalCard.gameObject.SetActive(goal != null);
             if (goal != null) goalText.text = "目标：" + goal.text;
@@ -248,7 +251,7 @@ namespace Lingmu.UI
         void ShowToast(string text)
         {
             var bg = Panel(toastRoot, "toast", new Color(WoodDark.r, WoodDark.g, WoodDark.b, 0.88f), null, false);
-            var t = Label(bg.transform, text, 28, Cream); t.rectTransform.Fill(); t.margin = new Vector4(26, 10, 26, 10);
+            var t = Label(bg.transform, text, FsSub, Cream); t.rectTransform.Fill(); t.margin = new Vector4(26, 10, 26, 10);
             var fit = bg.gameObject.AddComponent<LayoutElement>();
             t.ForceMeshUpdate();
             float w = Mathf.Min(880, t.preferredWidth + 60);
@@ -265,6 +268,7 @@ namespace Lingmu.UI
         public void Open(string panel)
         {
             if ((openPanel == "report" || openPanel == "battle") && panel != openPanel) return;
+            if (openPanel == null) GameAudio.Play("open", 0.7f);
             openPanel = panel;
             modal.gameObject.SetActive(true);
             session.PauseFor("menu");
@@ -282,6 +286,7 @@ namespace Lingmu.UI
             modal.gameObject.SetActive(false);
             session.ResumeFor("menu");
             if (mover) mover.enabled = true;
+            GameAudio.Play("close", 0.6f);
         }
 
         RectTransform NewBox(string title, Vector2 size)
@@ -289,11 +294,11 @@ namespace Lingmu.UI
             if (box) Destroy(box.gameObject);
             box = Panel(modal, "panel", Cream, null, true, true).rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -10), size);
             var head = Panel(box, "title", WoodMid, null, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f), new Vector2(0, -8), new Vector2(Mathf.Min(520, size.x - 120), 76));
-            var t = Label(head, title, 36, Cream, true); t.rectTransform.Fill();
+            var t = Label(head, title, FsTitle, Cream, true); t.rectTransform.Fill();
             if (openPanel != "report")
             {
-                var x = Button(box, "×", WoodDark, Cream, 44, Close, Circle);
-                ((RectTransform)x.transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-14, -14), new Vector2(84, 84));
+                var x = Button(box, "×", WoodDark, Cream, 48, Close, Circle);
+                ((RectTransform)x.transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-14, -14), new Vector2(96, 96));
             }
             return box;
         }
@@ -328,8 +333,8 @@ namespace Lingmu.UI
                 var id = st.id;
                 var btn = cell.gameObject.AddComponent<Button>(); btn.onClick.AddListener(() => { selectedItem = id; FillBag(); });
                 var icon = Rect("icon", cell.transform).Fill(14).gameObject.AddComponent<Image>(); icon.sprite = Icon(id); icon.preserveAspect = true; icon.raycastTarget = false;
-                if (!icon.sprite) { var n = Label(cell.transform, GameData.Item(id)?.name ?? id, 22, Ink); n.rectTransform.Fill(8); }
-                var cnt = Label(cell.transform, st.count > 1 ? st.count.ToString() : "", 28, WoodDark, true, TextAlignmentOptions.BottomRight); cnt.rectTransform.Fill(8);
+                if (!icon.sprite) { var n = Label(cell.transform, GameData.Item(id)?.name ?? id, FsMin, Ink); n.rectTransform.Fill(8); }
+                var cnt = Label(cell.transform, st.count > 1 ? st.count.ToString() : "", FsSub + 2, WoodDark, true, TextAlignmentOptions.BottomRight); cnt.rectTransform.Fill(8);
                 cnt.outlineWidth = 0.25f; cnt.outlineColor = new Color32(251, 243, 220, 255);
             }
             // details
@@ -338,16 +343,22 @@ namespace Lingmu.UI
             if (def == null) { var e = Label(info, "背包是空的", 30, Ink); e.rectTransform.Fill(); return; }
             var big = Rect("icon", info).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(180, 180)).gameObject.AddComponent<Image>(); big.sprite = Icon(selectedItem); big.preserveAspect = true; big.raycastTarget = false;
             var name = Label(info, def.name, 42, WoodDark, true); name.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -220), new Vector2(460, 60));
-            var tagChip = Panel(info, "tag", Grass, RoundSmall, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -288), new Vector2(130, 42));
-            var tag = Label(tagChip, def.tag ?? "", 24, Color.white, true); tag.rectTransform.Fill();
+            var tagChip = Panel(info, "tag", Grass, RoundSmall, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -286), new Vector2(150, 48));
+            var tag = Label(tagChip, def.tag ?? "", FsMin, Color.white, true); tag.rectTransform.Fill();
             string extra = def.food != null ? $"\n饱食 +{def.food}" + (def.heal != null ? $"　生命 +{def.heal}" : "") : "";
             if (Farm.PriceOf(selectedItem) is int price) extra += $"\n出货价 {price}";
-            var desc = Label(info, def.desc + extra, 27, Ink, false, TextAlignmentOptions.TopLeft); desc.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -350), new Vector2(430, 240));
+            var desc = Label(info, def.desc + extra, FsSub, Ink, false, TextAlignmentOptions.TopLeft); desc.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -350), new Vector2(450, 240));
             {
                 var item = selectedItem;
                 bool closes = item == "item_campfire" && session.Area is ExpeditionArea;
-                var use = Button(info, def.food != null ? "吃掉" : "使用", Yellow, WoodDark, 34, () => { if (closes) Close(); session.Use(item); });
-                ((RectTransform)use.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(260, 90));
+                // skill books and the fox bell go straight to the partner panel
+                var fox = item == "item_fox_bell" ? session.S.pets.FirstOrDefault(p => !string.IsNullOrEmpty(GameData.Species(p.species).humanForm))?.uid : null;
+                string label = def.food != null ? "吃掉" : def.book != null ? "去学技能" : item == "item_fox_bell" ? "去化形" : "使用";
+                Action act = def.book != null ? () => OpenParty("skills")
+                    : item == "item_fox_bell" ? () => { if (fox != null) OpenParty("growth", fox); else session.Say("要先有一只焰尾狐"); }
+                    : () => { if (closes) Close(); session.Use(item); };
+                var use = Button(info, label, Yellow, WoodDark, FsBody + 2, act);
+                ((RectTransform)use.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(280, 96));
             }
         }
 
@@ -366,13 +377,13 @@ namespace Lingmu.UI
 
         void Row(RectTransform list, string icon, string name, string detail, string button, bool enabled, Action onClick)
         {
-            var row = Panel(list, "row", CreamDark, RoundSmall, false).rectTransform; row.sizeDelta = new Vector2(0, 118);
+            var row = Panel(list, "row", CreamDark, RoundSmall, false).rectTransform; row.sizeDelta = new Vector2(0, 120);
             var img = Rect("icon", row).Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(92, 92)).gameObject.AddComponent<Image>(); img.sprite = Icon(icon); img.preserveAspect = true; img.raycastTarget = false; img.enabled = img.sprite;
-            var n = Label(row, name, 32, WoodDark, true, TextAlignmentOptions.Left); n.rectTransform.Fill(); n.rectTransform.offsetMin = new Vector2(130, 56); n.rectTransform.offsetMax = new Vector2(-250, -8);
-            var d = Label(row, detail, 24, Ink, false, TextAlignmentOptions.Left); d.rectTransform.Fill(); d.rectTransform.offsetMin = new Vector2(130, 8); d.rectTransform.offsetMax = new Vector2(-250, -62);
+            var n = Label(row, name, FsBody, WoodDark, true, TextAlignmentOptions.Left); n.rectTransform.Fill(); n.rectTransform.offsetMin = new Vector2(130, 58); n.rectTransform.offsetMax = new Vector2(-250, -6);
+            var d = Label(row, detail, FsMin, Ink, false, TextAlignmentOptions.Left); d.rectTransform.Fill(); d.rectTransform.offsetMin = new Vector2(130, 6); d.rectTransform.offsetMax = new Vector2(-250, -60);
             if (button == null) return;
-            var b = Button(row, button, enabled ? Yellow : CreamDark, WoodDark, 28, onClick); b.interactable = enabled;
-            ((RectTransform)b.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-18, 0), new Vector2(210, 84));
+            var b = Button(row, button, enabled ? Yellow : CreamDark, WoodDark, FsSub, onClick); b.interactable = enabled;
+            ((RectTransform)b.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-16, 0), new Vector2(216, TouchMin));
         }
 
         static string Name(string id) => GameData.Item(id)?.name ?? id;
@@ -408,7 +419,7 @@ namespace Lingmu.UI
         {
             var s = session.S;
             var b = NewBox("出货箱", new Vector2(1200, 880));
-            var head = Label(b, $"箱子里 {Farm.Of(s).shipping.Sum(x => x.count)} 件，明早换成四叶草 +{Farm.ShippingValue(s)}", 28, Ink, true); head.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -90), new Vector2(1000, 50));
+            var head = Label(b, $"箱子里 {Farm.Of(s).shipping.Sum(x => x.count)} 件，明早换成四叶草 +{Farm.ShippingValue(s)}", FsBody, Ink, true); head.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -90), new Vector2(1000, 50));
             var list = List(b, 150);
             foreach (var st in Farm.Of(s).shipping.ToList()) { var id = st.id; Row(list, id, $"{Name(id)} ×{st.count}", "已经放进箱子", "取回", true, () => session.Unship(id)); }
             var sellable = s.inventory.Where(x => Farm.PriceOf(x.id) != null).ToList();
@@ -420,8 +431,8 @@ namespace Lingmu.UI
         {
             var s = session.S;
             var b = NewBox("仓库", new Vector2(1200, 880));
-            var put = Button(b, "全部存入", Yellow, WoodDark, 28, () => session.DepositAll()); ((RectTransform)put.transform).Place(new Vector2(0.5f, 1), new Vector2(1, 1), new Vector2(-10, -96), new Vector2(240, 76));
-            var take = Button(b, "全部取回", Grass, Color.white, 28, () => session.WithdrawAll()); ((RectTransform)take.transform).Place(new Vector2(0.5f, 1), new Vector2(0, 1), new Vector2(10, -96), new Vector2(240, 76));
+            var put = Button(b, "全部存入", Yellow, WoodDark, FsSub, () => session.DepositAll()); ((RectTransform)put.transform).Place(new Vector2(0.5f, 1), new Vector2(1, 1), new Vector2(-10, -94), new Vector2(250, TouchMin));
+            var take = Button(b, "全部取回", Grass, Color.white, FsSub, () => session.WithdrawAll()); ((RectTransform)take.transform).Place(new Vector2(0.5f, 1), new Vector2(0, 1), new Vector2(10, -94), new Vector2(250, TouchMin));
             var list = List(b, 190);
             var items = s.storage ?? new List<ItemStack>();
             foreach (var st in items) Row(list, st.id, $"{Name(st.id)} ×{st.count}", GameData.Item(st.id)?.desc ?? "", null, false, null);
@@ -431,11 +442,12 @@ namespace Lingmu.UI
         void ShowReport(SettlementReport r)
         {
             openPanel = "report";
+            GameAudio.Play("dayend");
             modal.gameObject.SetActive(true);
             if (mover) mover.enabled = false;
             PlayerMover.Stick = Vector2.zero;
             var b = NewBox($"第 {r.endedDay} 天结束", new Vector2(1100, 760));
-            var text = Label(b, string.Join("\n", r.lines.Select(l => "· " + l)), 30, Ink, false, TextAlignmentOptions.TopLeft);
+            var text = Label(b, string.Join("\n", r.lines.Select(l => "· " + l)), FsSub + 2, Ink, false, TextAlignmentOptions.TopLeft);
             text.rectTransform.Fill(); text.rectTransform.offsetMin = new Vector2(70, 150); text.rectTransform.offsetMax = new Vector2(-70, -120);
             var go = Button(b, $"开始第 {r.day} 天", Yellow, WoodDark, 36, Close); ((RectTransform)go.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 40), new Vector2(360, 96));
         }

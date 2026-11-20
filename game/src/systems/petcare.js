@@ -7,6 +7,7 @@ import { countOf, addItem, removeItem } from './inventory.js';
 import { mulberry32 } from './rng.js';
 import { farmOf, ripe } from './farm.js';
 import { bump } from './guide.js';
+import { careExp, gainExp } from './petMath.js';
 
 export const AFFECTION_MAX = 100;
 export const FEED_FAV = 15, FEED_OTHER = 5, PET_GAIN = 2;
@@ -39,8 +40,9 @@ export function feed(state, uid, foodId) {
   const favourite = species(pet.species).food === foodId;
   pet.fedDay = state.day;
   const gain = addAffection(pet, favourite ? FEED_FAV : FEED_OTHER);
+  const exp = careExp(pet.level), ups = gainExp(pet, exp);
   bump(state, 'feed');
-  return { ok: true, gain, favourite };
+  return { ok: true, gain, favourite, exp, ups };
 }
 
 // Pet once per day: +2.
@@ -101,6 +103,8 @@ export function runPetWork(state) {
       for (const p of Object.values(farmOf(state).plots)) { if (n >= want) break; if (p.crop && !p.watered && !ripe(p)) { p.watered = true; n++; } }
       got.push(n ? `浇了 ${n} 块地` : '没有要浇的地');
     }
+    const exp = careExp(pet.level), ups = gainExp(pet, exp);
+    got.unshift(ups ? `经验 +${exp}，升到 Lv.${pet.level}` : `经验 +${exp}`);
     lines.push(`${sp.name}${w.name}：${got.join('、')}`);
   });
   if (lines.length && lines.some((l) => !l.endsWith('没有要浇的地'))) lines.push('（打工带回的东西放在家园仓库）');

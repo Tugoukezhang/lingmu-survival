@@ -22,6 +22,9 @@ export const SHOP = [
   { id: 'item_seed_carrot', price: 10 }, { id: 'item_seed_strawberry', price: 20 }, { id: 'item_seed_sunflower', price: 15 },
   { id: 'item_seed_starwheat', price: 25 }, { id: 'item_seed_pumpkin', price: 30 },
   { id: 'item_cloth', price: 30 }, { id: 'item_fish_roast', price: 35 }, { id: 'item_berry', price: 5 }, { id: 'item_torch', price: 15 },
+  // furniture for clover (【建议】 2026-11-21: a clover sink; the same pieces can still be made at the workbench)
+  { id: 'item_furn_chair', price: 60 }, { id: 'item_furn_plant', price: 60 }, { id: 'item_furn_lamp', price: 100 },
+  { id: 'item_furn_table', price: 100 }, { id: 'item_furn_rug', price: 120 }, { id: 'item_furn_shelf', price: 140 },
 ];
 export const SHOP_BOOKS = ['item_book_bubble', 'item_book_ember', 'item_book_leafy', 'item_book_twinkle', 'item_book_shadow', 'item_book_heal', 'item_book_shell', 'item_book_puff'];
 export const BOOK_PRICE = 80;

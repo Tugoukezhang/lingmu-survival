@@ -6,7 +6,7 @@ import { species } from '../data/pets.js';
 import { skill as skillDef } from '../data/skills.js';
 import { ITEMS } from '../data/items.js';
 import { elementMultiplier } from '../data/elements.js';
-import { calcStats, calcDamage, damageRoll, battleSkills, displayName, gainExp, expForKO, baitMultiplier, createPet, wildLevel, catchRate, catchSucceeds, affectionOnCatch } from './petMath.js';
+import { calcStats, calcDamage, damageRoll, battleSkills, displayName, gainExp, expForKO, baitMultiplier, createPet, wildLevel, catchRate, catchSucceeds, affectionOnCatch, FIRST_WIN_EXP_MULT } from './petMath.js';
 import { countOf, removeItem } from './inventory.js';
 
 export const PARTY_MAX = 3;
@@ -81,7 +81,7 @@ function statWithBuffs(mon, stat) {
 export function expectedDamage(attacker, defender, skillId) {
   const s = skillDef(skillId);
   if (!s.power) return 0;
-  return calcDamage({ power: s.power, atk: statWithBuffs(attacker, 'atk'), def: statWithBuffs(defender, 'def'), mult: elementMultiplier(s.element, defender.element) });
+  return calcDamage({ power: s.power, atk: statWithBuffs(attacker, 'atk'), def: statWithBuffs(defender, 'def'), mult: elementMultiplier(s.element, defender.element), level: (attacker.level + defender.level) / 2 });
 }
 
 // Enemy AI (docs/02 第 4 节: prefers super-effective skills).
@@ -106,7 +106,7 @@ function useSkill(b, side, skillId, ev) {
   ev.push({ t: 'use', side, name: user.name, skill: skillId, skillName: s.name });
   if (s.power) {
     const mult = elementMultiplier(s.element, target.element);
-    let dmg = calcDamage({ power: s.power, atk: statWithBuffs(user, 'atk'), def: statWithBuffs(target, 'def'), mult, rand: damageRoll(b.rng) });
+    let dmg = calcDamage({ power: s.power, atk: statWithBuffs(user, 'atk'), def: statWithBuffs(target, 'def'), mult, rand: damageRoll(b.rng), level: (user.level + target.level) / 2 });
     let bond = false;
     if (dmg >= target.hp && target.hp > 1 && target.affection >= 100 && !target.bondUsed) { dmg = target.hp - 1; target.bondUsed = true; bond = true; }
     target.hp = Math.max(0, target.hp - dmg);
@@ -239,7 +239,9 @@ export function catchChance(b, netId) {
 // One commit at the end (docs/02 第 4 节 5–6): pet HP, exp, used items, clover,
 // defeated wild pets go into the island record. Returns a summary for the UI.
 export function finishBattle(state, b, { wildId } = {}) {
-  const summary = { result: b.over, exp: [], clover: b.clover, levelUps: [] };
+  const summary = { result: b.over, exp: [], clover: b.clover, levelUps: [], firstWin: false };
+  // the first battle won each day: double exp (flags.firstWinDay remembers the day)
+  if ((b.over === 'win' || b.over === 'caught') && state.flags.firstWinDay !== state.day) { state.flags.firstWinDay = state.day; summary.firstWin = true; }
   if (b.over !== 'flee') bump(state, 'battles');
   if (b.over === 'caught') bump(state, 'catches');
   if (b.over === 'win' || b.over === 'caught') { bump(state, 'wins'); bondFromBattle(state); }   // docs/07 第 7 节: +1, ≤5/day
@@ -247,7 +249,7 @@ export function finishBattle(state, b, { wildId } = {}) {
     const inst = state.pets.find((p) => p.uid === m.uid);
     if (!inst) continue;
     inst.hp = m.hp >= m.maxHp ? null : m.hp;
-    const gained = b.exp[m.uid] ?? 0;
+    const gained = (b.exp[m.uid] ?? 0) * (summary.firstWin ? FIRST_WIN_EXP_MULT : 1);
     if (gained) {
       const ups = gainExp(inst, gained);
       summary.exp.push({ name: m.name, amount: gained });

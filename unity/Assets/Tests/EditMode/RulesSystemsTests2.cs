@@ -283,6 +283,7 @@ public class RulesSystemsTests2
         r = PetCare.Feed(s, "pet-fox", "item_carrot");
         c.Ok("喂其他食物：好感 +5", r.ok && !r.favourite && s.Pet("pet-fox").affection == 5);
         c.Ok("向日葵人不能吃，但能喂冰蓝小狼（最爱 +15）", GameData.Item("item_sunflower").food == null && PetCare.Feed(s, "pet-pup", "item_sunflower").gain == 15);
+        c.Ok("喂食也给经验：等级 × 2（Lv1 → +2）", r.exp == 2 && s.Pet("pet-fox").exp == 2);
         c.Ok("工具不能喂", PetCare.Feed(s, "pet-shark", "item_hoe").reason == "not-food");
         c.Ok("摸摸 +2，一天一次", PetCare.PetPet(s, "pet-acorn").gain == 2 && PetCare.PetPet(s, "pet-acorn").reason == "petted");
         Settlement.Run(s, true);
@@ -308,6 +309,7 @@ public class RulesSystemsTests2
         c.Ok("月影狐猫寻宝：四叶草 +10", w.clover == clover0 + 10);
         c.Ok("星星熊仔浇水：早上把地都浇了（作物生长之后浇，算新的一天）", w.farm.plots.Values.All(p => p.watered && p.days == 0));
         c.Ok("结算面板列出每只宠物带回的东西", rep.lines.Count(l => Regex.IsMatch(l, "(伐木|挖矿|钓鱼|寻宝|浇水)：")) == 5, string.Join(" / ", rep.lines));
+        c.Ok("打工也给经验：等级 × 2（Lv1 → +2），写在结算里", w.pets.Where(p => p.job).All(p => p.exp == 2) && rep.lines.Count(l => l.Contains("经验 +2")) == 5);
         c.Ok("打工的宠物加入队伍后自动停止打工", Party.Join(w, "pet-pup").ok && w.Pet("pet-pup").job == false);
         var bnd = New(); bnd.party = new List<string> { "pet-fox" };
         for (int i = 0; i < 7; i++) PetCare.BondFromBattle(bnd);
@@ -456,6 +458,7 @@ public class RulesSystemsTests2
         var st0 = Town.Stock(s);
         c.Ok("杂货铺：种子、布、烤鱼等 + 每天 2 本轮换的技能书", st0.Count(x => GameData.Item(x.id).book != null) == 2 && st0.Any(x => x.id == "item_cloth"));
         c.Ok("同一天商品固定", Checks.J(Town.Stock(s)) == Checks.J(st0));
+        c.Ok("杂货铺也卖家具（四叶草的长期去处），价格 60–140", st0.Count(x => GameData.Item(x.id).tag == "家具") == 6 && st0.Where(x => GameData.Item(x.id).tag == "家具").All(x => x.price >= 60 && x.price <= 140));
         s.clover = 100;
         c.Ok("买布：四叶草 −30", Town.Buy(s, "item_cloth").ok && s.clover == 70 && Town.Buy(s, "item_evo_fire").reason == "not-sold");
         c.Ok("进化石不卖（只能远征获得）", !st0.Any(x => Crafting.EvoStones.Contains(x.id)));

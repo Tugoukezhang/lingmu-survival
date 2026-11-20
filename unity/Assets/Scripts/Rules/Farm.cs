@@ -159,7 +159,7 @@ namespace Lingmu.Rules
         // anything edible, plus every crop (sunflower, starwheat… are pets' favourites)
         public static bool IsPetFood(string id) => GameData.Item(id)?.food != null || GameData.Crops.Values.Any(c => c.crop == id);
 
-        public class FeedResult : Res { public int gain; public bool favourite; }
+        public class FeedResult : Res { public int gain, exp, ups; public bool favourite; }
         public static FeedResult Feed(GameState s, string uid, string foodId)
         {
             var pet = s.Pet(uid);
@@ -170,8 +170,9 @@ namespace Lingmu.Rules
             bool fav = GameData.Species(pet.species).food == foodId;
             pet.fedDay = s.day;
             int gain = AddAffection(pet, fav ? FeedFav : FeedOther);
+            int exp = PetMath.CareExp(pet.level), ups = PetMath.GainExp(pet, exp);
             Guide.Bump(s, "feed");
-            return new FeedResult { ok = true, gain = gain, favourite = fav };
+            return new FeedResult { ok = true, gain = gain, favourite = fav, exp = exp, ups = ups };
         }
 
         public static FeedResult PetPet(GameState s, string uid)
@@ -248,6 +249,8 @@ namespace Lingmu.Rules
                     foreach (var p in Farm.Of(s).plots.Values) { if (n >= want) break; if (p.crop != null && !p.watered && !Farm.Ripe(p)) { p.watered = true; n++; } }
                     got.Add(n > 0 ? $"浇了 {n} 块地" : "没有要浇的地");
                 }
+                int exp = PetMath.CareExp(pet.level), ups = PetMath.GainExp(pet, exp);
+                got.Insert(0, ups > 0 ? $"经验 +{exp}，升到 Lv.{pet.level}" : $"经验 +{exp}");
                 lines.Add($"{sp.name}{w.name}：{string.Join("、", got)}");
             }
             if (lines.Count > 0 && lines.Any(l => !l.EndsWith("没有要浇的地"))) lines.Add("（打工带回的东西放在家园仓库）");

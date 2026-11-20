@@ -209,6 +209,7 @@ namespace Lingmu.Game
             Changed?.Invoke();
         }
 
+        static void Sfx(string name) => Lingmu.UI.GameAudio.Play(name);
         public void Say(string text) { if (!string.IsNullOrEmpty(text)) Toast?.Invoke(text); }
 
         public void Save()
@@ -230,6 +231,7 @@ namespace Lingmu.Game
         public string Act(Spot s)
         {
             if (s == null || Area == null) return null;
+            Lingmu.UI.GameAudio.Verb(s.verb);
             var panel = Area.Act(s);
             if (!leaving) AfterAction();
             return panel;
@@ -340,6 +342,7 @@ namespace Lingmu.Game
         public bool Eat(string itemId)
         {
             var r = Survival.Eat(S, itemId);
+            if (r.ok) Sfx("eat");
             Say(r.ok ? $"吃了{GameData.Item(itemId).name}：饱食 +{r.hunger}" + (r.hp > 0 ? $"，生命 +{r.hp}" : "")
                 : r.reason == "full" ? "已经吃饱了" : r.reason == "not-food" ? "这个不能吃" : "没有了");
             AfterAction();
@@ -362,11 +365,11 @@ namespace Lingmu.Game
                 case "item_campfire":
                     if (Area is ExpeditionArea ex) ex.PlaceCampfireNear(); else Say("家园很安全，不需要营火");
                     break;
-                case "item_fox_bell": Say("在焰尾狐的伙伴面板里点「学会化形」"); break;
+                case "item_fox_bell": Say("在伙伴面板选焰尾狐，到「养成」页点「学会化形」"); break;
                 case "item_tent": Say("在点着的营火旁按「互动」，就能用帐篷睡觉"); break;
                 default:
                     if (def.netMult != null) Say("靠近野生宠物按「扔网」，或者在对战中使用");
-                    else if (def.book != null) Say("在伙伴面板里给宠物学技能");
+                    else if (def.book != null) Say("在伙伴面板的「技能」页给宠物学");
                     else if (House.IsFurniture(itemId)) Say("进小屋后可以摆放家具");
                     else Say("这个不能直接使用");
                     break;
@@ -378,6 +381,7 @@ namespace Lingmu.Game
         {
             var r = Crafting.Craft(S, recipeId);
             var name = GameData.Item(GameData.Recipe(recipeId).@out).name;
+            if (r.ok) Sfx("craft");
             Say(r.ok ? $"做好了：{name}" : r.reason switch { "missing" => "材料不够", "full" => "背包满了", "station" => "要在家园的工作台做", "locked" => "还没学会这个做法", _ => "做不了" });
             AfterAction();
             return r.ok;
@@ -386,6 +390,7 @@ namespace Lingmu.Game
         public bool BuySeed(string cropId)
         {
             var r = Farm.BuySeed(S, cropId);
+            if (r.ok) Sfx("coin");
             Say(r.ok ? $"买了 1 包{GameData.Item(GameData.Crops[cropId].seed).name}（四叶草 −{r.cost}）" : r.reason == "clover" ? "四叶草不够" : "背包满了");
             AfterAction();
             return r.ok;
@@ -394,6 +399,7 @@ namespace Lingmu.Game
         public bool Ship(string itemId)
         {
             var r = Farm.Ship(S, itemId, 1);
+            if (r.ok) Sfx("coin");
             Say(r.ok ? $"放进出货箱：{GameData.Item(itemId).name}（明早 +{Farm.PriceOf(itemId)}）" : "这个不能出货");
             AfterAction();
             return r.ok;
@@ -416,15 +422,48 @@ namespace Lingmu.Game
         }
 
         // ---------- pets (party panel) ----------
-        public void Feed(string uid, string food) { var r = PetCare.Feed(S, uid, food); Say(r.ok ? (r.favourite ? $"最爱吃的！好感 +{r.gain}" : $"好感 +{r.gain}") : r.reason switch { "fed" => "今天已经喂过了", "not-food" => "这个不能喂", _ => "没有了" }); AfterAction(); }
-        public void PetPet(string uid) { var r = PetCare.PetPet(S, uid); Say(r.ok ? $"摸摸～好感 +{r.gain}" : "今天已经摸过了"); AfterAction(); }
+        public void Feed(string uid, string food)
+        {
+            var r = PetCare.Feed(S, uid, food);
+            if (r.ok) Sfx(r.ups > 0 ? "levelup" : "eat");
+            Say(r.ok ? (r.favourite ? $"最爱吃的！好感 +{r.gain}" : $"好感 +{r.gain}") + $"，经验 +{r.exp}" + (r.ups > 0 ? $"，升到 Lv.{S.Pet(uid).level}！" : "") : r.reason switch { "fed" => "今天已经喂过了", "not-food" => "这个不能喂", _ => "没有了" });
+            AfterAction();
+        }
+        public void PetPet(string uid) { var r = PetCare.PetPet(S, uid); if (r.ok) Sfx("happy"); Say(r.ok ? $"摸摸～好感 +{r.gain}" : "今天已经摸过了"); AfterAction(); }
         public void JoinParty(string uid) { var r = Party.Join(S, uid); Say(r.ok ? "加入了队伍" : r.reason switch { "full" => "队伍最多 3 只", "away" => "出门在外，换不了伙伴", _ => "加入不了" }); AfterAction(); }
         public void LeaveParty(string uid) { var r = Party.Leave(S, uid); Say(r.ok ? "回家休息了" + (r.moved?.Count > 0 ? $"（背包变小，{r.moved.Count} 格放进了仓库）" : "") : r.reason switch { "last" => "队伍里至少留 1 只", "away" => "出门在外，换不了伙伴", _ => "做不到" }); AfterAction(); }
         public void SetLead(string uid) { Party.SetLead(S, uid); AfterAction(); }
         public void SetJob(string uid, bool on) { var r = PetCare.SetJob(S, uid, on); if (!r.ok) Say(r.reason == "party" ? "队伍里的伙伴不能打工" : "要在家园才能安排打工"); AfterAction(); }
+        public void LearnSkill(string uid, string bookId, int slot)
+        {
+            var pet = S.Pet(uid); string old = slot < pet.skills.Count ? GameData.Skill(pet.skills[slot]).name : null;
+            var r = Growth.LearnSkill(S, uid, bookId, slot);
+            if (r.ok) Sfx("sparkle");
+            var learned = GameData.Skill(Growth.BookSkill(bookId)).name;
+            Say(r.ok ? (old != null ? $"忘掉了「{old}」，学会了「{learned}」！" : $"学会了「{learned}」！") : r.reason switch { "element" => "属性不合，学不了", "known" => "已经会这个技能了", "none" => "没有这本技能书了", _ => "学不了" });
+            AfterAction();
+        }
+
+        public void UnlockForm(string uid)
+        {
+            var r = Growth.UnlockForm(S, uid);
+            if (r.ok) Sfx("sparkle");
+            Say(r.ok ? "叮铃——学会化形了！" : "还不能化形：" + string.Join("、", r.missing.Select(m => m switch { "evolved" => "要先进化", "affection" => "好感要 100", "bell" => "要化形铃", _ => m })));
+            AfterAction();
+        }
+
+        public void ToggleForm(string uid)
+        {
+            var r = Growth.ToggleForm(S, uid);
+            if (r.ok) Sfx("sparkle");
+            if (r.ok) Say(r.form == "human" ? "变成了人形！" : "变回了原形");
+            AfterAction();
+        }
+
         public void Evolve(string uid)
         {
             var r = Growth.TryEvolve(S, uid);
+            if (r.ok) Sfx("evolve");
             Say(r.ok ? $"进化成了{PetMath.DisplayName(S.Pet(uid))}！" : "还不能进化：" + string.Join("、", r.missing.Select(m => m switch { "level" => $"要 {PetMath.EvolveLevel} 级", "affection" => $"好感要 {PetMath.EvolveAffection}", "stone" => "要进化石", "evolved" => "已经进化过了", _ => m })));
             AfterAction();
         }

@@ -94,6 +94,10 @@ export const affectionAttackMult = (aff) => (aff >= 100 ? 1.10 : aff >= 50 ? 1.0
 // ---------- experience ----------
 export const expToNext = (level) => 20 * level;
 export const expForKO = (enemyLevel) => 8 * enemyLevel;
+// 【建议】 2026-11-21: feeding and a day of work each give a tenth of a level (pets grow while you are away)
+export const careExp = (level) => 2 * level;
+// 【建议】 2026-11-21: the first battle won each day gives double exp
+export const FIRST_WIN_EXP_MULT = 2;
 
 // Adds exp, levels up as many times as needed. Returns the number of levels gained.
 export function gainExp(pet, amount) {
@@ -119,11 +123,16 @@ export function gainExp(pet, amount) {
 export const wildLevel = (day, rng) => Math.max(1, 1 + Math.floor(day / 2) + Math.floor(rng() * 3) - 1);
 
 // ---------- battle ----------
-// damage = floor(power × atk ÷ def × 0.4 × matchup × rand(0.9–1.1)) + 1
+// damage = floor(power × atk ÷ def × 0.4 × matchup × rand(0.9–1.1) × level growth) + 1
+// level growth = 1 + 0.08 × (average level of the two pets − 4), at least 1. HP grows by the same 0.08 a level, so
+// from the starter level (4) on a same-level fight keeps taking about 3 hits instead of dragging on later; below
+// that nothing changes, so the day-1 balance stays as it was (【建议】 2026-11-21, docs/02 第 2 节)
 export const damageRoll = (rng) => 0.9 + rng() * 0.2;
-export function calcDamage({ power, atk, def, mult = 1, rand = 1 }) {
+export const LEVEL_MULT_FROM = 4;   // = the starter level
+export const levelMult = (level = 1) => 1 + BASE_GROWTH * Math.max(0, level - LEVEL_MULT_FROM);
+export function calcDamage({ power, atk, def, mult = 1, rand = 1, level = 1 }) {
   if (!power) return 0;
-  return ifloor(power * atk / def * 0.4 * mult * rand) + 1;
+  return ifloor(power * atk / def * 0.4 * mult * rand * levelMult(level)) + 1;
 }
 
 // Damage of a skill from one pet instance to another (no temporary buffs).
@@ -131,7 +140,7 @@ export function skillDamage(attacker, defender, skillId, { rand = 1, atk, def } 
   const s = skill(skillId);
   const a = atk ?? calcStats(attacker, { inBattle: true }).atk;
   const d = def ?? calcStats(defender, { inBattle: true }).def;
-  return calcDamage({ power: s.power, atk: a, def: d, mult: elementMultiplier(s.element, species(defender.species).element), rand });
+  return calcDamage({ power: s.power, atk: a, def: d, mult: elementMultiplier(s.element, species(defender.species).element), rand, level: (attacker.level + defender.level) / 2 });
 }
 
 // ---------- catching ----------

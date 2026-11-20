@@ -67,6 +67,13 @@ public class RulesBasicsTests
         Assert.AreEqual(0, PetMath.SkillDamage(fox1, acorn1, "heal"), "状态技能伤害为 0");
         var rolls = Enumerable.Range(0, 1000).Select(i => PetMath.DamageRoll(Rng(i + 1))).ToList();
         Assert.IsTrue(rolls.All(r => r >= 0.9 && r < 1.1), "伤害随机数在 0.9–1.1");
+        // level growth in damage (【建议】 2026-11-21, docs/02 第 2 节)
+        Assert.AreEqual(1, PetMath.LevelMult(2.5), "等级系数：双方平均 Lv4 以下 = 1（第 1 天的平衡不变）");
+        Assert.AreEqual(1.64, PetMath.LevelMult(12), 0.001, "等级系数：平均 Lv12 = 1 + 0.08 × 8 = 1.64");
+        int Hits(int lv) { var x = Pet("shark", lv); var st = PetMath.CalcStats(x); return (int)System.Math.Ceiling(st.hp / (double)PetMath.CalcDamage(45, st.atk, st.def, 1, 1, lv)); }
+        var lvs = new[] { 4, 8, 12, 16, 20, 25, 30 };
+        Assert.IsTrue(lvs.All(lv => Hits(lv) == 3), "同级对打（威力 45）：Lv4 到 Lv30 都是 3 下打倒 " + string.Join(",", lvs.Select(Hits)));
+        Assert.IsTrue(PetMath.SkillDamage(Pet("fox", 12), Pet("acorn", 8), "tackle") > 1.4 * PetMath.SkillDamage(Pet("fox", 8), Pet("acorn", 12), "tackle"), "等级差仍然有用：Lv12 打 Lv8 比 Lv8 打 Lv12 疼 1.4 倍以上");
     }
 
     // ---------- experience ----------

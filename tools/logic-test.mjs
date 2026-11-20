@@ -93,6 +93,15 @@ eq('焰尾狐蹭蹭打橡果刺猬 伤害', M.skillDamage(fox1, acorn1, 'tackle'
 eq('状态技能伤害为 0', M.skillDamage(fox1, acorn1, 'heal'), 0);
 const rolls = Array.from({ length: 1000 }, (_, i) => M.damageRoll(mulberry32(i + 1)));
 check('伤害随机数在 0.9–1.1', rolls.every((r) => r >= 0.9 && r < 1.1));
+// level growth in damage (【建议】 2026-11-21, docs/02 第 2 节)
+eq('等级系数：双方平均 Lv4 以下 = 1（第 1 天的平衡不变）', M.levelMult(2.5), 1);
+near('等级系数：平均 Lv12 = 1 + 0.08 × 8 = 1.64', M.levelMult(12), 1.64);
+{
+  const hits = (lv) => { const x = pet('shark', { level: lv }), st = M.calcStats(x); return Math.ceil(st.hp / M.calcDamage({ power: 45, atk: st.atk, def: st.def, level: lv })); };
+  const lvs = [4, 8, 12, 16, 20, 25, 30];
+  check('同级对打（威力 45）：Lv4 到 Lv30 都是 3 下打倒，不再越打越久', lvs.every((lv) => hits(lv) === 3), JSON.stringify(lvs.map(hits)));
+  check('等级差仍然有用：Lv12 打 Lv8 比 Lv8 打 Lv12 疼 1.4 倍以上（和改之前一样）', M.skillDamage(pet('fox', { level: 12 }), pet('acorn', { level: 8 }), 'tackle') > 1.4 * M.skillDamage(pet('fox', { level: 8 }), pet('acorn', { level: 12 }), 'tackle'));
+}
 
 // ---------- experience (docs/02 第 5 节) ----------
 const exp = pet('fox');
@@ -607,7 +616,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('捕捉到的宠物保留种类、等级、资质、性格，体力带出（16）', got.species === 'acorn' && got.level === 1 && got.stars === 3 && got.nature === 'gentle' && got.hp === 16);
   check('捕捉到的宠物有新的唯一编号，存档合法', got.uid !== 'acorn-wild' && new Set(st.pets.map((x) => x.uid)).size === st.pets.length && S.validate(st).length === 0, S.validate(st).join());
   check('被捕捉的野生宠物记入岛屿记录', st.expedition.changes.pets.includes('w2'));
-  check('捕捉成功出战宠物也得经验（按对方等级 8）', sum.exp.some((x) => x.amount === 8));
+  check('捕捉成功出战宠物也得经验（按对方等级 8；当天第一场胜利 ×2 = 16）', sum.exp.some((x) => x.amount === 16) && sum.firstWin && st.flags.firstWinDay === st.day);
   // A08
   ({ st, b } = setup());
   const n1 = I.countOf(b.inventory, 'item_net_grass');
@@ -628,6 +637,25 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   B.resolveTurn(b, { type: 'catch', item: 'item_net_vine' });
   sum = B.finishBattle(st, b, { wildId: 'w3' });
   check('队伍不满 3 只 → 抓到的宠物直接进队伍', sum.caught.joined && st.party.length === 2 && st.party[1] === sum.caught.uid);
+  // first win of the day (【建议】 2026-11-21): double exp once a day
+  {
+    const fs = S.newGameState({ starter: 'fox' });
+    fs.expedition = { seed: 5, biome: 'mistwood', changes: G.emptyChanges() }; fs.player.area = 'expedition';
+    const fight = () => {
+      const fb = B.createBattle({ party: [fs.pets[0]], enemies: [pet('acorn', { tag: 'wild', level: 2 })], inventory: fs.inventory, rng: () => 0.5 });
+      B.active(fb, 'foe').hp = 1;
+      B.resolveTurn(fb, { type: 'skill', skill: 'tackle' });
+      return B.finishBattle(fs, fb);
+    };
+    const w1 = fight(), w2 = fight();
+    check('当天第一场胜利经验 ×2（打倒 Lv2：16 → 32），第二场照常 16', w1.firstWin && w1.exp[0].amount === 32 && !w2.firstWin && w2.exp[0].amount === 16, JSON.stringify([w1.exp, w2.exp]));
+    fs.day += 1;
+    check('第二天又有一次双倍', fight().firstWin);
+    const lost = B.createBattle({ party: [fs.pets[0]], enemies: [pet('acorn', { tag: 'wild' })], inventory: fs.inventory, rng: () => 0.5 });
+    B.resolveTurn(lost, { type: 'flee' });
+    fs.day += 1;
+    check('溜走不算胜利，不用掉当天的双倍', !B.finishBattle(fs, lost).firstWin && fs.flags.firstWinDay === fs.day - 1);
+  }
 
   // party panel rules
   const ps = S.newGameState();
@@ -957,6 +985,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   r = PC.feed(s, 'pet-fox', 'item_carrot');
   check('喂其他食物：好感 +5', r.ok && !r.favourite && s.pets.find((p) => p.uid === 'pet-fox').affection === 5);
   check('向日葵人不能吃，但能喂冰蓝小狼（最爱 +15）', !ITEMS.item_sunflower.food && PC.feed(s, 'pet-pup', 'item_sunflower').gain === 15);
+  check('喂食也给经验：等级 × 2（Lv1 → +2）', r.exp === 2 && s.pets.find((p) => p.uid === 'pet-fox').exp === 2);
   check('工具不能喂', PC.feed(s, 'pet-shark', 'item_hoe').reason === 'not-food');
   check('摸摸 +2，一天一次', PC.petPet(s, 'pet-acorn').gain === 2 && PC.petPet(s, 'pet-acorn').reason === 'petted');
   T.runSettlement(s, { slept: true });
@@ -983,6 +1012,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   check('月影狐猫寻宝：四叶草 +10', w.clover === clover0 + 10);
   check('星星熊仔浇水：早上把地都浇了（作物生长之后浇，算新的一天）', Object.values(w.farm.plots).every((p) => p.watered && p.days === 0));
   check('结算面板列出每只宠物带回的东西', rep.lines.filter((l) => /(伐木|挖矿|钓鱼|寻宝|浇水)：/.test(l)).length === 5, rep.lines.join(' / '));
+  check('打工也给经验：等级 × 2（Lv1 → +2），写在结算里', w.pets.filter((p) => p.job).every((p) => p.exp === 2) && rep.lines.filter((l) => l.includes('经验 +2')).length === 5);
   check('打工的宠物加入队伍后自动停止打工', PT.joinParty(w, 'pet-pup').ok && w.pets.find((p) => p.uid === 'pet-pup').job === false);
   // bonding on adventures
   const b = S.newGameState(); b.party = ['pet-fox'];
@@ -1130,6 +1160,7 @@ check('已进化的不能再进化', !M.canEvolve(evo, { hasStone: true }).ok &&
   const st0 = TW.stock(s);
   check('杂货铺：种子、布、烤鱼等 + 每天 2 本轮换的技能书', st0.filter((x) => ITEMS[x.id].book).length === 2 && st0.some((x) => x.id === 'item_cloth'));
   check('同一天商品固定', JSON.stringify(TW.stock(s)) === JSON.stringify(st0));
+  check('杂货铺也卖家具（四叶草的长期去处），价格 60–140', st0.filter((x) => ITEMS[x.id].tag === '家具').length === 6 && st0.filter((x) => ITEMS[x.id].tag === '家具').every((x) => x.price >= 60 && x.price <= 140));
   s.clover = 100;
   check('买布：四叶草 −30', TW.buy(s, 'item_cloth').ok && s.clover === 70 && TW.buy(s, 'item_evo_fire').reason === 'not-sold');
   check('进化石不卖（只能远征获得）', !st0.some((x) => GR.EVO_STONES.includes(x.id)));

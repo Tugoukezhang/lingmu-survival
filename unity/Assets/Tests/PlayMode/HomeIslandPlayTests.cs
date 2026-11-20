@@ -120,7 +120,16 @@ public class HomeIslandPlayTests
         yield return new WaitForSeconds(1.2f);
         Assert.AreEqual(clock, s.S.clock, "打开背包时时间暂停");
         Shot("bag");
-        ui.Close(); ui.Open("party"); yield return null; Shot("party"); ui.Close();
+        ui.Close();
+        // partner panel: the three tabs, learning from a skill book, the dex
+        s.S.inventory.Add(new ItemStack("item_book_puff", 1));
+        ui.OpenParty("care"); yield return null; Shot("party");
+        ui.OpenParty("skills"); yield return null; Shot("party_skills");
+        var lead = s.S.Pet(s.S.party[0]); int known = lead.skills.Count;
+        s.LearnSkill(lead.uid, "item_book_puff", known);
+        Assert.IsTrue(lead.skills.Contains("puff") && lead.skills.Count == known + 1 && Inventory.CountOf(s.S.inventory, "item_book_puff") == 0, "伙伴面板：用技能书学会毛茸茸");
+        ui.OpenParty("growth"); yield return null; Shot("party_growth");
+        ui.Open("dex"); yield return null; Shot("dex"); ui.Close();
         Stand(HomeIslandLayout.TileToWorld(home.Layout.DockTile.x, home.Layout.DockTile.y + 0.5f)); yield return null;
         Assert.AreEqual("dock", s.CurrentSpot()?.kind, "码头");
         ui.Open("dock"); yield return null; Shot("dock"); ui.Close();

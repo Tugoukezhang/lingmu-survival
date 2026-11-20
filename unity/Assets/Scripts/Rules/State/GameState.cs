@@ -51,6 +51,7 @@ namespace Lingmu.Rules
         public Dictionary<string, bool> tips;
         public string starter, arriveAt;
         public int? trips;
+        public int? firstWinDay;   // day of the last first-win-of-the-day exp bonus
         [JsonExtensionData] public IDictionary<string, JToken> extra;
     }
 

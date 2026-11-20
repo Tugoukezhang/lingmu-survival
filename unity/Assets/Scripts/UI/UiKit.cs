@@ -10,6 +10,12 @@ namespace Lingmu.UI
 {
     public static class UiKit
     {
+        // font size table (1080-high layout, docs/18 第 0 步): titles 40, body 32, secondary 28, never below 26.
+        // Touch targets are at least 88 px high (TouchMin).
+        public const float FsTitle = 40, FsBody = 32, FsSub = 28, FsMin = 26, TouchMin = 88;
+        // 设置 → 字号「大」: text may grow up to this much where it still fits its box
+        public static float TextScale => Prefs.LargeText ? 1.15f : 1f;
+
         public static Color Hex(string h, float a = 1) { ColorUtility.TryParseHtmlString("#" + h, out var c); c.a = a; return c; }
         public static readonly Color WoodDark = Hex("5b3d26"), WoodMid = Hex("8a5a36"), Cream = Hex("fbf3dc"), CreamDark = Hex("efe2c2"),
             Grass = Hex("7fb85a"), GrassDark = Hex("4f7d3a"), Yellow = Hex("f5c84b"), Ink = Hex("5a4030"), Red = Hex("e8604c"), Orange = Hex("f0a040"), Sky = Hex("7ec8e3");
@@ -83,7 +89,9 @@ namespace Lingmu.UI
         public static TextMeshProUGUI Label(Transform parent, string text, float size, Color color, bool isBold = false, TextAlignmentOptions align = TextAlignmentOptions.Center)
         {
             var t = Rect("text", parent).gameObject.AddComponent<TextMeshProUGUI>();
+            size = Mathf.Max(size, FsMin);
             t.font = isBold ? Bold : Font; t.text = text; t.fontSize = size; t.color = color; t.alignment = align;
+            if (TextScale > 1) { t.enableAutoSizing = true; t.fontSizeMin = size; t.fontSizeMax = size * TextScale; }
             t.raycastTarget = false; t.textWrappingMode = TextWrappingModes.Normal; t.overflowMode = TextOverflowModes.Overflow;
             return t;
         }
@@ -93,9 +101,21 @@ namespace Lingmu.UI
             var img = Panel(parent, "button " + text, bg, sprite, true, true);
             var b = img.gameObject.AddComponent<Button>();
             var colors = b.colors; colors.highlightedColor = new Color(1, 1, 1, 1); colors.pressedColor = new Color(0.85f, 0.85f, 0.85f, 1); colors.disabledColor = new Color(0.75f, 0.75f, 0.75f, 0.6f); colors.fadeDuration = 0.05f; b.colors = colors;
+            b.onClick.AddListener(() => GameAudio.Play("click", 0.8f));
             if (onClick != null) b.onClick.AddListener(() => onClick());
             var l = Label(img.transform, text, size, fg, true); l.rectTransform.Fill(6); l.name = "label";
             return b;
+        }
+
+        // after 设置 → 字号 changes: update every label under root (the base size is fontSizeMin when auto-sizing)
+        public static void ApplyTextScale(Transform root)
+        {
+            foreach (var t in root.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                float baseSize = t.enableAutoSizing ? t.fontSizeMin : t.fontSize;
+                if (TextScale > 1) { t.enableAutoSizing = true; t.fontSizeMin = baseSize; t.fontSizeMax = baseSize * TextScale; }
+                else { t.enableAutoSizing = false; t.fontSize = baseSize; }
+            }
         }
 
         public static void SetLabel(this Button b, string text) => b.GetComponentInChildren<TextMeshProUGUI>().text = text;
@@ -113,6 +133,21 @@ namespace Lingmu.UI
             return root;
         }
 
+        // a small coloured chip with white text (element, tag, state)
+        public static RectTransform Chip(Transform parent, string text, Color color, float width = 96, float height = 46)
+        {
+            var chip = Panel(parent, "chip " + text, color, RoundSmall, false).rectTransform;
+            chip.sizeDelta = new Vector2(width, height);
+            var t = Label(chip, text, FsMin, Color.white, true); t.rectTransform.Fill(); t.textWrappingMode = TextWrappingModes.NoWrap;
+            return chip;
+        }
+
+        public static Color ElementColor(string el) => el switch
+        {
+            "水" => new Color(0.30f, 0.62f, 0.9f), "火" => new Color(0.93f, 0.45f, 0.25f), "森" => new Color(0.38f, 0.7f, 0.3f),
+            "光" => new Color(0.95f, 0.75f, 0.2f), "暗" => new Color(0.55f, 0.35f, 0.7f), _ => new Color(0.6f, 0.55f, 0.5f),
+        };
+
         public class Bar { public Image fill; public TextMeshProUGUI value; public RectTransform root; }
 
         // a rounded bar with a coloured fill (0..1) and the value written on it
@@ -122,7 +157,7 @@ namespace Lingmu.UI
             var fill = Panel(bg.transform, "fill", fillColor, RoundSmall, false);
             fill.rectTransform.anchorMin = Vector2.zero; fill.rectTransform.anchorMax = new Vector2(1, 1); fill.rectTransform.pivot = new Vector2(0, 0.5f);
             fill.rectTransform.offsetMin = new Vector2(3, 3); fill.rectTransform.offsetMax = new Vector2(-3, -3);
-            var v = Label(bg.transform, "", 22, Color.white, true); v.rectTransform.Fill(); v.outlineWidth = 0.2f; v.outlineColor = new Color32(70, 45, 25, 200);
+            var v = Label(bg.transform, "", FsMin, Color.white, true); v.rectTransform.Fill(); v.outlineWidth = 0.2f; v.outlineColor = new Color32(70, 45, 25, 200);
             return new Bar { fill = fill, value = v, root = bg.rectTransform };
         }
 

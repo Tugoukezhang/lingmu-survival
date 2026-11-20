@@ -170,83 +170,83 @@
    "i": 0,
    "foes": "wild-0-0:acorn:1:0:full:0:1:gentle:false:tackle+leafy",
    "log": "use:me::::leafy::: damage:foe:18:28::::: surprised:::::::: | snack:::::::: use:foe::::leafy::: damage:me:14:39::::: | throw::::::::0.430435 caught:::::::: exp::8:::::: end:::::::caught:",
-   "end": "caught|0|{\"pet-acorn\":8}|橡果刺猬+8||pet-acorn-1:true:20",
-   "state": "120|pet-acorn:acorn:3:8:39:1:3:gentle:false:tackle+leafy pet-acorn-1:acorn:1:0:28:20:1:gentle:false:tackle+leafy|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn,pet-acorn-1|w0|{\"battles\":1,\"catches\":1,\"wins\":1}"
+   "end": "caught|0|{\"pet-acorn\":8}|橡果刺猬+16||pet-acorn-1:true:20",
+   "state": "120|pet-acorn:acorn:3:16:39:1:3:gentle:false:tackle+leafy pet-acorn-1:acorn:1:0:28:20:1:gentle:false:tackle+leafy|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn,pet-acorn-1|w0|{\"battles\":1,\"catches\":1,\"wins\":1}"
   },
   {
    "i": 1,
    "foes": "wild-1-0:shark:2:0:full:0:3:reckless:false:tackle+bubble",
    "log": "use:me::::bubble::: damage:foe:29:18::::: use:foe::::bubble::: damage:me:21:33::::: | use:me::::bubble::: damage:foe:31:0::::: faint:foe::::::: exp::16:::::: end:::::::win:",
-   "end": "win|6|{\"pet-shark\":16}|航海鲨+16||-",
-   "state": "126|pet-shark:shark:4:16:33:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w1|{\"battles\":1,\"wins\":1}"
+   "end": "win|6|{\"pet-shark\":16}|航海鲨+32||-",
+   "state": "126|pet-shark:shark:4:32:33:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w1|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 2,
    "foes": "wild-2-0:pup:2:0:full:0:5:greedy:false:tackle+bubble",
    "log": "use:me::::tackle::: damage:foe:28:19::::: use:foe::::bubble::: damage:me:26:29:super:::: | use:me::::tackle::: damage:foe:24:0::::: faint:foe::::::: exp::16:::::: end:::::::win:",
-   "end": "win|6|{\"pet-fox\":16}|焰尾狐+16||-",
-   "state": "126|pet-fox:fox:5:16:29:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w2|{\"battles\":1,\"wins\":1}"
+   "end": "win|6|{\"pet-fox\":16}|焰尾狐+32||-",
+   "state": "126|pet-fox:fox:5:32:29:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w2|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 3,
    "foes": "wild-3-0:fox:4:0:full:0:1:greedy:false:tackle+ember",
-   "log": "use:foe::::ember::: damage:me:25:39:super:::: use:me::::tackle::: damage:foe:21:34::::: | snack:::::::: use:foe::::ember::: damage:me:24:15:super:::: | use:foe::::ember::: damage:me:26:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::ember::: damage:me:27:37:super:::: use:me::::tackle::: damage:foe:23:32::::: | snack:::::::: use:foe::::ember::: damage:me:26:11:super:::: | use:foe::::ember::: damage:me:28:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-acorn:acorn:6:0:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   },
   {
    "i": 4,
    "foes": "wild-4-0:starbear:2:0:full:0:4:brave:false:tackle+twinkle wild-4-1:acorn:4:0:full:0:3:lively:false:tackle+leafy",
-   "log": "use:me::::bubble::: damage:foe:21:35::::: use:foe::::twinkle::: damage:me:14:51::::: | use:me::::bubble::: damage:foe:21:14::::: use:foe::::twinkle::: damage:me:14:37::::: | throw::::::::0.371250 escape:::::::: use:foe::::twinkle::: damage:me:15:22::::: | use:me::::bubble::: damage:foe:19:0::::: faint:foe::::::: exp::16:::::: send:foe:::::1:: | use:me::::tackle::: damage:foe:14:37::::: use:foe::::leafy::: damage:me:25:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::bubble::: damage:foe:21:35::::: use:foe::::twinkle::: damage:me:14:51::::: | use:me::::bubble::: damage:foe:21:14::::: use:foe::::twinkle::: damage:me:14:37::::: | throw::::::::0.371250 escape:::::::: use:foe::::twinkle::: damage:me:15:22::::: | use:me::::bubble::: damage:foe:20:0::::: faint:foe::::::: exp::16:::::: send:foe:::::1:: | use:me::::tackle::: damage:foe:15:36::::: use:foe::::leafy::: damage:me:28:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|6|{\"pet-shark\":16}|航海鲨+16||-",
    "state": "126|pet-shark:shark:7:16:0:0:3:gentle:false:tackle+bubble|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark||{\"battles\":1}"
   },
   {
    "i": 5,
    "foes": "wild-0-0:shadecat:3:0:full:0:2:greedy:false:tackle+shadow wild-0-1:pup:5:0:full:0:2:steady:false:tackle+bubble+puff",
-   "log": "use:me::::ember::: damage:foe:38:11::::: use:foe::::shadow::: damage:me:17:48::::: | use:me::::ember::: damage:foe:39:0::::: faint:foe::::::: exp::24:::::: send:foe:::::1:: | use:me::::tackle::: damage:foe:20:36::::: use:foe::::bubble::: damage:me:26:22:super:::: | use:me::::tackle::: damage:foe:24:12::::: use:foe::::puff::: stat:me::::::: | use:me::::tackle::: damage:foe:16:0::::: faint:foe::::::: exp::40:::::: end:::::::win:",
-   "end": "win|24|{\"pet-fox\":64}|焰尾狐+64||-",
-   "state": "144|pet-fox:fox:8:64:22:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w5|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::ember::: damage:foe:43:6::::: use:foe::::shadow::: damage:me:19:46::::: | use:me::::ember::: damage:foe:43:0::::: faint:foe::::::: exp::24:::::: send:foe:::::1:: | use:me::::tackle::: damage:foe:24:32::::: use:foe::::bubble::: damage:me:31:15:super:::: | use:me::::tackle::: damage:foe:29:3::::: use:foe::::puff::: stat:me::::::: | use:me::::tackle::: damage:foe:19:0::::: faint:foe::::::: exp::40:::::: end:::::::win:",
+   "end": "win|24|{\"pet-fox\":64}|焰尾狐+128||-",
+   "state": "144|pet-fox:fox:8:128:15:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w5|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 6,
    "foes": "wild-1-0:acorn:3:0:full:0:2:greedy:false:tackle+leafy wild-1-1:acorn:3:0:full:0:1:feisty:false:tackle+leafy",
-   "log": "use:me::::leafy::: damage:foe:29:28::::: use:foe::::leafy::: damage:me:11:64::::: | snack:::::::: use:foe::::leafy::: damage:me:12:52::::: | use:me::::leafy::: damage:foe:32:0::::: faint:foe::::::: exp::24:::::: send:foe:::::1:: | use:me::::leafy::: damage:foe:23:22::::: use:foe::::leafy::: damage:me:13:39::::: | use:me::::leafy::: damage:foe:24:0::::: faint:foe::::::: exp::24:::::: end:::::::win:",
-   "end": "win|18|{\"pet-acorn\":48}|橡果刺猬+48||-",
-   "state": "138|pet-acorn:acorn:9:48:39:1:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn|w6|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::leafy::: damage:foe:34:23::::: use:foe::::leafy::: damage:me:12:63::::: | snack:::::::: use:foe::::leafy::: damage:me:13:50::::: | use:me::::leafy::: damage:foe:37:0::::: faint:foe::::::: exp::24:::::: send:foe:::::1:: | use:me::::leafy::: damage:foe:27:18::::: use:foe::::leafy::: damage:me:15:35::::: | use:me::::leafy::: damage:foe:28:0::::: faint:foe::::::: exp::24:::::: end:::::::win:",
+   "end": "win|18|{\"pet-acorn\":48}|橡果刺猬+96||-",
+   "state": "138|pet-acorn:acorn:9:96:35:1:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn|w6|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 7,
    "foes": "wild-2-0:shark:4:0:full:0:3:hasty:false:tackle+bubble wild-2-1:shark:6:0:full:0:1:reckless:false:tackle+bubble+splash",
-   "log": "use:me::::bubble::: damage:foe:33:21::::: surprised:::::::: | use:me::::bubble::: damage:foe:37:0::::: faint:foe::::::: exp::32:::::: send:foe:::::1:: | use:me::::bubble::: damage:foe:34:24::::: use:foe::::splash::: damage:me:25:50::::: | use:me::::bubble::: damage:foe:36:0::::: faint:foe::::::: exp::48:::::: end:::::::win:",
-   "end": "win|30|{\"pet-shark\":80}|航海鲨+80||-",
-   "state": "150|pet-shark:shark:10:80:50:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w7|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::bubble::: damage:foe:41:13::::: surprised:::::::: | use:me::::bubble::: damage:foe:46:0::::: faint:foe::::::: exp::32:::::: send:foe:::::1:: | use:me::::bubble::: damage:foe:45:13::::: use:foe::::splash::: damage:me:33:42::::: | use:me::::bubble::: damage:foe:48:0::::: faint:foe::::::: exp::48:::::: end:::::::win:",
+   "end": "win|30|{\"pet-shark\":80}|航海鲨+160||-",
+   "state": "150|pet-shark:shark:10:160:42:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w7|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 8,
    "foes": "wild-3-0:pup:4:0:full:0:2:brave:false:tackle+bubble wild-3-1:shark:4:0:full:0:3:steady:false:tackle+bubble",
-   "log": "use:me::::tackle::: damage:foe:26:22::::: use:foe::::bubble::: damage:me:22:53:super:::: | use:me::::tackle::: damage:foe:26:0::::: faint:foe::::::: exp::32:::::: send:foe:::::1:: | throw::::::::0.150000 escape:::::::: use:foe::::bubble::: damage:me:19:34:super:::: | use:me::::tackle::: damage:foe:22:37::::: use:foe::::bubble::: damage:me:19:15:super:::: | use:me::::tackle::: damage:foe:24:13::::: use:foe::::bubble::: damage:me:17:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::tackle::: damage:foe:33:15::::: use:foe::::bubble::: damage:me:28:47:super:::: | use:me::::tackle::: damage:foe:33:0::::: faint:foe::::::: exp::32:::::: send:foe:::::1:: | throw::::::::0.150000 escape:::::::: use:foe::::bubble::: damage:me:24:23:super:::: | use:me::::tackle::: damage:foe:28:31::::: use:foe::::bubble::: damage:me:24:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|12|{\"pet-fox\":32}|焰尾狐+32||-",
    "state": "132|pet-fox:fox:11:32:0:0:3:gentle:false:tackle+ember|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
   {
    "i": 9,
    "foes": "wild-4-0:fox:7:0:full:0:2:gentle:false:tackle+ember+blaze wild-4-1:acorn:6:0:full:0:4:tough:false:tackle+leafy+shell wild-4-2:shadecat:5:0:full:0:2:gentle:false:tackle+shadow+eclipse",
-   "log": "use:foe::::blaze::: damage:me:54:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::blaze::: damage:me:59:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-acorn:acorn:3:0:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   },
   {
    "i": 10,
    "foes": "wild-0-0:starbear:5:0:full:0:3:lively:false:tackle+twinkle+heal wild-0-1:fox:6:0:full:0:1:brave:false:tackle+ember+blaze wild-0-2:starbear:7:0:full:0:2:lively:false:tackle+twinkle+heal",
-   "log": "use:me::::bubble::: damage:foe:15:46::::: use:foe::::twinkle::: damage:me:19:35::::: | use:me::::bubble::: damage:foe:13:33::::: use:foe::::twinkle::: damage:me:20:15::::: | use:me::::bubble::: damage:foe:15:18::::: use:foe::::twinkle::: damage:me:19:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::bubble::: damage:foe:16:45::::: use:foe::::twinkle::: damage:me:20:34::::: | use:me::::bubble::: damage:foe:14:31::::: use:foe::::twinkle::: damage:me:20:14::::: | use:me::::bubble::: damage:foe:15:16::::: use:foe::::twinkle::: damage:me:19:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-shark:shark:4:0:0:0:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark||{\"battles\":1}"
   },
   {
    "i": 11,
    "foes": "wild-1-0:shadecat:8:0:full:0:1:hasty:false:tackle+shadow+eclipse wild-1-1:shark:7:0:full:0:2:timid:false:tackle+bubble+splash wild-1-2:fox:6:0:full:0:1:careful:false:tackle+ember+blaze",
-   "log": "use:foe::::eclipse::: damage:me:39:16::::: use:me::::ember::: damage:foe:29:28::::: | use:foe::::eclipse::: damage:me:35:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::eclipse::: damage:me:47:8::::: use:me::::ember::: damage:foe:34:23::::: | use:foe::::eclipse::: damage:me:42:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-fox:fox:5:0:0:0:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
@@ -254,43 +254,43 @@
    "i": 12,
    "foes": "wild-2-0:acorn:2:0:full:0:1:easygoing:false:tackle+leafy",
    "log": "use:me::::leafy::: damage:foe:25:27::::: use:foe::::leafy::: damage:me:13:51::::: | snack:::::::: use:foe::::leafy::: damage:me:12:39::::: | throw::::::::0.477404 escape:::::::: use:foe::::leafy::: damage:me:13:26::::: | use:me::::leafy::: damage:foe:21:6::::: use:foe::::leafy::: damage:me:14:12::::: | use:me::::leafy::: damage:foe:24:0::::: faint:foe::::::: exp::16:::::: end:::::::win:",
-   "end": "win|6|{\"pet-acorn\":16}|橡果刺猬+16||-",
-   "state": "126|pet-acorn:acorn:6:16:12:1:3:gentle:false:tackle+leafy|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn|w12|{\"battles\":1,\"wins\":1}"
+   "end": "win|6|{\"pet-acorn\":16}|橡果刺猬+32||-",
+   "state": "126|pet-acorn:acorn:6:32:12:1:3:gentle:false:tackle+leafy|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn|w12|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 13,
    "foes": "wild-3-0:shark:1:0:full:0:2:relaxed:false:tackle+bubble",
    "log": "use:me::::bubble::: damage:foe:30:14::::: use:foe::::bubble::: damage:me:17:48::::: | use:me::::bubble::: damage:foe:27:0::::: faint:foe::::::: exp::8:::::: end:::::::win:",
-   "end": "win|3|{\"pet-shark\":8}|航海鲨+8||-",
-   "state": "123|pet-shark:shark:7:8:48:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w13|{\"battles\":1,\"wins\":1}"
+   "end": "win|3|{\"pet-shark\":8}|航海鲨+16||-",
+   "state": "123|pet-shark:shark:7:16:48:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w13|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 14,
    "foes": "wild-4-0:pup:1:0:full:0:2:easygoing:false:tackle+bubble",
-   "log": "use:me::::tackle::: damage:foe:26:18::::: surprised:::::::: | use:me::::tackle::: damage:foe:27:0::::: faint:foe::::::: exp::8:::::: end:::::::win:",
-   "end": "win|3|{\"pet-fox\":8}|焰尾狐+8||-",
-   "state": "123|pet-fox:fox:8:8:full:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w14|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::tackle::: damage:foe:27:17::::: surprised:::::::: | use:me::::tackle::: damage:foe:28:0::::: faint:foe::::::: exp::8:::::: end:::::::win:",
+   "end": "win|3|{\"pet-fox\":8}|焰尾狐+16||-",
+   "state": "123|pet-fox:fox:8:16:full:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w14|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 15,
    "foes": "wild-0-0:fox:4:0:full:0:1:brave:false:tackle+ember",
-   "log": "use:me::::tackle::: damage:foe:21:29::::: use:foe::::ember::: damage:me:23:52:super:::: | snack:::::::: use:foe::::ember::: damage:me:22:30:super:::: | use:me::::tackle::: damage:foe:20:9::::: use:foe::::ember::: damage:me:25:5:super:::: | use:me::::tackle::: damage:foe:21:0::::: faint:foe::::::: exp::32:::::: end:::::::win:",
-   "end": "win|12|{\"pet-acorn\":32}|橡果刺猬+32||-",
-   "state": "132|pet-acorn:acorn:9:32:5:1:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn|w15|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::tackle::: damage:foe:25:25::::: use:foe::::ember::: damage:me:28:47:super:::: | snack:::::::: use:foe::::ember::: damage:me:26:21:super:::: | use:me::::tackle::: damage:foe:24:1::::: use:foe::::ember::: damage:me:30:0:super:::: faint:me::::::: end:::::::lose:",
+   "end": "lose|0|{}|||-",
+   "state": "120|pet-acorn:acorn:9:0:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   },
   {
    "i": 16,
    "foes": "wild-1-0:starbear:2:0:full:0:3:steady:false:tackle+twinkle wild-1-1:pup:3:0:full:0:1:tough:false:tackle+bubble",
-   "log": "use:me::::bubble::: damage:foe:21:40::::: use:foe::::twinkle::: damage:me:9:66::::: | use:me::::bubble::: damage:foe:24:16::::: use:foe::::twinkle::: damage:me:11:55::::: | throw::::::::0.367377 escape:::::::: use:foe::::twinkle::: damage:me:10:45::::: | use:me::::bubble::: damage:foe:22:0::::: faint:foe::::::: exp::16:::::: send:foe:::::1:: | use:me::::bubble::: damage:foe:31:9::::: use:foe::::bubble::: damage:me:13:32::::: | use:me::::bubble::: damage:foe:35:0::::: faint:foe::::::: exp::24:::::: end:::::::win:",
-   "end": "win|15|{\"pet-shark\":40}|航海鲨+40||-",
-   "state": "135|pet-shark:shark:10:40:32:1:3:gentle:false:tackle+bubble|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w16|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::bubble::: damage:foe:24:37::::: use:foe::::twinkle::: damage:me:11:64::::: | use:me::::bubble::: damage:foe:28:9::::: use:foe::::twinkle::: damage:me:12:52::::: | throw::::::::0.403525 escape:::::::: use:foe::::twinkle::: damage:me:12:40::::: | use:me::::bubble::: damage:foe:26:0::::: faint:foe::::::: exp::16:::::: send:foe:::::1:: | use:me::::bubble::: damage:foe:37:3::::: use:foe::::bubble::: damage:me:15:25::::: | use:me::::bubble::: damage:foe:41:0::::: faint:foe::::::: exp::24:::::: end:::::::win:",
+   "end": "win|15|{\"pet-shark\":40}|航海鲨+80||-",
+   "state": "135|pet-shark:shark:10:80:25:1:3:gentle:false:tackle+bubble|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w16|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 17,
    "foes": "wild-2-0:shadecat:5:0:full:0:5:hasty:false:tackle+shadow+eclipse wild-2-1:starbear:4:0:full:0:1:greedy:false:tackle+twinkle",
-   "log": "use:me::::ember::: damage:foe:39:16::::: use:foe::::eclipse::: damage:me:25:50::::: | use:me::::ember::: damage:foe:41:0::::: faint:foe::::::: exp::40:::::: send:foe:::::1:: | use:me::::ember::: damage:foe:30:37::::: use:foe::::twinkle::: damage:me:11:39::::: | use:me::::ember::: damage:foe:26:11::::: use:foe::::twinkle::: damage:me:12:27::::: | use:me::::ember::: damage:foe:28:0::::: faint:foe::::::: exp::32:::::: end:::::::win:",
-   "end": "win|27|{\"pet-fox\":72}|焰尾狐+72||-",
-   "state": "147|pet-fox:fox:11:72:27:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w17|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::ember::: damage:foe:51:4::::: use:foe::::eclipse::: damage:me:33:42::::: | use:me::::ember::: damage:foe:54:0::::: faint:foe::::::: exp::40:::::: send:foe:::::1:: | use:me::::ember::: damage:foe:38:29::::: use:foe::::twinkle::: damage:me:14:28::::: | use:me::::ember::: damage:foe:33:0::::: faint:foe::::::: exp::32:::::: end:::::::win:",
+   "end": "win|27|{\"pet-fox\":72}|焰尾狐+144||-",
+   "state": "147|pet-fox:fox:11:144:28:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w17|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 18,
@@ -302,58 +302,58 @@
   {
    "i": 19,
    "foes": "wild-4-0:shark:5:0:full:0:2:tough:false:tackle+bubble+splash wild-4-1:shark:4:0:full:0:1:timid:false:tackle+bubble",
-   "log": "use:foe::::splash::: damage:me:37:17::::: use:me::::bubble::: damage:foe:21:29::::: | use:foe::::splash::: damage:me:36:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::splash::: damage:me:39:15::::: use:me::::bubble::: damage:foe:22:28::::: | use:foe::::splash::: damage:me:38:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-shark:shark:4:0:0:0:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark||{\"battles\":1}"
   },
   {
    "i": 20,
    "foes": "wild-0-0:pup:6:0:full:0:4:brave:false:tackle+bubble+puff wild-0-1:acorn:5:0:full:0:2:feisty:false:tackle+leafy+shell",
-   "log": "use:foe::::bubble::: damage:me:38:17:super:::: use:me::::tackle::: damage:foe:18:39::::: | use:foe::::bubble::: damage:me:39:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::bubble::: damage:me:43:12:super:::: use:me::::tackle::: damage:foe:21:36::::: | use:foe::::bubble::: damage:me:44:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-fox:fox:5:0:0:0:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
   {
    "i": 21,
    "foes": "wild-1-0:fox:5:0:full:0:2:gentle:false:tackle+ember+blaze wild-1-1:starbear:7:0:full:0:2:lively:false:tackle+twinkle+heal wild-1-2:pup:5:0:full:0:1:timid:false:tackle+bubble+puff",
-   "log": "surprised:::::::: use:me::::tackle::: damage:foe:14:40::::: | snack:::::::: use:foe::::blaze::: damage:me:42:22:super:::: | use:foe::::blaze::: damage:me:43:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "surprised:::::::: use:me::::tackle::: damage:foe:16:38::::: | snack:::::::: use:foe::::blaze::: damage:me:47:17:super:::: | use:foe::::blaze::: damage:me:48:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-acorn:acorn:6:0:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   },
   {
    "i": 22,
    "foes": "wild-2-0:starbear:7:0:full:0:1:steady:false:tackle+twinkle+heal wild-2-1:shark:7:0:full:0:4:hasty:false:tackle+bubble+splash wild-2-2:fox:6:0:full:0:1:brave:false:tackle+ember+blaze",
-   "log": "use:me::::bubble::: damage:foe:15:63::::: use:foe::::twinkle::: damage:me:16:49::::: | use:me::::bubble::: damage:foe:15:48::::: use:foe::::twinkle::: damage:me:16:33::::: | use:me::::bubble::: damage:foe:16:32::::: use:foe::::twinkle::: damage:me:14:19::::: | use:me::::bubble::: damage:foe:15:17::::: use:foe::::twinkle::: damage:me:13:6::::: | use:me::::bubble::: damage:foe:15:2::::: use:foe::::heal::: heal:foe:23:25::::: | use:me::::bubble::: damage:foe:16:9::::: use:foe::::heal::: heal:foe:23:32::::: | use:me::::bubble::: damage:foe:15:17::::: use:foe::::twinkle::: damage:me:16:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::bubble::: damage:foe:19:59::::: use:foe::::twinkle::: damage:me:19:46::::: | use:me::::bubble::: damage:foe:19:40::::: use:foe::::twinkle::: damage:me:19:27::::: | use:me::::bubble::: damage:foe:20:20::::: use:foe::::twinkle::: damage:me:17:10::::: | use:me::::bubble::: damage:foe:19:1::::: use:foe::::heal::: heal:foe:23:24::::: | use:me::::bubble::: damage:foe:18:6::::: use:foe::::heal::: heal:foe:23:29::::: | use:me::::bubble::: damage:foe:19:10::::: use:foe::::twinkle::: damage:me:18:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-shark:shark:7:0:0:0:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark||{\"battles\":1}"
   },
   {
    "i": 23,
    "foes": "wild-3-0:shadecat:7:0:full:0:1:feisty:false:tackle+shadow+eclipse wild-3-1:shark:7:0:full:0:3:easygoing:false:tackle+bubble+splash wild-3-2:starbear:7:0:full:0:2:feisty:false:tackle+twinkle+heal",
-   "log": "use:foe::::eclipse::: damage:me:34:31::::: use:me::::ember::: damage:foe:28:21::::: | use:foe::::eclipse::: damage:me:30:1::::: use:me::::ember::: damage:foe:30:0::::: faint:foe::::::: exp::56:::::: send:foe:::::1:: | use:me::::tackle::: damage:foe:18:53::::: use:foe::::splash::: damage:me:46:0:super:::: faint:me::::::: end:::::::lose:",
-   "end": "lose|21|{\"pet-fox\":56}|焰尾狐+56||-",
-   "state": "141|pet-fox:fox:8:56:0:0:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
+   "log": "use:foe::::eclipse::: damage:me:44:21::::: use:me::::ember::: damage:foe:36:13::::: | use:foe::::eclipse::: damage:me:39:0::::: faint:me::::::: end:::::::lose:",
+   "end": "lose|0|{}|||-",
+   "state": "120|pet-fox:fox:8:0:0:0:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
   {
    "i": 24,
    "foes": "wild-4-0:acorn:2:0:full:0:1:feisty:false:tackle+leafy",
-   "log": "use:me::::leafy::: damage:foe:29:14::::: use:foe::::leafy::: damage:me:13:62::::: | snack:::::::: use:foe::::leafy::: damage:me:12:50::::: | throw::::::::0.579070 caught:::::::: exp::16:::::: end:::::::caught:",
-   "end": "caught|0|{\"pet-acorn\":16}|橡果刺猬+16||pet-acorn-1:true:20",
-   "state": "120|pet-acorn:acorn:9:16:50:1:3:gentle:false:tackle+leafy pet-acorn-1:acorn:2:0:14:20:1:feisty:false:tackle+leafy|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn,pet-acorn-1|w24|{\"battles\":1,\"catches\":1,\"wins\":1}"
+   "log": "use:me::::leafy::: damage:foe:32:11::::: use:foe::::leafy::: damage:me:14:61::::: | snack:::::::: use:foe::::leafy::: damage:me:14:47::::: | throw::::::::0.615698 caught:::::::: exp::16:::::: end:::::::caught:",
+   "end": "caught|0|{\"pet-acorn\":16}|橡果刺猬+32||pet-acorn-1:true:20",
+   "state": "120|pet-acorn:acorn:9:32:47:1:3:gentle:false:tackle+leafy pet-acorn-1:acorn:2:0:11:20:1:feisty:false:tackle+leafy|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn,pet-acorn-1|w24|{\"battles\":1,\"catches\":1,\"wins\":1}"
   },
   {
    "i": 25,
    "foes": "wild-0-0:shark:2:0:full:0:2:brave:false:tackle+bubble",
-   "log": "use:me::::bubble::: damage:foe:34:13::::: use:foe::::bubble::: damage:me:16:59::::: | use:me::::bubble::: damage:foe:39:0::::: faint:foe::::::: exp::16:::::: end:::::::win:",
-   "end": "win|6|{\"pet-shark\":16}|航海鲨+16||-",
-   "state": "126|pet-shark:shark:10:16:59:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w25|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::bubble::: damage:foe:39:8::::: use:foe::::bubble::: damage:me:18:57::::: | use:me::::bubble::: damage:foe:46:0::::: faint:foe::::::: exp::16:::::: end:::::::win:",
+   "end": "win|6|{\"pet-shark\":16}|航海鲨+32||-",
+   "state": "126|pet-shark:shark:10:32:57:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w25|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 26,
    "foes": "wild-1-0:pup:1:0:full:0:2:gentle:false:tackle+bubble",
-   "log": "use:me::::tackle::: damage:foe:32:8::::: use:foe::::bubble::: damage:me:18:57:super:::: | use:me::::tackle::: damage:foe:33:0::::: faint:foe::::::: exp::8:::::: end:::::::win:",
-   "end": "win|3|{\"pet-fox\":8}|焰尾狐+8||-",
-   "state": "123|pet-fox:fox:11:8:57:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w26|{\"battles\":1,\"wins\":1}"
+   "log": "use:me::::tackle::: damage:foe:37:3::::: use:foe::::bubble::: damage:me:21:54:super:::: | use:me::::tackle::: damage:foe:38:0::::: faint:foe::::::: exp::8:::::: end:::::::win:",
+   "end": "win|3|{\"pet-fox\":8}|焰尾狐+16||-",
+   "state": "123|pet-fox:fox:11:16:54:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w26|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 27,
@@ -372,49 +372,49 @@
   {
    "i": 29,
    "foes": "wild-4-0:shadecat:5:0:full:0:2:careful:false:tackle+shadow+eclipse wild-4-1:acorn:5:0:full:0:1:gentle:false:tackle+leafy+shell",
-   "log": "use:foe::::eclipse::: damage:me:27:28::::: use:me::::ember::: damage:foe:27:24::::: | use:foe::::eclipse::: damage:me:28:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::eclipse::: damage:me:29:26::::: use:me::::ember::: damage:foe:29:22::::: | use:foe::::eclipse::: damage:me:30:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-fox:fox:5:0:0:0:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
   {
    "i": 30,
    "foes": "wild-0-0:acorn:4:0:full:0:1:brave:false:tackle+leafy wild-0-1:shark:4:0:full:0:1:greedy:false:tackle+bubble",
-   "log": "use:me::::leafy::: damage:foe:18:36::::: use:foe::::leafy::: damage:me:17:47::::: | snack:::::::: use:foe::::leafy::: damage:me:17:30::::: | use:me::::leafy::: damage:foe:19:17::::: use:foe::::leafy::: damage:me:18:12::::: | use:me::::leafy::: damage:foe:19:0::::: faint:foe::::::: exp::32:::::: send:foe:::::1:: | use:foe::::tackle::: damage:me:11:1::::: use:me::::leafy::: damage:foe:43:14:super:::: | use:foe::::tackle::: damage:me:12:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::leafy::: damage:foe:20:34::::: use:foe::::leafy::: damage:me:18:46::::: | snack:::::::: use:foe::::leafy::: damage:me:18:28::::: | use:me::::leafy::: damage:foe:20:14::::: use:foe::::leafy::: damage:me:19:9::::: | use:me::::leafy::: damage:foe:21:0::::: faint:foe::::::: exp::32:::::: send:foe:::::1:: | use:foe::::tackle::: damage:me:11:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|12|{\"pet-acorn\":32}|橡果刺猬+32||-",
    "state": "132|pet-acorn:acorn:6:32:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   },
   {
    "i": 31,
    "foes": "wild-1-0:shark:6:0:full:0:4:lively:false:tackle+bubble+splash wild-1-1:fox:5:0:full:0:4:tough:false:tackle+ember+blaze",
-   "log": "use:me::::bubble::: damage:foe:20:36::::: use:foe::::splash::: damage:me:37:28::::: | use:me::::bubble::: damage:foe:20:16::::: use:foe::::splash::: damage:me:32:0::::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::bubble::: damage:foe:24:32::::: use:foe::::splash::: damage:me:44:21::::: | use:me::::bubble::: damage:foe:24:8::::: use:foe::::splash::: damage:me:39:0::::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-shark:shark:7:0:0:0:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark||{\"battles\":1}"
   },
   {
    "i": 32,
    "foes": "wild-2-0:pup:5:0:full:0:1:feisty:false:tackle+bubble+puff wild-2-1:shark:4:0:full:0:2:careful:false:tackle+bubble",
-   "log": "use:me::::tackle::: damage:foe:22:23::::: use:foe::::puff::: stat:me::::::: | use:me::::tackle::: damage:foe:16:7::::: use:foe::::bubble::: damage:me:30:35:super:::: | throw::::::::0.311889 caught:::::::: exp::40:::::: end:::::::caught:",
-   "end": "caught|0|{\"pet-fox\":40}|焰尾狐+40||pet-pup-1:true:10",
-   "state": "120|pet-fox:fox:8:40:35:1:3:gentle:false:tackle+ember pet-pup-1:pup:5:0:7:10:1:feisty:false:tackle+bubble+puff|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox,pet-pup-1|w32|{\"battles\":1,\"catches\":1,\"wins\":1}"
+   "log": "use:me::::tackle::: damage:foe:26:19::::: use:foe::::puff::: stat:me::::::: | use:me::::tackle::: damage:foe:19:0::::: faint:foe::::::: exp::40:::::: send:foe:::::1:: | throw::::::::0.150000 escape:::::::: use:foe::::bubble::: damage:me:24:41:super:::: | use:me::::tackle::: damage:foe:24:29::::: use:foe::::bubble::: damage:me:26:15:super:::: | use:me::::tackle::: damage:foe:23:6::::: use:foe::::bubble::: damage:me:24:0:super:::: faint:me::::::: end:::::::lose:",
+   "end": "lose|15|{\"pet-fox\":40}|焰尾狐+40||-",
+   "state": "135|pet-fox:fox:8:40:0:0:3:gentle:false:tackle+ember|item_net_grassx2,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
   {
    "i": 33,
    "foes": "wild-3-0:fox:7:0:full:0:1:lively:false:tackle+ember+blaze wild-3-1:starbear:5:0:full:0:2:lively:false:tackle+twinkle+heal wild-3-2:shadecat:7:0:full:0:2:feisty:false:tackle+shadow+eclipse",
-   "log": "use:foe::::blaze::: damage:me:37:38:super:::: use:me::::tackle::: damage:foe:17:35::::: | snack:::::::: use:foe::::blaze::: damage:me:38:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:foe::::blaze::: damage:me:49:26:super:::: use:me::::leafy::: damage:foe:23:29:weak:::: | snack:::::::: use:foe::::blaze::: damage:me:50:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-acorn:acorn:9:0:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   },
   {
    "i": 34,
    "foes": "wild-4-0:starbear:6:0:full:0:2:hasty:false:tackle+twinkle+heal wild-4-1:pup:5:0:full:0:5:careful:false:tackle+bubble+puff wild-4-2:fox:6:0:full:0:3:steady:false:tackle+ember+blaze",
-   "log": "use:me::::bubble::: damage:foe:22:48::::: use:foe::::twinkle::: damage:me:13:62::::: | use:me::::bubble::: damage:foe:20:28::::: use:foe::::twinkle::: damage:me:13:49::::: | use:me::::bubble::: damage:foe:20:8::::: use:foe::::twinkle::: damage:me:15:34::::: | use:me::::bubble::: damage:foe:20:0::::: faint:foe::::::: exp::48:::::: send:foe:::::1:: | use:me::::bubble::: damage:foe:27:28::::: use:foe::::bubble::: damage:me:17:17::::: | use:me::::bubble::: damage:foe:27:1::::: use:foe::::bubble::: damage:me:16:1::::: | use:me::::bubble::: damage:foe:27:0::::: faint:foe::::::: exp::40:::::: send:foe:::::2:: | use:me::::bubble::: damage:foe:40:23:super:::: use:foe::::blaze::: damage:me:17:0:weak:::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::bubble::: damage:foe:28:42::::: use:foe::::twinkle::: damage:me:17:58::::: | use:me::::bubble::: damage:foe:26:16::::: use:foe::::twinkle::: damage:me:17:41::::: | use:me::::bubble::: damage:foe:27:0::::: faint:foe::::::: exp::48:::::: send:foe:::::1:: | use:me::::bubble::: damage:foe:35:20::::: use:foe::::bubble::: damage:me:21:20::::: | use:me::::bubble::: damage:foe:39:0::::: faint:foe::::::: exp::40:::::: send:foe:::::2:: | use:me::::bubble::: damage:foe:55:8:super:::: use:foe::::blaze::: damage:me:23:0:weak:::: faint:me::::::: end:::::::lose:",
    "end": "lose|33|{\"pet-shark\":88}|航海鲨+88||-",
    "state": "153|pet-shark:shark:10:88:0:0:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark||{\"battles\":1}"
   },
   {
    "i": 35,
    "foes": "wild-0-0:shadecat:8:0:full:0:2:gentle:false:tackle+shadow+eclipse wild-0-1:pup:8:0:full:0:4:hasty:false:tackle+bubble+puff wild-0-2:fox:8:0:full:0:3:steady:false:tackle+ember+blaze",
-   "log": "use:me::::ember::: damage:foe:29:31::::: surprised:::::::: | use:me::::ember::: damage:foe:32:0::::: faint:foe::::::: exp::64:::::: send:foe:::::1:: | use:foe::::bubble::: damage:me:29:46:super:::: use:me::::tackle::: damage:foe:24:40::::: | use:foe::::bubble::: damage:me:30:16:super:::: use:me::::tackle::: damage:foe:22:18::::: | use:foe::::bubble::: damage:me:30:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::ember::: damage:foe:42:18::::: surprised:::::::: | use:me::::ember::: damage:foe:46:0::::: faint:foe::::::: exp::64:::::: send:foe:::::1:: | use:foe::::bubble::: damage:me:41:34:super:::: use:me::::tackle::: damage:foe:34:30::::: | use:foe::::bubble::: damage:me:42:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|24|{\"pet-fox\":64}|焰尾狐+64||-",
    "state": "144|pet-fox:fox:11:64:0:0:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox||{\"battles\":1}"
   },
@@ -429,20 +429,20 @@
    "i": 37,
    "foes": "wild-2-0:shark:2:0:full:0:1:hasty:false:tackle+bubble",
    "log": "use:me::::bubble::: damage:foe:27:19::::: use:foe::::bubble::: damage:me:17:37::::: | use:me::::bubble::: damage:foe:28:0::::: faint:foe::::::: exp::16:::::: end:::::::win:",
-   "end": "win|6|{\"pet-shark\":16}|航海鲨+16||-",
-   "state": "126|pet-shark:shark:4:16:37:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w37|{\"battles\":1,\"wins\":1}"
+   "end": "win|6|{\"pet-shark\":16}|航海鲨+32||-",
+   "state": "126|pet-shark:shark:4:32:37:1:3:gentle:false:tackle+bubble|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-shark|w37|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 38,
    "foes": "wild-3-0:pup:1:0:full:0:3:feisty:false:tackle+bubble",
    "log": "use:me::::tackle::: damage:foe:25:11::::: use:foe::::bubble::: damage:me:26:29:super:::: | use:me::::tackle::: damage:foe:21:0::::: faint:foe::::::: exp::8:::::: end:::::::win:",
-   "end": "win|3|{\"pet-fox\":8}|焰尾狐+8||-",
-   "state": "123|pet-fox:fox:5:8:29:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w38|{\"battles\":1,\"wins\":1}"
+   "end": "win|3|{\"pet-fox\":8}|焰尾狐+16||-",
+   "state": "123|pet-fox:fox:5:16:29:1:3:gentle:false:tackle+ember|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx2,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-fox|w38|{\"battles\":1,\"wins\":1}"
   },
   {
    "i": 39,
    "foes": "wild-4-0:fox:4:0:full:0:3:brave:false:tackle+ember",
-   "log": "use:me::::tackle::: damage:foe:15:37::::: use:foe::::ember::: damage:me:29:35:super:::: | snack:::::::: use:foe::::ember::: damage:me:29:6:super:::: | use:me::::tackle::: damage:foe:17:20::::: use:foe::::ember::: damage:me:27:0:super:::: faint:me::::::: end:::::::lose:",
+   "log": "use:me::::tackle::: damage:foe:17:35::::: use:foe::::ember::: damage:me:31:33:super:::: | snack:::::::: use:foe::::ember::: damage:me:31:2:super:::: | use:me::::tackle::: damage:foe:18:17::::: use:foe::::ember::: damage:me:29:0:super:::: faint:me::::::: end:::::::lose:",
    "end": "lose|0|{}|||-",
    "state": "120|pet-acorn:acorn:6:0:0:0:3:gentle:false:tackle+leafy|item_net_grassx3,item_net_vinex1,item_campfirex2,item_berryx5,item_carrotx1,item_fish_roastx1,item_hoex1,item_canx1,item_seed_carrotx6|pet-acorn||{\"battles\":1}"
   }
@@ -1657,182 +1657,182 @@
   {
    "seed": 20261108,
    "day": 1,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_twinkle@80"
   },
   {
    "seed": 20261108,
    "day": 2,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_puff@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_puff@80,item_book_shadow@80"
   },
   {
    "seed": 20261108,
    "day": 3,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_twinkle@80,item_book_shell@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_twinkle@80,item_book_shell@80"
   },
   {
    "seed": 20261108,
    "day": 4,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_leafy@80,item_book_puff@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_leafy@80,item_book_puff@80"
   },
   {
    "seed": 20261108,
    "day": 5,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_twinkle@80,item_book_puff@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_twinkle@80,item_book_puff@80"
   },
   {
    "seed": 20261108,
    "day": 6,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_shadow@80,item_book_heal@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_shadow@80,item_book_heal@80"
   },
   {
    "seed": 20261108,
    "day": 7,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_bubble@80,item_book_heal@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_bubble@80,item_book_heal@80"
   },
   {
    "seed": 20261108,
    "day": 8,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_bubble@80,item_book_leafy@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_bubble@80,item_book_leafy@80"
   },
   {
    "seed": 20261108,
    "day": 9,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_leafy@80,item_book_ember@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_leafy@80,item_book_ember@80"
   },
   {
    "seed": 1,
    "day": 1,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_ember@80,item_book_leafy@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_ember@80,item_book_leafy@80"
   },
   {
    "seed": 1,
    "day": 2,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_bubble@80,item_book_leafy@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_bubble@80,item_book_leafy@80"
   },
   {
    "seed": 1,
    "day": 3,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_twinkle@80,item_book_ember@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_twinkle@80,item_book_ember@80"
   },
   {
    "seed": 1,
    "day": 4,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_shadow@80,item_book_bubble@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_shadow@80,item_book_bubble@80"
   },
   {
    "seed": 1,
    "day": 5,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_bubble@80,item_book_ember@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_bubble@80,item_book_ember@80"
   },
   {
    "seed": 1,
    "day": 6,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_puff@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_puff@80"
   },
   {
    "seed": 1,
    "day": 7,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_twinkle@80"
   },
   {
    "seed": 1,
    "day": 8,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_ember@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_ember@80,item_book_twinkle@80"
   },
   {
    "seed": 1,
    "day": 9,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_shadow@80,item_book_heal@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_shadow@80,item_book_heal@80"
   },
   {
    "seed": 2,
    "day": 1,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_puff@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_puff@80,item_book_shadow@80"
   },
   {
    "seed": 2,
    "day": 2,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_shadow@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_shadow@80,item_book_twinkle@80"
   },
   {
    "seed": 2,
    "day": 3,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_ember@80,item_book_heal@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_ember@80,item_book_heal@80"
   },
   {
    "seed": 2,
    "day": 4,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_shadow@80,item_book_ember@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_shadow@80,item_book_ember@80"
   },
   {
    "seed": 2,
    "day": 5,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_puff@80,item_book_leafy@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_puff@80,item_book_leafy@80"
   },
   {
    "seed": 2,
    "day": 6,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_leafy@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_leafy@80,item_book_twinkle@80"
   },
   {
    "seed": 2,
    "day": 7,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_shadow@80"
   },
   {
    "seed": 2,
    "day": 8,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_bubble@80,item_book_leafy@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_bubble@80,item_book_leafy@80"
   },
   {
    "seed": 2,
    "day": 9,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_shadow@80"
   },
   {
    "seed": 77,
    "day": 1,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_puff@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_puff@80,item_book_shadow@80"
   },
   {
    "seed": 77,
    "day": 2,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_twinkle@80,item_book_puff@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_twinkle@80,item_book_puff@80"
   },
   {
    "seed": 77,
    "day": 3,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_shadow@80"
   },
   {
    "seed": 77,
    "day": 4,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_leafy@80,item_book_shadow@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_leafy@80,item_book_shadow@80"
   },
   {
    "seed": 77,
    "day": 5,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_puff@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_puff@80,item_book_twinkle@80"
   },
   {
    "seed": 77,
    "day": 6,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_twinkle@80,item_book_leafy@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_twinkle@80,item_book_leafy@80"
   },
   {
    "seed": 77,
    "day": 7,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_heal@80,item_book_twinkle@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_heal@80,item_book_twinkle@80"
   },
   {
    "seed": 77,
    "day": 8,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_bubble@80,item_book_ember@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_bubble@80,item_book_ember@80"
   },
   {
    "seed": 77,
    "day": 9,
-   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_book_leafy@80,item_book_bubble@80"
+   "line": "item_seed_carrot@10,item_seed_strawberry@20,item_seed_sunflower@15,item_seed_starwheat@25,item_seed_pumpkin@30,item_cloth@30,item_fish_roast@35,item_berry@5,item_torch@15,item_furn_chair@60,item_furn_plant@60,item_furn_lamp@100,item_furn_table@100,item_furn_rug@120,item_furn_shelf@140,item_book_leafy@80,item_book_bubble@80"
   }
  ],
  "talks": [
@@ -2488,51 +2488,51 @@
  "work": [
   {
    "day": 1,
-   "line": "航海鲨钓鱼：鱼 ×2 / 冰蓝小狼伐木：木材 ×6 / 焰尾狐挖矿：石头 ×8、雾晶 ×1 / 星星熊仔浇水：浇了 2 块地 / 月影狐猫寻宝：四叶草 ×15、南瓜种子 ×1 / （打工带回的东西放在家园仓库）|135|item_fishx2,item_woodx6,item_stonex8,item_crystalx1,item_seed_pumpkinx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×2 / 冰蓝小狼伐木：经验 +2、木材 ×6 / 焰尾狐挖矿：经验 +2、石头 ×8、雾晶 ×1 / 星星熊仔浇水：经验 +2、浇了 2 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×15、南瓜种子 ×1 / （打工带回的东西放在家园仓库）|135|item_fishx2,item_woodx6,item_stonex8,item_crystalx1,item_seed_pumpkinx1|true,true"
   },
   {
    "day": 2,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×7 / 焰尾狐挖矿：石头 ×4 / 星星熊仔浇水：浇了 1 块地 / 月影狐猫寻宝：四叶草 ×17 / （打工带回的东西放在家园仓库）|137|item_fishx3,item_woodx7,item_stonex4|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×7 / 焰尾狐挖矿：经验 +2、石头 ×4 / 星星熊仔浇水：经验 +2、浇了 1 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×17 / （打工带回的东西放在家园仓库）|137|item_fishx3,item_woodx7,item_stonex4|true,true"
   },
   {
    "day": 3,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×7 / 焰尾狐挖矿：石头 ×5 / 星星熊仔浇水：浇了 2 块地 / 月影狐猫寻宝：四叶草 ×18、草莓种子 ×1 / （打工带回的东西放在家园仓库）|138|item_fishx3,item_woodx7,item_stonex5,item_seed_strawberryx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×7 / 焰尾狐挖矿：经验 +2、石头 ×5 / 星星熊仔浇水：经验 +2、浇了 2 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×18、草莓种子 ×1 / （打工带回的东西放在家园仓库）|138|item_fishx3,item_woodx7,item_stonex5,item_seed_strawberryx1|true,true"
   },
   {
    "day": 4,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×4 / 焰尾狐挖矿：石头 ×5 / 星星熊仔浇水：浇了 1 块地 / 月影狐猫寻宝：四叶草 ×19 / （打工带回的东西放在家园仓库）|139|item_fishx3,item_woodx4,item_stonex5|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×4 / 焰尾狐挖矿：经验 +2、石头 ×5 / 星星熊仔浇水：经验 +2、浇了 1 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×19 / （打工带回的东西放在家园仓库）|139|item_fishx3,item_woodx4,item_stonex5|true,true"
   },
   {
    "day": 5,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×4 / 焰尾狐挖矿：石头 ×6、雾晶 ×1 / 星星熊仔浇水：浇了 2 块地 / 月影狐猫寻宝：四叶草 ×10 / （打工带回的东西放在家园仓库）|130|item_fishx3,item_woodx4,item_stonex6,item_crystalx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×4 / 焰尾狐挖矿：经验 +2、石头 ×6、雾晶 ×1 / 星星熊仔浇水：经验 +2、浇了 2 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×10 / （打工带回的东西放在家园仓库）|130|item_fishx3,item_woodx4,item_stonex6,item_crystalx1|true,true"
   },
   {
    "day": 6,
-   "line": "航海鲨钓鱼：鱼 ×2 / 冰蓝小狼伐木：木材 ×5 / 焰尾狐挖矿：石头 ×6、雾晶 ×1 / 星星熊仔浇水：浇了 1 块地 / 月影狐猫寻宝：四叶草 ×12、萝卜种子 ×1 / （打工带回的东西放在家园仓库）|132|item_fishx2,item_woodx5,item_stonex6,item_crystalx1,item_seed_carrotx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×2 / 冰蓝小狼伐木：经验 +2、木材 ×5 / 焰尾狐挖矿：经验 +2、石头 ×6、雾晶 ×1 / 星星熊仔浇水：经验 +2、浇了 1 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×12、萝卜种子 ×1 / （打工带回的东西放在家园仓库）|132|item_fishx2,item_woodx5,item_stonex6,item_crystalx1,item_seed_carrotx1|true,true"
   },
   {
    "day": 7,
-   "line": "航海鲨钓鱼：鱼 ×2 / 冰蓝小狼伐木：木材 ×5 / 焰尾狐挖矿：石头 ×7、雾晶 ×1 / 星星熊仔浇水：浇了 2 块地 / 月影狐猫寻宝：四叶草 ×13 / （打工带回的东西放在家园仓库）|133|item_fishx2,item_woodx5,item_stonex7,item_crystalx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×2 / 冰蓝小狼伐木：经验 +2、木材 ×5 / 焰尾狐挖矿：经验 +2、石头 ×7、雾晶 ×1 / 星星熊仔浇水：经验 +2、浇了 2 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×13 / （打工带回的东西放在家园仓库）|133|item_fishx2,item_woodx5,item_stonex7,item_crystalx1|true,true"
   },
   {
    "day": 8,
-   "line": "航海鲨钓鱼：鱼 ×2 / 冰蓝小狼伐木：木材 ×6 / 焰尾狐挖矿：石头 ×7、雾晶 ×1 / 星星熊仔浇水：浇了 1 块地 / 月影狐猫寻宝：四叶草 ×14 / （打工带回的东西放在家园仓库）|134|item_fishx2,item_woodx6,item_stonex7,item_crystalx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×2 / 冰蓝小狼伐木：经验 +2、木材 ×6 / 焰尾狐挖矿：经验 +2、石头 ×7、雾晶 ×1 / 星星熊仔浇水：经验 +2、浇了 1 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×14 / （打工带回的东西放在家园仓库）|134|item_fishx2,item_woodx6,item_stonex7,item_crystalx1|true,true"
   },
   {
    "day": 9,
-   "line": "航海鲨钓鱼：鱼 ×2 / 冰蓝小狼伐木：木材 ×6 / 焰尾狐挖矿：石头 ×4 / 星星熊仔浇水：浇了 2 块地 / 月影狐猫寻宝：四叶草 ×16、萝卜种子 ×1 / （打工带回的东西放在家园仓库）|136|item_fishx2,item_woodx6,item_stonex4,item_seed_carrotx1|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×2 / 冰蓝小狼伐木：经验 +2、木材 ×6 / 焰尾狐挖矿：经验 +2、石头 ×4 / 星星熊仔浇水：经验 +2、浇了 2 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×16、萝卜种子 ×1 / （打工带回的东西放在家园仓库）|136|item_fishx2,item_woodx6,item_stonex4,item_seed_carrotx1|true,true"
   },
   {
    "day": 10,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×7 / 焰尾狐挖矿：石头 ×4 / 星星熊仔浇水：浇了 1 块地 / 月影狐猫寻宝：四叶草 ×17 / （打工带回的东西放在家园仓库）|137|item_fishx3,item_woodx7,item_stonex4|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×7 / 焰尾狐挖矿：经验 +2、石头 ×4 / 星星熊仔浇水：经验 +2、浇了 1 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×17 / （打工带回的东西放在家园仓库）|137|item_fishx3,item_woodx7,item_stonex4|true,true"
   },
   {
    "day": 11,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×8 / 焰尾狐挖矿：石头 ×5 / 星星熊仔浇水：浇了 2 块地 / 月影狐猫寻宝：四叶草 ×18 / （打工带回的东西放在家园仓库）|138|item_fishx3,item_woodx8,item_stonex5|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×8 / 焰尾狐挖矿：经验 +2、石头 ×5 / 星星熊仔浇水：经验 +2、浇了 2 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×18 / （打工带回的东西放在家园仓库）|138|item_fishx3,item_woodx8,item_stonex5|true,true"
   },
   {
    "day": 12,
-   "line": "航海鲨钓鱼：鱼 ×3 / 冰蓝小狼伐木：木材 ×4 / 焰尾狐挖矿：石头 ×5 / 星星熊仔浇水：浇了 1 块地 / 月影狐猫寻宝：四叶草 ×19 / （打工带回的东西放在家园仓库）|139|item_fishx3,item_woodx4,item_stonex5|true,true"
+   "line": "航海鲨钓鱼：经验 +2、鱼 ×3 / 冰蓝小狼伐木：经验 +2、木材 ×4 / 焰尾狐挖矿：经验 +2、石头 ×5 / 星星熊仔浇水：经验 +2、浇了 1 块地 / 月影狐猫寻宝：经验 +2、四叶草 ×19 / （打工带回的东西放在家园仓库）|139|item_fishx3,item_woodx4,item_stonex5|true,true"
   }
  ],
  "seeds": [

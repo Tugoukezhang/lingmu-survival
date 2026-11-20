@@ -57,20 +57,20 @@ namespace Lingmu.UI
             for (int i = 0; i < 4; i++)
             {
                 int k = i;
-                var btn = Button(actions, "", Yellow, WoodDark, 30, () => UseSkill(k));
+                var btn = Button(actions, "", Yellow, WoodDark, FsBody, () => UseSkill(k));
                 ((RectTransform)btn.transform).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(24 + (i % 2) * 412, -22 - (i / 2) * 124), new Vector2(400, 112));
                 var lbl = btn.GetComponentInChildren<TextMeshProUGUI>(); lbl.alignment = TextAlignmentOptions.Left; lbl.margin = new Vector4(24, 0, 10, 0); lbl.richText = true;
                 skillButtons.Add(btn);
             }
             float bw = 156, gap = 10, y = 24;
-            Button Small(string t, Color bg, Color fg, int i, Action a) { var x = Button(actions, t, bg, fg, 28, a); ((RectTransform)x.transform).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(24 + i * (bw + gap), y), new Vector2(bw, 84)); return x; }
+            Button Small(string t, Color bg, Color fg, int i, Action a) { var x = Button(actions, t, bg, fg, FsSub, a); ((RectTransform)x.transform).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(24 + i * (bw + gap), y), new Vector2(bw, TouchMin)); return x; }
             snackBtn = Small("零食", WoodMid, Cream, 0, () => OpenSub("snack"));
             netBtn = Small("扔网", WoodMid, Cream, 1, () => OpenSub("net"));
             switchBtn = Small("换伙伴", WoodMid, Cream, 2, () => OpenSub("switch"));
             autoBtn = Small("自动", Grass, Color.white, 3, () => Do(Rules.Battle.AutoAction(b)));
             fleeBtn = Small("溜走", CreamDark, WoodDark, 4, () => Do(BattleAction.Flee()));
-            quickBtn = Button(root, "一键结算", Grass, Color.white, 30, QuickResolve);
-            ((RectTransform)quickBtn.transform).Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-28, 420), new Vector2(240, 84));
+            quickBtn = Button(root, "一键结算", Grass, Color.white, FsBody, QuickResolve);
+            ((RectTransform)quickBtn.transform).Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-28, 420), new Vector2(250, TouchMin));
         }
 
         Side MakeSide(RectTransform root, Vector2 anchor, float size, bool isFoe)
@@ -84,8 +84,8 @@ namespace Lingmu.UI
             var card = Panel(root, "card", new Color(Cream.r, Cream.g, Cream.b, 0.95f), null, false, true).rectTransform;
             card.Place(anchor, new Vector2(0.5f, 0.5f), isFoe ? new Vector2(-470, 120) : new Vector2(0, -290), new Vector2(430, 130));
             s.name = Label(card, "", 32, WoodDark, true, TextAlignmentOptions.Left); s.name.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(22, -12), new Vector2(300, 50));
-            s.element = Panel(card, "element", Grass, RoundSmall, false); s.element.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -16), new Vector2(76, 40));
-            s.elementText = Label(s.element.transform, "", 24, Color.white, true); s.elementText.rectTransform.Fill();
+            s.element = Panel(card, "element", Grass, RoundSmall, false); s.element.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-16, -14), new Vector2(84, 46));
+            s.elementText = Label(s.element.transform, "", FsMin, Color.white, true); s.elementText.rectTransform.Fill();
             s.hp = MakeBar(card, "hp", Red); s.hp.root.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(22, 20), new Vector2(386, 34));
             return s;
         }
@@ -115,8 +115,8 @@ namespace Lingmu.UI
                 btn.gameObject.SetActive(true);
                 var s = GameData.Skill(m.skills[i]);
                 int uses = m.uses[m.skills[i]];
-                string useText = uses == int.MaxValue ? "" : $"  <size=24>{uses}/{s.uses}</size>";
-                string power = s.power > 0 ? $"<size=22>威力 {s.power}</size>" : "<size=22>状态</size>";
+                string useText = uses == int.MaxValue ? "" : $"  <size=26>{uses}/{s.uses}</size>";
+                string power = s.power > 0 ? $"<size=26>威力 {s.power}</size>" : "<size=26>状态</size>";
                 btn.SetLabel($"{s.name}{useText}\n{power}");
                 btn.GetComponent<Image>().color = Color.Lerp(WildPet.ElementColor(s.element), Color.white, 0.55f);
                 btn.interactable = !playing && !b.needSwitch && uses > 0;
@@ -132,7 +132,7 @@ namespace Lingmu.UI
         void Fill(Side s, Mon m)
         {
             s.art.sprite = PetArt(m);
-            s.name.text = $"{m.name}  <size=24>Lv.{m.level}</size>";
+            s.name.text = $"{m.name}  <size=28>Lv.{m.level}</size>";
             s.element.color = WildPet.ElementColor(m.element);
             s.elementText.text = m.element ?? "";
             SetBar(s.hp, m.hp / (float)m.maxHp, $"{m.hp}/{m.maxHp}");
@@ -163,8 +163,8 @@ namespace Lingmu.UI
             if (sub) Destroy(sub.gameObject);
             if (playing) return;
             sub = Panel(transform, "sub", Cream, null, true, true).rectTransform.Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-28, 420), new Vector2(860, 420));
-            var title = Label(sub, kind == "snack" ? "喂零食（喜欢的食物：捕捉率 ×1.5）" : kind == "net" ? "扔网" : "换上哪只伙伴？", 28, WoodDark, true); title.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -14), new Vector2(800, 50));
-            var close = Button(sub, "×", WoodDark, Cream, 36, () => Destroy(sub.gameObject), Circle); ((RectTransform)close.transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-10, -10), new Vector2(64, 64));
+            var title = Label(sub, kind == "snack" ? "喂零食（喜欢的食物：捕捉率 ×1.5）" : kind == "net" ? "扔网" : "换上哪只伙伴？", FsBody, WoodDark, true); title.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -14), new Vector2(800, 50));
+            var close = Button(sub, "×", WoodDark, Cream, 44, () => Destroy(sub.gameObject), Circle); ((RectTransform)close.transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-10, -10), new Vector2(TouchMin, TouchMin));
             var grid = Rect("grid", sub).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -76), new Vector2(812, 330));
             var gl = grid.gameObject.AddComponent<GridLayoutGroup>(); gl.cellSize = new Vector2(196, 150); gl.spacing = new Vector2(12, 12); gl.constraint = GridLayoutGroup.Constraint.FixedColumnCount; gl.constraintCount = 4;
             if (kind == "switch")
@@ -172,7 +172,7 @@ namespace Lingmu.UI
                 for (int i = 0; i < b.me.mons.Count; i++)
                 {
                     var m = b.me.mons[i]; int idx = i;
-                    var cell = Button(grid, $"{m.name}\n<size=22>{m.hp}/{m.maxHp}</size>", m.hp > 0 && i != b.me.active ? CreamDark : new Color(0.8f, 0.78f, 0.74f), WoodDark, 26, () => Do(BattleAction.Switch(idx)));
+                    var cell = Button(grid, $"{m.name}\n<size=26>{m.hp}/{m.maxHp}</size>", m.hp > 0 && i != b.me.active ? CreamDark : new Color(0.8f, 0.78f, 0.74f), WoodDark, FsSub, () => Do(BattleAction.Switch(idx)));
                     cell.interactable = m.hp > 0 && (i != b.me.active || b.needSwitch);
                 }
                 return;
@@ -182,7 +182,7 @@ namespace Lingmu.UI
             {
                 var id = st.id;
                 string extra = kind == "net" ? $"成功率 {Mathf.RoundToInt((float)Rules.Battle.CatchChance(b, id) * 100)}%" : PetMath.BaitMultiplier(foeMon.species, id) == 1.5 ? "最爱吃！" : "×1.2";
-                var cell = Button(grid, $"{GameData.Item(id).name} ×{st.count}\n<size=22>{extra}</size>", CreamDark, WoodDark, 24, () => Do(kind == "snack" ? BattleAction.Snack(id) : BattleAction.Catch(id)));
+                var cell = Button(grid, $"{GameData.Item(id).name} ×{st.count}\n<size=26>{extra}</size>", CreamDark, WoodDark, FsMin, () => Do(kind == "snack" ? BattleAction.Snack(id) : BattleAction.Catch(id)));
                 var icon = Rect("icon", cell.transform).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -6), new Vector2(64, 64)).gameObject.AddComponent<Image>();
                 icon.sprite = Icon(id); icon.preserveAspect = true; icon.raycastTarget = false;
                 cell.GetComponentInChildren<TextMeshProUGUI>().margin = new Vector4(4, 62, 4, 4);
@@ -198,6 +198,7 @@ namespace Lingmu.UI
             {
                 string text = Describe(e);
                 if (text != null) log.text = text;
+                PlaySound(e);
                 if (e.t == "damage") { var side = e.side == "me" ? me : foe; SetBar(side.hp, e.hp / (float)e.maxHp, $"{e.hp}/{e.maxHp}"); StartCoroutine(Shake(side.portrait)); }
                 if (e.t == "heal") { var side = e.side == "me" ? me : foe; SetBar(side.hp, e.hp / (float)e.maxHp, $"{e.hp}/{e.maxHp}"); }
                 if (e.t == "send") { Fill(e.side == "me" ? me : foe, Rules.Battle.Active(b, e.side)); }
@@ -211,6 +212,17 @@ namespace Lingmu.UI
             Refresh();
             if (b.over != null) ShowResult();
             else if (b.needSwitch) OpenSub("switch");
+        }
+
+        static void PlaySound(BattleEvent e)
+        {
+            string n = e.t switch
+            {
+                "use" => "swish", "damage" => e.eff == "super" ? "hit_super" : e.eff == "weak" ? "hit_weak" : "hit", "heal" => "heal",
+                "stat" => e.up ? "buff" : "debuff", "faint" => "faint", "throw" => "throw", "escape" => "escape", "caught" => "catch",
+                "send" => "send", "snack" => "eat", "flee" => "flee", _ => null,
+            };
+            if (n != null) GameAudio.Play(n);
         }
 
         string Describe(BattleEvent e)
@@ -257,10 +269,13 @@ namespace Lingmu.UI
             quickBtn.gameObject.SetActive(false);
             var over = b.over;
             var summary = session.FinishBattle();
+            GameAudio.Play(over == "win" || over == "caught" ? "win" : over == "lose" ? "lose" : "flee");
+            if (summary.levelUps.Count > 0) GameAudio.Play("levelup", 0.8f);
             result = Panel(transform, "result", Cream, null, true, true).rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(860, 560));
             var head = Panel(result, "head", over == "lose" ? WoodMid : Grass, null, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f), new Vector2(0, -8), new Vector2(420, 84));
             var ht = Label(head, over switch { "win" => "胜利！", "caught" => "抓到啦！", "flee" => "溜走了", _ => "伙伴们累倒了" }, 40, Color.white, true); ht.rectTransform.Fill();
             var lines = new List<string>();
+            if (summary.firstWin) lines.Add("<color=#c99a1e>今天第一场胜利：经验 ×2！</color>");
             foreach (var (name, amount) in summary.exp) lines.Add($"{name} 经验 +{amount}");
             foreach (var (name, level) in summary.levelUps) lines.Add($"{name} 升到了 Lv.{level}！");
             if (summary.clover > 0) lines.Add($"四叶草 +{summary.clover}");

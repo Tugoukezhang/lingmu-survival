@@ -422,7 +422,7 @@ public class RulesSystemsTests
         c.Ok("捕捉到的宠物保留种类、等级、资质、性格，体力带出（16）", got.species == "acorn" && got.level == 1 && got.stars == 3 && got.nature == "gentle" && got.hp == 16);
         c.Ok("捕捉到的宠物有新的唯一编号，存档合法", got.uid != "acorn-wild" && st.pets.Select(x => x.uid).Distinct().Count() == st.pets.Count && SaveCodec.Validate(st).Count == 0, string.Join(",", SaveCodec.Validate(st)));
         c.Ok("被捕捉的野生宠物记入岛屿记录", st.expedition.changes.pets.Contains("w2"));
-        c.Ok("捕捉成功出战宠物也得经验（按对方等级 8）", sum.exp.Any(x => x.amount == 8));
+        c.Ok("捕捉成功出战宠物也得经验（按对方等级 8；当天第一场胜利 ×2 = 16）", sum.exp.Any(x => x.amount == 16) && sum.firstWin && st.flags.firstWinDay == st.day);
         (st, b) = Setup();
         int n1 = Checks.Count(b.inventory, "item_net_grass");
         b.rng = Checks.Const(0.60);
@@ -440,6 +440,25 @@ public class RulesSystemsTests
         Battle.ResolveTurn(b, BattleAction.Catch("item_net_vine"));
         sum = Battle.Finish(st, b, "w3");
         c.Ok("队伍不满 3 只 → 抓到的宠物直接进队伍", sum.caught.joined && st.party.Count == 2 && st.party[1] == sum.caught.uid);
+        // first win of the day (【建议】 2026-11-21): double exp once a day
+        {
+            var fs = Checks.OnIsland(SaveRules.NewGameState(1, starter: "fox"), 5);
+            BattleSummary Fight()
+            {
+                var fb = Battle.Create(new List<PetInstance> { fs.pets[0] }, new List<PetInstance> { Checks.Pet("acorn", "wild", 2) }, fs.inventory, Checks.Const(0.5));
+                Battle.Active(fb, "foe").hp = 1;
+                Battle.ResolveTurn(fb, BattleAction.Skill("tackle"));
+                return Battle.Finish(fs, fb);
+            }
+            var w1 = Fight(); var w2 = Fight();
+            c.Ok("当天第一场胜利经验 ×2（打倒 Lv2：16 → 32），第二场照常 16", w1.firstWin && w1.exp[0].amount == 32 && !w2.firstWin && w2.exp[0].amount == 16, $"{w1.exp[0].amount} / {w2.exp[0].amount}");
+            fs.day += 1;
+            c.Ok("第二天又有一次双倍", Fight().firstWin);
+            var lost = Battle.Create(new List<PetInstance> { fs.pets[0] }, new List<PetInstance> { Checks.Pet("acorn", "wild") }, fs.inventory, Checks.Const(0.5));
+            Battle.ResolveTurn(lost, BattleAction.Flee());
+            fs.day += 1;
+            c.Ok("溜走不算胜利，不用掉当天的双倍", !Battle.Finish(fs, lost).firstWin && fs.flags.firstWinDay == fs.day - 1);
+        }
 
         var ps = New();
         c.Ok("队伍满 3 只时不能再加入", Party.Join(ps, "pet-shark").reason == "full");

@@ -70,6 +70,7 @@ namespace Lingmu.Rules
         public List<(string name, int amount)> exp = new List<(string, int)>();
         public List<(string name, int level)> levelUps = new List<(string, int)>();
         public CaughtInfo caught;
+        public bool firstWin;   // the first battle won today: exp ×2
     }
 
     public static class Battle
@@ -133,7 +134,7 @@ namespace Lingmu.Rules
         {
             var s = GameData.Skill(skillId);
             if (s.power == 0) return 0;
-            return PetMath.CalcDamage(s.power, StatWithBuffs(attacker, "atk"), StatWithBuffs(defender, "def"), Elements.Multiplier(s.element, defender.element));
+            return PetMath.CalcDamage(s.power, StatWithBuffs(attacker, "atk"), StatWithBuffs(defender, "def"), Elements.Multiplier(s.element, defender.element), 1, PetMath.AvgLevel(attacker.level, defender.level));
         }
 
         static bool HasHeal(SkillDef s) => s.effects != null && s.effects.Any(e => e.type == "heal");
@@ -162,7 +163,7 @@ namespace Lingmu.Rules
             if (s.power > 0)
             {
                 double mult = Elements.Multiplier(s.element, target.element);
-                int dmg = PetMath.CalcDamage(s.power, StatWithBuffs(user, "atk"), StatWithBuffs(target, "def"), mult, PetMath.DamageRoll(b.rng));
+                int dmg = PetMath.CalcDamage(s.power, StatWithBuffs(user, "atk"), StatWithBuffs(target, "def"), mult, PetMath.DamageRoll(b.rng), PetMath.AvgLevel(user.level, target.level));
                 bool bond = false;
                 if (dmg >= target.hp && target.hp > 1 && target.affection >= 100 && !target.bondUsed) { dmg = target.hp - 1; target.bondUsed = true; bond = true; }
                 target.hp = Math.Max(0, target.hp - dmg);
@@ -320,6 +321,8 @@ namespace Lingmu.Rules
         public static BattleSummary Finish(GameState s, BattleState b, string wildId = null)
         {
             var summary = new BattleSummary { result = b.over, clover = b.clover };
+            // the first battle won each day: double exp (flags.firstWinDay remembers the day)
+            if ((b.over == "win" || b.over == "caught") && s.flags.firstWinDay != s.day) { s.flags.firstWinDay = s.day; summary.firstWin = true; }
             if (b.over != "flee") Guide.Bump(s, "battles");
             if (b.over == "caught") Guide.Bump(s, "catches");
             if (b.over == "win" || b.over == "caught") { Guide.Bump(s, "wins"); PetCare.BondFromBattle(s); }
@@ -328,7 +331,7 @@ namespace Lingmu.Rules
                 var inst = s.Pet(m.uid);
                 if (inst == null) continue;
                 inst.hp = m.hp >= m.maxHp ? (int?)null : m.hp;
-                int gained = b.exp.TryGetValue(m.uid, out var g) ? g : 0;
+                int gained = (b.exp.TryGetValue(m.uid, out var g) ? g : 0) * (summary.firstWin ? PetMath.FirstWinExpMult : 1);
                 if (gained > 0)
                 {
                     int ups = PetMath.GainExp(inst, gained);

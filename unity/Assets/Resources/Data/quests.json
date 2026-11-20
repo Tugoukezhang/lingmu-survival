@@ -133,6 +133,30 @@
   {
    "id": "item_torch",
    "price": 15
+  },
+  {
+   "id": "item_furn_chair",
+   "price": 60
+  },
+  {
+   "id": "item_furn_plant",
+   "price": 60
+  },
+  {
+   "id": "item_furn_lamp",
+   "price": 100
+  },
+  {
+   "id": "item_furn_table",
+   "price": 100
+  },
+  {
+   "id": "item_furn_rug",
+   "price": 120
+  },
+  {
+   "id": "item_furn_shelf",
+   "price": 140
   }
  ],
  "SHOP_BOOKS": [

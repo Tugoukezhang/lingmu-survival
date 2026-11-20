@@ -110,6 +110,10 @@ namespace Lingmu.Rules
         // ---------- experience ----------
         public static int ExpToNext(int level) => 20 * level;
         public static int ExpForKO(int enemyLevel) => 8 * enemyLevel;
+        // 【建议】 2026-11-21: feeding and a day of work each give a tenth of a level (pets grow while you are away)
+        public static int CareExp(int level) => 2 * level;
+        // 【建议】 2026-11-21: the first battle won each day gives double exp
+        public const int FirstWinExpMult = 2;
 
         // adds exp, levels up as many times as needed; returns the number of levels gained
         public static int GainExp(PetInstance pet, int amount)
@@ -132,14 +136,20 @@ namespace Lingmu.Rules
 
         // ---------- battle ----------
         public static double DamageRoll(Func<double> rng) => 0.9 + rng() * 0.2;
-        // damage = floor(power × atk ÷ def × 0.4 × matchup × rand(0.9–1.1)) + 1
-        public static int CalcDamage(int power, double atk, double def, double mult = 1, double rand = 1) => power == 0 ? 0 : IFloor(power * atk / def * 0.4 * mult * rand) + 1;
+        // damage = floor(power × atk ÷ def × 0.4 × matchup × rand(0.9–1.1) × level growth) + 1
+        // level growth = 1 + 0.08 × (average level of the two pets − 4), at least 1. HP grows by the same 0.08 a level, so
+        // from the starter level (4) on a same-level fight keeps taking about 3 hits instead of dragging on later; below
+        // that nothing changes, so the day-1 balance stays as it was (【建议】 2026-11-21, docs/02 第 2 节)
+        public const int LevelMultFrom = 4;   // = the starter level
+        public static double LevelMult(double level = 1) => 1 + BaseGrowth * Math.Max(0, level - LevelMultFrom);
+        public static double AvgLevel(int a, int b) => (a + b) / 2.0;
+        public static int CalcDamage(int power, double atk, double def, double mult = 1, double rand = 1, double level = 1) => power == 0 ? 0 : IFloor(power * atk / def * 0.4 * mult * rand * LevelMult(level)) + 1;
 
         public static int SkillDamage(PetInstance attacker, PetInstance defender, string skillId, double rand = 1, int? atk = null, int? def = null)
         {
             var s = GameData.Skill(skillId);
             int a = atk ?? CalcStats(attacker, true).atk, d = def ?? CalcStats(defender, true).def;
-            return CalcDamage(s.power, a, d, Elements.Multiplier(s.element, GameData.Species(defender.species).element), rand);
+            return CalcDamage(s.power, a, d, Elements.Multiplier(s.element, GameData.Species(defender.species).element), rand, AvgLevel(attacker.level, defender.level));
         }
 
         // ---------- catching ----------
