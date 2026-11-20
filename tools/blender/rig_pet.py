@@ -30,7 +30,8 @@ base = os.path.splitext(os.path.basename(out))[0]
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sc = bpy.context.scene
 sc.render.fps = 24
-bpy.ops.import_scene.gltf(filepath=src)
+if src.lower().endswith('.fbx'): bpy.ops.import_scene.fbx(filepath=src)     # unrigged FBX (the NPCs)
+else: bpy.ops.import_scene.gltf(filepath=src)
 
 def select(*objs, active=None):
     for o in bpy.data.objects: o.select_set(o in objs)
@@ -46,6 +47,7 @@ for o in list(bpy.data.objects):
     if o is not body: bpy.data.objects.remove(o, do_unlink=True)
 body.parent = None
 body.data.transform(body.matrix_world); body.matrix_world = Matrix.Identity(4)
+body.vertex_groups.clear(); body.modifiers.clear()      # an FBX rigged elsewhere brings its old weights and armature binding
 co = np.array([v.co[:] for v in body.data.vertices])
 lo, hi = co.min(0), co.max(0)
 s = 1.0 / (hi[2] - lo[2])

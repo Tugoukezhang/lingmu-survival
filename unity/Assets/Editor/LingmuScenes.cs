@@ -15,7 +15,7 @@ public static class LingmuScenes
     public static void BuildAll()
     {
         // models whose import settings or files changed: import them again (player texture name, pets as Generic)
-        foreach (var f in new[] { "A01_player_rig", "A00_fox_rig", "A02_pup_rig", "A03_acorn_rig", "A04_shark_rig", "A05_starbear_rig", "A06_shadecat_rig" }) AssetDatabase.ImportAsset($"{Chars}{f}/{f}.fbx", ImportAssetOptions.ForceUpdate);
+        foreach (var f in new[] { "A01_player_rig", "A00_fox_rig", "A02_pup_rig", "A03_acorn_rig", "A04_shark_rig", "A05_starbear_rig", "A06_shadecat_rig", "B01_npc_granny", "B02_npc_ali", "B03_npc_lumi" }) AssetDatabase.ImportAsset($"{Chars}{f}/{f}.fbx", ImportAssetOptions.ForceUpdate);
         LingmuModelImport.FixClips();
         UpdateLibrary();
         BuildTitle();
@@ -75,7 +75,11 @@ public static class LingmuScenes
             Place(props, Props + (h.npc == "granny" ? "C02_bld_shop_granny" : h.npc == "ali" ? "C03_bld_workshop" : "C04_bld_lab"), h.x + h.w / 2f - 0.5f, h.y + h.h / 2f - 0.5f, 4.6f, Fit.Width, h.yaw);
             for (int y = h.y; y < h.y + h.h; y++) for (int x = h.x; x < h.x + h.w; x++) walk.Block(x, y);
             var who = h.npc == "granny" ? "B01_npc_granny" : h.npc == "ali" ? "B02_npc_ali" : "B03_npc_lumi";
-            Place(props, Chars + who, h.sx, h.sy, 1.3f, Fit.Height, h.y < H / 2 ? 0 : 180);
+            // residents (rigged in Blender, facing +Z): face the plaza, breathe and look about, turn to the player nearby
+            var npc = Place(props, Chars + who, h.sx, h.sy, 1.3f, Fit.Height, h.y < H / 2 ? 180 : 0);
+            var npcAnim = npc.GetComponentInChildren<Animator>() ?? npc.AddComponent<Animator>();
+            npcAnim.runtimeAnimatorController = Locomotion(Chars + who); npcAnim.applyRootMotion = false;
+            npc.AddComponent<NpcIdle>();
             walk.Block(h.sx, h.sy);
         }
         var fountain = Place(props, Props + "C06_fountain", plaza.x - 0.5f, plaza.y - 0.5f, 2.2f, Fit.Width, 0);

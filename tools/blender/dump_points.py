@@ -4,7 +4,8 @@
 import bpy, sys, numpy as np
 src, out = sys.argv[sys.argv.index('--') + 1:][:2]
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.gltf(filepath=src)
+if src.lower().endswith('.fbx'): bpy.ops.import_scene.fbx(filepath=src)
+else: bpy.ops.import_scene.gltf(filepath=src)
 meshes = [o for o in bpy.data.objects if o.type == 'MESH']
 pts, cols = [], []
 for o in meshes:

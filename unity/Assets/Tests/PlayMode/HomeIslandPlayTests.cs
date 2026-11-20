@@ -210,6 +210,8 @@ public class HomeIslandPlayTests
         Assert.AreEqual(6 * 60 + 10, s.S.clock, "过吊桥 10 分钟");
         Shot("town");
         var granny = TownArea.Houses[0];
+        Stand(HomeIslandLayout.TileToWorld(granny.sx, granny.sy + 2.5f)); yield return new WaitForSeconds(1.2f);   // she turns to look at the player
+        Shot("town_granny");
         Stand(HomeIslandLayout.TileToWorld(granny.sx, granny.sy + 1)); yield return null;
         Assert.AreEqual("npc", s.CurrentSpot()?.kind, "站在铃奶奶面前：聊天");
         ui.OpenNpc("granny"); yield return null;

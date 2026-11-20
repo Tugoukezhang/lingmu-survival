@@ -16,9 +16,9 @@ namespace Lingmu.Game
         public struct House { public string npc, model, sign; public int x, y, w, h, sx, sy; public float yaw; }
         public static readonly House[] Houses =
         {
-            new House { npc = "granny", model = "bld_shop_granny", sign = "铃奶奶杂货铺", x = 7, y = 4, w = 5, h = 3, sx = 9, sy = 8, yaw = 270 },
-            new House { npc = "ali", model = "bld_workshop", sign = "阿栗木工坊", x = 21, y = 4, w = 5, h = 3, sx = 23, sy = 8, yaw = 270 },
-            new House { npc = "lumi", model = "bld_lab", sign = "露米宠物研究所", x = 14, y = 15, w = 5, h = 3, sx = 16, sy = 13, yaw = 90 },
+            new House { npc = "granny", model = "bld_shop_granny", sign = "铃奶奶杂货铺", x = 7, y = 4, w = 5, h = 3, sx = 9, sy = 8, yaw = 90 },
+            new House { npc = "ali", model = "bld_workshop", sign = "阿栗木工坊", x = 21, y = 4, w = 5, h = 3, sx = 23, sy = 8, yaw = 90 },
+            new House { npc = "lumi", model = "bld_lab", sign = "露米宠物研究所", x = 14, y = 15, w = 5, h = 3, sx = 16, sy = 13, yaw = 270 },
         };
 
         public IslandWalkMap walk;

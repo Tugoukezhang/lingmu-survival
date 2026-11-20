@@ -15,11 +15,13 @@ public class LingmuModelImport : AssetPostprocessor
     // 3: pets re-rigged in Blender (tools/blender/rig_pet.py): idle / walk / run / happy clips, "happy" loops
     // 4: the player too (two-legged clips), so A01 is Generic as well
     // 5: model textures 4096 on PC with Kaiser mips, mip bias and 8x aniso (2048 on phones / web)
-    public override uint GetVersion() => 5;
+    // 6: town residents rigged in Blender (Generic, idle clips)
+    public override uint GetVersion() => 6;
 
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
-    // pets and the player (A0x) are rigged by tools/blender/rig_pet.py with their own skeleton: Generic; Tripo-rigged NPCs: Humanoid
-    static bool IsOwnRig(string p) => p.StartsWith("Assets/Art/Characters/A0") && !p.Contains("_unrigged");
+    // pets, the player and the town residents are rigged by tools/blender/rig_pet.py with their own skeleton: Generic;
+    // the rest (Tripo-rigged, e.g. the innkeeper): Humanoid
+    static bool IsOwnRig(string p) => (p.StartsWith("Assets/Art/Characters/A0") || p.StartsWith("Assets/Art/Characters/B01_") || p.StartsWith("Assets/Art/Characters/B02_") || p.StartsWith("Assets/Art/Characters/B03_")) && !p.Contains("_unrigged");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
     static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "happy" };
 

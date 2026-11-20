@@ -20,7 +20,7 @@ public static class SceneKit
     public const string Props = "Assets/Art/Props/";
     public const string Chars = "Assets/Art/Characters/";
     public const string Gen = "Assets/Generated";
-    public const float FrontSouth = 270;   // Tripo props face -X after import; turned 270° their front looks south
+    public const float FrontSouth = 90;    // Tripo props face +X after import (measured from where their porches / awnings lean); turned 90° their front looks south
     public static readonly string[] BuildOrder = { "Title", "HomeIsland", "Expedition", "Town", "House" };
 
     public enum Fit { Width, Height }
@@ -301,7 +301,7 @@ public static class SceneKit
         ("bld_shop_granny", Props + "C02_bld_shop_granny", false), ("bld_workshop", Props + "C03_bld_workshop", false), ("bld_lab", Props + "C04_bld_lab", false),
         ("pet_acorn", Chars + "A03_acorn_rig", true), ("pet_shark", Chars + "A04_shark_rig", true), ("pet_starbear", Chars + "A05_starbear_rig", true),
         ("pet_shadecat", Chars + "A06_shadecat_rig", true), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "A00_fox_rig", true),
-        ("npc_granny", Chars + "B01_npc_granny", false), ("npc_ali", Chars + "B02_npc_ali", false), ("npc_lumi", Chars + "B03_npc_lumi", false), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
+        ("npc_granny", Chars + "B01_npc_granny", true), ("npc_ali", Chars + "B02_npc_ali", true), ("npc_lumi", Chars + "B03_npc_lumi", true), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
         ("player", Chars + "A01_player_rig", true),
     };
 

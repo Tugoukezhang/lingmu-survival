@@ -75,7 +75,7 @@ namespace Lingmu.Game
                 };
                 things[r.id] = g;
             }
-            foreach (var c in isl.chests) things[c.id] = ModelLibrary.Place("chest", props, W(c.tx, c.ty), c.bonus ? 1.05f : 0.85f, false, 270);
+            foreach (var c in isl.chests) things[c.id] = ModelLibrary.Place("chest", props, W(c.tx, c.ty), c.bonus ? 1.05f : 0.85f, false, 90);
             foreach (var t in isl.thorns) things[t.id] = ModelLibrary.Place("thorn", props, W(t.tx, t.ty), 0.95f, true, Hash(t.id, isl.seed) % 360);
             ModelLibrary.Place("airship", props, W(isl.airship.tx, isl.airship.ty + 1.8f) + Vector3.down * 1.6f, 3.0f, false, 90);   // floats just off the south edge, below the landing
             for (int i = 0; i < isl.pets.Count; i++)
@@ -225,7 +225,7 @@ namespace Lingmu.Game
             if (!r.ok) { g.Say(r.reason == "full" ? "背包满了，先腾出位置再开" : "已经打开过了"); return; }
             g.Say("宝箱里有：" + string.Join("、", r.loot.items.Select(kv => $"{GameData.Item(kv.Key).name} ×{kv.Value}")) + $"，四叶草 +{r.loot.clover}");
             Island = IslandGen.ApplyChanges(Island, S.expedition.changes);
-            if (things.TryGetValue(c.id, out var old)) { var at = old.transform.position; var rot = old.transform.rotation; Destroy(old); things[c.id] = ModelLibrary.Place("chest_open", props, at, c.bonus ? 1.05f : 0.85f, false, 270); }
+            if (things.TryGetValue(c.id, out var old)) { var at = old.transform.position; var rot = old.transform.rotation; Destroy(old); things[c.id] = ModelLibrary.Place("chest_open", props, at, c.bonus ? 1.05f : 0.85f, false, 90); }
             RefreshBlocking();
             g.Save();
         }

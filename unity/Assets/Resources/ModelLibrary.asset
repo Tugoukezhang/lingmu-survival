@@ -78,13 +78,13 @@ MonoBehaviour:
     animator: {fileID: 9100000, guid: 929dc4a3df38cd546aff6f4af5437538, type: 2}
   - key: npc_granny
     model: {fileID: 919132149155446097, guid: 33d758efdd3ecbd47b2355a801c22557, type: 3}
-    animator: {fileID: 0}
+    animator: {fileID: 9100000, guid: b36400484a63d734da4a9fffb9113f46, type: 2}
   - key: npc_ali
     model: {fileID: 919132149155446097, guid: c6a333ee3b41b1f4fb01b08e8ff25512, type: 3}
-    animator: {fileID: 0}
+    animator: {fileID: 9100000, guid: a0a4be16a10ec7747bb78672dcf54ada, type: 2}
   - key: npc_lumi
     model: {fileID: 919132149155446097, guid: 628ea4db5327d6043830e540eee936b6, type: 3}
-    animator: {fileID: 0}
+    animator: {fileID: 9100000, guid: a2b9c6becbf715d45bff91ad17d3c5e2, type: 2}
   - key: npc_innkeeper
     model: {fileID: 919132149155446097, guid: ead702dfbf136b648aae4f6203001f57, type: 3}
     animator: {fileID: 9100000, guid: 553fa15b1e6f0d149a5e5ff90bc1464e, type: 2}
