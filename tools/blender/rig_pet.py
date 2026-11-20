@@ -502,6 +502,8 @@ for i, img in enumerate([im for im in bpy.data.images if im.type == 'IMAGE']):
     img.save()
     if img.packed_file: img.unpack(method='REMOVE')
     img.filepath = path
+    if i == 0 and LM.get('texture'):                            # a texture improved elsewhere (same UVs), e.g. by tools/blender/texture_views.py
+        import shutil; shutil.copyfile(os.path.join(os.path.dirname(script), '..', '..', LM['texture']), path); img.reload()
 
 if render_dir:
     os.makedirs(render_dir, exist_ok=True)

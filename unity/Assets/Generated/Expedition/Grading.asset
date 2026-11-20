@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9042204945778898321
+--- !u!114 &-8161814722966689482
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -28,7 +28,7 @@ MonoBehaviour:
   saturation:
     m_OverrideState: 1
     m_Value: 14
---- !u!114 &-6582590010207459876
+--- !u!114 &-637026401634659897
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -91,11 +91,11 @@ MonoBehaviour:
   m_Name: Grading
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.VolumeProfile
   components:
-  - {fileID: -6582590010207459876}
-  - {fileID: 9198314113110057358}
-  - {fileID: -9042204945778898321}
-  - {fileID: 4362962352888273794}
---- !u!114 &4362962352888273794
+  - {fileID: -637026401634659897}
+  - {fileID: 8139698178300012476}
+  - {fileID: -8161814722966689482}
+  - {fileID: 7688243930946747813}
+--- !u!114 &7688243930946747813
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -123,7 +123,7 @@ MonoBehaviour:
   rounded:
     m_OverrideState: 1
     m_Value: 0
---- !u!114 &9198314113110057358
+--- !u!114 &8139698178300012476
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}

@@ -60,7 +60,7 @@ if __name__ == '__main__':
         open(out, 'w', encoding='utf-8').write(text); print('review written', out, usage)
     elif cmd == 'edit':
         img = sys.argv[4]; files = [('image', img)] + ([('mask', sys.argv[5])] if len(sys.argv) > 5 else [])
-        usage = save_image(post_form('/v1/images/edits', {'model': IMAGE_MODEL, 'prompt': prompt, 'quality': 'high', 'input_fidelity': 'high', 'size': 'auto'}, files), out)
+        usage = save_image(post_form('/v1/images/edits', {'model': IMAGE_MODEL, 'prompt': prompt, 'quality': 'high', 'size': 'auto'}, files), out)
         print('image written', out, usage)
     elif cmd == 'make':
         size = sys.argv[4] if len(sys.argv) > 4 else '1024x1024'
