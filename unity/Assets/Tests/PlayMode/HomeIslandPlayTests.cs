@@ -34,23 +34,57 @@ public class HomeIslandPlayTests
         try { Directory.Delete(saveDir, true); } catch { }
     }
 
+    // The game draws its UI as an overlay after the camera's colour grading. Rendering the canvas through the 3D camera
+    // (the old way) graded the UI too and made every panel look grey. Now the scene is rendered on its own, the UI is
+    // rendered by a plain camera once over black and once over white, and the two give each pixel's colour and
+    // coverage exactly, so the UI is laid over the scene the way the player sees it.
     static void Shot(string name, Canvas canvas = null)
     {
         if (!Directory.Exists(ShotDir)) return;
         canvas ??= Object.FindAnyObjectByType<GameUI>()?.canvas;
-        var cam = Camera.main;
-        var rt = new RenderTexture(1600, 900, 24);
-        var mode = canvas ? canvas.renderMode : RenderMode.ScreenSpaceOverlay;
-        if (canvas) { canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 1; }
+        const int W = 1600, H = 900;
+        var px = Grab(Camera.main, W, H);
+        if (canvas)
+        {
+            var mode = canvas.renderMode;
+            var ui = new GameObject("shot ui camera").AddComponent<Camera>();
+            ui.enabled = false; ui.cullingMask = 1 << canvas.gameObject.layer; ui.clearFlags = CameraClearFlags.SolidColor; ui.orthographic = true;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = ui; canvas.planeDistance = 1;
+            ui.backgroundColor = Color.black; var onBlack = Grab(ui, W, H);
+            ui.backgroundColor = Color.white; var onWhite = Grab(ui, W, H);
+            canvas.renderMode = mode;
+            Object.DestroyImmediate(ui.gameObject);
+            bool linear = QualitySettings.activeColorSpace == ColorSpace.Linear;
+            var toLin = new float[256]; for (int i = 0; i < 256; i++) toLin[i] = linear ? Mathf.GammaToLinearSpace(i / 255f) : i / 255f;
+            byte ToByte(float v) => (byte)Mathf.Clamp(Mathf.RoundToInt((linear ? Mathf.LinearToGammaSpace(Mathf.Clamp01(v)) : v) * 255), 0, 255);
+            for (int i = 0; i < px.Length; i++)
+            {
+                Color32 b = onBlack[i], w = onWhite[i], s = px[i];
+                if (b.r == 0 && b.g == 0 && b.b == 0 && w.r == 255 && w.g == 255 && w.b == 255) continue;   // no UI here
+                float cover = 1 - ((toLin[w.r] - toLin[b.r]) + (toLin[w.g] - toLin[b.g]) + (toLin[w.b] - toLin[b.b])) / 3f;
+                float k = 1 - Mathf.Clamp01(cover);
+                px[i] = new Color32(ToByte(toLin[b.r] + toLin[s.r] * k), ToByte(toLin[b.g] + toLin[s.g] * k), ToByte(toLin[b.b] + toLin[s.b] * k), 255);
+            }
+        }
+        var tex = new Texture2D(W, H, TextureFormat.RGB24, false);
+        tex.SetPixels32(px); tex.Apply();
+        File.WriteAllBytes(Path.Combine(ShotDir, $"ui_{name}.png"), tex.EncodeToPNG());
+        Object.Destroy(tex);
+    }
+
+    static Color32[] Grab(Camera cam, int w, int h)
+    {
+        var rt = new RenderTexture(w, h, 24);
         cam.targetTexture = rt;
         Canvas.ForceUpdateCanvases();
         for (int i = 0; i < 4; i++) cam.Render();   // first frames on this PC can come out with the wrong textures
         RenderTexture.active = rt;
-        var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
-        tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0); tex.Apply();
-        File.WriteAllBytes(Path.Combine(ShotDir, $"ui_{name}.png"), tex.EncodeToPNG());
+        var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+        tex.ReadPixels(new Rect(0, 0, w, h), 0, 0); tex.Apply();
         RenderTexture.active = null; cam.targetTexture = null; rt.Release();
-        if (canvas) canvas.renderMode = mode;
+        var px = tex.GetPixels32();
+        Object.Destroy(tex);
+        return px;
     }
 
     static IEnumerator Frames(int n) { for (int i = 0; i < n; i++) yield return null; }
@@ -121,6 +155,17 @@ public class HomeIslandPlayTests
         Assert.AreEqual(clock, s.S.clock, "打开背包时时间暂停");
         Shot("bag");
         ui.Close();
+        // storage: tap a stack in the chest and it comes back to the bag; shipping box; seed stand
+        s.S.storage = new System.Collections.Generic.List<ItemStack> { new ItemStack("item_wood", 12), new ItemStack("item_stone", 6), new ItemStack("item_crystal", 2) };
+        int wood = Inventory.CountOf(s.S.inventory, "item_wood");
+        ui.Open("storage"); yield return null; Shot("storage");
+        Object.FindObjectsByType<Button>(FindObjectsSortMode.None).First(x => x.name == "slot item_wood" && x.GetComponentInParent<ScrollRect>().name == "grid chest").onClick.Invoke();
+        yield return null;
+        Assert.AreEqual(wood + 12, Inventory.CountOf(s.S.inventory, "item_wood"), "仓库：点一格，整堆木材回到背包");
+        ui.Close();
+        s.Ship("item_berry", 2);
+        ui.Open("ship"); yield return null; Shot("ship"); ui.Close();
+        ui.Open("seeds"); yield return null; Shot("seeds"); ui.Close();
         // partner panel: the three tabs, learning from a skill book, the dex
         s.S.inventory.Add(new ItemStack("item_book_puff", 1));
         ui.OpenParty("care"); yield return null; Shot("party");
@@ -234,6 +279,7 @@ public class HomeIslandPlayTests
         Assert.AreEqual(1, Town.FriendOf(s.S, "granny"), "第一次聊天好感 +1");
         Shot("town_npc");
         ui.Close();
+        ui.Open("shop"); yield return null; Shot("shop"); ui.Close();
         s.GoTo("home"); yield return WaitArea("home");
         GameSession.I.GoTo("house"); yield return WaitArea("house");
         s = GameSession.I;

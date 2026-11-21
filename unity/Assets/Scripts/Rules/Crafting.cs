@@ -69,6 +69,27 @@ namespace Lingmu.Rules
             s.storage = left;
             return (n, left.Count);
         }
+
+        // 仓库 panel: tap a slot to move that whole stack to the other side
+        public static Res Deposit(GameState s, string id)
+        {
+            s.storage ??= new List<ItemStack>();
+            int n = Inventory.CountOf(s.inventory, id);
+            if (n == 0) return Res.No("none");
+            Inventory.RemoveItem(s.inventory, id, n);
+            Inventory.AddItem(s.storage, id, n, int.MaxValue);
+            return Res.Ok();
+        }
+
+        public static Res Withdraw(GameState s, string id, int slots)
+        {
+            s.storage ??= new List<ItemStack>();
+            int n = Inventory.CountOf(s.storage, id);
+            if (n == 0) return Res.No("none");
+            if (!Inventory.AddItem(s.inventory, id, n, slots)) return Res.No("full");
+            Inventory.RemoveItem(s.storage, id, n);
+            return Res.Ok();
+        }
     }
 
     public static class Crafting

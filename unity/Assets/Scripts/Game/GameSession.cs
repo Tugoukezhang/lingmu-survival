@@ -387,20 +387,30 @@ namespace Lingmu.Game
             return r.ok;
         }
 
-        public bool BuySeed(string cropId)
+        public bool BuySeed(string cropId, int n = 1)
         {
-            var r = Farm.BuySeed(S, cropId);
+            var r = Farm.BuySeed(S, cropId, n);
             if (r.ok) Sfx("coin");
-            Say(r.ok ? $"买了 1 包{GameData.Item(GameData.Crops[cropId].seed).name}（四叶草 −{r.cost}）" : r.reason == "clover" ? "四叶草不够" : "背包满了");
+            Say(r.ok ? $"买了 {n} 包{GameData.Item(GameData.Crops[cropId].seed).name}（四叶草 −{r.cost}）" : r.reason == "clover" ? "四叶草不够" : "背包满了");
             AfterAction();
             return r.ok;
         }
 
-        public bool Ship(string itemId)
+        // the general store (风铃小镇杂货铺)
+        public bool Buy(string itemId, int n = 1)
         {
-            var r = Farm.Ship(S, itemId, 1);
+            var r = Town.Buy(S, itemId, n);
             if (r.ok) Sfx("coin");
-            Say(r.ok ? $"放进出货箱：{GameData.Item(itemId).name}（明早 +{Farm.PriceOf(itemId)}）" : "这个不能出货");
+            Say(r.ok ? $"买了{GameData.Item(itemId).name} ×{n}（四叶草 −{r.cost}）" : r.reason == "clover" ? "四叶草不够" : r.reason == "full" ? "背包满了" : "今天没有卖这个");
+            AfterAction();
+            return r.ok;
+        }
+
+        public bool Ship(string itemId, int n = 1)
+        {
+            var r = Farm.Ship(S, itemId, n);
+            if (r.ok) Sfx("coin");
+            Say(r.ok ? $"放进出货箱：{GameData.Item(itemId).name} ×{n}（明早 +{Farm.PriceOf(itemId) * n}）" : "这个不能出货");
             AfterAction();
             return r.ok;
         }
@@ -411,6 +421,20 @@ namespace Lingmu.Game
         {
             int n = Explore.DepositAll(S, id => (GameData.Item(id)?.tool ?? false) || GameData.Item(id)?.food != null);
             Say(n > 0 ? $"存进仓库 {n} 格（工具和食物留在身上）" : "没有要存的东西");
+            AfterAction();
+        }
+
+        public void Deposit(string itemId)
+        {
+            var r = Explore.Deposit(S, itemId);
+            if (r.ok) Sfx("pick");
+            AfterAction();
+        }
+
+        public void Withdraw(string itemId)
+        {
+            var r = Explore.Withdraw(S, itemId, Crafting.BagSlots(S));
+            if (r.ok) Sfx("pick"); else if (r.reason == "full") Say("背包满了");
             AfterAction();
         }
 

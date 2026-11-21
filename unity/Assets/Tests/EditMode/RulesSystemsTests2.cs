@@ -175,6 +175,12 @@ public class RulesSystemsTests2
         c.Ok("全部存入：工具和食物留在身上", n > 0 && s3.inventory.All(x => Keep(x.id)));
         var w = Explore.WithdrawAll(s3, Crafting.BagSlots(s3));
         c.Ok("全部取回：放得下的拿回来，放不下的留在仓库", s3.inventory.Count <= 20 && w.took > 0 && (w.left == 0 || s3.inventory.Count == 20));
+        var s4 = New(); s4.inventory = Checks.Inv(("item_wood", 7), ("item_stone", 2)); s4.storage = Checks.Inv(("item_wood", 3));
+        c.Ok("点一格存入：整堆木材进仓库，和原有的合并", Explore.Deposit(s4, "item_wood").ok && Inventory.CountOf(s4.inventory, "item_wood") == 0 && Inventory.CountOf(s4.storage, "item_wood") == 10 && s4.storage.Count == 1);
+        c.Ok("背包里没有的东西存不进", !Explore.Deposit(s4, "item_wood").ok);
+        c.Ok("点一格取回：整堆回到背包", Explore.Withdraw(s4, "item_wood", 20).ok && Inventory.CountOf(s4.inventory, "item_wood") == 10 && s4.storage.Count == 0);
+        s4.storage = Checks.Inv(("item_crystal", 1));
+        c.Ok("背包满了取不回，仓库里的还在", Explore.Withdraw(s4, "item_crystal", 2).reason == "full" && Inventory.CountOf(s4.storage, "item_crystal") == 1);
         c.Done();
     }
 

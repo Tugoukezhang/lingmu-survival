@@ -1,5 +1,6 @@
 // The partner panel (伙伴) with three tabs — 照顾 (care, party, work), 技能 (skills and skill books) and 养成
 // (evolution, stars, human form) — and the pet dex (图鉴). Rules live in Lingmu.Rules (PetCare, Party, Growth).
+// Look (docs/19 伙伴 / 图鉴): pet cards with element badges and painted stars, stat bars, skill cards, a tick checklist.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Lingmu.UI
             Open("party");
         }
 
-        static string Ok(bool ok) => ok ? "<color=#4f7d3a>√</color>" : "<color=#e8604c>×</color>";
+        static readonly Color Muted = Hex("8a7458");
 
         Image Art(RectTransform parent, Sprite sprite, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
         {
@@ -49,61 +50,78 @@ namespace Lingmu.UI
             return content;
         }
 
+        // a pill button with a painted icon left of its word (tabs, care actions)
+        Button IconPill(RectTransform parent, string label, Sprite icon, Color bg, bool on, Action act, float width)
+        {
+            var b = Button(parent, label, on ? bg : Cream, WoodDark, FsSub, act);
+            ((RectTransform)b.transform).sizeDelta = new Vector2(width, TouchMin);
+            if (icon)
+            {
+                var img = Rect("icon", b.transform).Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 4), new Vector2(46, 46)).gameObject.AddComponent<Image>();
+                img.sprite = icon; img.preserveAspect = true; img.raycastTarget = false;
+                b.GetComponentInChildren<TextMeshProUGUI>().rectTransform.offsetMin = new Vector2(64, 10);
+            }
+            return b;
+        }
+
         // ---------- partners ----------
         void FillParty()
         {
             var s = session.S;
             var b = NewBox("伙伴", new Vector2(1660, 920));
             if (selectedPet == null || s.Pet(selectedPet) == null) { selectedPet = s.party.FirstOrDefault() ?? s.pets.FirstOrDefault()?.uid; pendingBook = null; }
-            var dex = Button(b, $"图鉴 {Growth.DexCount(s)}/{GameData.Pets.Count}", Sky, Color.white, FsSub, () => Open("dex"));
-            ((RectTransform)dex.transform).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(36, -10), new Vector2(230, TouchMin));
+            var dex = IconPill(b, $"图鉴 {Growth.DexCount(s)}/{GameData.Pets.Count}", Kit("hud_dex"), Cream, true, () => Open("dex"), 240);
+            ((RectTransform)dex.transform).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(36, -12), new Vector2(240, TouchMin));
 
-            // left: everyone (party first)
-            var list = ScrollList(b, new Vector2(36, -110), new Vector2(540, 776));
-            foreach (var p in s.pets.OrderBy(p => s.party.Contains(p.uid) ? s.party.IndexOf(p.uid) : 99))
+            // left: the party first, then the pets at home
+            var list = ScrollList(b, new Vector2(36, -112), new Vector2(540, 774));
+            void Header(string text)
             {
-                var uid = p.uid;
-                bool sel = uid == selectedPet, inParty = s.party.Contains(uid);
-                var row = Panel(list, "row", sel ? Yellow : CreamDark, RoundSmall, true).rectTransform; row.sizeDelta = new Vector2(0, 124);
-                row.gameObject.AddComponent<Button>().onClick.AddListener(() => { if (selectedPet != uid) pendingBook = null; selectedPet = uid; FillParty(); });
-                Art(row, PetSprite(p), new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(10, 0), new Vector2(104, 104));
-                var n = Label(row, $"{PetMath.DisplayName(p)}  <size=28>Lv.{p.level}</size>", FsBody, WoodDark, true, TextAlignmentOptions.Left); n.rectTransform.Fill(); n.rectTransform.offsetMin = new Vector2(126, 60); n.rectTransform.offsetMax = new Vector2(-10, -6);
-                string state = inParty ? (s.party[0] == uid ? "领队" : "队伍中") : p.job ? "打工中" : "在家";
-                var chip = Chip(row, state, inParty ? Grass : p.job ? Orange : Hex("b8a07e"), 100, 42); chip.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(126, 12), new Vector2(100, 42));
-                var d = Label(row, $"<color=#e0a020>{new string('★', p.stars)}</color>{(p.shiny ? "  <color=#b07ad0>异色</color>" : "")}", FsSub, Ink, false, TextAlignmentOptions.Left); d.rectTransform.Fill(); d.rectTransform.offsetMin = new Vector2(240, 8); d.rectTransform.offsetMax = new Vector2(-10, -66);
-                if (Attention(s, p)) Panel(row, "dot", Red, Circle, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-10, -10), new Vector2(24, 24));
+                var h = Rect("header", list); h.sizeDelta = new Vector2(0, 44);
+                var t = Label(h, text, FsSub, Muted, true, TextAlignmentOptions.BottomLeft); t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(10, 4);
             }
+            var party = s.party.Select(s.Pet).Where(p => p != null).ToList();
+            var home = s.pets.Where(p => !s.party.Contains(p.uid)).ToList();
+            Header($"队伍 {party.Count}/{SaveRules.PartyMax}");
+            foreach (var p in party) PetRow(list, s, p);
+            if (home.Count > 0) { Header($"在家 {home.Count}"); foreach (var p in home) PetRow(list, s, p); }
 
             var pet = s.Pet(selectedPet);
             if (pet == null) return;
             var sp = GameData.Species(pet.species);
-            var info = Panel(b, "info", CreamDark, null, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-36, -110), new Vector2(1028, 776));
+            var info = Panel(b, "info", CreamDark, null, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-36, -112), new Vector2(1028, 774));
 
             // header: art, name, element, nature, stars, exp and affection bars
-            Art(info, PetSprite(pet), new Vector2(0, 1), new Vector2(0, 1), new Vector2(14, -10), new Vector2(230, 230));
+            var well = Panel(info, "well", Hex("f6efe0"), FlatCircle, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -14), new Vector2(226, 226));
+            Art(well, PetSprite(pet), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(212, 212));
             var name = Label(info, $"{PetMath.DisplayName(pet)}  <size=32>Lv.{pet.level}</size>", FsTitle + 4, WoodDark, true, TextAlignmentOptions.Left);
-            name.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(262, -14), new Vector2(740, 60));
+            name.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(266, -12), new Vector2(740, 64));
+            KitImage(info, ElementBadge(sp.element), 48).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(266, -78), new Vector2(48, 48));
+            Chip(info, sp.element + "属性", ElementColor(sp.element), 112, 44).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(320, -80), new Vector2(112, 44));
             var nat = GameData.Natures.TryGetValue(pet.nature ?? "gentle", out var nd) ? nd : null;
-            Chip(info, sp.element + "属性", ElementColor(sp.element), 120, 46).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(262, -80), new Vector2(120, 46));
-            var tags = Label(info, $"{nat?.name}　<color=#e0a020>{new string('★', pet.stars)}</color><color=#cdbb98>{new string('★', 5 - pet.stars)}</color>{(pet.shiny ? "　<color=#b07ad0>异色</color>" : "")}", FsSub, Ink, false, TextAlignmentOptions.Left);
-            tags.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(398, -78), new Vector2(600, 50));
-            Label(info, "经验", FsSub, Ink, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(262, -140), new Vector2(80, 40));
-            var expBar = MakeBar(info, "exp", Sky); expBar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(346, -142), new Vector2(560, 36));
+            if (nat != null) Chip(info, nat.name, Hex("e4d6bb"), 96, 44).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(444, -80), new Vector2(96, 44));
+            Stars(info, pet.stars, 36).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(556, -84), new Vector2(180, 36));
+            if (pet.shiny) Chip(info, "异色", Hex("b9a0d0"), 80, 40).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(752, -82), new Vector2(80, 40));
             bool max = pet.level >= PetMath.MaxLevel;
-            SetBar(expBar, max ? 1 : pet.exp / (float)PetMath.ExpToNext(pet.level), max ? "满级" : $"{pet.exp}/{PetMath.ExpToNext(pet.level)}");
-            Label(info, "好感", FsSub, Ink, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(262, -190), new Vector2(80, 40));
-            var affBar = MakeBar(info, "affection", Hex("f08aa0")); affBar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(346, -192), new Vector2(560, 36));
-            SetBar(affBar, pet.affection / 100f, $"{pet.affection}/100");
+            void BarRow(float y, string icon, string label, Color c, float frac, string text)
+            {
+                KitImage(info, icon, 34).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(266, y + 2), new Vector2(34, 34));
+                Label(info, label, FsSub, Ink, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(308, y + 4), new Vector2(80, 40));
+                var bar = MakeBar(info, label, c); bar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(386, y), new Vector2(560, 36));
+                SetBar(bar, frac, text);
+            }
+            BarRow(-142, "sparkle", "经验", Sky, max ? 1 : pet.exp / (float)PetMath.ExpToNext(pet.level), max ? "满级" : $"{pet.exp}/{PetMath.ExpToNext(pet.level)}");
+            BarRow(-192, "heart", "好感", Hex("f08aa0"), pet.affection / 100f, $"{pet.affection}/100");
 
             // tabs
-            var tabs = new[] { ("care", "照顾"), ("skills", "技能"), ("growth", "养成") };
+            var tabs = new[] { ("care", "照顾", "heart"), ("skills", "技能", "sparkle"), ("growth", "养成", "orn_sprout") };
             for (int i = 0; i < tabs.Length; i++)
             {
-                var (key, label) = tabs[i];
-                var tb = Button(info, label, partyTab == key ? Yellow : Cream, WoodDark, FsBody, () => { partyTab = key; pendingBook = null; FillParty(); });
+                var (key, label, icon) = tabs[i];
+                var tb = IconPill(info, label, Kit(icon), Picked, partyTab == key, () => { partyTab = key; pendingBook = null; Fill("party"); }, 222);
                 ((RectTransform)tb.transform).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(20 + i * 236, -254), new Vector2(222, TouchMin));
                 bool dot = key == "skills" ? CanLearnAny(s, pet) : key == "growth" && GrowthReady(s, pet);
-                if (dot) Panel(tb.transform, "dot", Red, Circle, false).rectTransform.Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-12, -12), new Vector2(26, 26));
+                if (dot) { var d = Panel(tb.transform, "dot", Red, Circle, false).rectTransform.Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-12, -12), new Vector2(26, 26)); UiMotion.Pulse(d, 0.12f); }
             }
             var area = Rect("tab", info); area.Fill(); area.offsetMin = new Vector2(20, 18); area.offsetMax = new Vector2(-20, -360);
             switch (partyTab)
@@ -112,6 +130,25 @@ namespace Lingmu.UI
                 case "growth": PartyGrowth(area, s, pet); break;
                 default: PartyCare(area, s, pet); break;
             }
+        }
+
+        // a pet card in the list: art, name, level, element badge, state, stars, a red dot when something is ready
+        void PetRow(RectTransform list, GameState s, PetInstance p)
+        {
+            var uid = p.uid; bool sel = uid == selectedPet, inParty = s.party.Contains(uid);
+            var sp = GameData.Species(p.species);
+            var row = Cell(list, "row " + uid, CreamDark, sel, () => { if (selectedPet != uid) pendingBook = null; selectedPet = uid; Fill("party"); }).rectTransform;
+            row.sizeDelta = new Vector2(0, 128);
+            Art(row, PetSprite(p), new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(12, 0), new Vector2(108, 108));
+            var n = Label(row, PetMath.DisplayName(p), FsBody, WoodDark, true, TextAlignmentOptions.Left); n.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(132, -10), new Vector2(230, 50));
+            n.textWrappingMode = TextWrappingModes.NoWrap; n.overflowMode = TextOverflowModes.Ellipsis;
+            var lv = Label(row, $"Lv.{p.level}", FsSub, Ink, true, TextAlignmentOptions.Right); lv.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-64, -14), new Vector2(110, 44));
+            KitImage(row, ElementBadge(sp.element), 42).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-14, -14), new Vector2(42, 42));
+            string state = inParty ? (s.party[0] == uid ? "领队" : "队伍中") : p.job ? "打工中" : "在家";
+            Chip(row, state, inParty ? Grass : p.job ? Orange : Hex("cdb894"), 100, 42).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(132, 14), new Vector2(100, 42));
+            Stars(row, p.stars, 28).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(246, 21), new Vector2(140, 28));
+            if (p.shiny) Chip(row, "异色", Hex("b9a0d0"), 72, 38).Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-14, 16), new Vector2(72, 38));
+            if (Attention(s, p)) { var d = Panel(row, "dot", Red, Circle, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0.5f, 0.5f), new Vector2(22, -22), new Vector2(26, 26)); UiMotion.Pulse(d, 0.12f); }
         }
 
         // something worth a look: a skill book it can learn, or evolution / star-up / form ready
@@ -129,39 +166,64 @@ namespace Lingmu.UI
         {
             var sp = GameData.Species(pet.species);
             var st = PetMath.CalcStats(pet);
-            var stats = Label(area, $"生命 <b>{st.hp}</b>　　攻击 <b>{st.atk}</b>　　防御 <b>{st.def}</b>　　速度 <b>{st.spd}</b>", FsBody, Ink, false, TextAlignmentOptions.Left);
-            stats.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(10, 0), new Vector2(980, 48));
-            var more = Label(area, $"探索：{Explore.SkillNames.GetValueOrDefault(sp.explore, sp.explore)}　　打工：{PetCare.Work.GetValueOrDefault(sp.work)?.name ?? sp.work}　　最爱吃：{GameData.Item(sp.food)?.name}", FsSub, Ink, false, TextAlignmentOptions.Left);
-            more.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(10, -52), new Vector2(980, 44));
+            // stat bars 【建议】 scale: 生命 out of 200, the others out of 100 (a level-30 evolved pet nearly fills them)
+            var stats = new (string label, int v, int cap, Color c)[] { ("生命", st.hp, 200, Hex("e5806a")), ("攻击", st.atk, 100, Orange), ("防御", st.def, 100, Sky), ("速度", st.spd, 100, Grass) };
+            for (int i = 0; i < stats.Length; i++)
+            {
+                var (label, v, cap, c) = stats[i];
+                Label(area, label, FsSub, Ink, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(8, -i * 44), new Vector2(80, 40));
+                var bar = MakeBar(area, label, c); bar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(88, -i * 44 - 4), new Vector2(380, 32));
+                SetBar(bar, v / (float)cap, v.ToString());
+            }
+            // what it does outside battle
+            var facts = new (string key, string value, string icon)[]
+            {
+                ("探索", Explore.SkillNames.GetValueOrDefault(sp.explore, sp.explore), null),
+                ("打工", PetCare.Work.GetValueOrDefault(sp.work)?.name ?? sp.work, null),
+                ("最爱吃", GameData.Item(sp.food)?.name, sp.food),
+            };
+            for (int i = 0; i < facts.Length; i++)
+            {
+                var (key, value, icon) = facts[i];
+                float y = -i * 58;
+                Chip(area, key, Hex("e4d6bb"), 110, 44).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(520, y), new Vector2(110, 44));
+                float x = 644;
+                if (icon != null && Icon(icon)) { Art(area, Icon(icon), new Vector2(0, 1), new Vector2(0, 1), new Vector2(x, y + 4), new Vector2(50, 50)); x += 56; }
+                Label(area, value, FsSub, WoodDark, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(x, y + 2), new Vector2(300, 44));
+            }
+
             var (fed, petted) = PetCare.CaredToday(s, pet);
             bool inP = s.party.Contains(pet.uid), home = s.player.area == "home";
-            var grid = Rect("buttons", area).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(988, 2 * TouchMin + 18));
-            var gl = grid.gameObject.AddComponent<GridLayoutGroup>(); gl.cellSize = new Vector2(318, TouchMin); gl.spacing = new Vector2(17, 18); gl.constraint = GridLayoutGroup.Constraint.FixedColumnCount; gl.constraintCount = 3;
             var uid = pet.uid;
-            void B(string label, bool on, Action a, Color? bg = null) { var x = Button(grid, label, on ? (bg ?? Yellow) : Cream, WoodDark, FsSub, a); x.interactable = on; }
-            B(petted ? "今天摸过了" : "摸摸（好感 +2）", !petted, () => session.PetPet(uid));
+            var tip = Label(area, (petted ? "" : "摸摸：好感 +2。") + (fed ? "喂食、打工都会给一点经验" : "每天喂一次：好感上升，还有一点经验"), FsMin, Muted, false, TextAlignmentOptions.Left);
+            tip.rectTransform.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(8, 100), new Vector2(980, 40));
+            int k = 0;
+            void B(string label, Sprite icon, bool on, Action a, Color bg)
+            {
+                var x = IconPill(area, label, icon, bg, on, a, 236); x.interactable = on;
+                ((RectTransform)x.transform).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(k++ * 248, 0), new Vector2(236, TouchMin));
+            }
+            B(petted ? "今天摸过了" : "摸摸", Kit("heart"), !petted, () => session.PetPet(uid), Yellow);
             var food = PetCare.FoodsInBag(s).OrderByDescending(x => x.id == sp.food).FirstOrDefault();
-            B(fed ? "今天喂过了" : food == null ? "没有食物" : $"喂{GameData.Item(food.id).name}", !fed && food != null, () => session.Feed(uid, food.id));
-            if (inP) B(s.party[0] == pet.uid ? "已是领队" : "设为领队", s.party[0] != pet.uid, () => session.SetLead(uid), Grass);
-            else B("加入队伍", home && s.party.Count < SaveRules.PartyMax, () => session.JoinParty(uid), Grass);
-            if (inP) B("回家休息", home && s.party.Count > 1, () => session.LeaveParty(uid));
-            else B(pet.job ? "停止打工" : "在家打工", home, () => session.SetJob(uid, !pet.job));
-            var tip = Label(area, fed ? "喂食、打工都会给一点经验" : "每天喂一次：好感上升，还有一点经验", FsMin, Hex("8a7458"), false, TextAlignmentOptions.Left);
-            tip.rectTransform.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(10, 2 * TouchMin + 26), new Vector2(980, 40));
+            B(fed ? "今天喂过了" : food == null ? "没有食物" : $"喂{GameData.Item(food.id).name}", food != null ? Icon(food.id) : Icon(sp.food), !fed && food != null, () => session.Feed(uid, food.id), Yellow);
+            if (inP) { if (s.party[0] != pet.uid) B("设为领队", Kit("star"), true, () => session.SetLead(uid), Grass); }
+            else B("加入队伍", Kit("hud_pets"), home && s.party.Count < SaveRules.PartyMax, () => session.JoinParty(uid), Grass);
+            if (inP) B("回家休息", Kit("act_door"), home && s.party.Count > 1, () => session.LeaveParty(uid), Yellow);
+            else B(pet.job ? "停止打工" : "在家打工", Kit("act_pickaxe"), home, () => session.SetJob(uid, !pet.job), Yellow);
         }
 
-        // a skill card: element colour, name, power and uses; optional button underneath
+        // a skill card: element colour and badge, name, power and uses; optional button underneath
         void SkillCard(RectTransform parent, string skillId, Vector2 pos, float width, string tag, string button = null, Action onClick = null)
         {
             var sk = GameData.Skill(skillId);
-            var card = Panel(parent, "skill " + skillId, Color.Lerp(ElementColor(sk.element), Color.white, 0.62f), RoundSmall, false).rectTransform;
+            var card = Panel(parent, "skill " + skillId, Color.Lerp(ElementColor(sk.element), Color.white, 0.66f), RoundSmall, false).rectTransform;
             card.Place(new Vector2(0, 1), new Vector2(0, 1), pos, new Vector2(width, button != null ? 240 : 150));
-            Panel(card, "strip", ElementColor(sk.element), RoundSmall, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0), new Vector2(14, 150));
-            var n = Label(card, sk.name, FsBody, WoodDark, true, TextAlignmentOptions.Left); n.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(26, -10), new Vector2(width - 34, 46));
-            string el = string.IsNullOrEmpty(sk.element) || sk.element == Elements.Normal ? "普通" : sk.element;
-            string power = sk.power > 0 ? $"{el} · 威力 {sk.power}" : $"{el} · 状态";
-            var d = Label(card, power + "\n" + (sk.uses == null ? "次数不限" : $"每场 {sk.uses} 次") + (tag != null ? $"　{tag}" : ""), FsMin, Ink, false, TextAlignmentOptions.TopLeft);
-            d.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(26, -58), new Vector2(width - 34, 90));
+            Panel(card, "strip", ElementColor(sk.element), FlatSmall, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(5, -5), new Vector2(12, 140));
+            KitImage(card, ElementBadge(sk.element), 40).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-10, -10), new Vector2(40, 40));
+            var n = Label(card, sk.name, FsBody, WoodDark, true, TextAlignmentOptions.Left); n.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -8), new Vector2(width - 84, 48));
+            string power = sk.power > 0 ? $"威力 <b>{sk.power}</b>" : "状态技能";
+            var d = Label(card, power + "\n" + (sk.uses == null ? "次数不限" : $"每场 {sk.uses} 次") + (tag != null ? $"　<color=#b07a2a>{tag}</color>" : ""), FsMin, Ink, false, TextAlignmentOptions.TopLeft);
+            d.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -58), new Vector2(width - 38, 90)); d.richText = true;
             if (button == null) return;
             var bt = Button(card, button, Yellow, WoodDark, FsSub, onClick); ((RectTransform)bt.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 10), new Vector2(width - 30, TouchMin - 4));
         }
@@ -173,7 +235,7 @@ namespace Lingmu.UI
             {
                 var newSkill = GameData.Skill(Growth.BookSkill(pendingBook));
                 var ask = Label(area, $"学会「{newSkill.name}」，要忘掉哪个技能？", FsBody, WoodDark, true, TextAlignmentOptions.Left); ask.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(6, 0), new Vector2(760, 48));
-                var cancel = Button(area, "取消", Cream, WoodDark, FsSub, () => { pendingBook = null; FillParty(); }); ((RectTransform)cancel.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, 6), new Vector2(180, TouchMin));
+                var cancel = Button(area, "取消", Cream, WoodDark, FsSub, () => { pendingBook = null; Fill("party"); }); ((RectTransform)cancel.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, 6), new Vector2(180, TouchMin));
                 for (int i = 0; i < pet.skills.Count && i < PetMath.RegularSlots; i++)
                 {
                     int slot = i; var book = pendingBook;
@@ -190,7 +252,7 @@ namespace Lingmu.UI
             var books = s.inventory.Where(x => GameData.Item(x.id)?.book != null).ToList();
             if (books.Count == 0)
             {
-                var none = Label(area, "背包里没有技能书。\n小镇杂货铺每天卖 2 本，远征的宝箱也能开出来。", FsSub, Hex("8a7458"), false, TextAlignmentOptions.TopLeft);
+                var none = Label(area, "背包里没有技能书。\n小镇杂货铺每天卖 2 本，远征的宝箱也能开出来。", FsSub, Muted, false, TextAlignmentOptions.TopLeft);
                 none.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(6, -170), new Vector2(980, 120));
                 return;
             }
@@ -207,7 +269,7 @@ namespace Lingmu.UI
                 var bt = Button(row, "学这个", chk.ok ? Yellow : Cream, WoodDark, FsSub, () =>
                 {
                     if (pet.skills.Count < PetMath.RegularSlots) session.LearnSkill(uid, id, pet.skills.Count);
-                    else { pendingBook = id; FillParty(); }
+                    else { pendingBook = id; Fill("party"); }
                 });
                 bt.interactable = chk.ok;
                 ((RectTransform)bt.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-12, 0), new Vector2(200, TouchMin));
@@ -221,14 +283,14 @@ namespace Lingmu.UI
             bool inP = s.party.Contains(uid);
             RectTransform Column(int i, string title)
             {
-                var col = Panel(area, "column", Cream, RoundSmall, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(i * 332, 0), new Vector2(318, 380));
-                var t = Label(col, title, FsBody, WoodDark, true); t.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -8), new Vector2(300, 48));
+                var col = Panel(area, "column", Cream, RoundSmall, false).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(i * 332, 0), new Vector2(318, 390));
+                var t = Label(col, title, FsBody, WoodDark, true); t.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -8), new Vector2(300, 50));
                 return col;
             }
-            TextMeshProUGUI Body(RectTransform col, string text)
+            void Checks(RectTransform col, params (bool ok, string text)[] lines) { for (int i = 0; i < lines.Length; i++) CheckLine(col, lines[i].ok, lines[i].text, new Vector2(18, -66 - i * 46), 290); }
+            void Note(RectTransform col, string text, float y)
             {
-                var t = Label(col, text, FsMin, Ink, false, TextAlignmentOptions.TopLeft); t.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -64), new Vector2(286, 200)); t.richText = true;
-                return t;
+                var t = Label(col, text, FsMin, Muted, false, TextAlignmentOptions.TopLeft); t.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, y), new Vector2(286, 110));
             }
             Button Act(RectTransform col, string label, bool on, Action a, Color? bg = null)
             {
@@ -239,35 +301,45 @@ namespace Lingmu.UI
 
             // evolution
             var evo = Column(0, pet.evolved ? "已进化" : $"进化 → {sp.evolution.name}");
-            if (pet.evolved) Body(evo, $"已经是{sp.evolution.name}了！\n学会了进化技能「{GameData.Skill(sp.evolution.skill).name}」，属性也变强了。");
+            if (pet.evolved) Note(evo, $"已经是{sp.evolution.name}了！\n学会了进化技能「{GameData.Skill(sp.evolution.skill).name}」，属性也变强了。", -66);
             else
             {
                 int stones = Inventory.CountOf(s.inventory, sp.evolution.stone);
-                Body(evo, $"{Ok(pet.level >= PetMath.EvolveLevel)} 等级 {PetMath.EvolveLevel}（现在 {pet.level}）\n{Ok(pet.affection >= PetMath.EvolveAffection)} 好感 {PetMath.EvolveAffection}（现在 {pet.affection}）\n{Ok(stones > 0)} {GameData.Item(sp.evolution.stone)?.name}（有 {stones} 个）\n<size=26><color=#8a7458>进化石在远征的宝箱里</color></size>");
+                Checks(evo, (pet.level >= PetMath.EvolveLevel, $"等级 {pet.level}/{PetMath.EvolveLevel}"),
+                    (pet.affection >= PetMath.EvolveAffection, $"好感 {pet.affection}/{PetMath.EvolveAffection}"),
+                    (stones > 0, $"{GameData.Item(sp.evolution.stone)?.name} {stones}/1"));
+                Note(evo, "进化石在远征的宝箱里", -206);
                 Act(evo, "进化", Growth.EvolveCheck(s, uid).ok, () => session.Evolve(uid));
             }
 
             // stars and crystals
             int crystals = Growth.CrystalsOf(s, pet.species), need = Growth.StarCost(pet.stars);
             var star = Column(1, "星级");
-            Body(star, $"<size=34><color=#e0a020>{new string('★', pet.stars)}</color><color=#cdbb98>{new string('★', 5 - pet.stars)}</color></size>\n" +
-                (pet.stars >= 5 ? "已经满星了" : $"结晶 {crystals}/{need}") + "\n<color=#8a7458>重复抓到同种宠物，可以转成结晶来升星</color>");
+            Stars(star, pet.stars, 46).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -66), new Vector2(230, 46));
+            if (pet.stars < 5)
+            {
+                Label(star, "结晶", FsMin, Ink, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -126), new Vector2(70, 40));
+                var bar = MakeBar(star, "crystals", Hex("b9a0d0")); bar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(84, -128), new Vector2(214, 32));
+                SetBar(bar, crystals / (float)need, $"{crystals}/{need}");
+            }
+            Note(star, pet.stars >= 5 ? "已经满星了" : crystals >= need ? "结晶够了，可以升星！" : $"再得 {need - crystals} 颗结晶升到 {pet.stars + 1} 星\n重复抓到同种宠物能换结晶", -180);
             bool dup = s.pets.Count(x => x.species == pet.species) > 1;
             if (dup && !(pet.stars < 5 && crystals >= need)) Act(star, $"把它转成结晶 +{pet.stars}", !inP || s.party.Count > 1, () => { Growth.ConvertToCrystal(s, uid); selectedPet = null; session.Say($"转成了 {pet.stars} 颗结晶"); session.AfterAction(); }, Orange);
             else Act(star, pet.stars >= 5 ? "已满星" : "升星", pet.stars < 5 && crystals >= need, () => { Growth.StarUp(s, uid); session.Say($"升到了 {pet.stars} 星！"); session.AfterAction(); }, Yellow);
 
             // human form (first version: 焰尾狐 only)
             var form = Column(2, "化形");
-            if (string.IsNullOrEmpty(sp.humanForm)) { Body(form, "<color=#8a7458>这只宠物不会化形。\n目前只有焰尾狐能化成人形。</color>"); return; }
+            if (string.IsNullOrEmpty(sp.humanForm)) { Note(form, "这只宠物不会化形。\n目前只有焰尾狐能化成人形。", -66); return; }
             var fc = Growth.FormCheck(s, uid);
             if (fc.unlocked)
             {
-                Body(form, pet.form == "human" ? "现在是人形。\n变身不会改变属性。" : "已经学会化形了。\n变身不会改变属性。");
+                Note(form, pet.form == "human" ? "现在是人形。\n变身不会改变属性。" : "已经学会化形了。\n变身不会改变属性。", -66);
                 Act(form, pet.form == "human" ? "变回原形" : "变成人形", true, () => session.ToggleForm(uid), Sky);
                 return;
             }
             int bells = Inventory.CountOf(s.inventory, "item_fox_bell");
-            Body(form, $"{Ok(pet.evolved)} 已经进化\n{Ok(pet.affection >= 100)} 好感 100（现在 {pet.affection}）\n{Ok(bells > 0)} 化形铃（有 {bells} 个）\n<size=26><color=#8a7458>化形铃：完成露米的「焰尾狐的心愿」</color></size>");
+            Checks(form, (pet.evolved, pet.evolved ? "已经进化" : "先完成进化"), (pet.affection >= 100, $"好感 {pet.affection}/100"), (bells > 0, $"化形铃 {bells}/1"));
+            Note(form, "化形铃：完成露米的「焰尾狐的心愿」", -206);
             Act(form, "学会化形", fc.ok, () => session.UnlockForm(uid), Sky);
         }
 
@@ -290,10 +362,13 @@ namespace Lingmu.UI
             bool Owned(string sp) => s.pets.Any(p => p.species == sp);
             bool Caught(string sp) => (E(sp)?.caught ?? false) || (E(sp)?.shiny ?? false) || Owned(sp);
             bool Seen(string sp) => (E(sp)?.seen ?? false) || Caught(sp);
-            int seen = GameData.Pets.Count(p => Seen(p.id));
-            var back = Button(b, "‹ 伙伴", WoodMid, Cream, FsSub, () => Open("party")); ((RectTransform)back.transform).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(36, -10), new Vector2(190, TouchMin));
-            var head = Label(b, $"抓到 {Growth.DexCount(s)} / {GameData.Pets.Count}　　见过 {seen} / {GameData.Pets.Count}", FsBody, Ink, true, TextAlignmentOptions.Left);
-            head.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(46, -112), new Vector2(900, 50));
+            int seen = GameData.Pets.Count(p => Seen(p.id)), caught = Growth.DexCount(s), total = GameData.Pets.Count;
+            ((RectTransform)BackButton(b, () => Open("party")).transform).Place(new Vector2(0, 1), new Vector2(0.5f, 0.5f), new Vector2(76, -66), new Vector2(96, 96));
+            // collection progress: a bar for caught, the seen count beside it
+            Label(b, "已捕获", FsBody, WoodDark, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(140, -106), new Vector2(110, 50));
+            var bar = MakeBar(b, "caught", Grass); bar.root.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(252, -112), new Vector2(380, 38));
+            SetBar(bar, caught / (float)total, $"{caught} / {total}");
+            Label(b, $"已见 {seen} / {total}", FsSub, Muted, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(640, -108), new Vector2(300, 46));
             if (selectedDex == null || GameData.Pets.All(p => p.id != selectedDex)) selectedDex = (GameData.Pets.FirstOrDefault(p => Caught(p.id)) ?? GameData.Pets[0]).id;
 
             var grid = Rect("grid", b).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(36, -176), new Vector2(950, 710));
@@ -301,37 +376,45 @@ namespace Lingmu.UI
             foreach (var p in GameData.Pets)
             {
                 var id = p.id; bool sn = Seen(id), ct = Caught(id), sel = id == selectedDex;
-                var card = Panel(grid, "card " + id, sel ? Yellow : CreamDark, Round, true);
-                card.gameObject.AddComponent<Button>().onClick.AddListener(() => { selectedDex = id; FillDex(); });
-                var art = Art(card.rectTransform, SpeciesSprite(id), new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -12), new Vector2(210, 210));
-                if (!sn) art.color = new Color(0.25f, 0.18f, 0.12f, 0.85f);   // silhouette
-                var n = Label(card.transform, sn ? p.name : "？？？", FsBody, WoodDark, true); n.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 62), new Vector2(290, 46));
-                var state = ct ? ("已抓到", Grass) : sn ? ("见过", Sky) : ("未发现", Hex("b8a07e"));
-                Chip(card.transform, state.Item1, state.Item2, 120, 42).Place(new Vector2(0.5f, 0), new Vector2(sn ? 1 : 0.5f, 0), new Vector2(sn ? -4 : 0, 12), new Vector2(120, 42));
-                if (sn) Chip(card.transform, p.element, ElementColor(p.element), 70, 42).Place(new Vector2(0.5f, 0), new Vector2(0, 0), new Vector2(4, 12), new Vector2(70, 42));
-                if (E(id)?.shiny ?? false) Chip(card.transform, "异色", Hex("b07ad0"), 80, 40).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-10, -10), new Vector2(80, 40));
+                var card = Cell(grid, "card " + id, CreamDark, sel, () => { selectedDex = id; Fill("dex"); });
+                var well = Panel(card.transform, "well", sn ? Hex("f6efe0") : Hex("e2d6bf"), FlatCircle, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -14), new Vector2(216, 216));
+                var art = Art(well, SpeciesSprite(id), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(200, 200));
+                if (!sn) art.color = new Color(0, 0, 0, 0.42f);   // a flat silhouette: no eyes or markings show through
+                var n = Label(card.transform, sn ? p.name : "？？？", FsBody, WoodDark, true); n.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 60), new Vector2(290, 48));
+                var state = ct ? ("已抓到", Grass) : sn ? ("见过", Sky) : ("未发现", Hex("cdb894"));
+                Chip(card.transform, state.Item1, state.Item2, 120, 42).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(120, 42));
+                if (sn) KitImage(card.transform, ElementBadge(p.element), 48).rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -12), new Vector2(48, 48));
+                if (E(id)?.shiny ?? false) Chip(card.transform, "异色", Hex("b9a0d0"), 80, 40).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-10, -10), new Vector2(80, 40));
             }
 
             // detail of the selected species
             var d = GameData.Species(selectedDex);
             bool dSeen = Seen(d.id), dCaught = Caught(d.id);
             var info = Panel(b, "info", CreamDark, null, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-36, -110), new Vector2(620, 776));
-            var big = Art(info, SpeciesSprite(d.id), new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -16), new Vector2(280, 280));
-            if (!dSeen) big.color = new Color(0.25f, 0.18f, 0.12f, 0.85f);
-            var nm = Label(info, dSeen ? d.name : "？？？", FsTitle + 4, WoodDark, true); nm.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -304), new Vector2(580, 60));
+            var bw = Panel(info, "well", dSeen ? Hex("f6efe0") : Hex("e2d6bf"), FlatCircle, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -16), new Vector2(280, 280));
+            var big = Art(bw, SpeciesSprite(d.id), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(262, 262));
+            if (!dSeen) big.color = new Color(0, 0, 0, 0.42f);
+            var nm = Label(info, dSeen ? d.name : "？？？", FsTitle + 4, WoodDark, true); nm.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -304), new Vector2(580, 64));
+            float ty = -376;
+            if (dSeen)
+            {
+                KitImage(info, ElementBadge(d.element), 44).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(1, 1), new Vector2(-8, -372), new Vector2(44, 44));
+                Chip(info, d.element + "属性", ElementColor(d.element), 112, 44).Place(new Vector2(0.5f, 1), new Vector2(0, 1), new Vector2(0, -372), new Vector2(112, 44));
+                ty = -430;
+            }
             string text;
             if (!dSeen) text = "还没遇到过。\n去远征的浮岛上找找看吧。";
-            else if (!dCaught) text = $"{d.element}属性\n\n{PetLore.GetValueOrDefault(d.id, "")}\n\n<color=#8a7458>抓到后能看到更多资料</color>";
+            else if (!dCaught) text = $"{PetLore.GetValueOrDefault(d.id, "")}\n\n<color=#8a7458>抓到后能看到更多资料</color>";
             else
             {
                 var bs = d.baseStats;
                 bool evoOwned = s.pets.Any(p => p.species == d.id && p.evolved);
-                text = $"{d.element}属性\n{PetLore.GetValueOrDefault(d.id, "")}\n\n" +
+                text = $"{PetLore.GetValueOrDefault(d.id, "")}\n\n" +
                     $"基础　生命 {bs.hp}　攻击 {bs.atk}　防御 {bs.def}　速度 {bs.spd}\n" +
                     $"探索：{Explore.SkillNames.GetValueOrDefault(d.explore, d.explore)}　打工：{PetCare.Work.GetValueOrDefault(d.work)?.name}\n最爱吃：{GameData.Item(d.food)?.name}\n" +
                     $"进化后：{(evoOwned ? d.evolution.name : "？？？")}";
             }
-            var t = Label(info, text, FsSub, Ink, false, TextAlignmentOptions.TopLeft); t.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -376), new Vector2(560, 390)); t.richText = true;
+            var t = Label(info, text, FsSub, Ink, false, TextAlignmentOptions.TopLeft); t.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, ty), new Vector2(560, 340)); t.richText = true;
         }
     }
 }

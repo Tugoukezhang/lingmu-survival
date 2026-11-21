@@ -349,18 +349,23 @@ namespace Lingmu.UI
             if ((openPanel == "report" || openPanel == "battle") && panel != openPanel) return;
             if (openPanel == null) GameAudio.Play("open", 0.7f);
             moreTray.gameObject.SetActive(false);
+            if (panel != openPanel)
+            {
+                itemTab = "all"; qty = 1; selectedShop = selectedShip = null; scrollAt.Clear();
+                if (panel == "bag") selectedItem = session.S.inventory.FirstOrDefault()?.id;
+            }
             openPanel = panel;
             modal.gameObject.SetActive(true);
             session.PauseFor("menu");
             if (mover) mover.enabled = false;
             PlayerMover.Stick = Vector2.zero;
-            if (panel == "bag") selectedItem = session.S.inventory.FirstOrDefault()?.id;
             Fill(panel);
         }
 
         public void Close()
         {
             if (openPanel == "battle") return;
+            poppedFor = null;
             if (openPanel == "report") { openPanel = null; modal.gameObject.SetActive(false); session.StartNewDay(); if (mover) mover.enabled = true; return; }
             openPanel = null;
             modal.gameObject.SetActive(false);
@@ -374,7 +379,7 @@ namespace Lingmu.UI
             if (box) Destroy(box.gameObject);
             box = Panel(modal, "panel", Cream, null, true, true).rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -10), size);
             Decorate(box);
-            UiMotion.PopIn(box);
+            if (poppedFor != openPanel) { UiMotion.PopIn(box); poppedFor = openPanel; }
             var head = Panel(box, "title", Yellow, null, false, true).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f), new Vector2(0, -6), new Vector2(Mathf.Min(520, size.x - 160), 76));
             var t = Label(head, title, FsTitle, WoodDark, true); t.rectTransform.Fill();
             if (openPanel != "report") ((RectTransform)CloseButton(box, Close).transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-16, -16), new Vector2(104, 104));
@@ -390,61 +395,17 @@ namespace Lingmu.UI
 
         void Fill(string panel)
         {
+            scrollPending.Clear();
             switch (panel)
             {
                 case "bag": FillBag(); break;
                 case "craft": FillCraft(); break;
-                case "seeds": FillSeeds(); break;
+                case "seeds": FillStore("seeds"); break;
                 case "ship": FillShip(); break;
                 case "storage": FillStorage(); break;
                 default: FillMore(panel); break;
             }
-        }
-
-        void FillBag()
-        {
-            var s = session.S;
-            int slots = Crafting.BagSlots(s);
-            var b = NewBox($"背包  {s.inventory.Count}/{slots}", new Vector2(1500, 860));
-            var grid = Rect("grid", b).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(50, -90), new Vector2(880, 730));
-            var g = grid.gameObject.AddComponent<GridLayoutGroup>(); g.cellSize = new Vector2(132, 132); g.spacing = new Vector2(14, 14); g.constraint = GridLayoutGroup.Constraint.FixedColumnCount; g.constraintCount = 6;
-            if (selectedItem != null && !s.inventory.Any(x => x.id == selectedItem)) selectedItem = s.inventory.FirstOrDefault()?.id;
-            for (int i = 0; i < slots; i++)
-            {
-                var st = i < s.inventory.Count ? s.inventory[i] : null;
-                bool sel = st != null && st.id == selectedItem;
-                var cell = Panel(grid, "slot", sel ? Yellow : CreamDark, RoundSmall, st != null);
-                if (st == null) continue;
-                var id = st.id;
-                var btn = cell.gameObject.AddComponent<Button>(); btn.onClick.AddListener(() => { selectedItem = id; FillBag(); });
-                var icon = Rect("icon", cell.transform).Fill(14).gameObject.AddComponent<Image>(); icon.sprite = Icon(id); icon.preserveAspect = true; icon.raycastTarget = false;
-                if (!icon.sprite) { var n = Label(cell.transform, GameData.Item(id)?.name ?? id, FsMin, Ink); n.rectTransform.Fill(8); }
-                var cnt = Label(cell.transform, st.count > 1 ? st.count.ToString() : "", FsSub + 2, WoodDark, true, TextAlignmentOptions.BottomRight); cnt.rectTransform.Fill(8);
-                cnt.outlineWidth = 0.25f; cnt.outlineColor = new Color32(251, 243, 220, 255);
-            }
-            // details
-            var info = Panel(b, "info", CreamDark, null, false).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-46, -96), new Vector2(500, 718));
-            var def = GameData.Item(selectedItem);
-            if (def == null) { var e = Label(info, "背包是空的", 30, Ink); e.rectTransform.Fill(); return; }
-            var big = Rect("icon", info).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -30), new Vector2(180, 180)).gameObject.AddComponent<Image>(); big.sprite = Icon(selectedItem); big.preserveAspect = true; big.raycastTarget = false;
-            var name = Label(info, def.name, 42, WoodDark, true); name.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -220), new Vector2(460, 60));
-            var tagChip = Panel(info, "tag", Grass, RoundSmall, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -286), new Vector2(150, 48));
-            var tag = Label(tagChip, def.tag ?? "", FsMin, Readable(Grass, Color.white), true); tag.rectTransform.Fill();
-            string extra = def.food != null ? $"\n饱食 +{def.food}" + (def.heal != null ? $"　生命 +{def.heal}" : "") : "";
-            if (Farm.PriceOf(selectedItem) is int price) extra += $"\n出货价 {price}";
-            var desc = Label(info, def.desc + extra, FsSub, Ink, false, TextAlignmentOptions.TopLeft); desc.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -350), new Vector2(450, 240));
-            {
-                var item = selectedItem;
-                bool closes = item == "item_campfire" && session.Area is ExpeditionArea;
-                // skill books and the fox bell go straight to the partner panel
-                var fox = item == "item_fox_bell" ? session.S.pets.FirstOrDefault(p => !string.IsNullOrEmpty(GameData.Species(p.species).humanForm))?.uid : null;
-                string label = def.food != null ? "吃掉" : def.book != null ? "去学技能" : item == "item_fox_bell" ? "去化形" : "使用";
-                Action act = def.book != null ? () => OpenParty("skills")
-                    : item == "item_fox_bell" ? () => { if (fox != null) OpenParty("growth", fox); else session.Say("要先有一只焰尾狐"); }
-                    : () => { if (closes) Close(); session.Use(item); };
-                var use = Button(info, label, Yellow, WoodDark, FsBody + 2, act);
-                ((RectTransform)use.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(280, 96));
-            }
+            ApplyScrolls();
         }
 
         // a scrolling list of rows: icon, name, a line of detail, and a button on the right
@@ -486,42 +447,6 @@ namespace Lingmu.UI
                 var id = r.id;
                 Row(list, r.@out, Name(r.@out) + (r.n > 1 ? $" ×{r.n}" : ""), (r.station == "workbench" ? "【工作台】" : "") + cost, here ? "制作" : "回家做", chk.ok && here, () => session.Craft(id));
             }
-        }
-
-        void FillSeeds()
-        {
-            var s = session.S;
-            var b = NewBox("种子摊", new Vector2(1200, 860));
-            var list = List(b);
-            foreach (var id in GameData.CropIds)
-            {
-                var c = GameData.Crops[id]; var cid = id;
-                Row(list, c.seed, Name(c.seed), $"四叶草 {c.seedPrice}　·　浇水 {c.days} 天成熟　·　果实出货价 {Farm.PriceOf(c.crop)}", $"买 1 包", s.clover >= c.seedPrice, () => session.BuySeed(cid));
-            }
-        }
-
-        void FillShip()
-        {
-            var s = session.S;
-            var b = NewBox("出货箱", new Vector2(1200, 880));
-            var head = Label(b, $"箱子里 {Farm.Of(s).shipping.Sum(x => x.count)} 件，明早换成四叶草 +{Farm.ShippingValue(s)}", FsBody, Ink, true); head.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -90), new Vector2(1000, 50));
-            var list = List(b, 150);
-            foreach (var st in Farm.Of(s).shipping.ToList()) { var id = st.id; Row(list, id, $"{Name(id)} ×{st.count}", "已经放进箱子", "取回", true, () => session.Unship(id)); }
-            var sellable = s.inventory.Where(x => Farm.PriceOf(x.id) != null).ToList();
-            foreach (var st in sellable) { var id = st.id; Row(list, id, $"{Name(id)} ×{st.count}", $"每个 {Farm.PriceOf(id)}", "放入 1", true, () => session.Ship(id)); }
-            if (sellable.Count == 0 && Farm.Of(s).shipping.Count == 0) Row(list, null, "没有能出货的东西", "作物、浆果、鱼、雾晶都能卖", null, false, null);
-        }
-
-        void FillStorage()
-        {
-            var s = session.S;
-            var b = NewBox("仓库", new Vector2(1200, 880));
-            var put = Button(b, "全部存入", Yellow, WoodDark, FsSub, () => session.DepositAll()); ((RectTransform)put.transform).Place(new Vector2(0.5f, 1), new Vector2(1, 1), new Vector2(-10, -94), new Vector2(250, TouchMin));
-            var take = Button(b, "全部取回", Grass, Color.white, FsSub, () => session.WithdrawAll()); ((RectTransform)take.transform).Place(new Vector2(0.5f, 1), new Vector2(0, 1), new Vector2(10, -94), new Vector2(250, TouchMin));
-            var list = List(b, 190);
-            var items = s.storage ?? new List<ItemStack>();
-            foreach (var st in items) Row(list, st.id, $"{Name(st.id)} ×{st.count}", GameData.Item(st.id)?.desc ?? "", null, false, null);
-            if (items.Count == 0) Row(list, null, "仓库是空的", "宠物打工带回的东西也放在这里", null, false, null);
         }
 
         void ShowReport(SettlementReport r)

@@ -36,7 +36,7 @@ namespace Lingmu.UI
                 case "dock": FillDock(); break;
                 case "party": FillParty(); break;
                 case "dex": FillDex(); break;
-                case "shop": FillShop(); break;
+                case "shop": FillStore("shop"); break;
                 case "expand": FillBuild("扩建家园", Progress.ExpandCost, "把家园岛东边的空地买下来，农田会变大", () => Progress.BuyExpansion(session.S), session.S.world?.expanded ?? false); break;
                 case "repair": FillBuild("修好小镇的桥", Progress.BridgeCost, "阿栗会帮你一起修，修好就能去更远的地方", () => Progress.RepairBridge(session.S), session.S.world?.bridge ?? false); break;
                 case "decorate": FillDecorate(); break;
@@ -108,7 +108,7 @@ namespace Lingmu.UI
             foreach (var (key, label) in tabs)
             {
                 float w = key == "gift" ? 400 : 220;
-                var tb = Button(b, label, npcTab == key ? Yellow : CreamDark, WoodDark, FsSub, () => { npcTab = key; FillNpc(npc); });
+                var tb = Button(b, label, npcTab == key ? Picked : Cream, WoodDark, FsSub, () => { if (key == "shop") { Open("shop"); return; } npcTab = key; FillNpc(npc); });
                 ((RectTransform)tb.transform).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(tx, -156), new Vector2(w, TouchMin));
                 tx += w + 14;
             }
@@ -147,24 +147,6 @@ namespace Lingmu.UI
                 var locked = Town.HeartLocked(s, npc);
                 if (locked != null) Row(list, null, "？？？", $"再熟一点（{locked.hearts} 颗心）{n.name}会拜托你新的事", null, false, null);
                 if (!Town.ActiveOf(s, npc).Any() && !Town.Offers(s, npc).Any() && locked == null) Row(list, null, "现在没有任务", "过几天再来看看吧", null, false, null);
-                return;
-            }
-            FillShopList(list);
-        }
-
-        void FillShop()
-        {
-            var b = NewBox("杂货铺", new Vector2(1200, 880));
-            FillShopList(List(b));
-        }
-
-        void FillShopList(RectTransform list)
-        {
-            var s = session.S;
-            foreach (var e in Town.Stock(s))
-            {
-                var id = e.id; var def = GameData.Item(id);
-                Row(list, id, def.name, $"四叶草 {e.price}　{def.desc}", "买 1 个", s.clover >= e.price, () => { var r = Town.Buy(s, id); if (r.ok) GameAudio.Play("coin"); session.Say(r.ok ? $"买了{def.name}（四叶草 −{r.cost}）" : r.reason == "clover" ? "四叶草不够" : "背包满了"); session.AfterAction(); });
             }
         }
 

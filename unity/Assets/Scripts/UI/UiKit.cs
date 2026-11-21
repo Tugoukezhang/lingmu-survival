@@ -24,6 +24,8 @@ namespace Lingmu.UI
         public static readonly Color WoodDark = Hex("5a3f32"), WoodMid = Hex("8d6a52"), Cream = Hex("fbf5e6"), CreamDark = Hex("e9dfcc"),
             Grass = Hex("93b26f"), GrassDark = Hex("6f8f4e"), Yellow = Hex("f2c35b"), Ink = Hex("5a4030"), Red = Hex("e2674f"), Orange = Hex("eba25a"), Sky = Hex("9cc3d5");
         public static readonly Color Edge = Hex("6b4f3f");
+        // a chosen tab / option: light honey, so it never looks like the solid honey action buttons (GPT review 11-21)
+        public static readonly Color Picked = Hex("f7e3a4");
 
         // outlined shapes (panels, chips, buttons) and flat ones (wells, slots, overlays, bar fills).
         // CreamDark panels and see-through colours are always drawn flat (Panel picks the flat twin).
@@ -185,6 +187,35 @@ namespace Lingmu.UI
             return b;
         }
 
+        // the cloud-shaped back button (painted kit part), for sub-pages such as the dex
+        public static Button BackButton(Transform parent, Action onClick, float size = 96)
+        {
+            var spr = Kit("btn_back");
+            var b = spr ? Button(parent, "", Color.white, WoodDark, FsMin, onClick, spr) : Button(parent, "‹", WoodMid, Cream, 48, onClick, Circle);
+            b.name = "back";
+            ((RectTransform)b.transform).sizeDelta = new Vector2(size, size);
+            return b;
+        }
+
+        // five painted stars, the first n filled (pet stars)
+        public static RectTransform Stars(Transform parent, int n, float size, int total = 5)
+        {
+            var row = Rect("stars", parent); row.sizeDelta = new Vector2(total * size, size);
+            for (int i = 0; i < total; i++)
+                KitImage(row, i < n ? "star" : "star_empty", size).rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(i * size, 0), new Vector2(size, size));
+            return row;
+        }
+
+        // a checklist line: a tick when met, a faded lock when not (evolution, human form …)
+        public static void CheckLine(Transform parent, bool ok, string text, Vector2 pos, float width)
+        {
+            var icon = KitImage(parent, ok ? "tick" : "lock", 34);
+            icon.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 0.5f), pos + new Vector2(0, -21), new Vector2(34, 34));
+            if (!ok) icon.color = new Color(1, 1, 1, 0.6f);
+            var t = Label(parent, text, FsMin, ok ? Ink : Hex("8a7458"), false, TextAlignmentOptions.Left);
+            t.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), pos + new Vector2(44, 0), new Vector2(width - 44, 42));
+        }
+
         // after 设置 → 字号 changes: update every label under root (the base size is fontSizeMin when auto-sizing)
         public static void ApplyTextScale(Transform root)
         {
@@ -253,7 +284,10 @@ namespace Lingmu.UI
             var fill = Panel(bg.transform, "fill", fillColor, FlatSmall, false);
             fill.rectTransform.anchorMin = Vector2.zero; fill.rectTransform.anchorMax = new Vector2(1, 1); fill.rectTransform.pivot = new Vector2(0, 0.5f);
             fill.rectTransform.offsetMin = new Vector2(4, 4); fill.rectTransform.offsetMax = new Vector2(-4, -4);
-            var v = Label(bg.transform, "", FsMin, Color.white, true); v.rectTransform.Fill(); v.outlineWidth = 0.32f; v.outlineColor = new Color32(90, 63, 50, 255);
+            // light fills (sky, grass, pink …) get cocoa numbers; dark ones white numbers with a cocoa outline
+            bool dark = Readable(fillColor, Color.white) != Color.white;
+            var v = Label(bg.transform, "", FsMin, dark ? WoodDark : Color.white, true); v.rectTransform.Fill();
+            if (!dark) { v.outlineWidth = 0.32f; v.outlineColor = new Color32(90, 63, 50, 255); }
             return new Bar { fill = fill, value = v, root = bg.rectTransform };
         }
 

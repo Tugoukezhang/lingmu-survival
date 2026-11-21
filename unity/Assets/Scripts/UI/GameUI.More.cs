@@ -118,7 +118,7 @@ namespace Lingmu.UI
                 for (int i = 0; i < options.Length; i++)
                 {
                     int k = i;
-                    var bt = Button(row, options[i], i == current ? Yellow : Cream, WoodDark, FsSub, () => { pick(k); Fill("settings"); });
+                    var bt = Button(row, options[i], i == current ? Picked : Cream, WoodDark, FsSub, () => { pick(k); Fill("settings"); });
                     ((RectTransform)bt.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-20 - (options.Length - 1 - i) * 232, 0), new Vector2(220, TouchMin));
                 }
             }
