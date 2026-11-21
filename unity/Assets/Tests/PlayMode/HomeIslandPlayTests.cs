@@ -112,6 +112,11 @@ public class HomeIslandPlayTests
         cam.yaw = 0.8f; cam.Snap();
         Lingmu.Player.PlayerMover.Stick = new Vector2(0.6f, -0.8f); yield return new WaitForSeconds(0.7f); Shot("hero_walk");
         Lingmu.Player.PlayerMover.Stick = Vector2.zero;
+        // the round-2 fox next to the hero
+        var fox = ModelLibrary.Place("pet_fox", null, GameSession.I.player.position + new Vector3(0.9f, 0, 0), 0.65f, true, 0);
+        cam.yaw = Mathf.PI; cam.distance = 2.6f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("pet_fox_0");
+        cam.yaw = Mathf.PI * 1.5f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("pet_fox_1");
+        Object.Destroy(fox);
         cam.distance = 6.875f;
         var ex = SaveRules.NewGameState(starter: "fox"); ex.day = 3; Travel.Depart(ex, "new"); ex.clock = 10 * 60;
         GameSession.UseState(ex);

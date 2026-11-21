@@ -4,6 +4,8 @@
 // slow gust rolls across the island, and the leaves add a small quick flutter. Soft wrapped light so the painted
 // clumps keep their shading, light coming through the leaves when the sun is behind them, sun shadows, fog.
 // The shadow and depth passes move the same way, so the shadows sway with the tree.
+// Near the camera the leaves dissolve (ordered dither, gone within 1.2 m, solid beyond 3.5 m), so the third-person camera
+// swinging into a canopy shows the hero instead of a wall of green; the depth passes dissolve the same way.
 Shader "Lingmu/Foliage"
 {
     Properties
@@ -31,6 +33,16 @@ Shader "Lingmu/Foliage"
             float _Height, _Base, _Wind, _WindSpeed, _Flutter;
             half _Wrap, _Translucency;
         CBUFFER_END
+
+        // dissolve near the camera (screen-door), call from fragment shaders with the pixel position
+        void CameraFade(float3 ws, float4 positionCS)
+        {
+            float a = saturate((distance(ws, _WorldSpaceCameraPos) - 1.2) / 2.3);
+            if (a >= 1) return;
+            uint2 q = uint2(positionCS.xy) % 4;
+            const float bayer[16] = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 };
+            clip(a - (bayer[q.y * 4 + q.x] + 0.5) / 16);
+        }
 
         // where a vertex is pushed by the wind (world space)
         float3 Sway(float3 ws)
@@ -82,6 +94,7 @@ Shader "Lingmu/Foliage"
             half4 frag(Varyings i) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                CameraFade(i.positionWS, i.positionCS);
                 half4 c = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
                 half3 n = normalize(i.normalWS);
                 Light sun = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
@@ -147,9 +160,9 @@ Shader "Lingmu/Foliage"
             #pragma fragment frag
             #pragma multi_compile_instancing
             struct Attributes { float4 positionOS : POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; };
-            Varyings vert(Attributes v) { Varyings o; UNITY_SETUP_INSTANCE_ID(v); o.positionCS = TransformWorldToHClip(Sway(TransformObjectToWorld(v.positionOS.xyz))); return o; }
-            half4 frag(Varyings i) : SV_Target { return 0; }
+            struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; };
+            Varyings vert(Attributes v) { Varyings o; UNITY_SETUP_INSTANCE_ID(v); o.positionWS = Sway(TransformObjectToWorld(v.positionOS.xyz)); o.positionCS = TransformWorldToHClip(o.positionWS); return o; }
+            half4 frag(Varyings i) : SV_Target { CameraFade(i.positionWS, i.positionCS); return 0; }
             ENDHLSL
         }
 
@@ -163,9 +176,9 @@ Shader "Lingmu/Foliage"
             #pragma fragment frag
             #pragma multi_compile_instancing
             struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; };
-            Varyings vert(Attributes v) { Varyings o; UNITY_SETUP_INSTANCE_ID(v); o.positionCS = TransformWorldToHClip(Sway(TransformObjectToWorld(v.positionOS.xyz))); o.normalWS = TransformObjectToWorldNormal(v.normalOS); return o; }
-            half4 frag(Varyings i) : SV_Target { return half4(normalize(i.normalWS), 0); }
+            struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; float3 positionWS : TEXCOORD1; };
+            Varyings vert(Attributes v) { Varyings o; UNITY_SETUP_INSTANCE_ID(v); o.positionWS = Sway(TransformObjectToWorld(v.positionOS.xyz)); o.positionCS = TransformWorldToHClip(o.positionWS); o.normalWS = TransformObjectToWorldNormal(v.normalOS); return o; }
+            half4 frag(Varyings i) : SV_Target { CameraFade(i.positionWS, i.positionCS); return half4(normalize(i.normalWS), 0); }
             ENDHLSL
         }
     }

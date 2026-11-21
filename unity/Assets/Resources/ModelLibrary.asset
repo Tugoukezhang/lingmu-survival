@@ -74,8 +74,8 @@ MonoBehaviour:
     model: {fileID: 919132149155446097, guid: 255f8d04539515449b2f755e0d5523fc, type: 3}
     animator: {fileID: 9100000, guid: 38dad837884a3fc4088c78ad62d37715, type: 2}
   - key: pet_fox
-    model: {fileID: 919132149155446097, guid: 028f354bbf2cefe40882a4bc233ffec4, type: 3}
-    animator: {fileID: 9100000, guid: 929dc4a3df38cd546aff6f4af5437538, type: 2}
+    model: {fileID: 919132149155446097, guid: 540d2b4995ffbdc4585cb71ad6e370a5, type: 3}
+    animator: {fileID: 9100000, guid: bf0e8905794811b4d8c9ad4f4c0a3a8e, type: 2}
   - key: npc_granny
     model: {fileID: 919132149155446097, guid: 33d758efdd3ecbd47b2355a801c22557, type: 3}
     animator: {fileID: 9100000, guid: b36400484a63d734da4a9fffb9113f46, type: 2}

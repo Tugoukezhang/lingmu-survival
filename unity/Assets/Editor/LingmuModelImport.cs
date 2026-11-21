@@ -17,14 +17,15 @@ public class LingmuModelImport : AssetPostprocessor
     // 5: model textures 4096 on PC with Kaiser mips, mip bias and 8x aniso (2048 on phones / web)
     // 6: town residents rigged in Blender (Generic, idle clips)
     // 7: round-2 models from the Tripo website (Smart Mesh P2.0, Tripo auto-rig "Unity Humanoid Compatible"): H0* = Humanoid
-    public override uint GetVersion() => 7;
+    // 8: round-2 quadruped pets P0* (Tripo quadruped rig + tools/blender/pet_motions.py clips): Generic
+    public override uint GetVersion() => 8;
 
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
     // pets, the player and the town residents are rigged by tools/blender/rig_pet.py with their own skeleton: Generic;
     // the rest (Tripo-rigged, e.g. the innkeeper): Humanoid
-    static bool IsOwnRig(string p) => (p.StartsWith("Assets/Art/Characters/A0") || p.StartsWith("Assets/Art/Characters/B01_") || p.StartsWith("Assets/Art/Characters/B02_") || p.StartsWith("Assets/Art/Characters/B03_")) && !p.Contains("_unrigged");
+    static bool IsOwnRig(string p) => (p.StartsWith("Assets/Art/Characters/A0") || p.StartsWith("Assets/Art/Characters/P0") || p.StartsWith("Assets/Art/Characters/B01_") || p.StartsWith("Assets/Art/Characters/B02_") || p.StartsWith("Assets/Art/Characters/B03_")) && !p.Contains("_unrigged");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
-    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "happy", "dig", "shovel", "water" };
+    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "dig", "shovel", "water", "sleep", "eat" };
     // text-to-motion clips come back named after the Chinese prompt: short names the game asks for
     static readonly (string key, string name)[] PromptClips = { ("网", "net_throw"), ("浇水", "water"), ("捡起", "pick_up") };
 

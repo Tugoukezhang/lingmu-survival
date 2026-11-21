@@ -310,7 +310,7 @@ public static class SceneKit
         ("campfire", Props + "C15_campfire_lit", false), ("tent", Props + "C07_tent", false), ("lamp", Props + "C14_lamp", false), ("fountain", Props + "C06_fountain", false),
         ("bld_shop_granny", Props + "C02_bld_shop_granny", false), ("bld_workshop", Props + "C03_bld_workshop", false), ("bld_lab", Props + "C04_bld_lab", false),
         ("pet_acorn", Chars + "A03_acorn_rig", true), ("pet_shark", Chars + "A04_shark_rig", true), ("pet_starbear", Chars + "A05_starbear_rig", true),
-        ("pet_shadecat", Chars + "A06_shadecat_rig", true), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "A00_fox_rig", true),
+        ("pet_shadecat", Chars + "A06_shadecat_rig", true), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "P00_fox", true),   // round 2 (11-22)
         ("npc_granny", Chars + "B01_npc_granny", true), ("npc_ali", Chars + "B02_npc_ali", true), ("npc_lumi", Chars + "B03_npc_lumi", true), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
         ("player", Chars + "A01_player_rig", true),
         ("hero", Chars + "H01_hero", true),   // round 2 (Tripo website, 11-22): replaces the player model when a scene starts (GameSession.SwapHero)
