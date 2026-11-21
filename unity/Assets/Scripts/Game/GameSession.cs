@@ -37,6 +37,20 @@ namespace Lingmu.Game
         public virtual void OnDayEnded() { }
         public virtual void OnBattleEnded(string wildId, string result) { }
         public virtual System.Collections.Generic.IEnumerable<Spot> MapSpots() => System.Array.Empty<Spot>();   // marks on the map panel
+        // where a goal's place is in this scene (Rules/Goals.cs): a spot kind, or "kind:key" for one thing; null = not here
+        public virtual Vector3? FindPlace(string place, Vector3 from)
+        {
+            int c = place.IndexOf(':');
+            string kind = c < 0 ? place : place.Substring(0, c), key = c < 0 ? null : place.Substring(c + 1);
+            Vector3? best = null; float bd = float.MaxValue;
+            foreach (var s in MapSpots())
+            {
+                if (s.kind != kind || (key != null && s.key != key)) continue;
+                float d = (s.pos - from).sqrMagnitude;
+                if (d < bd) { bd = d; best = s.pos; }
+            }
+            return best;
+        }
         protected GameSession Session => GameSession.I;
         protected GameState S => GameSession.I.S;
     }
@@ -67,6 +81,8 @@ namespace Lingmu.Game
         public event Action<SettlementReport> DayEnded;
         public event Action<BattleState> BattleStarted;
         public event Action<BattleSummary> BattleFinished;
+        public event Action<string, Vector3> ItemGained;     // an item picked up here: its icon flies into the bag button
+        public void Gained(string itemId, Vector3 at) => ItemGained?.Invoke(itemId, at);
         public string LoadProblem { get; private set; }
         public BattleState Battle { get; private set; }
         string battleWild;
@@ -128,7 +144,7 @@ namespace Lingmu.Game
             if (LoadProblem != null) Say("存档读取有问题，已用备份或新存档继续");
             if (PendingToast != null) { Say(PendingToast); PendingToast = null; }
             ApplyLight();
-            Changed?.Invoke();
+            AfterAction();   // arriving may finish a goal (the trip out, the walk to town) before anything else happens
             if (PendingReport != null) { var r = PendingReport; PendingReport = null; Clock.Pause("report"); DayEnded?.Invoke(r); }
         }
 

@@ -33,6 +33,7 @@ namespace Lingmu.UI
             switch (panel)
             {
                 case "camp": FillCamp(); break;
+                case "goals": FillGoals(); break;
                 case "confirm": FillConfirm(); break;
                 case "leave": FillLeave(); break;
                 case "dock": FillDock(); break;

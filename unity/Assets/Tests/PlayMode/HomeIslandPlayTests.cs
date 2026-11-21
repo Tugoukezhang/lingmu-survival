@@ -138,6 +138,9 @@ public class HomeIslandPlayTests
         GameSession.UseState(SaveRules.NewGameState(starter: "fox"));
         yield return Load("HomeIsland");
         var s = GameSession.I; var home = (HomeArea)s.Area; var ui = Object.FindAnyObjectByType<GameUI>();
+        yield return Frames(2);
+        Assert.IsTrue(Object.FindObjectsByType<RectTransform>(FindObjectsSortMode.None).Any(r => r.name == "goal" && r.gameObject.activeInHierarchy), "新档：目标纸条在");
+        Assert.IsTrue(Object.FindObjectsByType<RectTransform>(FindObjectsSortMode.None).Any(r => (r.name == "goal mark" || r.name == "goal arrow") && r.gameObject.activeInHierarchy), "新档：指路标记指向码头");
         Shot("hud");
         var f = home.Layout.FarmRect;
         string key = Farm.PlotKey(f.x + 1, f.y + 1);
@@ -149,6 +152,7 @@ public class HomeIslandPlayTests
         Assert.IsTrue(plot.tilled && plot.crop == "carrot" && plot.watered, "开垦、播种、浇水");
         yield return new WaitForSeconds(0.4f);
         Shot("farm");
+        ui.Open("goals"); yield return null; Shot("goals"); ui.Close();
         ui.Open("bag");
         int clock = s.S.clock;
         yield return new WaitForSeconds(1.2f);
@@ -214,6 +218,9 @@ public class HomeIslandPlayTests
         Stand(HomeIslandLayout.TileToWorld(res.tx, res.ty + 0.75f)); yield return null;
         var spot = s.CurrentSpot();
         Assert.AreEqual("gather", spot?.kind, "资源旁：动作是采集");
+        yield return Frames(2);
+        Assert.IsTrue(Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None).Any(r => r.name == "action ring" && r.gameObject.activeInHierarchy), "能互动的东西脚下有光圈");
+        Shot("gather_ring");
         s.Act(spot);
         Assert.IsTrue(s.S.expedition.changes.collected.Count > 0, "采集记入岛屿记录");
         // a chest
@@ -242,6 +249,14 @@ public class HomeIslandPlayTests
         Shot("battle_result");
         Click("继续"); yield return null;
         Assert.IsFalse(s.Clock.Paused, "对战结束后时间继续");
+        // before the fog: the strip slides in (19:00 at the latest), with the way back to the airship
+        Stand(ex.ArrivePoint(s.S));
+        s.S.clock = 19 * 60 + 2; s.ApplyLight();
+        yield return new WaitForSecondsRealtime(0.6f);
+        Assert.IsTrue(Object.FindObjectsByType<RectTransform>(FindObjectsSortMode.None).Any(r => r.name == "fog strip" && r.gameObject.activeInHierarchy), "19 点：起雾提醒");
+        Shot("fog_strip");
+        Click("指路回飞艇"); yield return new WaitForSecondsRealtime(0.3f);
+        Shot("fog_follow");
         // the night: fog, monsters
         Stand(ex.ArrivePoint(s.S));
         s.S.clock = 20 * 60 + 15; s.ApplyLight();

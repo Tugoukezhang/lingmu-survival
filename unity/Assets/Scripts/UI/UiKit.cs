@@ -85,6 +85,51 @@ namespace Lingmu.UI
             return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         }
 
+        // the goal arrow on the screen edge: a map-pin teardrop pointing right (+x), white with the cocoa edge (Image.color
+        // picks the fill), a cream dot in the round part
+        static Sprite pointer, groundRing;
+        public static Sprite Pointer => pointer ? pointer : pointer = MakePointer(128);
+        static Sprite MakePointer(int size)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "ui-pointer" };
+            var px = new Color32[size * size];
+            var c = new Vector2(size * 0.42f, size * 0.5f); float r = size * 0.3f; var tip = new Vector2(size * 0.94f, size * 0.5f);
+            float half = Mathf.Asin(r / Vector2.Distance(c, tip));   // the tangents from the tip touch the circle
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    var p = new Vector2(x + 0.5f, y + 0.5f);
+                    float d = Vector2.Distance(p, c) - r;                                  // circle
+                    var tp = p - tip; float ang = Mathf.Abs(Mathf.Atan2(tp.y, -tp.x));     // cone from the tip back towards the circle
+                    if (p.x > c.x) d = Mathf.Min(d, Mathf.Sin(ang - half) * tp.magnitude);
+                    float a = Mathf.Clamp01(0.5f - d / 1.5f);
+                    Color col = Color.Lerp(Color.white, Edge, Mathf.Clamp01((d + 6) / 1.2f + 0.5f));
+                    float dot = Vector2.Distance(p, c) - r * 0.42f;
+                    if (dot < 0.75f) col = Color.Lerp(col, Cream, Mathf.Clamp01(0.5f - dot / 1.5f));
+                    col.a = a; px[y * size + x] = col;
+                }
+            tex.SetPixels32(px); tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+        }
+
+        // the ring on the ground under what the action button would use: a soft white band and a faint fill, 1 m across
+        public static Sprite GroundRing => groundRing ? groundRing : groundRing = MakeGroundRing(256);
+        static Sprite MakeGroundRing(int size)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "ground-ring" };
+            var px = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    float r = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(size, size) * 0.5f) / (size * 0.5f);
+                    float band = Mathf.Clamp01(1 - Mathf.Abs(r - 0.86f) / 0.07f);
+                    float a = Mathf.Max(band * band * (3 - 2 * band), r < 0.86f ? 0.16f * r : 0) * Mathf.Clamp01((1 - r) * 30);
+                    px[y * size + x] = new Color(1, 1, 1, a);
+                }
+            tex.SetPixels32(px); tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        }
+
         static TMP_FontAsset font, bold;
         public static TMP_FontAsset Font => font ? font : font = Resources.Load<TMP_FontAsset>("Fonts/NotoSansSC-Regular SDF");
         public static TMP_FontAsset Bold => bold ? bold : bold = Resources.Load<TMP_FontAsset>("Fonts/NotoSansSC-Bold SDF") ?? Font;

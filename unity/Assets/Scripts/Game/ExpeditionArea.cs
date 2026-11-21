@@ -133,19 +133,19 @@ namespace Lingmu.Game
             float D(Vector3 w) => Vector2.Distance(p2, new Vector2(w.x, w.z));
             var isl = Island;
             var ship = W(isl.airship.tx, isl.airship.ty);
-            spots.Add((new Spot { kind = "airship", verb = "回家", label = "飞艇 · 坐飞艇回家（1 小时）" }, D(ship) - 0.6f));
+            spots.Add((new Spot { kind = "airship", verb = "回家", label = "飞艇 · 坐飞艇回家（1 小时）", pos = ship }, D(ship) - 0.6f));
             if (S.expedition.lostBag != null)
             {
                 var lb = S.expedition.lostBag; var at = new Vector3((float)lb.x / GameSession.PxPerMeter, 0, -(float)lb.y / GameSession.PxPerMeter);
-                spots.Add((new Spot { kind = "lostbag", verb = "捡回", label = $"失物包 · {Travel.LostBagCount(S)} 件东西" }, D(at)));
+                spots.Add((new Spot { kind = "lostbag", verb = "捡回", label = $"失物包 · {Travel.LostBagCount(S)} 件东西", pos = at }, D(at)));
             }
             foreach (var f in Camp.Fires(S))
             {
                 int left = Camp.FireLeft(S, f);
-                spots.Add((new Spot { kind = "fire", verb = "营地", key = f.id, label = left > 0 ? $"营火 · 还能烧 {left / 60}:{left % 60:00}" : "营火 · 已熄灭（可以添柴）" }, D(W(f.tx, f.ty))));
+                spots.Add((new Spot { kind = "fire", verb = "营地", key = f.id, label = left > 0 ? $"营火 · 还能烧 {left / 60}:{left % 60:00}" : "营火 · 已熄灭（可以添柴）", pos = W(f.tx, f.ty) }, D(W(f.tx, f.ty))));
             }
-            foreach (var c in isl.chests) spots.Add((new Spot { kind = "chest", verb = "打开", key = c.id, label = c.bonus ? "秘密宝箱 · 点互动打开" : "宝箱 · 点互动打开", data = c }, D(W(c.tx, c.ty)) - 0.6f));
-            foreach (var t in isl.thorns) spots.Add((new Spot { kind = "thorn", verb = "开路", key = t.id, label = Explore.CanClear(S) ? "荆棘丛 · 让橡果刺猬开路" : "荆棘丛 · 要橡果刺猬才能开路" }, D(W(t.tx, t.ty))));
+            foreach (var c in isl.chests) spots.Add((new Spot { kind = "chest", verb = "打开", key = c.id, label = c.bonus ? "秘密宝箱 · 点互动打开" : "宝箱 · 点互动打开", data = c, pos = W(c.tx, c.ty) }, D(W(c.tx, c.ty)) - 0.6f));
+            foreach (var t in isl.thorns) spots.Add((new Spot { kind = "thorn", verb = "开路", key = t.id, label = Explore.CanClear(S) ? "荆棘丛 · 让橡果刺猬开路" : "荆棘丛 · 要橡果刺猬才能开路", pos = W(t.tx, t.ty) }, D(W(t.tx, t.ty))));
             Spot best = null; float bestD = InteractRange;
             foreach (var (s, d) in spots) if (d < bestD) { bestD = d; best = s; }
             if (best != null) return best;
@@ -157,8 +157,8 @@ namespace Lingmu.Game
                 var look = near.StealthTo(p);
                 var net = Stealth.PickNet(S.inventory);
                 var name = GameData.Species(near.species).name;
-                string label = net == null ? $"{name} Lv.{near.level} · 没有捕宠网了" : $"{name} Lv.{near.level} · {Stealth.StealthNames[look.stealth]} · 成功率 {Mathf.RoundToInt((float)Stealth.FieldCatchRate(near.species, net, look.stealth) * 100)}%";
-                return new Spot { kind = "throw", verb = "扔网", label = label, data = near };
+                string label = net == null ? $"{name} Lv.{near.level} · 没有捕宠网了" : $"{name} Lv.{near.level} · {Stealth.StealthNames[look.stealth]} · 成功率 {Mathf.RoundToInt((float)Rules.Battle.FieldRate(S, near.species, net, look.stealth) * 100)}%";
+                return new Spot { kind = "throw", verb = "扔网", label = label, data = near, pos = near.transform.position };
             }
             // the nearest resource
             float rd = InteractRange; IslandThing res = null;
@@ -168,7 +168,23 @@ namespace Lingmu.Game
                 var pv = Crafting.Preview(S, res.type);
                 var g = Crafting.Gather[res.type];
                 string label = pv.need != null ? $"{g.name} · 要{GameData.Item(pv.need).name}" : $"{g.name} · " + string.Join("、", pv.gains.Select(kv => $"{GameData.Item(kv.Key).name} ×{kv.Value}"));
-                return new Spot { kind = "gather", verb = GatherVerb[res.type], key = res.id, label = label, data = res };
+                return new Spot { kind = "gather", verb = GatherVerb[res.type], key = res.id, label = label, data = res, pos = W(res.tx, res.ty) };
+            }
+            return null;
+        }
+
+        // the arrow (docs/20 第三节 1): the nearest thing of a kind (a resource, a wild pet, an unopened chest) or the airship
+        public override Vector3? FindPlace(string place, Vector3 from)
+        {
+            var isl = Island;
+            Vector3? Nearest(IEnumerable<Vector3> ps) { Vector3? best = null; float bd = float.MaxValue; foreach (var q in ps) { float d = (q - from).sqrMagnitude; if (d < bd) { bd = d; best = q; } } return best; }
+            switch (place)
+            {
+                case "airship": return W(isl.airship.tx, isl.airship.ty);
+                case "gather": return Nearest(isl.resources.Select(r => W(r.tx, r.ty)));
+                case "wild": return Nearest(wild.Where(w => w).Select(w => w.transform.position));
+                case "chest": return Nearest(isl.chests.Select(c => W(c.tx, c.ty)));
+                case "lostbag": { var lb = S.expedition.lostBag; return lb == null ? (Vector3?)null : new Vector3((float)lb.x / GameSession.PxPerMeter, 0, -(float)lb.y / GameSession.PxPerMeter); }
             }
             return null;
         }
@@ -213,6 +229,7 @@ namespace Lingmu.Game
             var g = Session;
             if (!res.ok) { g.Say(res.reason switch { "need-tool" => $"要{GameData.Item(res.tool).name}才行", "full" => "背包满了", _ => "已经没有了" }); return; }
             g.Say("得到 " + string.Join("、", res.gains.Select(kv => $"{GameData.Item(kv.Key).name} ×{kv.Value}")));
+            foreach (var kv in res.gains) g.Gained(kv.Key, W(r.tx, r.ty));
             Island = IslandGen.ApplyChanges(Island, S.expedition.changes);
             Remove(r.id);
             RefreshBlocking();
@@ -224,6 +241,7 @@ namespace Lingmu.Game
             var g = Session;
             if (!r.ok) { g.Say(r.reason == "full" ? "背包满了，先腾出位置再开" : "已经打开过了"); return; }
             g.Say("宝箱里有：" + string.Join("、", r.loot.items.Select(kv => $"{GameData.Item(kv.Key).name} ×{kv.Value}")) + $"，四叶草 +{r.loot.clover}");
+            foreach (var kv in r.loot.items) g.Gained(kv.Key, W(c.tx, c.ty));
             Island = IslandGen.ApplyChanges(Island, S.expedition.changes);
             if (things.TryGetValue(c.id, out var old)) { var at = old.transform.position; var rot = old.transform.rotation; Destroy(old); things[c.id] = ModelLibrary.Place("chest_open", props, at, c.bonus ? 1.05f : 0.85f, false, 90); }
             RefreshBlocking();
@@ -437,6 +455,7 @@ namespace Lingmu.Game
                 wk.transform.position = new Vector3(wk.transform.position.x, 0.6f + Mathf.Sin(Time.time * 2 + i) * 0.1f, wk.transform.position.z);
                 if (Px(Vector2.Distance(new Vector2(wk.transform.position.x, wk.transform.position.z), new Vector2(Player.position.x, Player.position.z))) > 34) continue;
                 if (!Inventory.AddItem(S.inventory, "item_foxwick", 1, Crafting.BagSlots(S))) { Session.Say("背包满了，捡不了狐火灯芯"); continue; }
+                Session.Gained("item_foxwick", wk.transform.position);
                 Destroy(wk); wicks.RemoveAt(i);
                 Session.Say($"捡到了狐火灯芯（{Inventory.CountOf(S.inventory, "item_foxwick")}/3）");
                 Session.AfterAction();

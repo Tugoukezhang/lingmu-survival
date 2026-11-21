@@ -377,6 +377,9 @@ namespace Lingmu.Rules
         // ---------- field catch (T45): throw a net without a battle ----------
         public class FieldCatchResult : Res { public bool caught; public double rate; public BattleSummary summary; }
 
+        // the very first catch of a save always works (docs/20: the first net of the tutorial never fails)
+        public static double FieldRate(GameState s, string species, string netId, string stealth) => Guide.Stat(s, "catches") == 0 ? 1 : Stealth.FieldCatchRate(species, netId, stealth);
+
         // stealth: seen | unaware | back. One net is used whether it works or not; the leader gets the catch exp.
         public static FieldCatchResult FieldCatch(GameState s, PetInstance wild, string netId, string stealth, double roll, string wildId = null)
         {
@@ -384,7 +387,7 @@ namespace Lingmu.Rules
             Inventory.RemoveItem(s.inventory, netId, 1);
             Growth.DexSee(s, wild.species);
             Guide.Bump(s, "throws");
-            double rate = Stealth.FieldCatchRate(wild.species, netId, stealth);
+            double rate = FieldRate(s, wild.species, netId, stealth);
             if (!PetMath.CatchSucceeds(rate, roll)) return new FieldCatchResult { ok = true, caught = false, rate = rate };
             Guide.Bump(s, "catches");
             Guide.Bump(s, "fieldCatches");

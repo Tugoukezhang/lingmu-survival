@@ -17,16 +17,19 @@ namespace Lingmu.Rules
 
     public static class Guide
     {
-        public class Goal { public string id, text, stat, altStat; public int n, altN; public Func<GameState, bool> check; }
+        // area + place: where the goal is done, for the arrow (Goals.cs); no area = done in a panel
+        public class Goal { public string id, text, stat, altStat, area, place; public int n, altN; public Func<GameState, bool> check; }
 
+        // day 1 (docs/20, GPT review 11-21): the first wild pet is caught from behind before anything else is asked of the
+        // player; a battle is optional
         public static readonly Goal[] Goals =
         {
-            new Goal { id = "depart", text = "去出生点正下方的飞艇码头，坐飞艇出发", stat = "trips", n = 1 },
-            new Goal { id = "gather", text = "在岛上采集 3 次：走到树、石头、草丛旁按「采集」", stat = "gather", n = 3 },
+            new Goal { id = "depart", text = "去飞艇码头，坐飞艇出发", check = s => s.player.area == "expedition" || Stat(s, "trips") > 0, area = "home", place = "dock" },
+            new Goal { id = "catch", text = "从背后悄悄靠近野生宠物，按「扔网」抓一只（第一网一定成功）", stat = "catches", n = 1, area = "expedition", place = "wild" },
+            new Goal { id = "gather", text = "采集 3 次：走到树、石头、草丛旁按「采集」", stat = "gather", n = 3, area = "expedition", place = "gather" },
             new Goal { id = "axe", text = "点右上「制作」，做一把石斧（砍树一次得 3 木材）", check = s => Inventory.CountOf(s.inventory, "item_axe") > 0 },
-            new Goal { id = "battle", text = "碰一碰野生宠物打一场；或者从背后悄悄靠近，按「扔网」直接抓", stat = "battles", n = 1, altStat = "catches", altN = 1 },
-            new Goal { id = "return", text = "20 点会起雾——天黑前回着陆点坐飞艇回家", stat = "returns", n = 1, altStat = "campSleeps", altN = 1 },
-            new Goal { id = "sleep", text = "走到家门口的帐篷，睡觉开始新的一天", stat = "sleeps", n = 1 },
+            new Goal { id = "return", text = "20 点会起雾，天黑前坐飞艇回家", stat = "returns", n = 1, altStat = "campSleeps", altN = 1, area = "expedition", place = "airship" },
+            new Goal { id = "sleep", text = "回帐篷睡觉。明早去风铃小镇看看", stat = "sleeps", n = 1, area = "home", place = "tent" },
         };
 
         public static Dictionary<string, int> Stats(GameState s) => s.flags.stats ??= new Dictionary<string, int>();

@@ -58,10 +58,11 @@ namespace Lingmu.UI
             session.DayEnded += ShowReport;
             session.BattleStarted += ShowBattle;
             OrbitCamera.OverUi = OverUi;
+            BuildGuide();
             RefreshHud();
         }
 
-        void OnDestroy() { if (session != null) { session.Changed -= RefreshHud; session.Toast -= ShowToast; session.DayEnded -= ShowReport; session.BattleStarted -= ShowBattle; } if (OrbitCamera.OverUi == (Func<Vector2, bool>)OverUi) OrbitCamera.OverUi = null; }
+        void OnDestroy() { if (ring) Destroy(ring.gameObject); if (session != null) { session.Changed -= RefreshHud; session.Toast -= ShowToast; session.DayEnded -= ShowReport; session.BattleStarted -= ShowBattle; session.ItemGained -= FlyToBag; } if (OrbitCamera.OverUi == (Func<Vector2, bool>)OverUi) OrbitCamera.OverUi = null; }
 
         // ---------- building ----------
         void Build()
@@ -112,7 +113,7 @@ namespace Lingmu.UI
             partyDot = Panel(pets, "dot", Red, Circle, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f), new Vector2(30, -12), new Vector2(28, 28)).gameObject;
             UiMotion.Pulse(partyDot.transform, 0.12f, 1.1f);
             MenuCell(tray, "hud_craft", "制作", () => Open("craft"), 3);
-            MenuCell(tray, "hud_bag", "背包", () => Open("bag"), 4);
+            bagCell = MenuCell(tray, "hud_bag", "背包", () => Open("bag"), 4);
             MenuCell(tray, "hud_more", "更多", () => { moreTray.gameObject.SetActive(!moreTray.gameObject.activeSelf); if (moreTray.gameObject.activeSelf) UiMotion.PopIn(moreTray); }, 5);
             moreTray = Panel(safe, "more", Cream, null, true, true).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-32, -28 - CellH - 22), new Vector2(CellW * 2 + 24, CellH + 12));
             MenuCell(moreTray, "hud_dex", "图鉴", () => Open("dex"), 0);
@@ -174,7 +175,9 @@ namespace Lingmu.UI
                 ShowVerb(spot?.verb ?? "互动");
                 ShowSpot(spot?.label);
             }
-            if (Time.unscaledTime >= nextHud) { nextHud = Time.unscaledTime + 0.2f; RefreshClock(); UpdateBarLabels(); }
+            if (Time.unscaledTime >= nextHud) { nextHud = Time.unscaledTime + 0.2f; RefreshClock(); UpdateBarLabels(); RefreshGoal(); CheckFog(); }
+            UpdateGuide();
+            UpdateFlying();
             if (cloverIcon) cloverIcon.localRotation = Quaternion.Euler(0, 0, Time.unscaledTime < wiggleUntil ? Mathf.Sin((wiggleUntil - Time.unscaledTime) / 0.35f * Mathf.PI * 3) * 6 : 0);
             for (int i = toasts.Count - 1; i >= 0; i--)
             {
@@ -321,9 +324,7 @@ namespace Lingmu.UI
             lastClover = s.clover;
             UpdateBarLabels();
             partyDot.SetActive(s.pets.Any(p => Attention(s, p)));
-            var goal = Guide.Current(s);
-            goalCard.gameObject.SetActive(goal != null);
-            if (goal != null) goalText.text = "目标：" + goal.text;
+            RefreshGoal();
             if (openPanel != null && openPanel != "report" && openPanel != "battle") Fill(openPanel);
         }
 

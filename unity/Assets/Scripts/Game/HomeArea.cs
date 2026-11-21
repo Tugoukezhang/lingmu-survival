@@ -67,6 +67,29 @@ namespace Lingmu.Game
 
         public override IEnumerable<Spot> MapSpots() => spots;
 
+        // the arrow: "plot" or "plot:<action>" finds the nearest plot that needs it (the middle of the field if none does)
+        public override Vector3? FindPlace(string place, Vector3 from)
+        {
+            if (!place.StartsWith("plot")) return base.FindPlace(place, from);
+            string want = place.Length > 5 ? place.Substring(5) : null;
+            Vector3? best = null; float bd = float.MaxValue;
+            void Scan(TileRect r)
+            {
+                for (int y = r.y; y < r.y + r.h; y++)
+                    for (int x = r.x; x < r.x + r.w; x++)
+                    {
+                        var act = Farm.PlotAction(S, Farm.PlotKey(x, y));
+                        if (want != null && act != want && !(want == "plant" && act == "till")) continue;
+                        var w = HomeIslandLayout.TileToWorld(x, y); float d = (w - from).sqrMagnitude;
+                        if (d < bd) { bd = d; best = w; }
+                    }
+            }
+            Scan(Layout.FarmRect);
+            if (S.world?.expanded ?? false) Scan(Layout.ExpandRect);
+            var f = Layout.FarmRect;
+            return best ?? HomeIslandLayout.TileToWorld(f.x + f.w / 2f, f.y + f.h / 2f);
+        }
+
         public override Spot CurrentSpot(Vector3 p)
         {
             // a farm plot under your feet beats the box next to it
@@ -129,7 +152,7 @@ namespace Lingmu.Game
                     break;
                 }
                 case "water": { var r = Farm.Water(S, key); g.Say(r.ok ? "浇好水了" : "要有水壶才能浇水"); break; }
-                case "harvest": { var r = Farm.Harvest(S, key); g.Say(r.ok ? $"收获了{GameData.Item(r.item).name}！" : "背包满了"); break; }
+                case "harvest": { var r = Farm.Harvest(S, key); g.Say(r.ok ? $"收获了{GameData.Item(r.item).name}！" : "背包满了"); if (r.ok) { var xy = key.Split(','); g.Gained(r.item, HomeIslandLayout.TileToWorld(int.Parse(xy[0]), int.Parse(xy[1]))); } break; }
                 default: g.Say("今天浇过水了，睡一觉它就会长"); break;
             }
         }
