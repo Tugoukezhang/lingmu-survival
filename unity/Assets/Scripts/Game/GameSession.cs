@@ -126,6 +126,23 @@ namespace Lingmu.Game
             if (sun) { sunColor = sun.color; sunIntensity = sun.intensity; }
             ambient = RenderSettings.ambientSkyColor; equator = RenderSettings.ambientEquatorColor; groundAmb = RenderSettings.ambientGroundColor; fogColor = RenderSettings.fogColor;
             if (RenderSettings.skybox) { sky = new Material(RenderSettings.skybox); RenderSettings.skybox = sky; skyExposure = sky.HasProperty("_Exposure") ? sky.GetFloat("_Exposure") : 1; }   // a copy: never change the saved asset
+            SwapHero();
+        }
+
+        // round 2 (docs/21): the hero remade on the Tripo website replaces the model the scene was built with, at the same
+        // height, so the scenes don't have to be rebuilt. PlayerMover picks up the new model's animator in its Start.
+        public const float HeroHeight = 1.35f;
+        void SwapHero()
+        {
+            if (!player) return;
+            var mover = player.GetComponent<Player.PlayerMover>();
+            var e = World.ModelLibrary.Get ? World.ModelLibrary.Get.Find("hero") : null;
+            if (!mover || !mover.model || e == null || !e.model) return;
+            var old = mover.model;
+            var g = World.ModelLibrary.Place("hero", player, player.position, HeroHeight, true, 0);
+            g.transform.localPosition = new Vector3(0, g.transform.localPosition.y, 0);
+            mover.model = g.transform;
+            Destroy(old.gameObject);
         }
 
         void Start()

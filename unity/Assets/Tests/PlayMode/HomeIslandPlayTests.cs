@@ -104,6 +104,15 @@ public class HomeIslandPlayTests
         float[] yaws = { 0, 2.4f, 4.2f };
         for (int i = 0; i < yaws.Length; i++) { cam.yaw = yaws[i]; cam.Snap(); yield return new WaitForSeconds(0.4f); Shot("look_home_" + i); }
         cam.pitch = 0.2f; cam.yaw = 1.2f; cam.Snap(); yield return new WaitForSeconds(0.4f); Shot("look_home_low");
+        // the round-2 hero up close (docs/21): both sides, then walking
+        var L = ((HomeArea)GameSession.I.Area).Layout;
+        Stand(HomeIslandLayout.TileToWorld(L.CottageRect.x + L.CottageRect.w / 2f - 0.5f, L.CottageRect.y + L.CottageRect.h + 3f));
+        cam.distance = 3.0f; cam.pitch = 0.16f;
+        for (int k = 0; k < 4; k++) { cam.yaw = k * Mathf.PI / 2; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("hero_" + k); }
+        cam.yaw = 0.8f; cam.Snap();
+        Lingmu.Player.PlayerMover.Stick = new Vector2(0.6f, -0.8f); yield return new WaitForSeconds(0.7f); Shot("hero_walk");
+        Lingmu.Player.PlayerMover.Stick = Vector2.zero;
+        cam.distance = 6.875f;
         var ex = SaveRules.NewGameState(starter: "fox"); ex.day = 3; Travel.Depart(ex, "new"); ex.clock = 10 * 60;
         GameSession.UseState(ex);
         yield return Load("Expedition");

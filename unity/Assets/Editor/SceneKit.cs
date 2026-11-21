@@ -313,7 +313,11 @@ public static class SceneKit
         ("pet_shadecat", Chars + "A06_shadecat_rig", true), ("pet_pup", Chars + "A02_pup_rig", true), ("pet_fox", Chars + "A00_fox_rig", true),
         ("npc_granny", Chars + "B01_npc_granny", true), ("npc_ali", Chars + "B02_npc_ali", true), ("npc_lumi", Chars + "B03_npc_lumi", true), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
         ("player", Chars + "A01_player_rig", true),
+        ("hero", Chars + "H01_hero", true),   // round 2 (Tripo website, 11-22): replaces the player model when a scene starts (GameSession.SwapHero)
     };
+
+    // after new models arrive: short clip names, then the runtime library (batch: -executeMethod SceneKit.RefreshModels)
+    public static void RefreshModels() { AssetDatabase.Refresh(); LingmuModelImport.FixClips(); UpdateLibrary(); }
 
     [MenuItem("Lingmu/Update Model Library")]
     public static ModelLibrary UpdateLibrary()

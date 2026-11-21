@@ -16,14 +16,17 @@ public class LingmuModelImport : AssetPostprocessor
     // 4: the player too (two-legged clips), so A01 is Generic as well
     // 5: model textures 4096 on PC with Kaiser mips, mip bias and 8x aniso (2048 on phones / web)
     // 6: town residents rigged in Blender (Generic, idle clips)
-    public override uint GetVersion() => 6;
+    // 7: round-2 models from the Tripo website (Smart Mesh P2.0, Tripo auto-rig "Unity Humanoid Compatible"): H0* = Humanoid
+    public override uint GetVersion() => 7;
 
     static bool IsArt(string p) => p.StartsWith("Assets/Art/");
     // pets, the player and the town residents are rigged by tools/blender/rig_pet.py with their own skeleton: Generic;
     // the rest (Tripo-rigged, e.g. the innkeeper): Humanoid
     static bool IsOwnRig(string p) => (p.StartsWith("Assets/Art/Characters/A0") || p.StartsWith("Assets/Art/Characters/B01_") || p.StartsWith("Assets/Art/Characters/B02_") || p.StartsWith("Assets/Art/Characters/B03_")) && !p.Contains("_unrigged");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
-    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "happy" };
+    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "happy", "dig", "shovel", "water" };
+    // text-to-motion clips come back named after the Chinese prompt: short names the game asks for
+    static readonly (string key, string name)[] PromptClips = { ("网", "net_throw"), ("浇水", "water"), ("捡起", "pick_up") };
 
     void OnPreprocessModel()
     {
@@ -167,6 +170,7 @@ public class LingmuModelImport : AssetPostprocessor
             foreach (var c in clips)
             {
                 var shortName = c.takeName.Split('|').Last().Replace(".001", "").Replace("_Armature", "");
+                foreach (var (key, name) in PromptClips) if (shortName.Contains(key)) shortName = name;
                 bool loop = Looping.Any(k => shortName.ToLowerInvariant().Contains(k));
                 if (c.name != shortName || c.loopTime != loop) { c.name = shortName; c.loopTime = loop; changed = true; }
             }

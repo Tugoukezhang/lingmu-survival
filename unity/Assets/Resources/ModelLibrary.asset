@@ -91,3 +91,6 @@ MonoBehaviour:
   - key: player
     model: {fileID: 919132149155446097, guid: a23c948097f908b40902dfe97a07be9e, type: 3}
     animator: {fileID: 9100000, guid: 892c35fd85951c9419b9081f70ded2b9, type: 2}
+  - key: hero
+    model: {fileID: 919132149155446097, guid: ee13193b15693d14ca670384750e5757, type: 3}
+    animator: {fileID: 9100000, guid: 4cec34a80e7b01646a3a6d56d57b0741, type: 2}
