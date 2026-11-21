@@ -60,8 +60,8 @@ public class LingmuModelImport : AssetPostprocessor
             // bleeds their edges) keeps mipmaps: its icons are shown 2–3× smaller and would shimmer without them.
             var ui = (TextureImporter)assetImporter;
             ui.textureType = TextureImporterType.Sprite; ui.spriteImportMode = SpriteImportMode.Single;
-            // The title art (UI/Title: full-screen background, island, logo) keeps up to 2048 px and skips mipmaps.
-            bool title = assetPath.StartsWith("Assets/Resources/UI/Title/");
+            // Full-screen art (UI/Title: background, island, logo; UI/Battle: the battle backdrop) keeps up to 2048 px and skips mipmaps.
+            bool title = assetPath.StartsWith("Assets/Resources/UI/Title/") || assetPath.StartsWith("Assets/Resources/UI/Battle/");
             ui.mipmapEnabled = assetPath.StartsWith("Assets/Resources/UI/") && !title; ui.alphaIsTransparency = true; ui.maxTextureSize = title ? 2048 : 512;
             var a = ui.GetPlatformTextureSettings("Android");
             a.overridden = true; a.maxTextureSize = title ? 2048 : 512; a.format = title ? TextureImporterFormat.ASTC_6x6 : TextureImporterFormat.ASTC_4x4;

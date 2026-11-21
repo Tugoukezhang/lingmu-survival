@@ -3,6 +3,7 @@
 //   Drift  — slides sideways and wraps around (clouds)
 //   Pulse  — breathes in scale (red dots, the start button, the action button when it can be used)
 //   PopIn  — a panel pops in: 0.92 → 1 with a fade, about 0.2 s
+//   Spin   — turns slowly (the rays behind a celebration)
 //   Press  — a button shrinks a little while held and springs back
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +12,7 @@ namespace Lingmu.UI
 {
     public class UiMotion : MonoBehaviour
     {
-        public enum Kind { Bob, Drift, Pulse, PopIn }
+        public enum Kind { Bob, Drift, Pulse, PopIn, Spin }
         public Kind kind;
         public float amount = 8, speed = 1, phase;   // Bob: px; Drift: px per second (wraps over `range`); Pulse: scale (0.06 = ±6 %)
         public float range = 2400;
@@ -46,6 +47,7 @@ namespace Lingmu.UI
                     float x = Mathf.Repeat(home.x + t * amount + range * 0.5f, range) - range * 0.5f;
                     rt.anchoredPosition = new Vector2(x, home.y); break;
                 case Kind.Pulse: rt.localScale = Vector3.one * (1 + Mathf.Sin(t * speed * Mathf.PI * 2) * amount); break;
+                case Kind.Spin: rt.localEulerAngles = new Vector3(0, 0, -t * amount); break;   // degrees per second
                 case Kind.PopIn:
                     float k = Mathf.Clamp01(t / 0.2f), e = 1 - (1 - k) * (1 - k) * (1 - k);   // ease-out
                     rt.localScale = Vector3.one * Mathf.Lerp(0.92f, 1, e); group.alpha = e;

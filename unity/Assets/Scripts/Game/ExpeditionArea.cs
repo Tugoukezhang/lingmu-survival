@@ -180,7 +180,7 @@ namespace Lingmu.Game
             var g = Session;
             switch (s.kind)
             {
-                case "airship": g.GoTo("home"); return null;
+                case "airship": if (Travel.LostBagCount(S) > 0) return "leave"; g.GoTo("home"); return null;   // a confirm first when the lost bag is still out
                 case "gather": Gather((IslandThing)s.data); return null;
                 case "chest": OpenChest((IslandThing)s.data); return null;
                 case "thorn":

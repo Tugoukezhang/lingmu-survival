@@ -387,6 +387,19 @@ namespace Lingmu.Game
             return r.ok;
         }
 
+        // 制作 N 个 (the crafting panel's stepper): makes up to n, one message at the end
+        public int CraftMany(string recipeId, int n)
+        {
+            var rec = GameData.Recipe(recipeId);
+            int made = 0; string reason = null;
+            for (int i = 0; i < n; i++) { var r = Crafting.Craft(S, recipeId); if (!r.ok) { reason = r.reason; break; } made++; }
+            if (made > 0) Sfx("craft");
+            Say(made > 0 ? $"做好了：{GameData.Item(rec.@out).name} ×{made * Math.Max(1, rec.n)}" + (made < n ? (reason == "full" ? "（背包满了）" : "（材料不够了）") : "")
+                : reason switch { "missing" => "材料不够", "full" => "背包满了", "station" => "要在家园的工作台做", "locked" => "还没学会这个做法", _ => "做不了" });
+            AfterAction();
+            return made;
+        }
+
         public bool BuySeed(string cropId, int n = 1)
         {
             var r = Farm.BuySeed(S, cropId, n);

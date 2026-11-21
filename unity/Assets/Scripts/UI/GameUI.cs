@@ -366,6 +366,7 @@ namespace Lingmu.UI
         {
             if (openPanel == "battle") return;
             poppedFor = null;
+            SetHud(true);
             if (openPanel == "report") { openPanel = null; modal.gameObject.SetActive(false); session.StartNewDay(); if (mover) mover.enabled = true; return; }
             openPanel = null;
             modal.gameObject.SetActive(false);
@@ -377,6 +378,7 @@ namespace Lingmu.UI
         RectTransform NewBox(string title, Vector2 size)
         {
             if (box) Destroy(box.gameObject);
+            dim.color = new Color(0.08f, 0.05f, 0.03f, 0.66f);
             box = Panel(modal, "panel", Cream, null, true, true).rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -10), size);
             Decorate(box);
             if (poppedFor != openPanel) { UiMotion.PopIn(box); poppedFor = openPanel; }
@@ -393,9 +395,23 @@ namespace Lingmu.UI
             var sprout = KitImage(panel, "orn_sprout", 76); sprout.rectTransform.Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-34, -20), new Vector2(76, 71));
         }
 
+        // the HUD (all of the safe area but the toasts) steps aside while talking to a resident; only what was showing
+        // comes back (the 更多 tray and the spot chip keep their own state)
+        readonly List<GameObject> hudHidden = new List<GameObject>();
+        void SetHud(bool on)
+        {
+            if (!on)
+            {
+                if (hudHidden.Count > 0) return;
+                foreach (Transform c in safe) if (c != toastRoot && c.gameObject.activeSelf) { hudHidden.Add(c.gameObject); c.gameObject.SetActive(false); }
+            }
+            else { foreach (var g in hudHidden) if (g) g.SetActive(true); hudHidden.Clear(); }
+        }
+
         void Fill(string panel)
         {
             scrollPending.Clear();
+            SetHud(!panel.StartsWith("npc:"));
             switch (panel)
             {
                 case "bag": FillBag(); break;
@@ -434,32 +450,5 @@ namespace Lingmu.UI
 
         static string Name(string id) => GameData.Item(id)?.name ?? id;
 
-        void FillCraft()
-        {
-            var s = session.S;
-            var b = NewBox("制作", new Vector2(1300, 880));
-            var list = List(b);
-            foreach (var r in GameData.Recipes.Where(r => Crafting.Unlocked(s, r.id)))
-            {
-                var chk = Crafting.CanCraft(s, r.id);
-                bool here = Crafting.StationOk(s, r.id);
-                var cost = string.Join("　", r.cost.Select(kv => $"{Name(kv.Key)} {Inventory.CountOf(s.inventory, kv.Key)}/{kv.Value}"));
-                var id = r.id;
-                Row(list, r.@out, Name(r.@out) + (r.n > 1 ? $" ×{r.n}" : ""), (r.station == "workbench" ? "【工作台】" : "") + cost, here ? "制作" : "回家做", chk.ok && here, () => session.Craft(id));
-            }
-        }
-
-        void ShowReport(SettlementReport r)
-        {
-            openPanel = "report";
-            GameAudio.Play("dayend");
-            modal.gameObject.SetActive(true);
-            if (mover) mover.enabled = false;
-            PlayerMover.Stick = Vector2.zero;
-            var b = NewBox($"第 {r.endedDay} 天结束", new Vector2(1100, 760));
-            var text = Label(b, string.Join("\n", r.lines.Select(l => "· " + l)), FsSub + 2, Ink, false, TextAlignmentOptions.TopLeft);
-            text.rectTransform.Fill(); text.rectTransform.offsetMin = new Vector2(70, 150); text.rectTransform.offsetMax = new Vector2(-70, -120);
-            var go = Button(b, $"开始第 {r.day} 天", Yellow, WoodDark, 36, Close); ((RectTransform)go.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 40), new Vector2(360, 96));
-        }
     }
 }

@@ -344,6 +344,56 @@ namespace Lingmu.UI
             MainButton(card, $"放入 {qty} 个", () => { session.Ship(sel, qty); qty = 1; });
         }
 
+        // ---------- 制作: recipe cards (what you can make now has a tick), materials with have / need, make N ----------
+        string selectedRecipe;
+
+        // how many times a recipe can be made from what is in the bag
+        static int Makeable(GameState s, RecipeDef r) => r.cost.Count == 0 ? 99 : r.cost.Min(kv => Inventory.CountOf(s.inventory, kv.Key) / Math.Max(1, kv.Value));
+
+        void FillCraft()
+        {
+            var s = session.S;
+            var recipes = GameData.Recipes.Where(r => Crafting.Unlocked(s, r.id)).ToList();
+            var b = NewBox("制作", ItemBox);
+            ItemTabsRow(b, new Vector2(44, -92), recipes.Select(r => r.@out));
+            var shown = recipes.Where(r => itemTab == "all" || TabOf(r.@out) == itemTab)
+                .OrderByDescending(r => Makeable(s, r) > 0 && Crafting.StationOk(s, r.id)).ToList();   // what can be made now comes first
+            if (selectedRecipe == null || !shown.Any(r => r.id == selectedRecipe)) { selectedRecipe = shown.FirstOrDefault()?.id; qty = 1; }
+            var grid = SlotGrid(b, "craft", new Vector2(44, -212), new Vector2(904, 648), new Vector2(168, 204), 12, 5);
+            foreach (var r in shown)
+            {
+                var id = r.id; bool here = Crafting.StationOk(s, id); int can = Makeable(s, r);
+                var card = Cell(grid, "recipe " + id, Cream, id == selectedRecipe, () => { if (selectedRecipe != id) qty = 1; selectedRecipe = id; Fill("craft"); }).rectTransform;
+                var icon = Rect("icon", card).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -12), new Vector2(100, 100)).gameObject.AddComponent<Image>();
+                icon.sprite = Icon(r.@out); icon.preserveAspect = true; icon.raycastTarget = false;
+                if (can == 0) icon.color = new Color(1, 1, 1, 0.55f);
+                var n = Label(card, ShortName(r.@out) + (r.n > 1 ? $" ×{r.n}" : ""), FsMin, WoodDark, true); n.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(156, 42));
+                n.textWrappingMode = TextWrappingModes.NoWrap; n.overflowMode = TextOverflowModes.Ellipsis;
+                string state = !here ? "回家做" : can > 0 ? "能做" : "缺材料";
+                var st = Label(card, state, FsMin, can > 0 && here ? GrassDark : Hex("a08a70"), can > 0 && here); st.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(can > 0 && here ? 14 : 0, 12), new Vector2(140, 40));
+                if (can > 0 && here) KitImage(card, "tick", 34).rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0.5f), new Vector2(-40, 32), new Vector2(34, 34));
+                if (r.station == "workbench") KitImage(card, "act_build", 40).rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-10, -10), new Vector2(40, 40));
+            }
+            var sel = GameData.Recipe(selectedRecipe);
+            if (sel == null) return;
+            bool atStation = Crafting.StationOk(s, sel.id); int most = Makeable(s, sel);
+            var card2 = DetailCard(b, sel.@out, (sel.n > 1 ? $"一次做 {sel.n} 个　" : "") + (sel.station == "workbench" ? "在家园的工作台做" : ""), true);
+            // materials: icon, have / need (red when short)
+            var mats = sel.cost.ToList();
+            float w = 112, x0 = -(mats.Count - 1) * w / 2;
+            for (int i = 0; i < mats.Count; i++)
+            {
+                var (mid, need) = (mats[i].Key, mats[i].Value);
+                int have = Inventory.CountOf(s.inventory, mid);
+                var slot = Panel(card2, "material", Hex("f6efe0"), FlatSmall, false).rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(x0 + i * w, 236), new Vector2(100, 100));
+                var mi = Rect("icon", slot).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -4), new Vector2(58, 58)).gameObject.AddComponent<Image>(); mi.sprite = Icon(mid); mi.preserveAspect = true; mi.raycastTarget = false;
+                var c = Label(slot, $"{have}/{need * Math.Max(1, qty)}", FsMin, have >= need * Math.Max(1, qty) ? WoodDark : Red, true); c.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 2), new Vector2(100, 36));
+            }
+            Stepper(card2, new Vector2(0, 136), Math.Min(20, most));
+            var make = MainButton(card2, !atStation ? "回家园做" : most == 0 ? "材料不够" : $"制作 {qty} 个", () => { if (session.CraftMany(sel.id, qty) > 0) qty = 1; });
+            make.interactable = atStation && most > 0;
+        }
+
         // ---------- 种子摊 (home) and 杂货铺 (town): product cards, details, amount, buy ----------
         void FillStore(string panel)
         {

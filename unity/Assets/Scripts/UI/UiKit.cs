@@ -66,6 +66,25 @@ namespace Lingmu.UI
             return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100, 0, SpriteMeshType.FullRect, new Vector4(b, b, b, b));
         }
 
+        // soft light rays fading out from the middle (behind the celebration card), white so Image.color tints them
+        static Sprite rays;
+        public static Sprite Rays => rays ? rays : rays = MakeRays(256, 14);
+        static Sprite MakeRays(int size, int count)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "ui-rays" };
+            var px = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    float dx = (x + 0.5f) / size - 0.5f, dy = (y + 0.5f) / size - 0.5f, r = Mathf.Sqrt(dx * dx + dy * dy) * 2;
+                    float ray = Mathf.SmoothStep(0, 1, Mathf.Cos(Mathf.Atan2(dy, dx) * count) * 0.5f + 0.5f);
+                    float a = ray * Mathf.Clamp01(1 - r) * Mathf.Clamp01(r * 4);
+                    px[y * size + x] = new Color(1, 1, 1, a);
+                }
+            tex.SetPixels32(px); tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+        }
+
         static TMP_FontAsset font, bold;
         public static TMP_FontAsset Font => font ? font : font = Resources.Load<TMP_FontAsset>("Fonts/NotoSansSC-Regular SDF");
         public static TMP_FontAsset Bold => bold ? bold : bold = Resources.Load<TMP_FontAsset>("Fonts/NotoSansSC-Bold SDF") ?? Font;
@@ -123,7 +142,9 @@ namespace Lingmu.UI
             var img = Rect(name, parent).gameObject.AddComponent<Image>();
             sprite = sprite ? sprite : Round;
             if (color.a < 0.9f || Same(color, CreamDark)) sprite = FlatTwin(sprite);
-            img.sprite = sprite; img.type = Image.Type.Sliced; img.color = color; img.raycastTarget = raycast;
+            // circles are drawn whole (sliced, a big circle turns into a rounded square); the rest is 9-sliced
+            bool round = sprite == circle || sprite == flatCircle || sprite == pillCircle;
+            img.sprite = sprite; img.type = round ? Image.Type.Simple : Image.Type.Sliced; img.color = color; img.raycastTarget = raycast;
             if (shadow) { var sh = img.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.25f, 0.17f, 0.1f, 0.22f); sh.effectDistance = new Vector2(0, -5); }
             return img;
         }

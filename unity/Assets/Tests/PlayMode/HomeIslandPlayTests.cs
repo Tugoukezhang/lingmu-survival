@@ -166,6 +166,7 @@ public class HomeIslandPlayTests
         s.Ship("item_berry", 2);
         ui.Open("ship"); yield return null; Shot("ship"); ui.Close();
         ui.Open("seeds"); yield return null; Shot("seeds"); ui.Close();
+        ui.Open("craft"); yield return null; Shot("craft"); ui.Close();
         // partner panel: the three tabs, learning from a skill book, the dex
         s.S.inventory.Add(new ItemStack("item_book_puff", 1));
         ui.OpenParty("care"); yield return null; Shot("party");
@@ -175,6 +176,10 @@ public class HomeIslandPlayTests
         Assert.IsTrue(lead.skills.Contains("puff") && lead.skills.Count == known + 1 && Inventory.CountOf(s.S.inventory, "item_book_puff") == 0, "伙伴面板：用技能书学会毛茸茸");
         ui.OpenParty("growth"); yield return null; Shot("party_growth");
         ui.Open("dex"); yield return null; Shot("dex"); ui.Close();
+        ui.Celebrate(Resources.Load<Sprite>("Icons/Pets/pet_fox_evo"), "进化成功！", "灯焰狐学会了新技能，属性也变强了"); yield return new WaitForSecondsRealtime(0.4f);
+        Shot("celebrate"); Click("继续"); yield return null;
+        ui.Ask("去新的浮岛？", "上次的岛上还有失物包（3 件）。\n去新的岛，失物包就找不回来了。", "还是去新的", () => { }); yield return null;
+        Shot("confirm"); ui.Close();
         Stand(HomeIslandLayout.TileToWorld(home.Layout.DockTile.x, home.Layout.DockTile.y + 0.5f)); yield return null;
         Assert.AreEqual("dock", s.CurrentSpot()?.kind, "码头");
         ui.Open("dock"); yield return null; Shot("dock"); ui.Close();
@@ -243,6 +248,10 @@ public class HomeIslandPlayTests
         yield return new WaitForSeconds(1.5f);
         Assert.IsTrue(Object.FindObjectsByType<Transform>(FindObjectsSortMode.None).Any(t => t.name == "fog monster"), "20:10 后雾怪出现");
         Shot("night");
+        // a campfire for the night: the camp card
+        s.Use("item_campfire"); yield return null;
+        var fireSpot = s.CurrentSpot();
+        if (fireSpot?.kind == "fire") { var panel = s.Act(fireSpot); if (panel != null) { exUi.Open(panel); yield return new WaitForSecondsRealtime(0.3f); Shot("camp"); exUi.Close(); } }
         // the airship home
         var ship = ex.Island.airship;
         Stand(HomeIslandLayout.TileToWorld(ship.tx, ship.ty - 1)); yield return null;
@@ -277,7 +286,13 @@ public class HomeIslandPlayTests
         Assert.AreEqual("npc", s.CurrentSpot()?.kind, "站在铃奶奶面前：聊天");
         ui.OpenNpc("granny"); yield return null;
         Assert.AreEqual(1, Town.FriendOf(s.S, "granny"), "第一次聊天好感 +1");
+        yield return new WaitForSecondsRealtime(1.6f);   // the line types out
         Shot("town_npc");
+        ui.Open("npc:granny"); // 送礼 and 委托 boxes
+        Object.FindObjectsByType<Button>(FindObjectsSortMode.None).First(x => x.name == "button 委托").onClick.Invoke(); yield return new WaitForSecondsRealtime(0.3f);
+        Shot("town_npc_quest");
+        Object.FindObjectsByType<Button>(FindObjectsSortMode.None).First(x => x.name.StartsWith("button 送礼")).onClick.Invoke(); yield return new WaitForSecondsRealtime(0.3f);
+        Shot("town_npc_gift");
         ui.Close();
         ui.Open("shop"); yield return null; Shot("shop"); ui.Close();
         s.GoTo("home"); yield return WaitArea("home");
@@ -290,5 +305,8 @@ public class HomeIslandPlayTests
         Assert.AreEqual(3, House.Of(s.S).items.Count, "摆了 3 件家具");
         Stand(HouseArea.Cell(5.5f, 6.5f)); yield return Frames(3);
         Shot("house");
+        var hui = Object.FindAnyObjectByType<GameUI>();
+        hui.Open("decorate"); yield return new WaitForSecondsRealtime(0.3f); Shot("decorate");
+        Click("已摆好  3"); yield return null; Shot("decorate_placed"); hui.Close();
     }
 }

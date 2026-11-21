@@ -309,7 +309,7 @@ namespace Lingmu.UI
                     (pet.affection >= PetMath.EvolveAffection, $"好感 {pet.affection}/{PetMath.EvolveAffection}"),
                     (stones > 0, $"{GameData.Item(sp.evolution.stone)?.name} {stones}/1"));
                 Note(evo, "进化石在远征的宝箱里", -206);
-                Act(evo, "进化", Growth.EvolveCheck(s, uid).ok, () => session.Evolve(uid));
+                Act(evo, "进化", Growth.EvolveCheck(s, uid).ok, () => { session.Evolve(uid); var p = s.Pet(uid); if (p != null && p.evolved) Celebrate(PetSprite(p), "进化成功！", $"{PetMath.DisplayName(p)}学会了「{GameData.Skill(sp.evolution.skill).name}」，属性也变强了"); });
             }
 
             // stars and crystals
@@ -325,7 +325,7 @@ namespace Lingmu.UI
             Note(star, pet.stars >= 5 ? "已经满星了" : crystals >= need ? "结晶够了，可以升星！" : $"再得 {need - crystals} 颗结晶升到 {pet.stars + 1} 星\n重复抓到同种宠物能换结晶", -180);
             bool dup = s.pets.Count(x => x.species == pet.species) > 1;
             if (dup && !(pet.stars < 5 && crystals >= need)) Act(star, $"把它转成结晶 +{pet.stars}", !inP || s.party.Count > 1, () => { Growth.ConvertToCrystal(s, uid); selectedPet = null; session.Say($"转成了 {pet.stars} 颗结晶"); session.AfterAction(); }, Orange);
-            else Act(star, pet.stars >= 5 ? "已满星" : "升星", pet.stars < 5 && crystals >= need, () => { Growth.StarUp(s, uid); session.Say($"升到了 {pet.stars} 星！"); session.AfterAction(); }, Yellow);
+            else Act(star, pet.stars >= 5 ? "已满星" : "升星", pet.stars < 5 && crystals >= need, () => { Growth.StarUp(s, uid); session.AfterAction(); Celebrate(PetSprite(pet), $"升到 {pet.stars} 星！", $"{PetMath.DisplayName(pet)}成长得更快了"); }, Yellow);
 
             // human form (first version: 焰尾狐 only)
             var form = Column(2, "化形");
@@ -340,7 +340,7 @@ namespace Lingmu.UI
             int bells = Inventory.CountOf(s.inventory, "item_fox_bell");
             Checks(form, (pet.evolved, pet.evolved ? "已经进化" : "先完成进化"), (pet.affection >= 100, $"好感 {pet.affection}/100"), (bells > 0, $"化形铃 {bells}/1"));
             Note(form, "化形铃：完成露米的「焰尾狐的心愿」", -206);
-            Act(form, "学会化形", fc.ok, () => session.UnlockForm(uid), Sky);
+            Act(form, "学会化形", fc.ok, () => { session.UnlockForm(uid); if (Growth.FormCheck(s, uid).unlocked) Celebrate(Resources.Load<Sprite>($"Icons/Pets/pet_{pet.species}_human") ?? PetSprite(pet), "学会化形了！", "叮铃——在「养成」页可以随时变身"); }, Sky);
         }
 
         // ---------- the pet dex ----------
