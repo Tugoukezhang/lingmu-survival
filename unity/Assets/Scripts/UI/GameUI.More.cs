@@ -21,7 +21,7 @@ namespace Lingmu.UI
             var s = session.S;
             var b = NewBox("设置", new Vector2(1180, 900));
             var when = s.savedAt > 0 ? System.DateTimeOffset.FromUnixTimeMilliseconds(s.savedAt).ToLocalTime().ToString("HH:mm") : "--:--";
-            var saved = Label(b, $"进度会自动保存（上次 {when}）", FsSub, Hex("8a7458"));
+            var saved = Label(b, $"进度会自动保存（上次 {when}）", FsSub, Hex("75604d"));
             saved.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -96), new Vector2(1000, 44));
             float y = -156;
             RectTransform Row(string label)

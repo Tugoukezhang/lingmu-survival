@@ -162,7 +162,7 @@ namespace Lingmu.UI
             float width = DetailSize.x - 64;
             var desc = Label(card, text, FsSub, Ink, false, TextAlignmentOptions.TopLeft); desc.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, y), new Vector2(width, 200));
             desc.lineSpacing = -4;
-            if (!string.IsNullOrEmpty(def.quip))
+            if (!compact && !string.IsNullOrEmpty(def.quip))   // compact cards need the room for materials / amount / total
             {
                 y -= desc.GetPreferredValues(text, width, 0).y + 10;
                 var q = Label(card, "「" + def.quip + "」", FsMin, Hex("a08a70"), false, TextAlignmentOptions.TopLeft);
@@ -185,7 +185,7 @@ namespace Lingmu.UI
             var plus = Button(row, "+", Cream, WoodDark, 44, () => { qty = Mathf.Min(max, qty + 1); Fill(openPanel); }, Circle);
             ((RectTransform)plus.transform).Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(248, 0), new Vector2(TouchMin, TouchMin));
             plus.interactable = qty < max;
-            var most = Button(row, "最多", Cream, WoodDark, FsSub, () => { qty = max; Fill(openPanel); });
+            var most = Button(row, $"最多 {max}", Cream, WoodDark, FsSub, () => { qty = max; Fill(openPanel); });
             ((RectTransform)most.transform).Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, new Vector2(124, TouchMin));
             most.interactable = qty < max;
         }
@@ -216,7 +216,7 @@ namespace Lingmu.UI
 
         void Hint(RectTransform parent, string text, Vector2 anchor, Vector2 pos, Vector2 size)
         {
-            var h = Label(parent, text, FsSub, Hex("8a7458"), false); h.rectTransform.Place(anchor, new Vector2(0.5f, 0.5f), pos, size);
+            var h = Label(parent, text, FsSub, Hex("75604d"), false); h.rectTransform.Place(anchor, new Vector2(0.5f, 0.5f), pos, size);
         }
 
         // how to use an item that has no button: a light strip with dark text and a tip mark at the card's bottom
@@ -292,7 +292,7 @@ namespace Lingmu.UI
             void Column(float x, string head, string tip, List<ItemStack> list, int cap, string key, Action<string> move)
             {
                 var h = Label(b, head, FsBody, WoodDark, true, TextAlignmentOptions.Left); h.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(x + 4, -104), new Vector2(colW, 48));
-                var t = Label(b, tip, FsMin, Hex("8a7458"), false, TextAlignmentOptions.Right); t.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(x, -108), new Vector2(colW - 4, 44));
+                var t = Label(b, tip, FsMin, Hex("75604d"), false, TextAlignmentOptions.Right); t.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(x, -108), new Vector2(colW - 4, 44));
                 var grid = SlotGrid(b, key, new Vector2(x, top), new Vector2(colW, height), new Vector2(108, 108), 10, 6);
                 foreach (var st in list) { var id = st.id; Slot(grid, id, st.count, false, () => move(id)); }
                 for (int i = list.Count; i < cap; i++) Slot(grid, null, 0, false, null);
@@ -301,7 +301,7 @@ namespace Lingmu.UI
             Column(ItemBox.x - 44 - colW, $"仓库  {store.Count} 种", "← 点一格，整堆取回", store, Mathf.Max(24, (store.Count + 5) / 6 * 6), "chest", id => session.Withdraw(id));
             Panel(b, "divider", Hex("e6dac4"), FlatSmall, false).rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, top), new Vector2(6, height));
             var put = Button(b, "全部存入", Yellow, WoodDark, FsBody, () => session.DepositAll()); ((RectTransform)put.transform).Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(44, 40), new Vector2(280, 96));
-            var note = Label(b, "工具和食物会留在身上", FsMin, Hex("8a7458"), false, TextAlignmentOptions.Left); note.rectTransform.Place(new Vector2(0, 0), new Vector2(0, 0.5f), new Vector2(344, 88), new Vector2(400, 40));
+            var note = Label(b, "工具和食物会留在身上", FsMin, Hex("75604d"), false, TextAlignmentOptions.Left); note.rectTransform.Place(new Vector2(0, 0), new Vector2(0, 0.5f), new Vector2(344, 88), new Vector2(400, 40));
             var take = Button(b, "全部取回", Grass, Color.white, FsBody, () => session.WithdrawAll()); ((RectTransform)take.transform).Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-44, 40), new Vector2(280, 96));
             take.interactable = store.Count > 0;
             put.interactable = s.inventory.Count > 0;
@@ -325,7 +325,7 @@ namespace Lingmu.UI
             var th = Label(tray, $"已装箱 {box.Sum(x => x.count)} 件　明早到账", FsBody, WoodDark, true, TextAlignmentOptions.Left); th.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(90, -14), new Vector2(420, 52));
             Clover(tray, 40).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(472, -20), new Vector2(40, 40));
             var tv = Label(tray, "+" + Farm.ShippingValue(s), FsTitle, GrassDark, true, TextAlignmentOptions.Left); tv.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(520, -12), new Vector2(200, 56));
-            if (box.Count > 0) { var tip = Label(tray, "点一格取回", FsMin, Hex("8a7458"), false, TextAlignmentOptions.Right); tip.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-20, -20), new Vector2(200, 40)); }
+            if (box.Count > 0) { var tip = Label(tray, "点一格取回", FsMin, Hex("75604d"), false, TextAlignmentOptions.Right); tip.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-20, -20), new Vector2(200, 40)); }
             var row = SlotGrid(tray, "box", new Vector2(20, -84), new Vector2(864, 118), new Vector2(118, 118), 12, 1, true);
             foreach (var st in box) { var id = st.id; Slot(row, id, st.count, false, () => session.Unship(id), Cream); }
             if (box.Count == 0) Hint(tray, "还是空的。放进去的东西，明早 6 点换成四叶草", new Vector2(0.5f, 0), new Vector2(0, 86), new Vector2(840, 50));
@@ -385,9 +385,11 @@ namespace Lingmu.UI
             {
                 var (mid, need) = (mats[i].Key, mats[i].Value);
                 int have = Inventory.CountOf(s.inventory, mid);
-                var slot = Panel(card2, "material", Hex("f6efe0"), FlatSmall, false).rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(x0 + i * w, 236), new Vector2(100, 100));
-                var mi = Rect("icon", slot).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -4), new Vector2(58, 58)).gameObject.AddComponent<Image>(); mi.sprite = Icon(mid); mi.preserveAspect = true; mi.raycastTarget = false;
-                var c = Label(slot, $"{have}/{need * Math.Max(1, qty)}", FsMin, have >= need * Math.Max(1, qty) ? WoodDark : Red, true); c.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 2), new Vector2(100, 36));
+                int use = need * Math.Max(1, qty);
+                var slot = Panel(card2, "material", Hex("f6efe0"), FlatSmall, false).rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(x0 + i * w, 232), new Vector2(104, 116));
+                var mi = Rect("icon", slot).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(6, -6), new Vector2(48, 48)).gameObject.AddComponent<Image>(); mi.sprite = Icon(mid); mi.preserveAspect = true; mi.raycastTarget = false;
+                var c = Label(slot, $"×{use}", FsSub, have >= use ? WoodDark : Red, true, TextAlignmentOptions.Left); c.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(56, -10), new Vector2(48, 40));
+                var hv = Label(slot, $"有 {have}", FsMin, have >= use ? Hex("75604d") : Red, false); hv.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 6), new Vector2(104, 38));
             }
             Stepper(card2, new Vector2(0, 136), Math.Min(20, most));
             var make = MainButton(card2, !atStation ? "回家园做" : most == 0 ? "材料不够" : $"制作 {qty} 个", () => { if (session.CraftMany(sel.id, qty) > 0) qty = 1; });

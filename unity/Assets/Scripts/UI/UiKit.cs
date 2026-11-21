@@ -233,7 +233,7 @@ namespace Lingmu.UI
             var icon = KitImage(parent, ok ? "tick" : "lock", 34);
             icon.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 0.5f), pos + new Vector2(0, -21), new Vector2(34, 34));
             if (!ok) icon.color = new Color(1, 1, 1, 0.6f);
-            var t = Label(parent, text, FsMin, ok ? Ink : Hex("8a7458"), false, TextAlignmentOptions.Left);
+            var t = Label(parent, text, FsMin, ok ? Ink : Hex("75604d"), false, TextAlignmentOptions.Left);
             t.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 1), pos + new Vector2(44, 0), new Vector2(width - 44, 42));
         }
 

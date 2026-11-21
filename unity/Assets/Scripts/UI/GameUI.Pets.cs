@@ -30,7 +30,7 @@ namespace Lingmu.UI
             Open("party");
         }
 
-        static readonly Color Muted = Hex("8a7458");
+        static readonly Color Muted = Hex("75604d");
 
         Image Art(RectTransform parent, Sprite sprite, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
         {
@@ -404,7 +404,7 @@ namespace Lingmu.UI
             }
             string text;
             if (!dSeen) text = "还没遇到过。\n去远征的浮岛上找找看吧。";
-            else if (!dCaught) text = $"{PetLore.GetValueOrDefault(d.id, "")}\n\n<color=#8a7458>抓到后能看到更多资料</color>";
+            else if (!dCaught) text = $"{PetLore.GetValueOrDefault(d.id, "")}\n\n<color=#75604d>抓到后能看到更多资料</color>";
             else
             {
                 var bs = d.baseStats;

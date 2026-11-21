@@ -16,7 +16,7 @@ namespace Lingmu.UI
 {
     public partial class GameUI
     {
-        static readonly Color Note = Hex("8a7458");
+        static readonly Color Note = Hex("75604d");
 
         // a small chip with an icon and a few words (info strips)
         RectTransform IconChip(RectTransform parent, Sprite icon, string text, float width)
@@ -65,11 +65,9 @@ namespace Lingmu.UI
             int lost = Travel.LostBagCount(s);
             bool hasLast = s.expedition != null;
             var b = NewBox("飞艇码头", new Vector2(1400, 840));
-            bool night = s.clock >= 18 * 60;
             var strip = Rect("info", b).Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -92), new Vector2(1000, 60));
             var hl = strip.gameObject.AddComponent<HorizontalLayoutGroup>(); hl.spacing = 16; hl.childAlignment = TextAnchor.MiddleCenter; hl.childControlWidth = false; hl.childControlHeight = false; hl.childForceExpandWidth = false;
-            IconChip(strip, Kit(night ? "moon" : "sun"), "现在 " + GameTime.Format(s.clock), 250);
-            IconChip(strip, Kit("act_airship"), "飞一趟 1 小时", 270);
+            IconChip(strip, Kit("act_airship"), $"{GameTime.Format(s.clock)} 出发 → {GameTime.Format(Mathf.Min(s.clock + 60, 24 * 60 - 1))} 抵达", 380);
             IconChip(strip, Kit("fog"), "20:00 起雾", 240);
 
             var island = Resources.Load<Sprite>("UI/Title/title_island");
@@ -121,10 +119,10 @@ namespace Lingmu.UI
             CheckLine(b, tent, tent ? "有帐篷：火够烧到天亮就能在这里睡" : "没有帐篷：在家园工作台用布 4 + 木材 6 做一顶", new Vector2(330, -318), 780);
             CheckLine(b, wood == 0, wood == 0 ? "火能烧到天亮" : "先添柴，让火烧到天亮", new Vector2(330, -366), 780);
             var id = f.id;
-            var add = Button(b, "添柴（木材 −1）", Yellow, WoodDark, FsBody, () => ex.AddWood(id)); ((RectTransform)add.transform).Place(new Vector2(0.5f, 0), new Vector2(1, 0), new Vector2(-14, 40), new Vector2(360, 96));
+            var add = Button(b, "添柴：木材 −1，多烧 2 小时", Yellow, WoodDark, FsSub, () => ex.AddWood(id)); ((RectTransform)add.transform).Place(new Vector2(0.5f, 0), new Vector2(1, 0), new Vector2(-14, 40), new Vector2(420, 96));
             add.interactable = have > 0;
             var sleep = Button(b, "在帐篷里睡到天亮", Grass, Color.white, FsBody, () => { var c = Camp.CanCampSleep(s, id); if (c.ok) { openPanel = null; poppedFor = null; modal.gameObject.SetActive(false); session.ResumeFor("menu"); if (mover) mover.enabled = true; } ex.CampSleep(id); });
-            ((RectTransform)sleep.transform).Place(new Vector2(0.5f, 0), new Vector2(0, 0), new Vector2(14, 40), new Vector2(360, 96));
+            ((RectTransform)sleep.transform).Place(new Vector2(0.5f, 0), new Vector2(0, 0), new Vector2(14, 40), new Vector2(420, 96));
             sleep.interactable = tent && wood == 0;
         }
 
@@ -154,7 +152,7 @@ namespace Lingmu.UI
                 if (t.done)
                 {
                     KitImage(row, "tick", 64).rectTransform.Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-150, 0), new Vector2(64, 64));
-                    Label(row, "已领", FsBody, GrassDark, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-30, 0), new Vector2(110, 50));
+                    Label(row, "已到账", FsBody, GrassDark, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-20, 0), new Vector2(120, 50));
                 }
                 else
                 {
@@ -165,10 +163,10 @@ namespace Lingmu.UI
             // all three: the bonus
             int done = d.tasks.Count(x => x.done);
             var bonus = Panel(b, "bonus", d.bonus ? Hex("eef3df") : Picked, RoundSmall, false).rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 40), new Vector2(1140, 120));
-            var bt = Label(bonus, d.bonus ? "今天的奖励都领完了，明天再来！" : "三个都完成", FsBody, WoodDark, true, TextAlignmentOptions.Left); bt.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(30, 0), new Vector2(520, 56));
+            var bt = Label(bonus, d.bonus ? "今天的奖励都领完了，明天再来！" : $"额外奖励 · 完成 {done}/3", FsBody, WoodDark, true, TextAlignmentOptions.Left); bt.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(30, 0), new Vector2(520, 56));
             for (int i = 0; i < 3; i++)
             {
-                var dot = KitImage(bonus, i < done ? "tick" : "lock", 46); dot.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(240 + i * 56, 0), new Vector2(46, 46));
+                var dot = KitImage(bonus, i < done ? "tick" : "lock", 46); dot.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(340 + i * 56, 0), new Vector2(46, 46));
                 if (i >= done) dot.color = new Color(1, 1, 1, 0.5f);
                 if (d.bonus) dot.gameObject.SetActive(false);
             }
@@ -212,7 +210,8 @@ namespace Lingmu.UI
                 a.sprite = PetSprite(party[i]); a.preserveAspect = true; a.raycastTarget = false;
                 UiMotion.Bob(a, 3, 0.4f, i * 0.3f);
             }
-            var cl = Rect("clover", b).Place(new Vector2(0, 1), new Vector2(0.5f, 1), new Vector2(320, -580), new Vector2(300, 60));
+            Label(b, "四叶草余额", FsMin, Note).rectTransform.Place(new Vector2(0, 1), new Vector2(0.5f, 1), new Vector2(320, -560), new Vector2(300, 36));
+            var cl = Rect("clover", b).Place(new Vector2(0, 1), new Vector2(0.5f, 1), new Vector2(320, -596), new Vector2(300, 60));
             Clover(cl, 50).Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(30, 0), new Vector2(50, 50));
             Label(cl, s.clover.ToString(), FsTitle, WoodDark, true, TextAlignmentOptions.Left).rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(96, 0), new Vector2(200, 56));
             // the right page: one line per thing that happened, with an icon
@@ -249,7 +248,7 @@ namespace Lingmu.UI
                 var sp = KitImage(celebration, "sparkle", 64 - i * 10); sp.rectTransform.Place(new Vector2(0.5f, 0.56f), new Vector2(0.5f, 0.5f), new Vector2(new[] { -260f, 250f, 200f }[i], new[] { 140f, 180f, -150f }[i]), new Vector2(64 - i * 10, 64 - i * 10));
                 UiMotion.Bob(sp, 9, 1.2f, i * 0.4f);
             }
-            var plate = Panel(celebration, "title", Yellow, null, false, true).rectTransform.Place(new Vector2(0.5f, 0.56f), new Vector2(0.5f, 0.5f), new Vector2(0, -290), new Vector2(560, 92));
+            var plate = Panel(celebration, "title", Picked, null, false, true).rectTransform.Place(new Vector2(0.5f, 0.56f), new Vector2(0.5f, 0.5f), new Vector2(0, -290), new Vector2(560, 92));
             Label(plate, title, FsTitle + 4, WoodDark, true).rectTransform.Fill();
             UiMotion.PopIn(plate);
             var t = Label(celebration, line, FsBody, Cream, true); t.rectTransform.Place(new Vector2(0.5f, 0.56f), new Vector2(0.5f, 0.5f), new Vector2(0, -372), new Vector2(1000, 50));

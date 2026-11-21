@@ -130,7 +130,7 @@ namespace Lingmu.UI
             int clock = g.S.clock;
             if (backdrop) backdrop.color = clock >= 19 * 60 || clock < 6 * 60 ? Hex("a3b2d8") : clock >= 17 * 60 ? Hex("ffe2c4") : Color.white;   // evening glow, night blue
             var f = Rules.Battle.Active(b, "foe");
-            log.text = b.ambush ? $"你悄悄靠近了野生的{f.name}！（对方第 1 回合来不及行动）" : $"野生的{f.name}（Lv.{f.level}）出现了！";
+            log.text = b.ambush ? $"你悄悄靠近了野生的{f.name}！它这回合来不及行动，点一个技能出招" : $"野生的{f.name}（Lv.{f.level}）出现了！点一个技能出招";
             Refresh();
             StartCoroutine(Enter(me, -520)); StartCoroutine(Enter(foe, 520));
             UiMotion.PopIn(actions);
@@ -154,7 +154,8 @@ namespace Lingmu.UI
                 string hint = mult > 1 ? "　<color=#3d7a28>效果拔群</color>" : mult < 1 ? "　<color=#a8503c>效果不好</color>" : "";
                 string power = s.power > 0 ? $"<size=26>威力 {s.power}{hint}</size>" : "<size=26>状态技能</size>";
                 btn.SetLabel($"{s.name}{useText}\n{power}");
-                btn.GetComponent<Image>().color = Color.Lerp(ElementColor(s.element), Color.white, 0.55f);
+                bool plain = string.IsNullOrEmpty(s.element) || s.element == Elements.Normal;   // a plain move is cream, never the grey of a disabled button
+                btn.GetComponent<Image>().color = plain ? Hex("fff5e3") : Color.Lerp(ElementColor(s.element), Color.white, 0.55f);
                 skillBadges[i].sprite = Kit(ElementBadge(s.element)); skillBadges[i].enabled = skillBadges[i].sprite;
                 btn.interactable = !playing && !b.needSwitch && uses > 0;
             }

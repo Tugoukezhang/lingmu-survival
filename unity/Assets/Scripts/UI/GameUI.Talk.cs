@@ -48,11 +48,11 @@ namespace Lingmu.UI
             float plateW = 104 + nm.GetPreferredValues(n.name).x;
             plate.Place(new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(40, 0), new Vector2(plateW, 76));
             KitImage(plate, "hud_pets", 48).rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 2), new Vector2(48, 48));
-            var role = Label(note, n.role, FsSub, Hex("8a7458"), false, TextAlignmentOptions.Left); role.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(60 + plateW, -30), new Vector2(360, 44));
+            var role = Label(note, n.role, FsSub, Hex("75604d"), false, TextAlignmentOptions.Left); role.rectTransform.Place(new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(60 + plateW, -30), new Vector2(360, 44));
             int f = Town.FriendOf(s, npc), h = Town.Hearts(f);
             var hearts = Rect("hearts", note).Place(new Vector2(1, 1), new Vector2(1, 0.5f), new Vector2(-36, -32), new Vector2(5 * 42, 40));
             for (int i = 0; i < 5; i++) { var hi = KitImage(hearts, "heart", 38); hi.rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(i * 42, 0), new Vector2(38, 38)); if (i >= h) hi.color = new Color(1, 1, 1, 0.28f); }
-            var fv = Label(note, $"好感 {f}/100", FsMin, Hex("8a7458"), false, TextAlignmentOptions.Right); fv.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 0.5f), new Vector2(-260, -32), new Vector2(200, 40));
+            var fv = Label(note, $"好感 {f}/100", FsMin, Hex("75604d"), false, TextAlignmentOptions.Right); fv.rectTransform.Place(new Vector2(1, 1), new Vector2(1, 0.5f), new Vector2(-260, -32), new Vector2(200, 40));
             string line = talkNpc == npc ? talkLine : "";
             var t = Label(note, "「" + line + "」", FsBody + 2, Ink, false, TextAlignmentOptions.TopLeft);
             t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(56, 30); t.rectTransform.offsetMax = new Vector2(-56, -66);
@@ -137,7 +137,7 @@ namespace Lingmu.UI
             string status = !can ? (s.town?.giftDay?.TryGetValue(npc, out var gd2) == true && gd2 == s.day ? "今天已经送过了，明天再来吧" : "这周已经送了 2 次")
                 : selectedGift == null ? "选一件礼物" : GiftLine(npc, selectedGift);
             var st2 = Label(bx, status, FsSub, Ink, false, TextAlignmentOptions.Left); st2.rectTransform.Place(new Vector2(0, 0), new Vector2(0, 0), new Vector2(30, 40), new Vector2(540, 80));
-            var give = Button(bx, "送给 TA", Yellow, WoodDark, FsBody, () =>
+            var give = Button(bx, "送给" + n.name, Yellow, WoodDark, FsBody, () =>
             {
                 var gid = selectedGift; if (gid == null) return;
                 var r = Town.Gift(s, npc, gid);
@@ -163,7 +163,7 @@ namespace Lingmu.UI
             {
                 var card = Panel(list, "locked", CreamDark, RoundSmall, false).rectTransform; card.sizeDelta = new Vector2(0, 110);
                 KitImage(card, "lock", 50).rectTransform.Place(new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(22, 0), new Vector2(50, 50));
-                var t = Label(card, $"再熟一点（{locked.hearts} 颗心），{n.name}会拜托你新的事", FsSub, Hex("8a7458"), false, TextAlignmentOptions.Left); t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(90, 6);
+                var t = Label(card, $"再熟一点（{locked.hearts} 颗心），{n.name}会拜托你新的事", FsSub, Hex("75604d"), false, TextAlignmentOptions.Left); t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(90, 6);
             }
             if (!Town.ActiveOf(s, npc).Any() && !Town.Offers(s, npc).Any() && locked == null) Hint(bx, "现在没有委托，过几天再来看看吧", new Vector2(0.5f, 0.5f), new Vector2(0, -20), new Vector2(700, 60));
         }
