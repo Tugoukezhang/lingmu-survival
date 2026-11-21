@@ -93,6 +93,28 @@ public class HomeIslandPlayTests
     static void Click(string label) { var b = Object.FindObjectsByType<Button>(FindObjectsSortMode.None).FirstOrDefault(x => x.name == "button " + label && x.isActiveAndEnabled); Assert.IsNotNull(b, "按钮 " + label); b.onClick.Invoke(); }
     static void Stand(Vector3 at) { var p = GameSession.I.player; p.position = new Vector3(at.x, p.position.y, at.z); }
 
+    // the look of the world from a few camera angles, without the HUD (docs/18: scene step; owner 11-21 feedback)
+    [UnityTest] public IEnumerator 画面()
+    {
+        var st = SaveRules.NewGameState(starter: "fox"); st.clock = 10 * 60;
+        GameSession.UseState(st);
+        yield return Load("HomeIsland");
+        var cam = Object.FindAnyObjectByType<Lingmu.Player.OrbitCamera>();
+        var ui = Object.FindAnyObjectByType<GameUI>(); if (ui) ui.canvas.enabled = false;
+        float[] yaws = { 0, 2.4f, 4.2f };
+        for (int i = 0; i < yaws.Length; i++) { cam.yaw = yaws[i]; cam.Snap(); yield return new WaitForSeconds(0.4f); Shot("look_home_" + i); }
+        cam.pitch = 0.2f; cam.yaw = 1.2f; cam.Snap(); yield return new WaitForSeconds(0.4f); Shot("look_home_low");
+        var ex = SaveRules.NewGameState(starter: "fox"); ex.day = 3; Travel.Depart(ex, "new"); ex.clock = 10 * 60;
+        GameSession.UseState(ex);
+        yield return Load("Expedition");
+        cam = Object.FindAnyObjectByType<Lingmu.Player.OrbitCamera>();
+        ui = Object.FindAnyObjectByType<GameUI>(); if (ui) ui.canvas.enabled = false;
+        foreach (var w in Object.FindObjectsByType<WildPet>(FindObjectsSortMode.None)) w.cooldown = Time.time + 999;
+        cam.yaw = 3.1f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("look_exp_0");
+        cam.yaw = 0.6f; cam.pitch = 0.26f; cam.Snap(); yield return new WaitForSeconds(0.4f); Shot("look_exp_1");
+        GameSession.I.S.clock = 18 * 60 + 40; GameSession.I.ApplyLight(); yield return new WaitForSeconds(0.4f); Shot("look_exp_dusk");
+    }
+
     [UnityTest] public IEnumerator 标题页()
     {
         yield return Load("Title");

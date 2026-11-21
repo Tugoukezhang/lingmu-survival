@@ -144,6 +144,8 @@ namespace Lingmu.Game
             if (LoadProblem != null) Say("存档读取有问题，已用备份或新存档继续");
             if (PendingToast != null) { Say(PendingToast); PendingToast = null; }
             ApplyLight();
+            World.Foliage.ApplyScene();   // the scene's trees and bushes sway in the wind
+            if (player && !indoor) { var fx = new GameObject("motes").AddComponent<World.FxEmitter>(); fx.kind = "motes"; fx.transform.SetParent(player, false); }
             AfterAction();   // arriving may finish a goal (the trip out, the walk to town) before anything else happens
             if (PendingReport != null) { var r = PendingReport; PendingReport = null; Clock.Pause("report"); DayEnded?.Invoke(r); }
         }

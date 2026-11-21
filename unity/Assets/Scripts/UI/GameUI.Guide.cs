@@ -112,7 +112,7 @@ namespace Lingmu.UI
             }
             if (!show) { goalMarker.gameObject.SetActive(false); goalArrow.gameObject.SetActive(false); }
 
-            bool ringOn = openPanel == null && spot != null && spot.pos != Vector3.zero && session.Battle == null;
+            bool ringOn = openPanel == null && spot != null && spot.pos != Vector3.zero && spot.kind != "airship" && session.Battle == null;   // the airship floats off the edge: no ring in the air
             ring.gameObject.SetActive(ringOn);
             if (ringOn)
             {

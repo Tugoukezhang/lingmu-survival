@@ -2,6 +2,8 @@
 //   fire      flames licking up from the base, embers drifting up, a little smoke, and a flickering light
 //             (its own, or a light already under it; when that light is switched off the fire stops)
 //   fountain  water thrown up from the spout and falling back into the basin, splashes on the water, spreading ripples
+//   motes     tiny glowing specks drifting in the air around the player (docs/参考资料/拆解/负责人参考3: 光点), a few more
+//             in the evening; the emitter follows its parent (the player), the specks stay where they are
 // The emitter's position is the effect's base (the fire's bed / the basin's water surface).
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -21,7 +23,7 @@ namespace Lingmu.World
         void Start()
         {
             seed = Random.value * 100;
-            if (kind == "fire") Fire(); else if (kind == "fountain") Fountain();
+            if (kind == "fire") Fire(); else if (kind == "fountain") Fountain(); else if (kind == "motes") Motes();
         }
 
         static Material Mat(string n) => Resources.Load<Material>("Materials/" + n);
@@ -47,6 +49,34 @@ namespace Lingmu.World
         }
 
         static ParticleSystem.MinMaxCurve Shrink(float from, float to) => new ParticleSystem.MinMaxCurve(1, AnimationCurve.EaseInOut(0, from, 1, to));
+
+        // ---------- motes ----------
+        ParticleSystem motes;
+        void Motes()
+        {
+            motes = Make("motes", Mat("FxAdd"), new Vector3(0, 1.6f, 0));
+            var m = motes.main;
+            m.startLifetime = new ParticleSystem.MinMaxCurve(6f, 10f); m.startSpeed = new ParticleSystem.MinMaxCurve(0.02f, 0.12f);
+            m.startSize = new ParticleSystem.MinMaxCurve(0.035f, 0.08f); m.maxParticles = 160;
+            m.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.95f, 0.75f, 0.9f), new Color(0.92f, 1f, 0.85f, 0.75f));
+            var em = motes.emission; em.rateOverTime = 7;
+            var sh = motes.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(18, 3.5f, 18);
+            var col = motes.colorOverLifetime; col.enabled = true;
+            col.color = Fade((0, new Color(1, 1, 1, 0)), (0.2f, Color.white), (0.8f, Color.white), (1, new Color(1, 1, 1, 0)));
+            var noise = motes.noise; noise.enabled = true; noise.strength = 0.25f; noise.frequency = 0.25f; noise.scrollSpeed = 0.1f;
+            var vel = motes.velocityOverLifetime; vel.enabled = true; vel.y = new ParticleSystem.MinMaxCurve(0.02f, 0.08f); vel.x = new ParticleSystem.MinMaxCurve(0.03f, 0.1f); vel.z = new ParticleSystem.MinMaxCurve(-0.02f, 0.04f);
+            motes.Play();
+        }
+
+        void LateUpdate()
+        {
+            if (!motes) return;
+            var s = Game.GameSession.I;
+            if (s == null || s.S == null) return;
+            int c = s.S.clock;
+            float evening = c >= 16 * 60 && c < 20 * 60 ? 1 : 0;   // golden hour: more specks; in the fog the expedition's own effects take over
+            var em = motes.emission; em.rateOverTime = Mathf.Lerp(7, 16, evening);
+        }
 
         // ---------- fire ----------
         void Fire()

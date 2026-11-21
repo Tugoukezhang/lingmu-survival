@@ -3,8 +3,11 @@
 //  - a ring of mist hugging the island's own outline, a little below the edge, slowly drifting and breathing, so the
 //    cliffs fade into cloud (cards near the camera fade out, so swinging the camera over the edge never fills the
 //    screen with a blurry card)
-//  - low cloud cards further out, and high clouds that drift across the sky; the panoramic sky turns very slowly
-// Everything is tinted by the time of day (the clouds are unlit). The sky is the skybox (Resources/Materials/SkyDay).
+//  - low cloud cards further out; big painted cumulus clouds around the horizon and drifting across the sky, and a few
+//    far floating islands with waterfalls (GPT sheets in Resources/Sky, no fog, a little haze) — owner 11-21: clouds and
+//    sky like the Ghibli / fan-made reference videos
+// Everything is tinted by the time of day (the clouds are unlit). The sky is the skybox (Resources/Materials/SkyDay,
+// the gradient shader Lingmu/Sky).
 using System.Collections.Generic;
 using Lingmu.Rules;
 using UnityEngine;
@@ -19,9 +22,9 @@ namespace Lingmu.World
         public int seed = 3;
         public IslandWalkMap outline;          // the island's land tiles (found in the scene when not set; expedition islands appear later)
 
-        class Cloud { public Transform t; public MeshRenderer r; public float angle, radius, y, speed, phase, alpha, size; public bool mist; }
+        class Cloud { public Transform t; public MeshRenderer r; public float angle, radius, y, speed, phase, alpha, size, bob; public bool mist, sky; }
         readonly List<Cloud> clouds = new List<Cloud>();
-        Material seaMat, layerMat, cardMat, mistMat, sky;
+        Material seaMat, layerMat, cardMat, mistMat, sky, cumulusMat, islandMat;
         Color seaBase, layerBase, cardBase, mistBase;
         Mesh[] quads;                          // the card textures are 2×2 sheets: one quad per picture
         MaterialPropertyBlock mpb;
@@ -47,8 +50,24 @@ namespace Lingmu.World
                 var rnd = new System.Random(seed);
                 float R() => (float)rnd.NextDouble();
                 for (int i = 0; i < 26; i++) Add(R() * 360, islandRadius + 10 + R() * 90, seaHeight + 1 + R() * 5, 14 + R() * 22, 0.25f + R() * 0.5f, R(), 1, false);   // low, further out
-                for (int i = 0; i < 18; i++) Add(R() * 360, 70 + R() * 90, 7 + R() * 18, 18 + R() * 26, 0.5f + R() * 0.8f, R(), 0.9f, false);                         // drifting across the sky
-                for (int i = 0; i < 10; i++) Add(R() * 360, 170 + R() * 120, 4 + R() * 26, 40 + R() * 50, 0.15f + R() * 0.2f, R(), 1, false);                       // far, high
+            }
+            var skyTpl = Resources.Load<Material>("Materials/SkyCard");
+            var cumulus = Resources.Load<Texture2D>("Sky/cumulus_sheet");
+            var isles = Resources.Load<Texture2D>("Sky/islands_sheet");
+            if (skyTpl && cumulus)
+            {
+                cumulusMat = new Material(skyTpl); cumulusMat.SetTexture(BaseMap, cumulus);
+                var rnd = new System.Random(seed * 13 + 1);
+                float R() => (float)rnd.NextDouble();
+                for (int i = 0; i < 9; i++) AddSky(cumulusMat, i * 40 + R() * 25, 120 + R() * 60, 14 + R() * 22, 46 + R() * 30, 0.35f + R() * 0.4f, 0.12f);   // drifting across the sky
+                for (int i = 0; i < 12; i++) AddSky(cumulusMat, i * 30 + R() * 20, 240 + R() * 90, -4 + R() * 30, 95 + R() * 70, 0.08f + R() * 0.1f, 0.3f);    // big ones framing the horizon
+            }
+            if (skyTpl && isles)
+            {
+                islandMat = new Material(skyTpl); islandMat.SetTexture(BaseMap, isles); islandMat.SetFloat("_Haze", 0.32f);
+                var rnd = new System.Random(seed * 29 + 5);
+                float R() => (float)rnd.NextDouble();
+                for (int i = 0; i < 5; i++) { var c = AddSky(islandMat, 30 + i * 72 + R() * 30, 125 + R() * 70, -8 + R() * 16, 26 + R() * 16, 0.04f + R() * 0.05f, 0); c.bob = 0.6f; }
             }
             sky = RenderSettings.skybox;
             if (sky && sky.HasProperty("_Rotation")) skyTurn = sky.GetFloat("_Rotation");
@@ -69,6 +88,18 @@ namespace Lingmu.World
             var r = go.AddComponent<MeshRenderer>(); r.sharedMaterial = mist && mistMat ? mistMat : cardMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
             go.transform.localScale = new Vector3(size, size / 1.5f, 1);     // the pictures are 3:2
             var c = new Cloud { t = go.transform, r = r, angle = angleDeg, radius = radius, y = y, speed = speed, phase = phase * 6.28f, alpha = alpha, size = size, mist = mist };
+            clouds.Add(c);
+            return c;
+        }
+
+        // a big picture card in the sky (square pictures of a 2×2 sheet), no fog
+        Cloud AddSky(Material m, float angleDeg, float radius, float y, float size, float speed, float haze)
+        {
+            var go = new GameObject("sky card"); go.transform.SetParent(transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = quads[clouds.Count % 4];
+            var r = go.AddComponent<MeshRenderer>(); r.sharedMaterial = m; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+            go.transform.localScale = new Vector3(size, size, 1);
+            var c = new Cloud { t = go.transform, r = r, angle = angleDeg, radius = radius, y = y, speed = speed, phase = (angleDeg % 7) * 0.9f, alpha = 1, size = size, sky = true };
             clouds.Add(c);
             return c;
         }
@@ -138,10 +169,16 @@ namespace Lingmu.World
                 c.angle += c.speed * Time.deltaTime * (c.mist ? 0.6f : 1f);
                 var mid = c.mist ? mistCentre : centre;
                 float a = c.angle * Mathf.Deg2Rad;
-                float bob = c.mist ? Mathf.Sin(t * 0.35f + c.phase) * 0.35f : 0;
+                float bob = c.mist ? Mathf.Sin(t * 0.35f + c.phase) * 0.35f : c.bob > 0 ? Mathf.Sin(t * 0.2f + c.phase) * c.bob : 0;
                 c.t.position = mid + new Vector3(Mathf.Cos(a) * c.radius, c.y + bob, Mathf.Sin(a) * c.radius);
                 if (cam) { var d = c.t.position - cp; d.y = 0; if (d.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.LookRotation(d); }
                 float breathe = c.mist ? 0.85f + 0.15f * Mathf.Sin(t * 0.5f + c.phase * 1.7f) : 1;
+                if (c.sky)
+                {
+                    var sc = Color.Lerp(Color.white, tint, 0.85f); sc.a = 1;
+                    mpb.SetColor(BaseColor, sc); c.r.SetPropertyBlock(mpb);
+                    continue;
+                }
                 float near = cam ? Mathf.SmoothStep(0, 1, (Vector3.Distance(c.t.position, cp) - c.size * 0.35f) / (c.size * 0.6f)) : 1;
                 var bas = c.mist && mistMat ? mistBase : cardBase;
                 var col = bas * tint; col.a = bas.a * c.alpha * breathe * near;

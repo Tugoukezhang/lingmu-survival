@@ -1,5 +1,6 @@
 // Third-person camera behind and above the player (the web version's "B" camera, game/src/view3d/World3D.js ORBIT):
-// drag on the right part of the screen (mouse or finger) to turn it and tilt it, Z / C on a keyboard to turn it.
+// drag on the right part of the screen (mouse or finger) to turn it and tilt it, Z / C on a keyboard to turn it;
+// pinch with two fingers on the right part (or the mouse wheel) to come closer or step back (owner 11-21: 视角).
 // Comes closer when the ground rises between it and the player.
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,11 +14,12 @@ namespace Lingmu.Player
         public float lookHeight = 52f / 48f;    // web ORBIT.look
         [Range(0.2f, 0.95f)] public float pitch = 0.34f;   // low enough that the sky and the far islands show at the top
         public float minPitch = 0.2f, maxPitch = 0.95f;
+        public float minDistance = 3.6f, maxDistance = 11f;   // pinch / wheel range
         public float yaw;                       // radians; 0 = looking north
         public LayerMask groundMask = ~0;
         [Range(0, 1)] public float dragZone = 0.45f;   // the left part of the screen belongs to the joystick
 
-        Vector3 focus; bool hasFocus; float k = 1; int dragTouch = -1; bool mouseDrag;
+        Vector3 focus; bool hasFocus; float k = 1; int dragTouch = -1; bool mouseDrag; float pinchFrom = -1;
         // set by the UI: true when a screen point is over a button or panel (a drag starting there doesn't turn the camera)
         public static System.Func<Vector2, bool> OverUi;
         static bool Free(Vector2 p) => OverUi == null || !OverUi(p);
@@ -53,6 +55,18 @@ namespace Lingmu.Player
             var ts = Touchscreen.current;
             if (ts != null)
             {
+                // two fingers on the camera side: pinch to zoom (and no turning while pinching)
+                Vector2 a = default, b = default; int n = 0;
+                foreach (var t in ts.touches)
+                    if (t.press.isPressed && t.startPosition.ReadValue().x > Screen.width * dragZone) { if (n == 0) a = t.position.ReadValue(); else if (n == 1) b = t.position.ReadValue(); n++; }
+                if (n >= 2)
+                {
+                    float gap = Vector2.Distance(a, b);
+                    if (pinchFrom > 0) distance = Mathf.Clamp(distance * pinchFrom / Mathf.Max(gap, 1), minDistance, maxDistance);
+                    pinchFrom = gap; dragTouch = -1;
+                    return;
+                }
+                pinchFrom = -1;
                 foreach (var t in ts.touches)
                 {
                     if (!t.press.isPressed) { if (t.touchId.ReadValue() == dragTouch) dragTouch = -1; continue; }
@@ -64,6 +78,8 @@ namespace Lingmu.Player
             var m = Mouse.current;
             if (m != null)
             {
+                float wheel = m.scroll.ReadValue().y;
+                if (wheel != 0 && Free(m.position.ReadValue())) distance = Mathf.Clamp(distance * Mathf.Pow(0.9f, Mathf.Sign(wheel)), minDistance, maxDistance);
                 if (m.leftButton.wasPressedThisFrame) mouseDrag = m.position.ReadValue().x > Screen.width * dragZone && Free(m.position.ReadValue());
                 if (!m.leftButton.isPressed) mouseDrag = false;
                 if (mouseDrag) delta += m.delta.ReadValue();

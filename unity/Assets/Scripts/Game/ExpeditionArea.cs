@@ -383,8 +383,8 @@ namespace Lingmu.Game
         {
             var g = Session;
             bool foggy = Night.IsFoggy(S.clock);
-            RenderSettings.fogEndDistance = Mathf.Lerp(RenderSettings.fogEndDistance, foggy ? 26 : 95, Time.deltaTime);
-            RenderSettings.fogStartDistance = Mathf.Lerp(RenderSettings.fogStartDistance, foggy ? 6 : 32, Time.deltaTime);
+            RenderSettings.fogEndDistance = Mathf.Lerp(RenderSettings.fogEndDistance, foggy ? 26 : 170, Time.deltaTime);
+            RenderSettings.fogStartDistance = Mathf.Lerp(RenderSettings.fogStartDistance, foggy ? 6 : 45, Time.deltaTime);
             if (!foggy) { if (monsters.Count > 0 || warnings.Count > 0 || wicks.Count > 0) Dissolve(); lastSpawn = null; return; }
             if (g.Clock.Paused) return;
             UpdateWicks();

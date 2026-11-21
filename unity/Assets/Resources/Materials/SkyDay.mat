@@ -8,12 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: SkyDay
-  m_Shader: {fileID: 108, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 97a45f21934b440499ade1ed378b1362, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords:
-  - _MAPPING_LATITUDE_LONGITUDE_LAYOUT
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -25,18 +24,19 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 11674dd2ae8a4f24486c3634055c8491, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Exposure: 1.05
-    - _ImageType: 0
-    - _Layout: 0
-    - _Mapping: 1
-    - _MirrorOnBack: 0
-    - _Rotation: 180
+    - _Exposure: 1
+    - _Rotation: 0
+    - _SunGlow: 0.45
     m_Colors:
+    - _Below: {r: 0.86, g: 0.91, b: 0.97, a: 1}
+    - _Horizon: {r: 0.62, g: 0.8, b: 0.96, a: 1}
     - _Tint: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
+    - _Warm: {r: 1, g: 0.93, b: 0.82, a: 1}
+    - _Zenith: {r: 0.11, g: 0.37, b: 0.9, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

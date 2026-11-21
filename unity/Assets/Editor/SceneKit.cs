@@ -276,7 +276,7 @@ public static class SceneKit
         AssetDatabase.DeleteAsset(path);
         var profile = ScriptableObject.CreateInstance<VolumeProfile>();
         AssetDatabase.CreateAsset(profile, path);
-        var bloom = profile.Add<Bloom>(true); bloom.intensity.Override(0.45f); bloom.threshold.Override(0.95f); bloom.scatter.Override(0.7f);
+        var bloom = profile.Add<Bloom>(true); bloom.intensity.Override(0.28f); bloom.threshold.Override(1.15f); bloom.scatter.Override(0.6f);   // 11-21: lower, so the bright cloud sea no longer veils the picture
         profile.Add<Tonemapping>(true).mode.Override(TonemappingMode.Neutral);
         var ca = profile.Add<ColorAdjustments>(true); ca.postExposure.Override(0.15f); ca.saturation.Override(14f); ca.contrast.Override(6f);
         profile.Add<Vignette>(true).intensity.Override(0.18f);
