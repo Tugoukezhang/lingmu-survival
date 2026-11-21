@@ -1,0 +1,9 @@
+You are a senior UI artist for casual mobile games. Images 1 and 2 are two candidate UI kit style boards (A and B) for our original cozy landscape mobile game "暖云 / Warm Cloud" (floating island home above a sea of clouds, cute pets, farming, airship trips). Images 3 and 4 are screenshots from another game that the owner likes; they are ONLY a reference for the visual weight and feel (we will never copy their art, shapes or ornaments).
+
+The owner said our previous kit (glossy honey wood frames, brass rivets, bevels) was "too heavy" and did not match the references.
+
+Please answer in Simplified Chinese, short and concrete:
+1. Compared with the references' visual weight (outline thickness, saturation, flatness, amount of decoration, contrast), score A and B from 1–10 for "matches the feel" and explain in one line each.
+2. Which one should we develop further, or should we merge parts of both? Say exactly which parts.
+3. List up to 6 concrete changes to make the chosen direction feel as warm and charming as the references while staying clearly original and on-theme for clouds (e.g., outline thickness, panel edge shape, slot colour, icon style for HUD vs. item icons, ornaments, button bottom band, readability over a bright 3D scene).
+4. Any readability or mobile-usability risk (contrast of cream on bright grass/sky backgrounds, slot colour vs. panel colour, red dot visibility, text colour on buttons).

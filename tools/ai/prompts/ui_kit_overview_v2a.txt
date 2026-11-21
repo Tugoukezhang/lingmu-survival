@@ -1,0 +1,22 @@
+A game UI kit presentation board for a cozy, gentle mobile game called "Warm Cloud": a little floating island home above a sea of clouds, with cute pet companions. The look is light, soft and airy, like a hand-drawn storybook or a cozy indie game, NOT heavy, NOT glossy.
+
+Style rules (very important):
+- Flat matte colours with only a very soft, subtle shade. No glossy highlights, no shine, no bevels, no glow, no metal, no rivets, no brass, no realistic wood grain, no 3D depth.
+- Frames are drawn as ONE thick, soft, solid dark cocoa-brown border (#5a3f32) with gently wobbly, hand-drawn rounded edges, like a friendly marker outline. Inside is flat cream paper (#f8f1df) with an almost invisible paper texture and a slightly irregular hand-cut edge.
+- Muted, low-saturation pastel palette: cocoa brown #5a3f32, cream #f8f1df, warm light grey #e7e0d4, sage green #93b26f, butter yellow #f3c65c, dusty sky blue #9cc3d5, dusty pink #eaa99b, soft coral #e5806a, mint #bfe0c8.
+- Decorations are tiny and sparse: a small white puffy cloud drawn with a cocoa line, a couple of small sage leaves, a tiny butter-yellow star. Only on a few corners.
+- Icons are simple, cute and flat, with a thin cocoa outline and muted pastel fills.
+
+Lay out these separate pieces neatly on a plain flat solid off-white background (#f5f2ec, no gradient, no vignette, no shadow on the background), each with generous empty space around it, no overlaps, like a sprite sheet for a designer:
+1. one large empty panel: thick soft cocoa border around a cream paper area with a gently wavy hand-cut edge; a small cloud sitting on the top-left corner and two tiny leaves on the bottom-right corner
+2. one smaller empty detail card in the same style, slightly tilted paper feeling
+3. a row of five empty flat pill buttons: butter yellow, sage green, cream with cocoa outline, soft coral, and dark cocoa; each with only a slightly darker flat bottom band so it looks pressable
+4. a round cream close button shaped like a little puffy cloud with a cocoa outline and a cocoa X, and a matching round cloud back button with a curved arrow; plus two empty round cream icon-button bases with cocoa outline
+5. a row of five rounded-square category tabs with a simple cocoa line icon inside (star, apple, shirt, leaf, scroll) filled with dusty pastel colours (mint, dusty blue, dusty pink, cream); the selected one is sage green, slightly bigger, with a small point at the bottom
+6. a row of square rounded inventory slots: three empty flat warm light grey slots with no border, a selected slot with a soft butter-yellow outline, and five slots with a thin coloured rim for rarity: grey, sage green, dusty blue, soft purple, butter gold
+7. a progress bar (cocoa outlined pill, cream track, sage green fill), a flat toggle switch (on, sage green, cream knob) and a thin slider with a round cream knob
+8. a small soft coral notification dot with a cream rim, and two currency chips as translucent dark cocoa pills with an icon on the left (a green four-leaf clover, a sky-blue star-shaped dew drop) and empty space for numbers
+9. a row of eight minimal HUD icons drawn as thick rounded cream-white line art with a thin soft cocoa shadow, no background: backpack, paw print, hammer, scroll, folded map, open book with a paw, gear, camera
+10. five round element badges, flat muted colour circles with a cocoa outline and a cream symbol: leaf (sage green), water drop (dusty blue), flame (soft coral), star (butter yellow), crescent moon (soft purple)
+
+Absolutely no text, no letters, no numbers and no words anywhere. Original design; no logos, no watermark.

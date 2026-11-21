@@ -1,7 +1,7 @@
 # 项目接续入口（每次会话先读）
 
 ## 项目一句话
-横屏 2.5D 手游（暂名未定），**饥荒 + 浮岛 + 星露谷 + 宝可梦**：在云海上的家园浮岛种田、照顾宠物、和居民来往；带着宠物乘飞艇去随机生成的远征浮岛采集、制作、熬过有雾怪的夜晚（中度生存）；遇到野生宠物进行回合制对战，打弱后用捕宠网捕捉。画面和 UI 以负责人自己的 7 张风格示例为准。
+横屏 2.5D 手游《暖云》（英文 Warm Cloud【建议】，2026-11-21 负责人定名），**饥荒 + 浮岛 + 星露谷 + 宝可梦**：在云海上的家园浮岛种田、照顾宠物、和居民来往；带着宠物乘飞艇去随机生成的远征浮岛采集、制作、熬过有雾怪的夜晚（中度生存）；遇到野生宠物进行回合制对战，打弱后用捕宠网捕捉。画面和 UI 以负责人自己的 7 张风格示例为准。
 
 **产品形态**：国内手游（安卓 + 苹果），免费下载，收入来自外观 + 季节通行证 + 月卡，**不卖数值**。宠物有完整养成线。美术用 AI 出图（GPT Image 2.6，负责人出图，AI 写提示词和做后期）。
 
@@ -13,7 +13,7 @@
 
 ## 当前状态（2026-11-16）
 - **主线已转 Unity（负责人 2026-11-14 决定）**：工程在 `unity/`（Unity 6000.3.28f1 + URP，编辑器在 `D:\Program Files\Unity 6000.3.28f1\Editor\Unity.exe`）。规则在 `Assets/Scripts/Rules`（从网页版逐项移植，`RulesParityTests` 对照）；5 个场景（标题、家园岛、远征岛、小镇、小屋）全部由代码生成：`-executeMethod LingmuScenes.BuildAll`。测试：EditMode 45 项、PlayMode 5 个流程（截图在 `D:\ClaudeTools\unity\ui_*.png`）。批处理命令和踩过的坑见 `docs/05_开发日志.md` 2026-11-15 / 16。
-- **界面约定（2026-11-21）**：字号表和点击区在 `UiKit`（`FsTitle 40 / FsBody 32 / FsSub 28 / FsMin 26`、`TouchMin 88`），Label 低于 26 自动抬到 26；本机设置（字号、画质、帧率、音量）在 `UI/Prefs.cs`，不进存档。伙伴面板（照顾 / 技能 / 养成）和图鉴在 `UI/GameUI.Pets.cs`。改规则时网页版 `game/src/systems/` 一起改，再跑 `node tools/logic-test.mjs`、`node tools/unity/export_data.mjs`、`node tools/unity/export_parity.mjs`。
+- **界面约定（2026-11-21）**：字号表和点击区在 `UiKit`（`FsTitle 40 / FsBody 32 / FsSub 28 / FsMin 26`、`TouchMin 88`），Label 低于 26 自动抬到 26；本机设置（字号、画质、帧率、音量）在 `UI/Prefs.cs`，不进存档。伙伴面板（照顾 / 技能 / 养成）和图鉴在 `UI/GameUI.Pets.cs`。界面美术走"暖云手绘"：平涂哑光、暖可可手绘线、奶油底、低饱和粉彩，大框稳内容轻；负责人否掉了厚重的木框、黄铜、高光（`docs/18` 视觉主题）。改规则时网页版 `game/src/systems/` 一起改，再跑 `node tools/logic-test.mjs`、`node tools/unity/export_data.mjs`、`node tools/unity/export_parity.mjs`。
 - **声音全部由程序合成**（2026-11-21，负责人同意先由 AI 生成）：`python tools/audio/make_audio.py [sfx|music|ambience]` → `unity/Assets/Resources/Audio/`；`UI/GameAudio.cs` 按地图、昼夜、对战自动切换音乐和环境音，一次性音效用 `GameAudio.Play("名字")`。不要放进来路不明的音频。
 - **宠物骨骼和动作由 AI 在 Blender 里做**（2026-11-16，负责人在 Tripo 网页绑的骨架放进 Unity 是倒的）：`tools/blender/rig_pet.py` + 每只宠物的关节文件 `tools/rig/<宠物>.json`（检查工具 `overlay.py`、`slices.py`、`sheet.py`）；Unity 里用菜单 Lingmu/Render Pet Previews 检查。关节在模型朝 +X 时标注，导出前转到朝 Blender +Y（实测这样在 Unity 里朝前）。6 只宠物、主角和 3 个居民都由它绑定，各有 idle / walk / run / happy。
 - **贴图精修用 GPT 当助手**（负责人 2026-11-20 同意，密钥只在 Windows 用户环境变量 `OPENAI_API_KEY`，不进仓库）：`tools/ai/gpt.py`（看图评审 / 修图 / 出图，可透明背景）；模型贴图精修流水线 `tools/ai/enhance_model.py` + 任务表 `tools/ai/enhance_jobs.json`（渲染 9 个角度 → GPT 重画细节 → 对齐 → `tools/blender/texture_views.py` 投回 UV → `compose.py` 合成），`install_textures.py` 装进 Unity 并写进关节文件的 `texture`；草丛、花、云、雾的贴图由 GPT 画成 2×2 图集（提示词在 `tools/ai/prompts/`，原图在本机 `art/raw/ai_env/`，`tools/art/sprite_sheet.py` 裁切）。
@@ -48,7 +48,7 @@
 | `docs/10_手游适配评估.md` | 当前玩法作为手游的逐项评估、必须改 / 要验证的事项和顺序 |
 | `docs/17_用Unity看游戏.md` | 负责人用 Unity Hub 打开游玩副本、操作说明 |
 | `docs/18_游戏体检与界面升级计划.md` | 2026-11-20 体检（死路 3 处、战斗越打越拖、四叶草后期无消耗、内容量）和界面升级四步计划（GPT 出图 / 审稿 + AI 实现） |
-| `docs/19_界面正式版清单.md` | 2026-11-21 第一个测试版要的界面：参考图控件对照、每张地图的界面（P0 / P1）、"云海木作"零件包约 75 件、逐屏改版顺序 |
+| `docs/19_界面正式版清单.md` | 2026-11-21 第一个测试版要的界面：参考图控件对照、每张地图的界面（P0 / P1）、"暖云手绘"零件包约 75 件（第一版"云海木作"太厚重已弃用）、逐屏改版顺序 |
 | `docs/参考资料/风格示例/` | 负责人的 7 张风格示例图（画面和 UI 的标准） |
 | `docs/参考资料/README.md` | 外部资料说明（资料包原件不入库） |
 

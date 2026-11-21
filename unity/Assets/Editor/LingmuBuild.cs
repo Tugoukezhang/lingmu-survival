@@ -12,7 +12,7 @@ public static class LingmuBuild
         PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;   // plain files: any local web server can serve them
         PlayerSettings.WebGL.dataCaching = true;
         PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
-        PlayerSettings.productName = "云海宠物岛";
+        PlayerSettings.productName = "暖云";
         PlayerSettings.defaultWebScreenWidth = 1280; PlayerSettings.defaultWebScreenHeight = 720;
         var scenes = SceneKit.BuildOrder.Select(n => $"Assets/Scenes/{n}.unity").ToArray();
         var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes = scenes, locationPathName = @"D:\ClaudeTools\webgl", target = BuildTarget.WebGL, options = BuildOptions.None });

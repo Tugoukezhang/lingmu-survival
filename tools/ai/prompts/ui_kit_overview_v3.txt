@@ -1,0 +1,23 @@
+A game UI kit presentation board for a cozy, gentle mobile game called "Warm Cloud": a little floating island home above a sea of clouds, with cute pet companions, farming and airship trips. The look is light, soft and airy, like a hand-drawn storybook or a cozy indie game: the big frames feel steady, the contents feel light. NOT heavy, NOT glossy.
+
+Style rules (very important):
+- Flat matte colours with only a very soft, subtle shade. No glossy highlights, no shine, no bevels, no glow, no metal, no rivets, no brass, no realistic wood grain, no 3D depth.
+- Panel frames: a medium-thick, soft, warm cocoa-brown line (#6b4f3f), hand-drawn and gently wobbly. Panels are filled with opaque cream (#fbf5e6) and have a short, soft, light drop shadow so they stand out over a bright scene.
+- Cloud motif used with restraint: on the big panel, only the left part of the top edge rises into two or three soft cloud bumps of different heights; the rest of the edges are calm and nearly straight, leaving room for a title.
+- Muted, low-saturation pastel palette: cocoa #6b4f3f, cream #fbf5e6, warm beige #e9dfcc, sage green #93b26f, honey yellow #f2c35b, dusty sky blue #9cc3d5, dusty pink #eaa99b, coral red #e2674f, mint #bfe0c8, soft purple #b9a3d6.
+- At most one tiny ornament per panel (a tiny cloud with a little green sprout growing from it). No ribbons, no flowers everywhere.
+
+Lay out these separate pieces neatly on a plain flat solid pale sky-blue background (#d9eaf2, no gradient, no vignette), each with generous empty space around it, no overlaps, like a sprite sheet for a designer:
+1. one large empty panel as described: cream, medium cocoa line, two or three cloud bumps rising on the left of the top edge, one tiny cloud-sprout ornament on the bottom-right corner, short soft shadow
+2. one smaller empty detail card: a plain rounded cream card with the same medium cocoa line and short soft shadow, no ornament
+3. a row of five empty flat pill buttons: honey yellow, sage green, cream, coral red, and dark cocoa; each with a flat bottom band only slightly darker and only about 8% of the button height; thin cocoa outline
+4. a round cream close button shaped like a small puffy cloud with a cocoa outline and a bold cocoa X, a matching cloud back button with a bold curved arrow, and two empty round cream button bases with a cocoa outline
+5. a row of five rounded-square category tabs with a simple cocoa line icon inside (star, apple, shirt, leaf, scroll) in dusty pastels (mint, dusty blue, dusty pink, cream); the selected tab is sage green, slightly bigger, with a small point at the bottom
+6. a row of square rounded inventory slots: three empty slots in solid warm beige (#e9dfcc, one shade darker than the panel, no outline), a selected slot with a honey-yellow outline and a small honey tick badge on its corner, and five slots with a thin coloured rim for rarity: grey, sage green, dusty blue, soft purple, honey gold
+7. a progress bar (thin cocoa outline, cream track, sage green fill), a flat toggle switch (on, sage green, cream knob) and a thin slider with a round cream knob
+8. a notification dot in coral red with a cream inner ring and a thin cocoa outer ring, and two currency chips as dark cocoa pills with an icon on the left (a green four-leaf clover, a sky-blue star-shaped dew drop) and empty space for numbers
+9. a row of six round HUD buttons: cream discs with a thin cocoa outline, each holding a bold solid dark-cocoa silhouette icon with very few inner lines: backpack, paw print, hammer, scroll, folded map, gear
+10. a row of six item icons in a warm painted style, each made of two or three warm colour blocks, one soft shadow and a thin cocoa outline, instantly readable: a turnip, a red apple, a wood log, a grey stone, a small bunch of blue berries, a seed pouch
+11. five round element badges, flat muted colour circles with a cocoa outline and a cream symbol: leaf (sage green), water drop (dusty blue), flame (coral), star (honey yellow), crescent moon (soft purple)
+
+Absolutely no text, no letters, no numbers and no words anywhere. Original design; no logos, no watermark.

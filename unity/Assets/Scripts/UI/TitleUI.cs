@@ -16,7 +16,8 @@ namespace Lingmu.UI
 {
     public class TitleUI : MonoBehaviour
     {
-        public const string GameName = "云海宠物岛";   // 暂名 (web TitleScene.js GAME_NAME); change here when the owner names the game
+        public const string GameName = "暖云";   // the owner's name for the game (2026-11-21); same as web TitleScene.js GAME_NAME
+        public const string EnglishName = "Warm Cloud", Subtitle = "云朵上，有个暖暖的家";   // 【建议】
         static readonly Dictionary<string, string> Traits = new Dictionary<string, string> { { "acorn", "结实耐打，防御最高" }, { "shark", "活泼均衡，攻守兼备" }, { "fox", "机灵敏捷，攻击最高" } };
 
         public Canvas canvas;
@@ -57,9 +58,12 @@ namespace Lingmu.UI
 
         void BuildTitle()
         {
-            var plate = Panel(page, "plate", Cream, null, false, true).rectTransform.Place(new Vector2(0.5f, 0.66f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(820, 240));
-            var t = Label(plate, GameName, 96, WoodDark, true); t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(0, 50);
-            var tmp = Label(plate, "（暂名）", 28, WoodMid); tmp.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 26), new Vector2(300, 44));
+            // placeholder title plate until the logo art is made (docs/19)
+            var plate = Panel(page, "plate", Cream, null, false, true).rectTransform.Place(new Vector2(0.5f, 0.72f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(620, 260));
+            var t = Label(plate, GameName, 140, WoodDark, true); t.characterSpacing = 30; t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(0, 64);
+            var en = Label(plate, EnglishName, FsSub, WoodMid); en.characterSpacing = 8; en.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24), new Vector2(500, 44));
+            var sub = Label(page, Subtitle, FsBody, WoodDark, true); sub.characterSpacing = 20; sub.outlineWidth = 0.2f; sub.outlineColor = new Color32(251, 243, 220, 255);
+            sub.rectTransform.Place(new Vector2(0.5f, 0.72f), new Vector2(0.5f, 1), new Vector2(0, -140), new Vector2(900, 56));
             foreach (var (sp, x) in new[] { ("acorn", -330f), ("fox", 0f), ("shark", 330f) })
             {
                 var img = Rect("pet", page).Place(new Vector2(0.5f, 0.32f), new Vector2(0.5f, 0), new Vector2(x, -40), new Vector2(260, 260)).gameObject.AddComponent<Image>();

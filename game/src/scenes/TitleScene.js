@@ -10,7 +10,8 @@ import { SKILL_NAMES } from '../systems/explore.js';
 import { WORK } from '../systems/petcare.js';
 import { woodPanel, capsuleButton, plaqueButton, text, tag, makeClickable, MIN_TOUCH } from '../ui/widgets.js';
 
-export const GAME_NAME = '云海宠物岛';   // 暂名，负责人定名后改这里和 index.html
+export const GAME_NAME = '暖云';   // 负责人定的正式名字（2026-11-21），和 index.html、Unity TitleUI.GameName 一致
+export const GAME_SUBTITLE = '云朵上，有个暖暖的家';   // 【建议】
 export const VERSION = 'v0.5 开发版';
 export const HEALTH_NOTICE = '抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。\n适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。';
 
@@ -86,7 +87,7 @@ export default class TitleScene extends Phaser.Scene {
     this.drawIsland(L);
     const plate = woodPanel(this, 460, 104).setPosition(GAME_W / 2, 92);
     plate.add(text(this, 0, -6, GAME_NAME, 46, { ox: 0.5, oy: 0.5, stroke: '#fbf3dc', strokeThickness: 2 }));
-    plate.add(text(this, 0, 32, '（暂名）', 14, { ox: 0.5, oy: 0.5, bold: false, color: '#9a8468' }));
+    plate.add(text(this, 0, 32, GAME_SUBTITLE, 14, { ox: 0.5, oy: 0.5, bold: false, color: '#9a8468' }));
     L.add(plate);
     const y = 448;
     if (session.hasSave) {
