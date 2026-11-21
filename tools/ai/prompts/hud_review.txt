@@ -1,0 +1,9 @@
+You are a senior UI/UX designer for casual landscape mobile games. Image 1 is the current main game screen (HUD) of our original cozy game "暖云 / Warm Cloud" (farming, pets, airship trips, light survival). Image 2 is a screenshot of another game the owner likes, used only as a reference for how light and uncluttered a HUD can feel (we never copy its art).
+
+Our UI style is fixed: flat matte cream panels with a warm cocoa hand-drawn outline, low-saturation pastels, painted cocoa silhouette icons on round cream buttons. Layout rules: landscape phone, main action bottom-right in the thumb zone, joystick bottom-left, text min 26 px and touch targets min 88 px on a 1080-high layout.
+
+Please answer in Simplified Chinese, concrete and short:
+1. The 5 most important changes to make our HUD feel lighter, clearer and more "premium casual" like the reference, keeping all our functions (day, clock, phase, health and fullness, clover money, today's goal, menu: map/quests/partners/crafting/bag + dex + settings, joystick, action button with the verb, the hint chip of what you stand next to). For each: what to change and the exact layout/size/opacity suggestion in 1080p pixels.
+2. Which elements could be smaller, merged or hidden until needed (and how they come back).
+3. Three small ambient motions that make the HUD feel alive without distracting (timing in seconds).
+4. Any readability problem over the bright 3D scene.

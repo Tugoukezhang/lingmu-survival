@@ -1,0 +1,15 @@
+You are an art director for casual mobile games. Our game "暖云 / Warm Cloud" is an original landscape 2.5D cozy mobile game made in Unity 6.3 URP: a floating island home above a sea of clouds, farming, pets, airship trips to random expedition islands with foggy nights, turn-based pet battles. Target: mid/low-end phones. Our UI style was just set to flat, matte, cream panels with warm cocoa hand-drawn outlines and low-saturation pastels.
+
+Image 1 is our current home island (in-game screenshot with the old placeholder UI).
+Images 2–9 are references the owner collected (other people's work; we will learn principles only, never copy assets):
+2–3: a Ghibli-inspired stylized nature/village scene (paid Unity asset pack demo)
+4–5: a stylized highland nature pack demo (grass, rocks, mountains, river)
+6: a low-poly stylized forest pack demo
+7: a small indie 3D game with lanterns and a cream dialogue box with a name tag
+8–9: an indie game where the grey, foggy world gets coloured in as the player explores
+
+Answer in Simplified Chinese, concise and concrete, as a numbered list:
+1. Our scene vs. the references: the 5 biggest visual gaps (lighting, sky and clouds, grass, colour grading, depth/atmosphere, materials), ranked by impact per effort.
+2. For each gap, one concrete fix we can do ourselves in Unity URP on mobile (shader/lighting/post-processing settings, art changes), and the rough mobile cost (low / medium / high).
+3. Which ideas from 7 and 8–9 fit our game (UI dialogue, expedition fog, night lanterns, map), and how to adapt them so they feel original.
+4. Anything in these references we should NOT chase for a mobile game (too heavy or off-style).

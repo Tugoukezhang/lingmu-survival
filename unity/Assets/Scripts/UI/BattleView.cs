@@ -118,7 +118,7 @@ namespace Lingmu.UI
                 string useText = uses == int.MaxValue ? "" : $"  <size=26>{uses}/{s.uses}</size>";
                 string power = s.power > 0 ? $"<size=26>威力 {s.power}</size>" : "<size=26>状态</size>";
                 btn.SetLabel($"{s.name}{useText}\n{power}");
-                btn.GetComponent<Image>().color = Color.Lerp(WildPet.ElementColor(s.element), Color.white, 0.55f);
+                btn.GetComponent<Image>().color = Color.Lerp(ElementColor(s.element), Color.white, 0.55f);
                 btn.interactable = !playing && !b.needSwitch && uses > 0;
             }
             bool can = !playing && b.over == null;
@@ -133,8 +133,8 @@ namespace Lingmu.UI
         {
             s.art.sprite = PetArt(m);
             s.name.text = $"{m.name}  <size=28>Lv.{m.level}</size>";
-            s.element.color = WildPet.ElementColor(m.element);
-            s.elementText.text = m.element ?? "";
+            s.element.color = ElementColor(m.element);
+            s.elementText.text = m.element ?? ""; s.elementText.color = Readable(s.element.color, Color.white);
             SetBar(s.hp, m.hp / (float)m.maxHp, $"{m.hp}/{m.maxHp}");
         }
 
@@ -164,7 +164,7 @@ namespace Lingmu.UI
             if (playing) return;
             sub = Panel(transform, "sub", Cream, null, true, true).rectTransform.Place(new Vector2(1, 0), new Vector2(1, 0), new Vector2(-28, 420), new Vector2(860, 420));
             var title = Label(sub, kind == "snack" ? "喂零食（喜欢的食物：捕捉率 ×1.5）" : kind == "net" ? "扔网" : "换上哪只伙伴？", FsBody, WoodDark, true); title.rectTransform.Place(new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -14), new Vector2(800, 50));
-            var close = Button(sub, "×", WoodDark, Cream, 44, () => Destroy(sub.gameObject), Circle); ((RectTransform)close.transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-10, -10), new Vector2(TouchMin, TouchMin));
+            var close = CloseButton(sub, () => Destroy(sub.gameObject), TouchMin); ((RectTransform)close.transform).Place(new Vector2(1, 1), new Vector2(0.5f, 0.5f), new Vector2(-10, -10), new Vector2(TouchMin, TouchMin));
             var grid = Rect("grid", sub).Place(new Vector2(0, 1), new Vector2(0, 1), new Vector2(24, -76), new Vector2(812, 330));
             var gl = grid.gameObject.AddComponent<GridLayoutGroup>(); gl.cellSize = new Vector2(196, 150); gl.spacing = new Vector2(12, 12); gl.constraint = GridLayoutGroup.Constraint.FixedColumnCount; gl.constraintCount = 4;
             if (kind == "switch")

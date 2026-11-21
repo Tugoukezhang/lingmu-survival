@@ -54,14 +54,17 @@ public class LingmuModelImport : AssetPostprocessor
     // Ground detail textures (Art/Ground) tile across the islands: grayscale detail and a normal map.
     void OnPreprocessTexture()
     {
-        if (assetPath.StartsWith("Assets/Resources/Icons/"))
+        if (assetPath.StartsWith("Assets/Resources/Icons/") || assetPath.StartsWith("Assets/Resources/UI/"))
         {
-            // UI icons (128 px): sprites, no mipmaps, crisp on phones
+            // UI icons (128 px): sprites, no mipmaps, crisp on phones. The UI kit (192 px parts, tools/art/sprite_sheet.py
+            // bleeds their edges) keeps mipmaps: its icons are shown 2–3× smaller and would shimmer without them.
             var ui = (TextureImporter)assetImporter;
             ui.textureType = TextureImporterType.Sprite; ui.spriteImportMode = SpriteImportMode.Single;
-            ui.mipmapEnabled = false; ui.alphaIsTransparency = true; ui.maxTextureSize = 512;
+            // The title art (UI/Title: full-screen background, island, logo) keeps up to 2048 px and skips mipmaps.
+            bool title = assetPath.StartsWith("Assets/Resources/UI/Title/");
+            ui.mipmapEnabled = assetPath.StartsWith("Assets/Resources/UI/") && !title; ui.alphaIsTransparency = true; ui.maxTextureSize = title ? 2048 : 512;
             var a = ui.GetPlatformTextureSettings("Android");
-            a.overridden = true; a.maxTextureSize = 512; a.format = TextureImporterFormat.ASTC_4x4;
+            a.overridden = true; a.maxTextureSize = title ? 2048 : 512; a.format = title ? TextureImporterFormat.ASTC_6x6 : TextureImporterFormat.ASTC_4x4;
             ui.SetPlatformTextureSettings(a);
             return;
         }
