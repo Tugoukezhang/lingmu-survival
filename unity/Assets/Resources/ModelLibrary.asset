@@ -16,96 +16,128 @@ MonoBehaviour:
   - key: tree
     model: {fileID: 919132149155446097, guid: 94a46f23354a2d9418ab8287a5c0eff3, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: pine
     model: {fileID: 919132149155446097, guid: 5d0b8e5f63ebf7e42b61309412ef6124, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: bush
     model: {fileID: 919132149155446097, guid: b62aba2fd5382ab4abca038e6eb5d606, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: shrub
     model: {fileID: 919132149155446097, guid: 5e49da2f909425c458d3c9e3c0525179, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: thorn
     model: {fileID: 919132149155446097, guid: 9ce68cb2071743b47b8e8ce9387734fa, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: chest
     model: {fileID: 919132149155446097, guid: abba88c06090c844db74ac7d889febeb, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: chest_open
     model: {fileID: 919132149155446097, guid: 6e7b53f22113c4941baf219b109e0bec, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: airship
     model: {fileID: 919132149155446097, guid: bec2ea00c1e8fc04a93fc24d027edac5, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: campfire
     model: {fileID: 919132149155446097, guid: c26f361b7eb6668459e69b183fe62b2d, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: tent
     model: {fileID: 919132149155446097, guid: aebf108c9deca7b42ba32529cadbe712, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: lamp
     model: {fileID: 919132149155446097, guid: 3ecc5696f946a7a448665346a74483c7, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: fountain
     model: {fileID: 919132149155446097, guid: c5187ff098b06004e84482c4866ede74, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: bld_shop_granny
     model: {fileID: 919132149155446097, guid: e0ef17001e256df46839148e141f1bfa, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: bld_workshop
     model: {fileID: 919132149155446097, guid: 3f28b3dd519c7214bb906f2818e3aea6, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: bld_lab
     model: {fileID: 919132149155446097, guid: 1c2388a8940203947be55a1229edff38, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: pet_fox
     model: {fileID: 919132149155446097, guid: 540d2b4995ffbdc4585cb71ad6e370a5, type: 3}
     animator: {fileID: 9100000, guid: bf0e8905794811b4d8c9ad4f4c0a3a8e, type: 2}
+    yaw: 0
   - key: pet_pup
     model: {fileID: 919132149155446097, guid: e2a1c9dc9a5dbfe488b143cdb83b3110, type: 3}
     animator: {fileID: 9100000, guid: 0e7fc843175c0ef49b88ac8c5a9aa385, type: 2}
+    yaw: 0
   - key: pet_acorn
     model: {fileID: 919132149155446097, guid: 849015e91a84d61409b31d24ba4b2b3c, type: 3}
     animator: {fileID: 9100000, guid: bf70d2de89bf586419d0d46195c14dc1, type: 2}
+    yaw: 0
   - key: pet_shark
     model: {fileID: 919132149155446097, guid: 0f18c27c2e671be44b15185ba3118a10, type: 3}
     animator: {fileID: 9100000, guid: 2012795cdc6eb16479d6047a6fb135b2, type: 2}
+    yaw: 180
   - key: pet_starbear
     model: {fileID: 919132149155446097, guid: b12621624143aed4b8db95a7ece277b3, type: 3}
     animator: {fileID: 9100000, guid: 5aa74021752db394ca8228f6263b3866, type: 2}
+    yaw: 180
   - key: pet_shadecat
     model: {fileID: 919132149155446097, guid: 35768bca4d5dabb45a5709b0cf305829, type: 3}
     animator: {fileID: 9100000, guid: dd3113a6d3b9a6849b5af0a35e325276, type: 2}
+    yaw: 0
   - key: npc_granny
     model: {fileID: 919132149155446097, guid: 33d758efdd3ecbd47b2355a801c22557, type: 3}
     animator: {fileID: 9100000, guid: b36400484a63d734da4a9fffb9113f46, type: 2}
+    yaw: 0
   - key: npc_ali
     model: {fileID: 919132149155446097, guid: c6a333ee3b41b1f4fb01b08e8ff25512, type: 3}
     animator: {fileID: 9100000, guid: a0a4be16a10ec7747bb78672dcf54ada, type: 2}
+    yaw: 0
   - key: npc_lumi
     model: {fileID: 919132149155446097, guid: 628ea4db5327d6043830e540eee936b6, type: 3}
     animator: {fileID: 9100000, guid: a2b9c6becbf715d45bff91ad17d3c5e2, type: 2}
+    yaw: 0
   - key: npc_innkeeper
     model: {fileID: 919132149155446097, guid: ead702dfbf136b648aae4f6203001f57, type: 3}
     animator: {fileID: 9100000, guid: 553fa15b1e6f0d149a5e5ff90bc1464e, type: 2}
+    yaw: 0
   - key: player
     model: {fileID: 919132149155446097, guid: a23c948097f908b40902dfe97a07be9e, type: 3}
     animator: {fileID: 9100000, guid: 892c35fd85951c9419b9081f70ded2b9, type: 2}
+    yaw: 0
   - key: hero
     model: {fileID: 919132149155446097, guid: ee13193b15693d14ca670384750e5757, type: 3}
     animator: {fileID: 9100000, guid: 4cec34a80e7b01646a3a6d56d57b0741, type: 2}
+    yaw: 0
   - key: tool_axe
     model: {fileID: 919132149155446097, guid: 236b474477f35454f9bb5fe2c9aafcca, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: tool_pickaxe
     model: {fileID: 919132149155446097, guid: e512bd27f25e5074daa1e1ac37636410, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: tool_hoe
     model: {fileID: 919132149155446097, guid: 44b01d4a151749746846e9d782bde326, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: tool_can
     model: {fileID: 919132149155446097, guid: ec99800ac1cd1a247944551ac80c06cc, type: 3}
     animator: {fileID: 0}
+    yaw: 0
   - key: tool_net
     model: {fileID: 919132149155446097, guid: 90edf5320f0239b468843dea6f6f0001, type: 3}
     animator: {fileID: 0}
+    yaw: 0

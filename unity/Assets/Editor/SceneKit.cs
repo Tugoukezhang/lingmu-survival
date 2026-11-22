@@ -356,6 +356,9 @@ public static class SceneKit
         ("tool_can", Props + "T04_can", false), ("tool_net", Props + "T05_net", false),
     };
 
+    // models that came out of the Tripo website facing −Z (the shark and the star bear remade from three views, 11-22)
+    static readonly HashSet<string> TurnAround = new HashSet<string> { "pet_shark", "pet_starbear" };
+
     // after new models arrive: short clip names, then the runtime library (batch: -executeMethod SceneKit.RefreshModels)
     public static void RefreshModels() { AssetDatabase.Refresh(); LingmuModelImport.FixClips(); UpdateLibrary(); EnsureSharedMaterials(); UpdateGrading(); }
 
@@ -370,7 +373,7 @@ public static class SceneKit
         {
             var model = Asset(folder);
             if (!model) { Debug.LogWarning("[Lingmu] library: missing " + folder); continue; }
-            lib.entries.Add(new ModelLibrary.Entry { key = key, model = model, animator = animated ? Locomotion(folder) : null });
+            lib.entries.Add(new ModelLibrary.Entry { key = key, model = model, animator = animated ? Locomotion(folder) : null, yaw = TurnAround.Contains(key) ? 180 : 0 });
         }
         EditorUtility.SetDirty(lib);
         AssetDatabase.SaveAssets();

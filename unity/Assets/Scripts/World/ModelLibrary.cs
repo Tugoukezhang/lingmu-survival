@@ -9,7 +9,7 @@ namespace Lingmu.World
     [CreateAssetMenu(menuName = "Lingmu/Model Library")]
     public class ModelLibrary : ScriptableObject
     {
-        [System.Serializable] public class Entry { public string key; public GameObject model; public RuntimeAnimatorController animator; }
+        [System.Serializable] public class Entry { public string key; public GameObject model; public RuntimeAnimatorController animator; public float yaw; }   // yaw: turn so the model faces +Z
         public List<Entry> entries = new List<Entry>();
 
         static ModelLibrary lib;
@@ -24,7 +24,7 @@ namespace Lingmu.World
             if (e == null || !e.model) { var miss = new GameObject("missing " + key); miss.transform.SetParent(parent, false); miss.transform.position = at; return miss; }
             var g = Instantiate(e.model, parent);
             g.name = key;
-            g.transform.rotation = Quaternion.Euler(0, yaw, 0) * e.model.transform.rotation;
+            g.transform.rotation = Quaternion.Euler(0, yaw + e.yaw, 0) * e.model.transform.rotation;
             var b = Bounds(g);
             float now = fitHeight ? b.size.y : Mathf.Max(b.size.x, b.size.z);
             g.transform.localScale = e.model.transform.localScale * (size / Mathf.Max(now, 1e-4f));
