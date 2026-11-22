@@ -272,17 +272,18 @@ namespace Lingmu.Game
         public Spot CurrentSpot() => player && Area != null && Battle == null ? Area.CurrentSpot(player.position) : null;
 
         // the hero's body follows what the player does (docs/21: "动作还是很僵硬" — the action clips were never played)
-        // (clip, start, length) in seconds — where the motion sits inside each Tripo clip (right-hand height traced in Blender):
-        // chop raises 1.3 s → strikes 2.2 s → back up 3.1 s; pick_up bends 0.3–1.9 s; greet waves 1.2–2.6 s; dig is down from 1.5 s
+        // (clip, start, length) in seconds — where the motion sits inside each Tripo clip (hand heights traced in Blender):
+        // pick_strike (two hands overhead 0.9 s → strike 1.6 s → up 2.7 s), axe_chop (side swing 1.0–1.5 s), hoe_dig (raise 1.9 s
+        // → into the soil 2.6 s); pick_up bends 0.3–1.9 s; greet waves 1.2–2.6 s; dig is down from 1.5 s
         // tools in hand (owner 11-22: "人物拿着稿子锤石头的动作也没有"): axe for trees and paths, pickaxe for stone and mist
         // crystals, hoe for breaking ground, the watering can
         static (string clip, float from, float hold, string tool) ActionClip(string verb) => verb switch
         {
-            "砍树" or "开路" => ("chop", 1.2f, 1.8f, "tool_axe"),
-            "敲石头" or "挖雾晶" => ("chop", 1.2f, 1.8f, "tool_pickaxe"),
+            "砍树" or "开路" => ("axe_chop", 0.35f, 1.75f, "tool_axe"),
+            "敲石头" or "挖雾晶" => ("pick_strike", 0.4f, 2.1f, "tool_pickaxe"),
             "摘浆果" or "割草" or "捡回" or "打开" or "收获" => ("pick_up", 0.2f, 1.8f, null),
             "播种" => ("dig", 1.4f, 1.6f, null),
-            "开垦" => ("shovel", 0f, 1.6f, "tool_hoe"),
+            "开垦" => ("hoe_dig", 1.35f, 1.55f, "tool_hoe"),
             "浇水" => ("water", 0f, 1.6f, "tool_can"),
             "聊天" => ("greet_01", 1.0f, 1.7f, null),
             _ => (null, 0f, 0f, null),

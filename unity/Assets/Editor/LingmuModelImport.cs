@@ -27,7 +27,9 @@ public class LingmuModelImport : AssetPostprocessor
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
     static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "dig", "shovel", "water", "sleep", "eat" };
     // text-to-motion clips come back named after the Chinese prompt: short names the game asks for
-    static readonly (string key, string name)[] PromptClips = { ("网", "net_throw"), ("浇水", "water"), ("捡起", "pick_up") };
+    // Tripo text-to-motion clips are named after their prompt: short names (11-22: tool motions, owner "拿着稿子锤石头的动作也没有")
+    static readonly (string key, string name)[] PromptClips = { ("网", "net_throw"), ("浇水", "water"), ("捡起", "pick_up"),
+        ("镐子", "pick_strike"), ("斧头", "axe_chop"), ("锄头", "hoe_dig"), ("奔跑", "joy_dash") };
 
     void OnPreprocessModel()
     {
