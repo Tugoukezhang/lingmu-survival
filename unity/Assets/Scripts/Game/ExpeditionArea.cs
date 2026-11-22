@@ -221,7 +221,8 @@ namespace Lingmu.Game
             return null;
         }
 
-        void Remove(string id) { if (things.TryGetValue(id, out var go)) { Destroy(go); things.Remove(id); } }
+        void Remove(string id) { if (things.TryGetValue(id, out var go)) { if (go != keepView) Destroy(go); things.Remove(id); } }
+        public override GameObject ViewOf(Spot s) => s?.key != null && things.TryGetValue(s.key, out var g) ? g : null;
 
         void Gather(IslandThing r)
         {

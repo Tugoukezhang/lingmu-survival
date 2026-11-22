@@ -19,6 +19,9 @@ Shader "Lingmu/Foliage"
         _Flutter ("Leaf flutter (m)", Float) = 0.025
         _Wrap ("Light wrap", Range(0, 1)) = 0.45
         _Translucency ("Light through leaves", Range(0, 1)) = 0.35
+        _Sphere ("Round canopy shading", Range(0, 1)) = 0.65
+        _CanopyAt ("Canopy centre (share of the height)", Range(0.2, 0.9)) = 0.62
+        _Bands ("Light / shade bands", Range(0, 1)) = 0.45
     }
     SubShader
     {
@@ -31,6 +34,7 @@ Shader "Lingmu/Foliage"
             float4 _BaseMap_ST;
             half4 _BaseColor;
             float _Height, _Base, _Wind, _WindSpeed, _Flutter;
+            float _Sphere, _CanopyAt, _Bands;
             half _Wrap, _Translucency;
         CBUFFER_END
 
@@ -86,6 +90,15 @@ Shader "Lingmu/Foliage"
                 o.positionWS = ws;
                 o.positionCS = TransformWorldToHClip(ws);
                 o.normalWS = TransformObjectToWorldNormal(v.normalOS);
+                // round canopy shading (reference video 11-22, "animated cloud trees"): leaf normals lean out from the
+                // canopy's centre, so the crown lights as soft clumps instead of a speckle of single leaves; the trunk
+                // (low part) keeps its own normals
+                float3 origin = TransformObjectToWorld(float3(0, 0, 0));
+                float baseY = origin.y - _Base;
+                float3 centre = float3(origin.x, baseY + _Height * _CanopyAt, origin.z);
+                float3 d = ws - centre; d.y *= 1.25;
+                float leaf = smoothstep(0.28, 0.45, saturate((ws.y - baseY) / max(_Height, 0.1)));
+                o.normalWS = normalize(lerp(o.normalWS, normalize(d + 1e-4), _Sphere * leaf));
                 o.uv = TRANSFORM_TEX(v.uv, _BaseMap);
                 o.fog = ComputeFogFactor(o.positionCS.z);
                 return o;
@@ -100,6 +113,7 @@ Shader "Lingmu/Foliage"
                 Light sun = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
                 half ndl = dot(n, sun.direction);
                 half wrap = saturate((ndl + _Wrap) / (1 + _Wrap));
+                wrap = lerp(wrap, smoothstep(0.32, 0.68, wrap) * 0.85 + wrap * 0.15, _Bands);   // cleaner light / shade, like painted cels
                 half3 view = normalize(GetWorldSpaceViewDir(i.positionWS));
                 half through = pow(saturate(dot(view, -sun.direction)), 4) * _Translucency * (1 - saturate(ndl));
                 half3 light = sun.color * (wrap + through) * lerp(0.35, 1, sun.shadowAttenuation) + SampleSH(n);

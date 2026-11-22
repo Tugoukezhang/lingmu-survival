@@ -26,6 +26,7 @@ namespace Lingmu.Player
         Animator animator;
         float actionUntil = -1; string nextAction; float nextFrom, nextHold, turnTo = float.NaN;
         GameObject held; string heldKey; Quaternion heldAlign;
+        Vector3 stepFrom, stepTo; float stepStart = -1, stepTime;
         Transform hand, handMid, handIndex, handLittle, forearm;
         Quaternion baseRotation = Quaternion.identity;     // the model's own turn from the import, kept under the yaw
 
@@ -47,6 +48,10 @@ namespace Lingmu.Player
         }
 
         public string HeldTool => held ? heldKey : null;
+
+        // "hit stop": the swing freezes for a blink when the tool lands, so the hit reads (World/Impact)
+        public void HitStop(float seconds) { if (animator && isActiveAndEnabled) StartCoroutine(Freeze(seconds)); }
+        System.Collections.IEnumerator Freeze(float s) { var a = animator; a.speed = 0; yield return new WaitForSecondsRealtime(s); if (a && Acting) a.speed = 1; }
 
         // ---------- a tool in the right hand ----------
         // The tool models have their grip at the origin, the handle along their longest side and the working side (axe blade,
@@ -112,6 +117,14 @@ namespace Lingmu.Player
             held.transform.position = h + f * handLen * 0.55f + palm * handLen * 0.28f;
         }
 
+        // a few steps to where the tool reaches the thing (World/Impact: not swinging at the air in front of a tree)
+        public void StepTo(Vector3 at, float seconds = 0.22f)
+        {
+            at.y = transform.position.y;
+            if ((at - transform.position).sqrMagnitude < 0.0025f || (map && !map.FootFits(at))) return;
+            stepFrom = transform.position; stepTo = at; stepStart = Time.time; stepTime = seconds;
+        }
+
         // turn to look at something (the tree being chopped, the pet the net is thrown at)
         public void FaceTowards(Vector3 at)
         {
@@ -130,6 +143,12 @@ namespace Lingmu.Player
         void Update()
         {
             var input = ReadInput();
+            if (stepStart > 0)
+            {
+                float k = Mathf.Clamp01((Time.time - stepStart) / stepTime);
+                transform.position = Vector3.Lerp(stepFrom, stepTo, k * k * (3 - 2 * k));
+                if (k >= 1 || input.sqrMagnitude > 0.09f) stepStart = -1;
+            }
             if (actionUntil > 0)
             {
                 if (input.sqrMagnitude > 0.09f) { nextAction = null; EndAction(); }      // walking off cancels the action

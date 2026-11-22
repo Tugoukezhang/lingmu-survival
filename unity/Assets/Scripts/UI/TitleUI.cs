@@ -92,13 +92,15 @@ namespace Lingmu.UI
 
         static System.Collections.IEnumerator After(float s, System.Action a) { yield return new WaitForSecondsRealtime(s); a(); }
 
-        // a light, translucent capsule (not the honey-and-wood button: the owner found the page too heavy)
-        Button Soft(string text, float w, float h, float size, System.Action click, float alpha = 0.9f)
+        // a light watercolour capsule (GPT art, Resources/UI/Kit/btn_pill*: owner 11-22 "ui应该gpt出图"); code shapes only
+        // when the art is missing
+        Button Soft(string text, float w, float h, float size, System.Action click, string art = "btn_pill")
         {
-            var b = Button(page, text, new Color(1, 0.995f, 0.975f, Mathf.Min(alpha, 0.89f)), Hex("5a4632"), size, click, Circle);
+            var spr = Kit(art);
+            var b = Button(page, text, spr ? Color.white : new Color(1, 0.995f, 0.975f, 0.89f), Hex("5a4632"), size, click, spr ? spr : Circle);
             var img = b.GetComponent<Image>(); img.type = Image.Type.Sliced;
-            var sh = b.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.2f, 0.25f, 0.35f, 0.18f); sh.effectDistance = new Vector2(0, -6);
-            var l = b.GetComponentInChildren<TMPro.TMP_Text>(); l.characterSpacing = 12; l.rectTransform.Fill(4);
+            if (spr) { img.sprite = spr; img.color = Color.white; foreach (var s in b.GetComponents<Shadow>()) Destroy(s); }
+            var l = b.GetComponentInChildren<TMPro.TMP_Text>(); l.characterSpacing = 12; l.rectTransform.Fill(4); l.color = Hex("5a4632");
             ((RectTransform)b.transform).sizeDelta = new Vector2(w, h);
             return b;
         }
@@ -122,7 +124,7 @@ namespace Lingmu.UI
             UiMotion.Pulse(Wrap(start.transform), 0.02f, 0.6f);
             if (saved != null)
             {
-                var fresh = Soft("新的开始", 190, 64, 26, () => Show("confirm"), 0.6f);
+                var fresh = Soft("新的开始", 200, 66, 26, () => Show("confirm"), "btn_pill_sky");
                 ((RectTransform)fresh.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-36, -32), new Vector2(190, 64));
             }
         }

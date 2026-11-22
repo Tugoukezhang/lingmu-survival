@@ -121,6 +121,8 @@ public static class SceneKit
         Make("FxAdd", particle, m => Particle(m, fxSoft, true));
         Make("FxAlpha", particle, m => Particle(m, fxSoft, false));
         Make("FxRing", particle, m => Particle(m, fxRing, false));
+        var toonShader = Shader.Find("Lingmu/Toon");
+        if (toonShader) Make("Toon", toonShader, m => { });                 // the hero and the pets (World/Toon)
         Make("LitEmissive", lit, m => { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", Color.white); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; });
         var grassShader = Shader.Find("Lingmu/Grass");
         if (grassShader)
@@ -231,6 +233,7 @@ public static class SceneKit
         var ctrl = AnimatorController.CreateAnimatorControllerAtPath(path);
         ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
         var state = ctrl.CreateBlendTreeInController("Move", out var tree);
+        state.iKOnFeet = true;
         tree.blendParameter = "Speed"; tree.useAutomaticThresholds = false;
         tree.AddChild(idle ?? walk, 0);
         tree.AddChild(walk, 1);
@@ -242,7 +245,7 @@ public static class SceneKit
         foreach (var c in clips)
         {
             if (c == walk || c == run || c == idle || sm.states.Any(s => s.state.name == c.name)) continue;
-            var st = sm.AddState(c.name); st.motion = c;
+            var st = sm.AddState(c.name); st.motion = c; st.iKOnFeet = true;   // humanoids keep their feet planted
             if (!c.isLooping) { var back = st.AddTransition(state); back.hasExitTime = true; back.exitTime = 0.95f; back.duration = 0.2f; }
         }
         return ctrl;
@@ -289,8 +292,31 @@ public static class SceneKit
         profile.Add<Tonemapping>(true).mode.Override(TonemappingMode.Neutral);
         var ca = profile.Add<ColorAdjustments>(true); ca.postExposure.Override(0.15f); ca.saturation.Override(14f); ca.contrast.Override(6f);
         profile.Add<Vignette>(true).intensity.Override(0.18f);
+        PaperTone(profile);
         foreach (var comp in profile.components) AssetDatabase.AddObjectToAsset(comp, profile);
         volume.sharedProfile = profile;
+    }
+
+    // reference video 11-22 ("暖纸蓝墨底色"): shadows lean a little cool blue, highlights warm like paper in sunlight
+    static void PaperTone(VolumeProfile profile)
+    {
+        if (profile.Has<SplitToning>()) return;
+        var st = profile.Add<SplitToning>(true);
+        st.shadows.Override(new Color(0.40f, 0.50f, 0.66f)); st.highlights.Override(new Color(0.99f, 0.88f, 0.70f)); st.balance.Override(-8f);
+    }
+
+    // adds the paper tone to the grading of scenes already built (batch: -executeMethod SceneKit.UpdateGrading)
+    public static void UpdateGrading()
+    {
+        foreach (var path in AssetDatabase.FindAssets("Grading t:VolumeProfile", new[] { "Assets/Generated" }).Select(AssetDatabase.GUIDToAssetPath))
+        {
+            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(path);
+            if (!profile || profile.Has<SplitToning>()) continue;
+            PaperTone(profile);
+            AssetDatabase.AddObjectToAsset(profile.components[profile.components.Count - 1], profile);
+            EditorUtility.SetDirty(profile);
+        }
+        AssetDatabase.SaveAssets();
     }
 
     public static GameSession AddGame(Transform player, Light sun, bool indoor = false)
@@ -331,7 +357,7 @@ public static class SceneKit
     };
 
     // after new models arrive: short clip names, then the runtime library (batch: -executeMethod SceneKit.RefreshModels)
-    public static void RefreshModels() { AssetDatabase.Refresh(); LingmuModelImport.FixClips(); UpdateLibrary(); }
+    public static void RefreshModels() { AssetDatabase.Refresh(); LingmuModelImport.FixClips(); UpdateLibrary(); EnsureSharedMaterials(); UpdateGrading(); }
 
     [MenuItem("Lingmu/Update Model Library")]
     public static ModelLibrary UpdateLibrary()

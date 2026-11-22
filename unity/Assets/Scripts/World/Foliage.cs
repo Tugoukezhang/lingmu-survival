@@ -9,13 +9,13 @@ namespace Lingmu.World
 {
     public static class Foliage
     {
-        struct Kind { public float wind, flutter, speed; }
+        struct Kind { public float wind, flutter, speed, canopy, sphere; }   // canopy: centre of the crown as a share of the height (round shading)
         static readonly Dictionary<string, Kind> Kinds = new Dictionary<string, Kind>
         {
-            { "tree", new Kind { wind = 0.16f, flutter = 0.028f, speed = 1.05f } },
-            { "pine", new Kind { wind = 0.11f, flutter = 0.012f, speed = 0.9f } },
-            { "bush", new Kind { wind = 0.06f, flutter = 0.018f, speed = 1.3f } },
-            { "shrub", new Kind { wind = 0.07f, flutter = 0.02f, speed = 1.5f } },
+            { "tree", new Kind { wind = 0.16f, flutter = 0.028f, speed = 1.05f, canopy = 0.64f, sphere = 0.65f } },
+            { "pine", new Kind { wind = 0.11f, flutter = 0.012f, speed = 0.9f, canopy = 0.5f, sphere = 0.45f } },
+            { "bush", new Kind { wind = 0.06f, flutter = 0.018f, speed = 1.3f, canopy = 0.45f, sphere = 0.6f } },
+            { "shrub", new Kind { wind = 0.07f, flutter = 0.02f, speed = 1.5f, canopy = 0.45f, sphere = 0.6f } },
         };
         // model names in the scenes (prefab instances) and the ModelLibrary keys
         static readonly Dictionary<string, string> Names = new Dictionary<string, string>
@@ -63,6 +63,7 @@ namespace Lingmu.World
                         m.SetFloat("_Height", Mathf.Max(0.3f, b.size.y));
                         m.SetFloat("_Base", Mathf.Max(0, r.transform.position.y - b.min.y));
                         m.SetFloat("_Wind", k.wind); m.SetFloat("_Flutter", k.flutter); m.SetFloat("_WindSpeed", k.speed);
+                        m.SetFloat("_CanopyAt", k.canopy); m.SetFloat("_Sphere", k.sphere);
                         m.enableInstancing = true;
                         made[(src, kind)] = m;
                     }

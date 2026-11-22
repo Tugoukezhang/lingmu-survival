@@ -33,6 +33,7 @@ namespace Lingmu.World
             if (e.animator) { var an = g.GetComponentInChildren<Animator>(); if (an) { an.runtimeAnimatorController = e.animator; an.applyRootMotion = false; } }
             Foliage.Apply(g, Foliage.KindOf(key));   // trees and bushes sway in the wind
             if (key.StartsWith("pet_") && e.animator) SpringBones.Add(g);   // ears, tails and fur swing after the body (Tripo rigs)
+            if (key.StartsWith("pet_") || key == "hero") Toon.Apply(g, key);  // painted-film shading: three tones, warm outline
             return g;
         }
 

@@ -26,6 +26,10 @@ namespace Lingmu.Player
 
         public void Snap() { if (target) { focus = target.position; hasFocus = true; Place(); } }
 
+        // a tool landing on wood or stone (World/Impact): a short jolt that dies away in ~0.2 s
+        static float kick;
+        public static void Kick(float metres) => kick = Mathf.Max(kick, metres);
+
         void LateUpdate()
         {
             if (!target) return;
@@ -47,6 +51,11 @@ namespace Lingmu.Player
             k = Mathf.Lerp(k, want / distance, 1 - Mathf.Exp(-Time.deltaTime * (want / distance < k ? 12 : 3)));
             transform.position = eye + back * distance * k;
             transform.rotation = Quaternion.LookRotation(eye - transform.position, Vector3.up);
+            if (kick > 0.0005f)
+            {
+                transform.position += transform.up * kick * Mathf.Sin(Time.time * 70f) + transform.right * kick * 0.6f * Mathf.Cos(Time.time * 53f);
+                kick = Mathf.MoveTowards(kick, 0, Time.deltaTime * 0.3f);
+            }
         }
 
         void ReadDrag()

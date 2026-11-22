@@ -72,6 +72,13 @@ public class LingmuModelImport : AssetPostprocessor
             var a = ui.GetPlatformTextureSettings("Android");
             a.overridden = true; a.maxTextureSize = title ? 2048 : 512; a.format = title ? TextureImporterFormat.ASTC_6x6 : TextureImporterFormat.ASTC_4x4;
             ui.SetPlatformTextureSettings(a);
+            // GPT button art (btn_pill*: watercolour capsules, 512 px wide): 9-sliced so the round ends keep their shape at any width
+            if (System.IO.Path.GetFileName(assetPath).StartsWith("btn_pill"))
+            {
+                ui.GetSourceTextureWidthAndHeight(out var w, out var h);
+                ui.spriteBorder = new Vector4(h * 0.5f, h * 0.35f, h * 0.5f, h * 0.35f);
+                ui.mipmapEnabled = false;
+            }
             return;
         }
         if (assetPath.StartsWith("Assets/Art/Sky/"))
@@ -176,6 +183,17 @@ public class LingmuModelImport : AssetPostprocessor
                 foreach (var (key, name) in PromptClips) if (shortName.Contains(key)) shortName = name;
                 bool loop = Looping.Any(k => shortName.ToLowerInvariant().Contains(k));
                 if (c.name != shortName || c.loopTime != loop) { c.name = shortName; c.loopTime = loop; changed = true; }
+                // humanoid clips: the body's turn and its up-and-down go into the pose, as authored. Left as root motion they
+                // were thrown away (root motion is off): crouching to hoe kept the hips up and lifted both feet off the
+                // ground (owner 11-22: "锄地的时候双脚离地，很不自然"); the forward drift of in-place clips is dropped too.
+                if (mi.animationType == ModelImporterAnimationType.Human &&
+                    (!c.lockRootRotation || !c.keepOriginalOrientation || !c.lockRootHeightY || !c.keepOriginalPositionY || c.heightFromFeet || !c.lockRootPositionXZ || !c.keepOriginalPositionXZ))
+                {
+                    c.lockRootRotation = true; c.keepOriginalOrientation = true;
+                    c.lockRootHeightY = true; c.keepOriginalPositionY = true; c.heightFromFeet = false;
+                    c.lockRootPositionXZ = true; c.keepOriginalPositionXZ = true;
+                    changed = true;
+                }
             }
             if (!changed) continue;
             mi.clipAnimations = clips;

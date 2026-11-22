@@ -33,6 +33,8 @@ namespace Lingmu.Game
         public virtual bool CanStand(Vector3 p) => true;
         public virtual Spot CurrentSpot(Vector3 p) => null;
         public virtual string Act(Spot s) => null;                          // returns a panel for the UI to open, or null
+        public virtual GameObject ViewOf(Spot s) => null;                   // the object the spot is about (a tree, a rock …)
+        public GameObject keepView;                                         // not destroyed when used up: the action breaks it when the tool lands
         public virtual void OnTick() { }
         public virtual void OnDayEnded() { }
         public virtual void OnBattleEnded(string wildId, string result) { }
@@ -149,7 +151,7 @@ namespace Lingmu.Game
             mover.model = g.transform;
             // measured on the Tripo clips (Blender, foot speed in stance, 24 fps) at 1.35 m: walk 0.48 m/s, run 1.36 m/s at 1x.
             // Played faster than ~1.6x the run looks fast-forwarded (owner 11-22), so the top speed is 2.6 m/s (was 3.54)
-            mover.walkRef = 0.48f; mover.runRef = 1.36f; mover.speed = 2.6f; mover.maxPlayback = 1.6f;
+            mover.walkRef = 0.48f; mover.runRef = 1.36f; mover.speed = 2.4f; mover.maxPlayback = 1.35f;   // 11-22 pm: arms still too quick at 1.6x
             Destroy(old.gameObject);
         }
 
@@ -277,17 +279,20 @@ namespace Lingmu.Game
         // → into the soil 2.6 s); pick_up bends 0.3–1.9 s; greet waves 1.2–2.6 s; dig is down from 1.5 s
         // tools in hand (owner 11-22: "人物拿着稿子锤石头的动作也没有"): axe for trees and paths, pickaxe for stone and mist
         // crystals, hoe for breaking ground, the watering can
-        static (string clip, float from, float hold, string tool) ActionClip(string verb) => verb switch
+        // impact: seconds after the start when the tool lands (strike in the clip − start); reach: metres from the thing's centre
+        static (string clip, float from, float hold, string tool, float impact, float reach) ActionClip(string verb) => verb switch
         {
-            "砍树" or "开路" => ("axe_chop", 0.35f, 1.75f, "tool_axe"),
-            "敲石头" or "挖雾晶" => ("pick_strike", 0.4f, 2.1f, "tool_pickaxe"),
-            "摘浆果" or "割草" or "捡回" or "打开" or "收获" => ("pick_up", 0.2f, 1.8f, null),
-            "播种" => ("dig", 1.4f, 1.6f, null),
-            "开垦" => ("hoe_dig", 1.35f, 1.55f, "tool_hoe"),
-            "浇水" => ("water", 0f, 1.6f, "tool_can"),
-            "聊天" => ("greet_01", 1.0f, 1.7f, null),
-            _ => (null, 0f, 0f, null),
+            "砍树" or "开路" => ("axe_chop", 0.35f, 1.75f, "tool_axe", 1.1f, 1.0f),
+            "敲石头" or "挖雾晶" => ("pick_strike", 0.4f, 2.1f, "tool_pickaxe", 1.2f, 0.95f),
+            "摘浆果" or "割草" or "捡回" or "打开" or "收获" => ("pick_up", 0.2f, 1.8f, null, 0.8f, 0.6f),
+            "播种" => ("dig", 1.4f, 1.6f, null, 0.5f, 0.55f),
+            "开垦" => ("hoe_dig", 1.35f, 1.55f, "tool_hoe", 1.2f, 0.9f),
+            "浇水" => ("water", 0f, 1.6f, "tool_can", 0.6f, 0.75f),
+            "聊天" => ("greet_01", 1.0f, 1.7f, null, 0f, 0f),
+            _ => (null, 0f, 0f, null, 0f, 0f),
         };
+
+        System.Collections.IEnumerator After(float seconds, System.Action a) { yield return new WaitForSeconds(seconds); a(); }
 
         public bool HeroAction(string clip, float from, float hold, string then = null, float thenFrom = 0, float thenHold = 0, string tool = null)
         {
@@ -298,14 +303,39 @@ namespace Lingmu.Game
         public string Act(Spot s)
         {
             if (s == null || Area == null) return null;
-            Lingmu.UI.GameAudio.Verb(s.verb);
-            var (clip, from, hold, tool) = ActionClip(s.verb);
+            var (clip, from, hold, tool, impact, reach) = ActionClip(s.verb);
+            var view = Area.ViewOf(s);
+            bool acted = false;
             if (clip != null && player)
             {
                 var m = player.GetComponent<Player.PlayerMover>();
-                if (m) { if (s.pos != Vector3.zero) m.FaceTowards(s.pos); m.PlayAction(clip, from, hold, null, 0, 0, tool); }
+                if (m)
+                {
+                    if (s.pos != Vector3.zero)
+                    {
+                        m.FaceTowards(s.pos);
+                        var away = player.position - s.pos; away.y = 0;
+                        if (reach > 0 && away.sqrMagnitude > 0.01f) m.StepTo(s.pos + away.normalized * reach);
+                    }
+                    acted = m.PlayAction(clip, from, hold, null, 0, 0, tool);
+                }
             }
+            if (!acted) Lingmu.UI.GameAudio.Verb(s.verb);
+            Area.keepView = view;
             var panel = Area.Act(s);
+            Area.keepView = null;
+            if (acted)
+            {
+                // the thing reacts when the tool lands; one that is used up (gone from the area) breaks then
+                bool gone = view && Area.ViewOf(s) != view;
+                var kind = World.Impact.KindOf(s.verb); var at = s.pos;
+                StartCoroutine(After(impact, () =>
+                {
+                    Lingmu.UI.GameAudio.Verb(s.verb);
+                    if (kind is "wood" or "stone" or "crystal" or "dirt") player.GetComponent<Player.PlayerMover>()?.HitStop(kind == "dirt" ? 0.04f : 0.07f);
+                    World.Impact.Hit(view, at + Vector3.up * 0.3f, kind, gone, player ? player.position : at);
+                }));
+            }
             if (!leaving) AfterAction();
             return panel;
         }

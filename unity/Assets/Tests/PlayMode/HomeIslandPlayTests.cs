@@ -131,6 +131,13 @@ public class HomeIslandPlayTests
         yield return new WaitForSeconds(1.6f); Shot("hero_cheer");
         yield return new WaitForSeconds(1.8f); Assert.IsFalse(mv.Acting, "动作做完回到待机");
         Assert.IsNull(mv.HeldTool, "做完收起工具");
+        // the tree answers the axe: shakes and sheds leaves, and a used-up one topples and goes (World/Impact)
+        var tr = ModelLibrary.Place("tree", null, GameSession.I.player.position + new Vector3(1.05f, 0, 0.25f), 2.6f, true, 0);
+        GameSession.I.HeroAction("axe_chop", 0.35f, 1.75f, tool: "tool_axe"); yield return new WaitForSeconds(1.1f);
+        Lingmu.World.Impact.Hit(tr, tr.transform.position + Vector3.up * 0.5f, "wood", true, GameSession.I.player.position);
+        yield return new WaitForSeconds(0.12f); Shot("impact_wood");
+        yield return new WaitForSeconds(0.6f); Shot("impact_fall");
+        yield return new WaitForSeconds(1.6f); Assert.IsTrue(tr == null, "砍完的树倒下后消失");
         cam.distance = 3.0f; cam.pitch = 0.16f;
         // the round-2 fox next to the hero
         var fox = ModelLibrary.Place("pet_fox", null, GameSession.I.player.position + new Vector3(0.9f, 0, 0), 0.65f, true, 0);
