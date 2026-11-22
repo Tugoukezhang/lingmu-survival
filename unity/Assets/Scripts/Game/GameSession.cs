@@ -274,32 +274,35 @@ namespace Lingmu.Game
         // the hero's body follows what the player does (docs/21: "动作还是很僵硬" — the action clips were never played)
         // (clip, start, length) in seconds — where the motion sits inside each Tripo clip (right-hand height traced in Blender):
         // chop raises 1.3 s → strikes 2.2 s → back up 3.1 s; pick_up bends 0.3–1.9 s; greet waves 1.2–2.6 s; dig is down from 1.5 s
-        static (string clip, float from, float hold) ActionClip(string verb) => verb switch
+        // tools in hand (owner 11-22: "人物拿着稿子锤石头的动作也没有"): axe for trees and paths, pickaxe for stone and mist
+        // crystals, hoe for breaking ground, the watering can
+        static (string clip, float from, float hold, string tool) ActionClip(string verb) => verb switch
         {
-            "砍树" or "敲石头" or "挖雾晶" or "开路" => ("chop", 1.2f, 1.8f),
-            "摘浆果" or "割草" or "捡回" or "打开" or "收获" => ("pick_up", 0.2f, 1.8f),
-            "播种" => ("dig", 1.4f, 1.6f),
-            "开垦" => ("shovel", 0f, 1.6f),
-            "浇水" => ("water", 0f, 1.6f),
-            "聊天" => ("greet_01", 1.0f, 1.7f),
-            _ => (null, 0f, 0f),
+            "砍树" or "开路" => ("chop", 1.2f, 1.8f, "tool_axe"),
+            "敲石头" or "挖雾晶" => ("chop", 1.2f, 1.8f, "tool_pickaxe"),
+            "摘浆果" or "割草" or "捡回" or "打开" or "收获" => ("pick_up", 0.2f, 1.8f, null),
+            "播种" => ("dig", 1.4f, 1.6f, null),
+            "开垦" => ("shovel", 0f, 1.6f, "tool_hoe"),
+            "浇水" => ("water", 0f, 1.6f, "tool_can"),
+            "聊天" => ("greet_01", 1.0f, 1.7f, null),
+            _ => (null, 0f, 0f, null),
         };
 
-        public bool HeroAction(string clip, float from, float hold, string then = null, float thenFrom = 0, float thenHold = 0)
+        public bool HeroAction(string clip, float from, float hold, string then = null, float thenFrom = 0, float thenHold = 0, string tool = null)
         {
             var m = player ? player.GetComponent<Player.PlayerMover>() : null;
-            return m && m.PlayAction(clip, from, hold, then, thenFrom, thenHold);
+            return m && m.PlayAction(clip, from, hold, then, thenFrom, thenHold, tool);
         }
 
         public string Act(Spot s)
         {
             if (s == null || Area == null) return null;
             Lingmu.UI.GameAudio.Verb(s.verb);
-            var (clip, from, hold) = ActionClip(s.verb);
+            var (clip, from, hold, tool) = ActionClip(s.verb);
             if (clip != null && player)
             {
                 var m = player.GetComponent<Player.PlayerMover>();
-                if (m) { if (s.pos != Vector3.zero) m.FaceTowards(s.pos); m.PlayAction(clip, from, hold); }
+                if (m) { if (s.pos != Vector3.zero) m.FaceTowards(s.pos); m.PlayAction(clip, from, hold, null, 0, 0, tool); }
             }
             var panel = Area.Act(s);
             if (!leaving) AfterAction();

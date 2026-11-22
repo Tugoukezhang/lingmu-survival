@@ -114,13 +114,24 @@ public class HomeIslandPlayTests
         Lingmu.Player.PlayerMover.Stick = Vector2.zero; yield return new WaitForSeconds(0.4f);
         // action clips: the hero's body follows what the player does (chop strike, bending to pick up, net throw)
         var mv = GameSession.I.player.GetComponent<Lingmu.Player.PlayerMover>();
-        Assert.IsTrue(GameSession.I.HeroAction("chop", 1.2f, 1.8f), "主角动作：砍树");
+        // on open ground by the field, facing east: the right hand towards a camera in the south-east
+        Stand(HomeIslandLayout.TileToWorld(L.FarmRect.x + L.FarmRect.w / 2f, L.FarmRect.y + L.FarmRect.h + 1.5f));
+        mv.FaceTowards(GameSession.I.player.position + Vector3.right * 3); yield return new WaitForSeconds(0.6f);
+        cam.distance = 2.7f; cam.yaw = 0.45f; cam.pitch = 0.1f; cam.Snap(); yield return null;
+        Assert.IsTrue(GameSession.I.HeroAction("chop", 1.2f, 1.8f, tool: "tool_pickaxe"), "主角动作：敲石头");
         Assert.IsTrue(mv.Acting, "做动作时站定");
+        Assert.AreEqual("tool_pickaxe", mv.HeldTool, "敲石头时手里拿着镐子");
         yield return new WaitForSeconds(0.55f); Shot("hero_chop_a"); yield return new WaitForSeconds(0.45f); Shot("hero_chop_b");
+        GameSession.I.HeroAction("chop", 1.2f, 1.8f, tool: "tool_axe"); yield return new WaitForSeconds(0.6f); Shot("hero_axe");
+        GameSession.I.HeroAction("shovel", 0f, 1.6f, tool: "tool_hoe"); yield return new WaitForSeconds(0.7f); Shot("hero_hoe");
+        GameSession.I.HeroAction("water", 0f, 1.6f, tool: "tool_can"); yield return new WaitForSeconds(0.9f); Shot("hero_can");
         GameSession.I.HeroAction("pick_up", 0.2f, 1.8f); yield return new WaitForSeconds(0.85f); Shot("hero_pick");
-        GameSession.I.HeroAction("net_throw", 0f, 1.5f, "cheer", 0.3f, 1.8f); yield return new WaitForSeconds(0.7f); Shot("hero_net");
+        Assert.IsNull(mv.HeldTool, "捡东西不拿工具");
+        GameSession.I.HeroAction("net_throw", 0f, 1.5f, "cheer", 0.3f, 1.8f, "tool_net"); yield return new WaitForSeconds(0.7f); Shot("hero_net");
         yield return new WaitForSeconds(1.6f); Shot("hero_cheer");
         yield return new WaitForSeconds(1.8f); Assert.IsFalse(mv.Acting, "动作做完回到待机");
+        Assert.IsNull(mv.HeldTool, "做完收起工具");
+        cam.distance = 3.0f; cam.pitch = 0.16f;
         // the round-2 fox next to the hero
         var fox = ModelLibrary.Place("pet_fox", null, GameSession.I.player.position + new Vector3(0.9f, 0, 0), 0.65f, true, 0);
         cam.yaw = Mathf.PI; cam.distance = 2.6f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("pet_fox_0");

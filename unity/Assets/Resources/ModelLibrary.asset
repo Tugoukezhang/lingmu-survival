@@ -94,3 +94,18 @@ MonoBehaviour:
   - key: hero
     model: {fileID: 919132149155446097, guid: ee13193b15693d14ca670384750e5757, type: 3}
     animator: {fileID: 9100000, guid: 4cec34a80e7b01646a3a6d56d57b0741, type: 2}
+  - key: tool_axe
+    model: {fileID: 919132149155446097, guid: 236b474477f35454f9bb5fe2c9aafcca, type: 3}
+    animator: {fileID: 0}
+  - key: tool_pickaxe
+    model: {fileID: 919132149155446097, guid: e512bd27f25e5074daa1e1ac37636410, type: 3}
+    animator: {fileID: 0}
+  - key: tool_hoe
+    model: {fileID: 919132149155446097, guid: 44b01d4a151749746846e9d782bde326, type: 3}
+    animator: {fileID: 0}
+  - key: tool_can
+    model: {fileID: 919132149155446097, guid: ec99800ac1cd1a247944551ac80c06cc, type: 3}
+    animator: {fileID: 0}
+  - key: tool_net
+    model: {fileID: 919132149155446097, guid: 90edf5320f0239b468843dea6f6f0001, type: 3}
+    animator: {fileID: 0}

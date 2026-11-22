@@ -323,6 +323,9 @@ public static class SceneKit
         ("npc_granny", Chars + "B01_npc_granny", true), ("npc_ali", Chars + "B02_npc_ali", true), ("npc_lumi", Chars + "B03_npc_lumi", true), ("npc_innkeeper", Chars + "B11_npc_innkeeper", true),
         ("player", Chars + "A01_player_rig", true),
         ("hero", Chars + "H01_hero", true),   // round 2 (Tripo website, 11-22): replaces the player model when a scene starts (GameSession.SwapHero)
+        // hand tools (Tripo website, 11-22; tools/blender/tool_prep.py: grip at the origin): held during actions (PlayerMover.Hold)
+        ("tool_axe", Props + "T01_axe", false), ("tool_pickaxe", Props + "T02_pickaxe", false), ("tool_hoe", Props + "T03_hoe", false),
+        ("tool_can", Props + "T04_can", false), ("tool_net", Props + "T05_net", false),
     };
 
     // after new models arrive: short clip names, then the runtime library (batch: -executeMethod SceneKit.RefreshModels)

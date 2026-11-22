@@ -272,7 +272,7 @@ namespace Lingmu.Game
             var r = Rules.Battle.FieldCatch(S, inst, net, look.stealth, Random.value, w.id);
             if (!r.ok) return;
             var mover = Player.GetComponent<Player.PlayerMover>();
-            if (mover) { mover.FaceTowards(w.transform.position); mover.PlayAction("net_throw", 0f, 1.5f, r.caught ? "cheer" : null, 0.3f, 1.8f); }
+            if (mover) { mover.FaceTowards(w.transform.position); mover.PlayAction("net_throw", 0f, 1.5f, r.caught ? "cheer" : null, 0.3f, 1.8f, "tool_net"); }
             var name = GameData.Species(w.species).name;
             if (r.caught)
             {
