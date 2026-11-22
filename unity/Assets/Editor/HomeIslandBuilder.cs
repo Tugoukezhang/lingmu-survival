@@ -21,6 +21,22 @@ public static class HomeIslandBuilder
         var L = HomeIslandLayout.Generate();
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         var gen = Folder("HomeIsland");
+        var (sun, walk) = BuildWorld(L, gen);
+
+        // ---- player, camera, grading, the game ----
+        var (player, mover) = MakePlayer(HomeIslandLayout.TileToWorld(L.Spawn.x, L.Spawn.y), walk);
+        MakeCamera(player, mover);
+        Grading(gen);
+        var area = new GameObject("Home").AddComponent<HomeArea>(); area.walk = walk;
+        var session = AddGame(player, sun);
+        session.gameObject.AddComponent<FarmField>();
+        SaveScene(scene, "HomeIsland");
+    }
+
+    // the island itself — sky, ground, cloud sea, cottage, trees, rocks, grass — without the player or the game.
+    // Also the title page's backdrop (LingmuScenes.BuildTitle).
+    public static (Light sun, IslandWalkMap walk) BuildWorld(HomeIslandLayout L, string gen)
+    {
         var sun = SkyAndSun(gen);
 
         // ---- ground ----
@@ -64,16 +80,8 @@ public static class HomeIslandBuilder
         LingmuScenes.RopeBridge(props, L.BridgeTile.x + 0.5f, L.BridgeTile.y, 1);
         LingmuScenes.Fence(props, L.ExpandRect.x, L.ExpandRect.y, L.ExpandRect.w, L.ExpandRect.h);
         var grass = island.AddComponent<GrassField>(); grass.seed = L.Seed;   // 3D grass and flowers (built when the game starts)
-
-        // ---- player, camera, grading, the game ----
-        var (player, mover) = MakePlayer(HomeIslandLayout.TileToWorld(L.Spawn.x, L.Spawn.y), walk);
-        MakeCamera(player, mover);
-        Grading(gen);
-        var area = new GameObject("Home").AddComponent<HomeArea>(); area.walk = walk;
-        var session = AddGame(player, sun);
-        session.gameObject.AddComponent<FarmField>();
-        SaveScene(scene, "HomeIsland");
-        Debug.Log($"[Lingmu] home island built: {L.Trees.Count} trees, {L.Rocks.Count} rocks, {dropped} left out (on a path)");
+        Debug.Log($"[Lingmu] home island world: {L.Trees.Count} trees, {L.Rocks.Count} rocks, {dropped} left out (on a path)");
+        return (sun, walk);
     }
 
     // ---------- pictures for checking from the command line ----------

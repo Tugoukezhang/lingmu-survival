@@ -111,7 +111,16 @@ public class HomeIslandPlayTests
         for (int k = 0; k < 4; k++) { cam.yaw = k * Mathf.PI / 2; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("hero_" + k); }
         cam.yaw = 0.8f; cam.Snap();
         Lingmu.Player.PlayerMover.Stick = new Vector2(0.6f, -0.8f); yield return new WaitForSeconds(0.7f); Shot("hero_walk");
-        Lingmu.Player.PlayerMover.Stick = Vector2.zero;
+        Lingmu.Player.PlayerMover.Stick = Vector2.zero; yield return new WaitForSeconds(0.4f);
+        // action clips: the hero's body follows what the player does (chop strike, bending to pick up, net throw)
+        var mv = GameSession.I.player.GetComponent<Lingmu.Player.PlayerMover>();
+        Assert.IsTrue(GameSession.I.HeroAction("chop", 1.2f, 1.8f), "主角动作：砍树");
+        Assert.IsTrue(mv.Acting, "做动作时站定");
+        yield return new WaitForSeconds(0.55f); Shot("hero_chop_a"); yield return new WaitForSeconds(0.45f); Shot("hero_chop_b");
+        GameSession.I.HeroAction("pick_up", 0.2f, 1.8f); yield return new WaitForSeconds(0.85f); Shot("hero_pick");
+        GameSession.I.HeroAction("net_throw", 0f, 1.5f, "cheer", 0.3f, 1.8f); yield return new WaitForSeconds(0.7f); Shot("hero_net");
+        yield return new WaitForSeconds(1.6f); Shot("hero_cheer");
+        yield return new WaitForSeconds(1.8f); Assert.IsFalse(mv.Acting, "动作做完回到待机");
         // the round-2 fox next to the hero
         var fox = ModelLibrary.Place("pet_fox", null, GameSession.I.player.position + new Vector3(0.9f, 0, 0), 0.65f, true, 0);
         cam.yaw = Mathf.PI; cam.distance = 2.6f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("pet_fox_0");
@@ -119,8 +128,10 @@ public class HomeIslandPlayTests
         Object.Destroy(fox);
         cam.distance = 6.875f;
         var ex = SaveRules.NewGameState(starter: "fox"); ex.day = 3; Travel.Depart(ex, "new"); ex.clock = 10 * 60;
-        GameSession.UseState(ex);
+        GameSession.ForgetState(); GameSession.UseState(ex);          // like pressing 继续 on the title page: no session yet
         yield return Load("Expedition");
+        Assert.IsNotNull(((ExpeditionArea)GameSession.I.Area).Island, "从标题页直接进远征岛：岛上东西都要生成");
+        Assert.IsTrue(Object.FindObjectsByType<WildPet>(FindObjectsSortMode.None).Length > 0, "远征岛上有野生宠物");
         cam = Object.FindAnyObjectByType<Lingmu.Player.OrbitCamera>();
         ui = Object.FindAnyObjectByType<GameUI>(); if (ui) ui.canvas.enabled = false;
         foreach (var w in Object.FindObjectsByType<WildPet>(FindObjectsSortMode.None)) w.cooldown = Time.time + 999;
@@ -134,7 +145,9 @@ public class HomeIslandPlayTests
         yield return Load("Title");
         var t = Object.FindAnyObjectByType<TitleUI>();
         Assert.IsNotNull(t, "标题页");
-        Shot("title", t.canvas);
+        yield return new WaitForSeconds(0.3f); Shot("title_advice", t.canvas);
+        yield return new WaitForSeconds(2.6f);                         // the healthy-gaming notice moves on by itself
+        yield return new WaitForSeconds(3f); Shot("title", t.canvas);   // the push-in has mostly settled
         Click("开始游戏");
         yield return null;
         Object.FindObjectsByType<Button>(FindObjectsSortMode.None).First(x => x.name == "card fox").onClick.Invoke();

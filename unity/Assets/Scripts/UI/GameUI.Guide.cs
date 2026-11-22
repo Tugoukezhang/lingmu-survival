@@ -156,7 +156,8 @@ namespace Lingmu.UI
             if (warnedDay == s.day || Night.IsFoggy(s.clock) || s.clock < 12 * 60 || session.Battle != null) return;
             var ship = ex.FindPlace("airship", session.player.position) ?? session.player.position;
             float metres = Vector3.Distance(ship, session.player.position);
-            int walk = Mathf.CeilToInt(metres * 1.4f / (170f / 48f) / (float)(GameTime.MsPerGameMin / 1000));   // paths wind: ×1.4
+            float pace = mover ? mover.speed : 170f / 48f;
+            int walk = Mathf.CeilToInt(metres * 1.4f / pace / (float)(GameTime.MsPerGameMin / 1000));   // paths wind: ×1.4
             int warnAt = Mathf.Min(19 * 60, GameTime.NightStart - 30 - walk);
             if (s.clock < warnAt) return;
             warnedDay = s.day;

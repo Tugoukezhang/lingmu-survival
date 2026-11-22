@@ -28,12 +28,23 @@ public static class LingmuScenes
 
     static UnityEngine.SceneManagement.Scene NewScene() => EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+    // the title page stands on the real home island: the camera drifts slowly round the cottage, the hero and the fox wait
+    // at the door (TitleStage), the logo and one button on top (TitleUI). Owner 11-22: the painted page looked heavy and busy.
     [MenuItem("Lingmu/Build Title")]
     public static void BuildTitle()
     {
         var scene = NewScene();
-        var cam = new GameObject("Main Camera") { tag = "MainCamera" }.AddComponent<Camera>();
-        cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0.75f, 0.89f, 0.95f);
+        var L = HomeIslandLayout.Generate();
+        var gen = Folder("Title");
+        HomeIslandBuilder.BuildWorld(L, gen);
+        var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
+        var cam = camGo.AddComponent<Camera>(); cam.fieldOfView = 42; cam.nearClipPlane = 0.2f; cam.farClipPlane = 400;
+        var data = camGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(); data.renderPostProcessing = true;
+        var c = L.CottageRect;
+        var stage = new GameObject("Stage").AddComponent<TitleStage>();
+        stage.focus = HomeIslandLayout.TileToWorld(c.x + c.w / 2f - 0.5f, c.y + c.h / 2f + 0.5f);
+        stage.heroAt = HomeIslandLayout.TileToWorld(c.x + c.w / 2f - 0.2f, c.y + c.h + 2.2f);
+        Grading(gen);
         new GameObject("Title").AddComponent<TitleUI>();
         SaveScene(scene, "Title");
     }

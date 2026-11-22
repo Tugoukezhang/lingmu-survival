@@ -271,6 +271,8 @@ namespace Lingmu.Game
             var inst = WildGroup(w)[0];
             var r = Rules.Battle.FieldCatch(S, inst, net, look.stealth, Random.value, w.id);
             if (!r.ok) return;
+            var mover = Player.GetComponent<Player.PlayerMover>();
+            if (mover) { mover.FaceTowards(w.transform.position); mover.PlayAction("net_throw", 0f, 1.5f, r.caught ? "cheer" : null, 0.3f, 1.8f); }
             var name = GameData.Species(w.species).name;
             if (r.caught)
             {
@@ -426,6 +428,7 @@ namespace Lingmu.Game
                 Destroy(go); warnings.RemoveAt(i);
                 if (!Night.WarningHits(Px(at.x), Px(-at.z), Night.WarnRadius, ppx, ppy)) continue;
                 var ev = Survival.ApplyDamage(S.player, Night.Damage, "expedition");
+                g.HeroAction("hit_to_body_01", 0f, 0.9f);
                 g.Say($"被雾怪打中了！生命 −{Night.Damage}");
                 g.AfterAction();
                 if (ev.Contains("faint")) { g.Faint(); return; }

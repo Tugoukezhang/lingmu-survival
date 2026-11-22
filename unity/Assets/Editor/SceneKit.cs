@@ -236,6 +236,15 @@ public static class SceneKit
         tree.AddChild(walk, 1);
         if (run != null && run != walk) tree.AddChild(run, 2);          // Speed 2: fleeing / charging pets
         if (idle == null) { var ch = tree.children; ch[0].timeScale = 0.12f; tree.children = ch; }
+        // action clips (chop, pick_up, water, hit …): a state each, named after the clip, played by PlayerMover.PlayAction /
+        // CrossFade; one-shot clips go back to Move by themselves
+        var sm = ctrl.layers[0].stateMachine;
+        foreach (var c in clips)
+        {
+            if (c == walk || c == run || c == idle || sm.states.Any(s => s.state.name == c.name)) continue;
+            var st = sm.AddState(c.name); st.motion = c;
+            if (!c.isLooping) { var back = st.AddTransition(state); back.hasExitTime = true; back.exitTime = 0.95f; back.duration = 0.2f; }
+        }
         return ctrl;
     }
 

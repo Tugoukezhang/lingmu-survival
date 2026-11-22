@@ -28,39 +28,28 @@ namespace Lingmu.UI
         void Start()
         {
             if (!FindAnyObjectByType<EventSystem>()) new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            gameObject.layer = 5;   // UI (the island behind is on Default)
             canvas = gameObject.AddComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var sc = gameObject.AddComponent<CanvasScaler>(); sc.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; sc.referenceResolution = new Vector2(1920, 1080); sc.matchWidthOrHeight = 1;
             gameObject.AddComponent<GraphicRaycaster>();
             root = Rect("title", transform).Fill();
-            var sky = root.gameObject.AddComponent<Image>(); sky.color = Hex("bfe3f2");
-            // the painted key visual (Resources/UI/Title, GPT art, docs/19 标题页): sky and cloud sea, slow far clouds
-            var bgSprite = Art("title_bg");
-            if (bgSprite)
-            {
-                var bg = Rect("background", root); var img = bg.gameObject.AddComponent<Image>(); img.sprite = bgSprite; img.raycastTarget = false;
-                var fit = bg.gameObject.AddComponent<AspectRatioFitter>(); fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = bgSprite.rect.width / bgSprite.rect.height;
-                Cloud(root, "title_cloud_2", 0.66f, -500, 360, 9, 0.9f);
-                Cloud(root, "title_cloud_1", 0.74f, 700, 300, 6, 0.85f);
-            }
-            else
-            {
-                // soft clouds and a little floating island
-                foreach (var (x, y, w) in new[] { (0.12f, 0.8f, 420f), (0.85f, 0.75f, 520f), (0.5f, 0.12f, 1400f), (0.1f, 0.2f, 700f), (0.92f, 0.25f, 640f) })
-                    Panel(root, "cloud", new Color(1, 1, 1, 0.75f), Circle, false).rectTransform.Place(new Vector2(x, y), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(w, w * 0.32f));
-                var isle = Panel(root, "island", Hex("8bc46a"), Circle, false).rectTransform.Place(new Vector2(0.5f, 0.3f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(900, 220));
-                Panel(isle, "cliff", Hex("a07850"), Circle, false).rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0.5f), new Vector2(0, -10), new Vector2(760, 150)).SetAsFirstSibling();
-            }
+            // no painted background any more: the real home island is behind the page (TitleStage, owner 11-22)
             var st = GameSession.Store.Load(() => null);
             saved = st.source != "new" ? st.state : null;
-            Show("title");
+            Show(splashShown ? "title" : "advice");
         }
+
+        static bool splashShown;   // the notice shows once per launch
 
         void Show(string step)
         {
             if (page) Destroy(page.gameObject);
             page = Rect(step, root).Fill();
+            // pages over the island get a soft light veil so their cards read; the title page itself keeps the view clear
+            if (step != "title") Panel(page, "veil", new Color(1, 0.98f, 0.94f, step == "advice" ? 0.82f : 0.45f), FlatSmall, step == "advice").rectTransform.Fill();
             switch (step)
             {
+                case "advice": BuildAdvice(); break;
                 case "title": BuildTitle(); break;
                 case "confirm": BuildConfirm(); break;
                 case "choose": BuildChoose(); break;
@@ -87,17 +76,37 @@ namespace Lingmu.UI
             UiMotion.Drift(img, speed, 3600);
         }
 
+        // the healthy-gaming notice and age rating every game published in China shows when it starts: a short splash
+        // before the title page (owner 11-22: the title page keeps only 暖云), tap or wait 2.5 s
+        void BuildAdvice()
+        {
+            splashShown = true;
+            var t = Label(page, "健康游戏忠告", 44, WoodDark, true); t.rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 150), new Vector2(1200, 70));
+            var body = Label(page, "抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。\n适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。", 34, WoodDark);
+            body.lineSpacing = 30; body.rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 10), new Vector2(1400, 160));
+            var age = Label(page, "适龄提示：本游戏适合 12 岁以上玩家", 26, WoodMid); age.rectTransform.Place(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -120), new Vector2(1000, 44));
+            var skip = page.gameObject.AddComponent<Button>(); skip.transition = Selectable.Transition.None; skip.onClick.AddListener(() => Show("title"));
+            var shown = page;
+            StartCoroutine(After(2.5f, () => { if (page == shown) Show("title"); }));
+        }
+
+        static System.Collections.IEnumerator After(float s, System.Action a) { yield return new WaitForSecondsRealtime(s); a(); }
+
+        // a light, translucent capsule (not the honey-and-wood button: the owner found the page too heavy)
+        Button Soft(string text, float w, float h, float size, System.Action click, float alpha = 0.9f)
+        {
+            var b = Button(page, text, new Color(1, 0.995f, 0.975f, Mathf.Min(alpha, 0.89f)), Hex("5a4632"), size, click, Circle);
+            var img = b.GetComponent<Image>(); img.type = Image.Type.Sliced;
+            var sh = b.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.2f, 0.25f, 0.35f, 0.18f); sh.effectDistance = new Vector2(0, -6);
+            var l = b.GetComponentInChildren<TMPro.TMP_Text>(); l.characterSpacing = 12; l.rectTransform.Fill(4);
+            ((RectTransform)b.transform).sizeDelta = new Vector2(w, h);
+            return b;
+        }
+
         void BuildTitle()
         {
-            // the floating island bobbing over the cloud sea, the airship drifting by, near clouds in front (docs/19 标题页, 带点动态)
-            var isle = Layer(page, "title_island", new Vector2(0.5f, 0.38f), new Vector2(420, 420));
-            if (isle) UiMotion.Bob(isle, 8, 0.32f);
-            var ship = Layer(page, "title_airship", new Vector2(0.8f, 0.55f), new Vector2(290, 260));
-            if (ship) UiMotion.Bob(ship, 14, 0.45f, 0.4f);
-            Cloud(page, "title_cloud_3", 0.1f, -620, 640, 16, 1);
-            Cloud(page, "title_cloud_4", 0.05f, 560, 720, 12, 1);
-
-            var logo = Layer(page, "title_logo", new Vector2(0.5f, 0.81f), new Vector2(520, 330));
+            // only the logo and one button over the live island (owner 11-22: "只留暖云就行 下面那些小字都不需要的")
+            var logo = Layer(page, "title_logo", new Vector2(0.5f, 0.79f), new Vector2(470, 300));
             if (logo) UiMotion.Bob(logo, 6, 0.42f, 0.2f);
             else
             {
@@ -106,32 +115,16 @@ namespace Lingmu.UI
                 var t = Label(plate, GameName, 140, WoodDark, true); t.characterSpacing = 30; t.rectTransform.Fill(); t.rectTransform.offsetMin = new Vector2(0, 64);
                 var en = Label(plate, EnglishName, FsSub, WoodMid); en.characterSpacing = 8; en.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 24), new Vector2(500, 44));
             }
-            var sub = Label(page, Subtitle, FsBody, WoodDark, true); sub.characterSpacing = 24; sub.outlineWidth = 0.24f; sub.outlineColor = new Color32(251, 245, 230, 255);
-            sub.rectTransform.Place(new Vector2(0.5f, 0.81f), new Vector2(0.5f, 1), new Vector2(0, -184), new Vector2(900, 56));
 
-            // start: a honey capsule that breathes, with two sparkles beside it
-            var y = 118f;
+            // one light capsule; with a save it continues, and starting over is a small quiet button in the corner
+            var start = saved != null ? Soft("继续游戏", 400, 96, 38, Continue) : Soft("开始游戏", 400, 96, 38, () => Show("choose"));
+            ((RectTransform)start.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0.5f), new Vector2(0, 96), new Vector2(400, 96));
+            UiMotion.Pulse(Wrap(start.transform), 0.02f, 0.6f);
             if (saved != null)
             {
-                var cont = Button(page, $"继续游戏 · 第 {saved.day} 天", Yellow, WoodDark, 38, Continue); ((RectTransform)cont.transform).Place(new Vector2(0.5f, 0), new Vector2(1, 0.5f), new Vector2(-16, y), new Vector2(460, 112));
-                var fresh = Button(page, "新的开始", Cream, WoodDark, 38, () => Show("confirm")); ((RectTransform)fresh.transform).Place(new Vector2(0.5f, 0), new Vector2(0, 0.5f), new Vector2(16, y), new Vector2(320, 112));
-                UiMotion.Pulse(Wrap(cont.transform), 0.025f, 0.7f);
+                var fresh = Soft("新的开始", 190, 64, 26, () => Show("confirm"), 0.6f);
+                ((RectTransform)fresh.transform).Place(new Vector2(1, 1), new Vector2(1, 1), new Vector2(-36, -32), new Vector2(190, 64));
             }
-            else
-            {
-                var start = Button(page, "开始游戏", Yellow, WoodDark, 42, () => Show("choose")); ((RectTransform)start.transform).Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0.5f), new Vector2(0, y), new Vector2(440, 104));
-                UiMotion.Pulse(Wrap(start.transform), 0.025f, 0.7f);
-                foreach (var (x, ph) in new[] { (-290f, 0f), (290f, 0.5f) })
-                {
-                    var sp = KitImage(page, "sparkle", 54); sp.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0.5f), new Vector2(x, y + 6), new Vector2(54, 54));
-                    UiMotion.Bob(sp, 8, 0.8f, ph);
-                }
-            }
-            // the healthy gaming advice every game published in China shows on its title page
-            var strip = Panel(page, "advice", new Color(1, 0.96f, 0.89f, 0.85f), FlatRound, false).rectTransform; strip.anchorMin = Vector2.zero; strip.anchorMax = new Vector2(1, 0); strip.pivot = new Vector2(0.5f, 0); strip.offsetMin = new Vector2(0, -20); strip.offsetMax = new Vector2(0, 50);
-            var tip = Label(page, "抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。", FsMin, WoodDark);
-            tip.outlineWidth = 0; tip.textWrappingMode = TextWrappingModes.NoWrap;
-            tip.rectTransform.Place(new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 7), new Vector2(1800, 40));
         }
 
         // puts a button inside a holder of the same place and size, so a breathing motion and the press feedback don't fight

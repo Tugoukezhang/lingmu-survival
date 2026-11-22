@@ -55,6 +55,7 @@ namespace Lingmu.Game
         protected GameState S => GameSession.I.S;
     }
 
+    [DefaultExecutionOrder(-100)]   // before the Area, GameUI and everything else that asks GameSession.I in Awake / Start
     public class GameSession : MonoBehaviour
     {
         public static GameSession I { get; private set; }
@@ -105,6 +106,10 @@ namespace Lingmu.Game
         public static void UseState(GameState s) { var _ = Store; shared = s; }   // the title page starts a new game with this
         public static void ForgetState() { shared = null; }                       // tests
 
+        // the session of a scene that has closed is gone: the next scene's areas must not talk to it (they did, by luck,
+        // which hid the start-order bug the owner hit on 11-22)
+        void OnDestroy() { if (I == this) I = null; }
+
         void Awake()
         {
             I = this;
@@ -142,6 +147,9 @@ namespace Lingmu.Game
             var g = World.ModelLibrary.Place("hero", player, player.position, HeroHeight, true, 0);
             g.transform.localPosition = new Vector3(0, g.transform.localPosition.y, 0);
             mover.model = g.transform;
+            // measured on the Tripo clips (Blender, foot speed in stance, 24 fps) at 1.35 m: walk 0.48 m/s, run 1.36 m/s at 1x.
+            // Played faster than ~1.6x the run looks fast-forwarded (owner 11-22), so the top speed is 2.6 m/s (was 3.54)
+            mover.walkRef = 0.48f; mover.runRef = 1.36f; mover.speed = 2.6f; mover.maxPlayback = 1.6f;
             Destroy(old.gameObject);
         }
 
@@ -263,10 +271,36 @@ namespace Lingmu.Game
 
         public Spot CurrentSpot() => player && Area != null && Battle == null ? Area.CurrentSpot(player.position) : null;
 
+        // the hero's body follows what the player does (docs/21: "动作还是很僵硬" — the action clips were never played)
+        // (clip, start, length) in seconds — where the motion sits inside each Tripo clip (right-hand height traced in Blender):
+        // chop raises 1.3 s → strikes 2.2 s → back up 3.1 s; pick_up bends 0.3–1.9 s; greet waves 1.2–2.6 s; dig is down from 1.5 s
+        static (string clip, float from, float hold) ActionClip(string verb) => verb switch
+        {
+            "砍树" or "敲石头" or "挖雾晶" or "开路" => ("chop", 1.2f, 1.8f),
+            "摘浆果" or "割草" or "捡回" or "打开" or "收获" => ("pick_up", 0.2f, 1.8f),
+            "播种" => ("dig", 1.4f, 1.6f),
+            "开垦" => ("shovel", 0f, 1.6f),
+            "浇水" => ("water", 0f, 1.6f),
+            "聊天" => ("greet_01", 1.0f, 1.7f),
+            _ => (null, 0f, 0f),
+        };
+
+        public bool HeroAction(string clip, float from, float hold, string then = null, float thenFrom = 0, float thenHold = 0)
+        {
+            var m = player ? player.GetComponent<Player.PlayerMover>() : null;
+            return m && m.PlayAction(clip, from, hold, then, thenFrom, thenHold);
+        }
+
         public string Act(Spot s)
         {
             if (s == null || Area == null) return null;
             Lingmu.UI.GameAudio.Verb(s.verb);
+            var (clip, from, hold) = ActionClip(s.verb);
+            if (clip != null && player)
+            {
+                var m = player.GetComponent<Player.PlayerMover>();
+                if (m) { if (s.pos != Vector3.zero) m.FaceTowards(s.pos); m.PlayAction(clip, from, hold); }
+            }
             var panel = Area.Act(s);
             if (!leaving) AfterAction();
             return panel;
