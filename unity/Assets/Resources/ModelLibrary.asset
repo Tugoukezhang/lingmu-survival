@@ -58,24 +58,24 @@ MonoBehaviour:
   - key: bld_lab
     model: {fileID: 919132149155446097, guid: 1c2388a8940203947be55a1229edff38, type: 3}
     animator: {fileID: 0}
-  - key: pet_acorn
-    model: {fileID: 919132149155446097, guid: 5ff9be80c52d0a54dba876c4c51209d9, type: 3}
-    animator: {fileID: 9100000, guid: 325ab6cb3ebc5f74db6117b909eced9d, type: 2}
-  - key: pet_shark
-    model: {fileID: 919132149155446097, guid: 0aad8f55bebc5b644bb08940bc1e2e64, type: 3}
-    animator: {fileID: 9100000, guid: 61c39a3129f18364e87aa9022b904504, type: 2}
-  - key: pet_starbear
-    model: {fileID: 919132149155446097, guid: 40928956fbbe4134caf51dbd40a32bd4, type: 3}
-    animator: {fileID: 9100000, guid: 88dc32aa11e460049afe6aeddb545307, type: 2}
-  - key: pet_shadecat
-    model: {fileID: 919132149155446097, guid: 73fa1a762bda17f4a926f3f6a24723b1, type: 3}
-    animator: {fileID: 9100000, guid: 2928e962406f88d41a922c29722c132f, type: 2}
-  - key: pet_pup
-    model: {fileID: 919132149155446097, guid: 255f8d04539515449b2f755e0d5523fc, type: 3}
-    animator: {fileID: 9100000, guid: 38dad837884a3fc4088c78ad62d37715, type: 2}
   - key: pet_fox
     model: {fileID: 919132149155446097, guid: 540d2b4995ffbdc4585cb71ad6e370a5, type: 3}
     animator: {fileID: 9100000, guid: bf0e8905794811b4d8c9ad4f4c0a3a8e, type: 2}
+  - key: pet_pup
+    model: {fileID: 919132149155446097, guid: e2a1c9dc9a5dbfe488b143cdb83b3110, type: 3}
+    animator: {fileID: 9100000, guid: 0e7fc843175c0ef49b88ac8c5a9aa385, type: 2}
+  - key: pet_acorn
+    model: {fileID: 919132149155446097, guid: 849015e91a84d61409b31d24ba4b2b3c, type: 3}
+    animator: {fileID: 9100000, guid: bf70d2de89bf586419d0d46195c14dc1, type: 2}
+  - key: pet_shark
+    model: {fileID: 919132149155446097, guid: 0f18c27c2e671be44b15185ba3118a10, type: 3}
+    animator: {fileID: 9100000, guid: 2012795cdc6eb16479d6047a6fb135b2, type: 2}
+  - key: pet_starbear
+    model: {fileID: 919132149155446097, guid: b12621624143aed4b8db95a7ece277b3, type: 3}
+    animator: {fileID: 9100000, guid: 5aa74021752db394ca8228f6263b3866, type: 2}
+  - key: pet_shadecat
+    model: {fileID: 919132149155446097, guid: 35768bca4d5dabb45a5709b0cf305829, type: 3}
+    animator: {fileID: 9100000, guid: dd3113a6d3b9a6849b5af0a35e325276, type: 2}
   - key: npc_granny
     model: {fileID: 919132149155446097, guid: 33d758efdd3ecbd47b2355a801c22557, type: 3}
     animator: {fileID: 9100000, guid: b36400484a63d734da4a9fffb9113f46, type: 2}

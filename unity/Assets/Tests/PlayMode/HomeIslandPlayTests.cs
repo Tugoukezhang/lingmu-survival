@@ -138,6 +138,21 @@ public class HomeIslandPlayTests
         cam.yaw = Mathf.PI; cam.distance = 2.6f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("pet_fox_0");
         cam.yaw = Mathf.PI * 1.5f; cam.Snap(); yield return new WaitForSeconds(0.5f); Shot("pet_fox_1");
         Object.Destroy(fox);
+        // all six round-2 pets in a row (Tripo website, 11-22), idling with springy ears and tails
+        var lineup = new System.Collections.Generic.List<GameObject>();
+        string[] six = { "pet_fox", "pet_pup", "pet_acorn", "pet_shark", "pet_starbear", "pet_shadecat" };
+        var basePos = GameSession.I.player.position + new Vector3(-4.0f, 0, 1.2f);
+        for (int k = 0; k < six.Length; k++)
+        {
+            var pg = ModelLibrary.Place(six[k], null, basePos + new Vector3(k * 0.9f, 0, 0), six[k] == "pet_shark" || six[k] == "pet_starbear" ? 0.75f : 0.65f, true, 180);
+            Assert.IsFalse(pg.name.StartsWith("missing"), "宠物模型 " + six[k]);
+            lineup.Add(pg);
+        }
+        cam.yaw = 0; cam.distance = 4.6f; cam.pitch = 0.12f; GameSession.I.player.position += new Vector3(0, 0, -6); cam.Snap();
+        cam.transform.position = basePos + new Vector3(2.25f, 1.1f, -3.6f); cam.transform.LookAt(basePos + new Vector3(2.25f, 0.4f, 0));
+        cam.enabled = false; yield return new WaitForSeconds(0.6f); Shot("pets_lineup"); cam.enabled = true;
+        GameSession.I.player.position += new Vector3(0, 0, 6);
+        foreach (var pg in lineup) Object.Destroy(pg);
         cam.distance = 6.875f;
         var ex = SaveRules.NewGameState(starter: "fox"); ex.day = 3; Travel.Depart(ex, "new"); ex.clock = 10 * 60;
         GameSession.ForgetState(); GameSession.UseState(ex);          // like pressing 继续 on the title page: no session yet

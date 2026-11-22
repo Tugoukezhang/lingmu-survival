@@ -25,7 +25,7 @@ public class LingmuModelImport : AssetPostprocessor
     // the rest (Tripo-rigged, e.g. the innkeeper): Humanoid
     static bool IsOwnRig(string p) => (p.StartsWith("Assets/Art/Characters/A0") || p.StartsWith("Assets/Art/Characters/P0") || p.StartsWith("Assets/Art/Characters/B01_") || p.StartsWith("Assets/Art/Characters/B02_") || p.StartsWith("Assets/Art/Characters/B03_")) && !p.Contains("_unrigged");
     static bool IsRigged(string p) => p.StartsWith("Assets/Art/Characters/") && !p.Contains("_unrigged");
-    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "dig", "shovel", "water", "sleep", "eat" };
+    static readonly string[] Looping = { "walk", "run", "idle", "look_around", "breath", "dig", "shovel", "water", "sleep", "eat", "swim" };
     // text-to-motion clips come back named after the Chinese prompt: short names the game asks for
     // Tripo text-to-motion clips are named after their prompt: short names (11-22: tool motions, owner "拿着稿子锤石头的动作也没有")
     static readonly (string key, string name)[] PromptClips = { ("网", "net_throw"), ("浇水", "water"), ("捡起", "pick_up"),

@@ -21,7 +21,8 @@ from mathutils import Vector, Quaternion, Matrix
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 SRC, OUT = argv[0], argv[1]
-PREVIEW = argv[2] if len(argv) > 2 else None
+import os
+PREVIEW = os.path.abspath(argv[2]) if len(argv) > 2 else None   # absolute: Blender resolves relative render paths from elsewhere
 FPS = 30
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -41,8 +42,11 @@ H = max(zs) - min(zs)                      # model height
 ground = min(zs)
 top = max(bones, key=lambda b: max(world_head(b).z, world_tail(b).z))
 centre = sum((world_head(b) for b in bones), Vector()) / len(bones)
-face = (Vector((world_head(top).x, world_head(top).y, 0)) - Vector((centre.x, centre.y, 0)))
+high = [world_tail(b) for b in bones if world_tail(b).z > ground + 0.7 * H] or [world_head(top)]
+hc = sum(high, Vector()) / len(high)
+face = Vector((hc.x - centre.x, hc.y - centre.y, 0))
 yaw = math.atan2(face.x, face.y)           # angle from +Y
+yaw = round(yaw / (math.pi / 2)) * (math.pi / 2)
 if abs(yaw) > math.radians(20):
     rot = Matrix.Rotation(yaw, 4, 'Z')     # turning by +yaw brings the face onto +Y
     arm.matrix_world = rot @ arm.matrix_world
@@ -68,24 +72,39 @@ def chain_down(b):
 def tip(chain): return world_tail(chain[-1])
 
 # legs: chains (starting at a bone whose parent does not reach the ground) whose tip is near the floor
-leg_tips = [b for b in bones if not b.children and world_tail(b).z < ground + 0.08 * H]
+leg_tips = [b for b in bones if not b.children and world_tail(b).z < ground + 0.16 * H]
 legs = []
 for t in leg_tips:
     ch = [t]
     while ch[-1].parent and len(ch[-1].parent.children) == 1 and world_head(ch[-1].parent).z < centre.z + 0.15 * H:
         ch.append(ch[-1].parent)
     ch.reverse()
-    legs.append(ch)
+    if world_head(ch[0]).z - world_tail(ch[-1]).z > 0.12 * H: legs.append(ch)     # a real leg drops a good way
+named = [ch for ch in legs if any('Limb' in x.name for x in ch)]
+if len(named) >= 4: legs = named                       # Tripo's limb chains, when it marked four (the hedgehog has a fifth prong)
+legs.sort(key=lambda ch: world_head(ch[0]).z - world_tail(ch[-1]).z, reverse=True)
+legs = legs[:4]
 # head and neck: Tripo names its head chain Head_0 (neck, at the shoulders), Head_1 (the head) …; otherwise the bone at
 # the front with the most bones under it that sits high
-heads = [b for b in bones if 'Head' in b.name]
 def depth(b): return 0 if b.parent is None else 1 + depth(b.parent)
-heads.sort(key=depth)
-if len(heads) >= 2: neck_b, head = heads[0], heads[1]
-elif heads: neck_b, head = heads[0].parent, heads[0]
+leg_set = {b.name for ch in legs for b in ch}
+def ancestors(b):
+    out = []
+    while b: out.append(b); b = b.parent
+    return out
+high_front = [b for b in bones if world_tail(b).z > ground + 0.72 * H and world_head(b).y > centre.y - 0.05 * H and b.name not in leg_set]
+if high_front:
+    common = set(a.name for a in ancestors(high_front[0]))
+    for b in high_front[1:]: common &= set(a.name for a in ancestors(b))
+    head = max((arm.data.bones[n] for n in common), key=depth)
+    if head in high_front and head.parent and len(high_front) > 1: head = head.parent if not head.children else head
 else:
     head = max([b for b in bones if world_head(b).y > centre.y], key=lambda b: len(b.children_recursive) + world_head(b).z, default=top)
-    neck_b = head.parent
+def moves_leg(b): return any(c.name in leg_set for c in b.children_recursive) or b.name in leg_set
+if moves_leg(head):                                   # the head bone itself carries legs: use the deepest branch above them
+    branch = [c for c in head.children if not moves_leg(c) and len(c.children_recursive) >= 2]
+    if branch: head = max(branch, key=lambda c: len(c.children_recursive))
+neck_b = head.parent if head.parent and not moves_leg(head.parent) and head.parent.parent is not None else None
 front_y = world_head(head).y
 leg_info = []
 mid_y = (min(world_head(ch[0]).y for ch in legs) + max(world_head(ch[0]).y for ch in legs)) / 2 if legs else centre.y
@@ -95,12 +114,13 @@ for ch in legs:
 # tail: a chain starting behind the body, mostly higher than the hips, not a leg
 leg_bones = {b.name for li in leg_info for b in li['chain']}
 back_y = min(world_head(li['chain'][0]).y for li in leg_info) if leg_info else centre.y
-tails = [b for b in bones if b.name not in leg_bones and world_head(b).y < back_y + 0.05 * H and world_tail(b).y < world_head(b).y - 0.02 * H]
+head_set = {c.name for c in head.children_recursive} | {head.name}
+tails = [b for b in bones if b.name not in leg_bones and b.name not in head_set and 'Spine' not in b.name and world_head(b).y < back_y + 0.05 * H and world_tail(b).y < world_head(b).y - 0.02 * H]
 tail_root = max(tails, key=lambda b: (world_head(b) - world_tail(b)).length) if tails else None
 tail_chain = chain_down(tail_root) if tail_root else []
 neck = [neck_b] if neck_b and neck_b.name not in leg_bones and neck_b.parent is not None else []
 spine = [b for b in bones if 'Spine' in b.name and b.name not in leg_bones] or ([arm.data.bones[0]] if bones else [])
-ears = [c for c in head.children if world_tail(c).z > world_head(head).z]
+ears = [c for c in head.children if world_tail(c).z > world_head(head).z + 0.12 * H and not c.children][:4]
 root = next((b for b in bones if b.parent is None), bones[0])
 print('legs', [(li['chain'][0].name, 'F' if li['front'] else 'B', 'R' if li['right'] else 'L') for li in leg_info])
 print('head', head.name, 'neck', [b.name for b in neck], 'tail', [b.name for b in tail_chain], 'ears', [b.name for b in ears], 'spine', [b.name for b in spine], 'root', root.name)
